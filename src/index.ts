@@ -1,12 +1,12 @@
-import vorpal = require('vorpal');
+import vorpal = require("vorpal");
 
-vorpal
-  .command('foo', 'Outputs "bar".')
-  .action(function(args : string, callback : any) {
-    this.log('bar');
+export const cli = vorpal();
+export const DELIMITER = "dcl-cli$";
+cli
+  .command("init", 'Outputs "bar".')
+  .action(function(args: string, callback: any) {
+    this.log("bar");
     callback();
   });
 
-vorpal
-  .delimiter('myapp$')
-  .show();
+cli.delimiter(DELIMITER).show();
