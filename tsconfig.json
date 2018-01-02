@@ -5,10 +5,17 @@
     "module":  "commonjs",
     "removeComments": true,
     "noImplicitAny": true,
-    "sourceMap": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["node", "mocha"]
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "dist",
     "node_modules"
