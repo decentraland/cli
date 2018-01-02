@@ -23,16 +23,16 @@ CLI tool for parcel management.
 
 ### Initialize new Decentraland project
 
-  dcl init
+  `dcl init`
 
 ### Start local development server and serve your a-minus scene
 
-  dcl start
+  `dcl start`
 
 ### Upload scene to IPFS
 
-  dcl upload
+  `dcl upload`
 
 ### Link Ethereum to the current scene
 
-  dcl link
+  `dcl link`
