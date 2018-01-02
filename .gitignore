@@ -1,0 +1,12 @@
+.vs/
+.vscode/
+bower_components/
+node_modules/
+
+*.log
+
+# Exclude tsc generated files
+dist/
+
+# Until API is stable
+package-lock.json

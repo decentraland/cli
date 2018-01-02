@@ -1,0 +1,37 @@
+{
+  "name": "dcl-cli",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rimraf dist && node_modules/typescript/bin/tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/decentraland/cli.git"
+  },
+  "keywords": [
+    "decentraland",
+    "cli"
+  ],
+  "author": "Decentraland",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/decentraland/cli/issues"
+  },
+  "homepage": "https://github.com/decentraland/cli#readme",
+  "dependencies": {
+    "decentraland-commons": "git+https://github.com/decentraland/commons.git#release",
+    "vorpal": "^1.12.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.14.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.4.0",
+    "jsdoc": "^3.5.5",
+    "prettier": "^1.9.2",
+    "rimraf": "^2.6.2",
+    "typescript": "^2.6.2"
+  }
+}
