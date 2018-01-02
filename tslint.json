@@ -5,6 +5,7 @@
     "tslint-config-prettier"
   ],
   "rules": {
-    "prettier": true
+    "prettier": true,
+    "no-implicit-dependencies": false
   }
 }
