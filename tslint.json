@@ -6,6 +6,10 @@
   ],
   "rules": {
     "prettier": true,
-    "no-implicit-dependencies": false
+    "no-implicit-dependencies": false,
+    "no-reference": false,
+    "no-this-assignment": false,
+    "no-var-requires": false,
+    "object-literal-sort-keys": false
   }
 }

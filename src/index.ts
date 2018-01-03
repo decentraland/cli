@@ -1,11 +1,19 @@
-/// <reference path="../types/vorpal.d.ts" />
+/**
+ * Decentraland CLI.
+ *
+ * Command line tool for parcel management.
+ */
+
+// Use custom vorpal type definitions until there's official one
+/// <reference path="../typings/vorpal.d.ts" />
+
 import chalk from "chalk";
 import fs = require("fs");
-import path = require('path');
+import path = require("path");
+import ProgressBar = require("progress");
 import vorpal = require("vorpal");
-import ProgressBar = require('progress');
-import pkg = require("../package.json");
-import start from './utils/start-server';
+import start from "./utils/start-server";
+const pkg = require("../package.json");
 
 /**
  * Export the current version.
@@ -33,15 +41,18 @@ export const cli = vorpal();
 cli
   .command("init")
   .description("Generates new Decentraland scene.")
-  .option('-f, --force', 'Force file overwrites.')
-  .option('-p, --path <path>', 'Output path (default is the current working directory).')
+  .option("-f, --force", "Force file overwrites.")
+  .option(
+    "-p, --path <path>",
+    "Output path (default is the current working directory)."
+  )
   .option("--with-sample", "Include sample scene.")
-  .action(function(args: any, callback: any) {
+  .action(function(args: any, callback: () => void) {
     const self = this;
     self.log(args);
 
-    const root = path.resolve('.');
-    console.log(root)
+    const root = path.resolve(".");
+    console.log(root);
 
     if (args.options["with-sample"]) {
       self.log(" Creating new project with sample scene...");
@@ -62,7 +73,7 @@ cli
             " Do you want to create new project with sample scene? "
           )} ${chalk.red("(y/n) ")}`
         },
-        function(data: any) {
+        (data: any) => {
           self.log(data);
           if (data.sampleScene === "y") {
             self.log(" Creating new project with sample scene...");
@@ -77,6 +88,7 @@ cli
           }
 
           self.log(" Invalid argument.");
+          callback();
         }
       );
     }
@@ -87,18 +99,24 @@ cli
  */
 cli
   .command("start")
-  .alias('run')
+  .alias("run")
   .description("Starts local development server.")
-  .action(function(args: string, callback: any) {
+  .action(function(args: string, callback: () => void) {
     const self = this;
-    start.bind(cli)(args).then((response: any) => {
-      self.log(chalk.green(response));
-    }).catch((error: Error) => {
-      if (error) {
-        self.log(chalk.red('There was a problem starting local development server.'));
-        self.log(error.message);
-      }
-    });
+    start
+      .bind(cli)(args)
+      .then((response: any) => {
+        self.log(chalk.green(response));
+      })
+      .catch((error: Error) => {
+        if (error) {
+          self.log(
+            chalk.red("There was a problem starting local development server.")
+          );
+          self.log(error.message);
+        }
+      });
+    callback();
   });
 
 /**
@@ -107,12 +125,12 @@ cli
 cli
   .command("upload")
   .description("Uploads scene to IPFS.")
-  .action(function(args: string, callback: any) {
+  .action(function(args: string, callback: () => void) {
     this.log("upload");
     callback();
   });
 
-cli.delimiter(DELIMITER)//.show();
+cli.delimiter(DELIMITER); // .show();
 
 // If one or more command, execute and close
 if (process.argv.length > 2) {
