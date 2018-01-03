@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/decentraland/cli#readme",
   "bin": {
-    "dcl-cli": "./bin/index.js"
+    "dcl": "./bin/index.js"
   },
   "dependencies": {
     "chalk": "^2.3.0",
