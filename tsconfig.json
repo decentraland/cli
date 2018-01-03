@@ -10,8 +10,7 @@
     "moduleResolution": "node",
     "sourceMap": false,
     "rootDir": "src",
-    "outDir": "./dist",
-    "types": ["node", "mocha"]
+    "outDir": "./dist"
   },
   "include": [
     "src/**/*"
