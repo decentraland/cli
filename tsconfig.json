@@ -9,6 +9,7 @@
     "noUnusedParameters": false,
     "moduleResolution": "node",
     "sourceMap": false,
+    "allowJs": true,
     "rootDir": "src",
     "outDir": "./dist"
   },
