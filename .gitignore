@@ -2,7 +2,7 @@
 .vscode/
 bower_components/
 node_modules/
-
+tmp/
 *.log
 
 # Until API is stable
