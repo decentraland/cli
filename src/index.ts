@@ -1,8 +1,11 @@
 /// <reference path="../types/vorpal.d.ts" />
 import chalk from "chalk";
 import fs = require("fs");
+import path = require('path');
 import vorpal = require("vorpal");
+import ProgressBar = require('progress');
 import pkg = require("../package.json");
+import start from './utils/start-server';
 
 /**
  * Export the current version.
@@ -30,31 +33,53 @@ export const cli = vorpal();
 cli
   .command("init")
   .description("Generates new Decentraland scene.")
+  .option('-f, --force', 'Force file overwrites.')
+  .option('-p, --path <path>', 'Output path (default is the current working directory).')
   .option("--with-sample", "Include sample scene.")
-  .action(function(args: string, callback: any) {
+  .action(function(args: any, callback: any) {
     const self = this;
-    self.log("");
-    return self.prompt(
-      {
-        type: "input",
-        name: "sampleScene",
-        message: `${chalk.yellow(
-          " Do you want to create new project with sample scene? "
-        )} ${chalk.red("(y/n) ")}`
-      },
-      function(data: any) {
-        if (data.sampleScene === "y") {
-          self.log(" yes");
-          self.log(" Great! Try out your connection.");
-        }
+    self.log(args);
 
-        if (data.sampleScene === "n") {
-          self.log("no");
-        }
+    const root = path.resolve('.');
+    console.log(root)
 
-        self.log(" Invalid argument.");
-      }
-    );
+    if (args.options["with-sample"]) {
+      self.log(" Creating new project with sample scene...");
+      // var bar = new ProgressBar(':bar :current/:total', { total: 50 });
+      // var timer = setInterval(function () {
+      //   bar.tick();
+      //   if (bar.complete) {
+      //     self.log('\ncomplete\n');
+      //     clearInterval(timer);
+      //   }
+      // }, 100);
+    } else {
+      self.prompt(
+        {
+          type: "input",
+          name: "sampleScene",
+          message: `${chalk.yellow(
+            " Do you want to create new project with sample scene? "
+          )} ${chalk.red("(y/n) ")}`
+        },
+        function(data: any) {
+          self.log(data);
+          if (data.sampleScene === "y") {
+            self.log(" Creating new project with sample scene...");
+          }
+
+          if (data.sampleScene === "n") {
+            self.log(" Creating new project with sample scene...");
+          }
+
+          if (data.sampleScene === "") {
+            // do nothing
+          }
+
+          self.log(" Invalid argument.");
+        }
+      );
+    }
   });
 
 /**
@@ -62,10 +87,18 @@ cli
  */
 cli
   .command("start")
+  .alias('run')
   .description("Starts local development server.")
   .action(function(args: string, callback: any) {
-    this.log("start");
-    callback();
+    const self = this;
+    start.bind(cli)(args).then((response: any) => {
+      self.log(chalk.green(response));
+    }).catch((error: Error) => {
+      if (error) {
+        self.log(chalk.red('There was a problem starting local development server.'));
+        self.log(error.message);
+      }
+    });
   });
 
 /**
@@ -79,7 +112,7 @@ cli
     callback();
   });
 
-cli.delimiter(DELIMITER).show();
+cli.delimiter(DELIMITER)//.show();
 
 // If one or more command, execute and close
 if (process.argv.length > 2) {

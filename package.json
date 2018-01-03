@@ -2,7 +2,7 @@
   "name": "dcl-cli",
   "version": "0.1.0",
   "description": "CLI tool for parcel management.",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
     "build": "rimraf dist && node_modules/typescript/bin/tsc",
@@ -28,10 +28,15 @@
     "url": "https://github.com/decentraland/cli/issues"
   },
   "homepage": "https://github.com/decentraland/cli#readme",
+  "bin": {
+    "dcl-cli": "./bin/index.js"
+  },
   "dependencies": {
     "chalk": "^2.3.0",
     "decentraland-commons": "git+https://github.com/decentraland/commons.git#release",
     "mkdirp": "^0.5.1",
+    "progress": "^2.0.0",
+    "root-check": "^1.0.0",
     "vorpal": "^1.12.0"
   },
   "devDependencies": {
@@ -40,6 +45,7 @@
     "@types/mkdirp": "^0.5.2",
     "@types/mocha": "^2.2.45",
     "@types/node": "^8.5.2",
+    "@types/progress": "^2.0.1",
     "chai": "^4.1.2",
     "mocha": "^4.1.0",
     "prettier": "^1.9.2",
