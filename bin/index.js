@@ -2,5 +2,5 @@
 
 'use strict';
 
-var dclCLI = require("./../");
-dclCLI.init();
+var cli = require("./../");
+cli.parse(process.argv);

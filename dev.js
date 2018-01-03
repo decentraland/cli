@@ -2,6 +2,6 @@
 
 'use strict';
 
-var dclCLI = require(".");
+var cli = require(".");
 console.log('\n  You\'re now in development mode.');
-dclCLI.init();
+cli.parse(process.argv);

@@ -12,6 +12,7 @@ import fs = require("fs");
 import path = require("path");
 import ProgressBar = require("progress");
 import vorpal = require("vorpal");
+import mkdirp = require('mkdirp');
 import start from "./utils/start-server";
 const pkg = require("../package.json");
 
@@ -28,18 +29,18 @@ export const DELIMITER = "dcl-cli$";
 /**
  * Check if CLI is used in development mode.
  */
-export const isDev = process.argv[1].indexOf("index") !== -1;
+export const isDev = process.argv[1].indexOf("index") !== -1 || process.argv[1].indexOf("dev") !== -1;
 
 /**
  * CLI instance.
  */
-export const cli = vorpal();
+const cli = vorpal();
 
 /**
  * `init` command for generating new Decentraland scene.
  */
 cli
-  .command("init")
+  .command("init [name]")
   .description("Generates new Decentraland scene.")
   .option("-f, --force", "Force file overwrites.")
   .option(
@@ -49,48 +50,60 @@ cli
   .option("--with-sample", "Include sample scene.")
   .action(function(args: any, callback: () => void) {
     const self = this;
-    self.log(args);
+    const dirName = isDev ? `tmp/${args.options.path}/${args.name}` : `${args.options.path}/${args.name}`
 
-    const root = path.resolve(".");
-    console.log(root);
+    function createDirFromTemplate(path: string): void {
+      mkdirp(path, (err) => {
+        if (err) self.log(err.message)
+        else self.log(`New project created in '${path}' directory.`)
+      });
+    }
 
-    if (args.options["with-sample"]) {
-      self.log(" Creating new project with sample scene...");
-      // var bar = new ProgressBar(':bar :current/:total', { total: 50 });
-      // var timer = setInterval(function () {
-      //   bar.tick();
-      //   if (bar.complete) {
-      //     self.log('\ncomplete\n');
-      //     clearInterval(timer);
-      //   }
-      // }, 100);
+    const questions = []
+    if (!args.options.force && fs.existsSync(path.resolve(dirName))) {
+      questions.push({
+        type: "confirm",
+        name: "continue",
+        default: false,
+        message: chalk.yellow("Folder already exists. Overwrite its contents?")
+      })
+    }
+    if (!args.options["with-sample"]) {
+      questions.push({
+        type: "confirm",
+        name: "sampleScene",
+        default: false,
+        message: chalk.yellow("Do you want to create new project with sample scene?")
+      })
+    }
+
+    if (questions.length > 0) {
+      self.prompt(questions)
+        .then((results: any) => {
+          // self.log(results)
+          // self.log("!!results.continue: ", !results.continue)
+          // self.log("!!results.sampleScene: ", !!results.sampleScene)
+          // Folder already exists, but don't overwrite
+          if (!!results.continue) {
+            self.log("stop")
+            callback()
+          }
+
+          self.log("continue")
+
+          // Without sample scene
+          if (!!results.sampleScene) {
+            createDirFromTemplate(dirName)
+          } else {
+            // TODO: create project from template WITH sample scene
+            self.log("[not yet implemented] create project from template WITH sample scene")
+            callback()
+          }
+        })
     } else {
-      self.prompt(
-        {
-          type: "input",
-          name: "sampleScene",
-          message: `${chalk.yellow(
-            " Do you want to create new project with sample scene? "
-          )} ${chalk.red("(y/n) ")}`
-        },
-        (data: any) => {
-          self.log(data);
-          if (data.sampleScene === "y") {
-            self.log(" Creating new project with sample scene...");
-          }
-
-          if (data.sampleScene === "n") {
-            self.log(" Creating new project with sample scene...");
-          }
-
-          if (data.sampleScene === "") {
-            // do nothing
-          }
-
-          self.log(" Invalid argument.");
-          callback();
-        }
-      );
+      // TODO: create project from template WITH sample scene
+      self.log("[not yet implemented] create project from template WITH sample scene")
+      callback()
     }
   });
 
@@ -130,7 +143,7 @@ cli
     callback();
   });
 
-cli.delimiter(DELIMITER); // .show();
+cli.delimiter(DELIMITER).show();
 
 // If one or more command, execute and close
 if (process.argv.length > 2) {
@@ -141,3 +154,5 @@ if (process.argv.length > 2) {
   cli.log("Welcome to the Decentraland command line tool!");
   cli.log('Type "exit" to quit, "help" for a list of commands.\n');
 }
+
+module.exports = cli
