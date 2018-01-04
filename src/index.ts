@@ -9,12 +9,10 @@
 
 import chalk from "chalk";
 import fs = require("fs-extra");
-import path = require("path");
 import ProgressBar = require("progress");
 import vorpal = require("vorpal");
 import start from "./utils/start-server";
 import generateHtml from "./utils/generate-html";
-import { dirname } from "path";
 const pkg = require("../package.json");
 
 /**
@@ -41,7 +39,7 @@ const cli = vorpal();
  * `init` command for generating new Decentraland scene.
  */
 cli
-  .command("init [name]")
+  .command("init")
   .description("Generates new Decentraland scene.")
   .option(
     "-p, --path <path>",
@@ -50,7 +48,37 @@ cli
   .option("--with-sample", "Include sample scene.")
   .action(async function(args: any, callback: () => void) {
     const self = this;
-    const path = args.options.path ? `${args.options.path}/${args.name}` : args.name
+    const sceneMeta: any = {};
+
+    await self.prompt([{
+      type: "input",
+      name: "name",
+      default: 'dcl-app',
+      message: chalk.blue("Project name: ")
+    }]).then((results: any) => {
+      sceneMeta.name = results.name;
+      self.log('')
+      self.log(chalk.blue(JSON.stringify(sceneMeta, null, 2)));
+    })
+
+    await self.prompt([{
+      type: "confirm",
+      name: "continue",
+      default: false,
+      message: chalk.yellow("\nDo you want to continue?")
+    }]).then((results: any) => {
+      if (!results.continue) {
+        callback()
+      }
+    })
+
+    let path
+    if (args.options.path && args.options.path === '.') {
+      path = args.options.path
+    } else {
+      path = args.options.path ? `${args.options.path}/${sceneMeta.name}` : sceneMeta.name
+    }
+
     const dirName = isDev ? `tmp/${path}` : `${path}`
 
     fs.ensureDirSync(`${dirName}/audio`)
@@ -60,8 +88,8 @@ cli
     fs.ensureDirSync(`${dirName}/textures`)
     self.log(`New project created in '${dirName}' directory.`)
 
-    function createScene(path: string, html: string, withSampleScene?: boolean): void {
-      fs.outputFile(`${path}/scene.html`, html)
+    async function createScene(path: string, html: string, withSampleScene?: boolean) {
+      await fs.outputFile(`${path}/scene.html`, html)
         .then(() => {
           if (withSampleScene) {
             self.log(`Sample scene was placed into ${chalk.green("scene.html")}.`)
@@ -74,21 +102,20 @@ cli
 
     if (args.options["with-sample"]) {
       const html = generateHtml({withSampleScene: true})
-      createScene(dirName, html, true)
+      await createScene(dirName, html, true)
     } else {
       await self.prompt({
         type: "confirm",
         name: "sampleScene",
         default: false,
-        message: chalk.yellow("Do you want to create new project with sample scene?")
-      }).then((results: any) => {
-        self.log(results)
+        message: chalk.yellow("Do you want to create new project with sample scene?\n")
+      }).then(async (results: any) => {
         if (!results.sampleScene) {
           const html = generateHtml({withSampleScene: false})
-          createScene(dirName, html, false)
+          await createScene(dirName, html, false)
         } else {
           const html = generateHtml({withSampleScene: true})
-          createScene(dirName, html, true)
+          await createScene(dirName, html, true)
         }
       })
     }
@@ -102,21 +129,7 @@ cli
   .alias("run")
   .description("Starts local development server.")
   .action(function(args: string, callback: () => void) {
-    const self = this;
-    start
-      .bind(cli)(args)
-      .then((response: any) => {
-        self.log(chalk.green(response));
-      })
-      .catch((error: Error) => {
-        if (error) {
-          self.log(
-            chalk.red("There was a problem starting local development server.")
-          );
-          self.log(error.message);
-        }
-      });
-    callback();
+    start.bind(cli)(args, this, callback)
   });
 
 /**
@@ -126,7 +139,7 @@ cli
   .command("upload")
   .description("Uploads scene to IPFS.")
   .action(function(args: string, callback: () => void) {
-    this.log("upload");
+    this.log("Not implemented.");
     callback();
   });
 
