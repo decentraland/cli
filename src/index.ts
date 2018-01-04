@@ -8,12 +8,13 @@
 /// <reference path="../typings/vorpal.d.ts" />
 
 import chalk from "chalk";
-import fs = require("fs");
+import fs = require("fs-extra");
 import path = require("path");
 import ProgressBar = require("progress");
 import vorpal = require("vorpal");
-import mkdirp = require('mkdirp');
 import start from "./utils/start-server";
+import generateHtml from "./utils/generate-html";
+import { dirname } from "path";
 const pkg = require("../package.json");
 
 /**
@@ -42,68 +43,54 @@ const cli = vorpal();
 cli
   .command("init [name]")
   .description("Generates new Decentraland scene.")
-  .option("-f, --force", "Force file overwrites.")
   .option(
     "-p, --path <path>",
     "Output path (default is the current working directory)."
   )
   .option("--with-sample", "Include sample scene.")
-  .action(function(args: any, callback: () => void) {
+  .action(async function(args: any, callback: () => void) {
     const self = this;
-    const dirName = isDev ? `tmp/${args.options.path}/${args.name}` : `${args.options.path}/${args.name}`
+    const path = args.options.path ? `${args.options.path}/${args.name}` : args.name
+    const dirName = isDev ? `tmp/${path}` : `${path}`
 
-    function createDirFromTemplate(path: string): void {
-      mkdirp(path, (err) => {
-        if (err) self.log(err.message)
-        else self.log(`New project created in '${path}' directory.`)
-      });
+    fs.ensureDirSync(`${dirName}/audio`)
+    fs.ensureDirSync(`${dirName}/gltf`)
+    fs.ensureDirSync(`${dirName}/obj`)
+    fs.ensureDirSync(`${dirName}/scripts`)
+    fs.ensureDirSync(`${dirName}/textures`)
+    self.log(`New project created in '${dirName}' directory.`)
+
+    function createScene(path: string, html: string, withSampleScene?: boolean): void {
+      fs.outputFile(`${path}/scene.html`, html)
+        .then(() => {
+          if (withSampleScene) {
+            self.log(`Sample scene was placed into ${chalk.green("scene.html")}.`)
+          }
+        })
+        .catch((err: Error) => {
+          self.log(err.message)
+        })
     }
 
-    const questions = []
-    if (!args.options.force && fs.existsSync(path.resolve(dirName))) {
-      questions.push({
-        type: "confirm",
-        name: "continue",
-        default: false,
-        message: chalk.yellow("Folder already exists. Overwrite its contents?")
-      })
-    }
-    if (!args.options["with-sample"]) {
-      questions.push({
+    if (args.options["with-sample"]) {
+      const html = generateHtml({withSampleScene: true})
+      createScene(dirName, html, true)
+    } else {
+      await self.prompt({
         type: "confirm",
         name: "sampleScene",
         default: false,
         message: chalk.yellow("Do you want to create new project with sample scene?")
+      }).then((results: any) => {
+        self.log(results)
+        if (!results.sampleScene) {
+          const html = generateHtml({withSampleScene: false})
+          createScene(dirName, html, false)
+        } else {
+          const html = generateHtml({withSampleScene: true})
+          createScene(dirName, html, true)
+        }
       })
-    }
-
-    if (questions.length > 0) {
-      self.prompt(questions)
-        .then((results: any) => {
-          // self.log(results)
-          // self.log("!!results.continue: ", !results.continue)
-          // self.log("!!results.sampleScene: ", !!results.sampleScene)
-          // Folder already exists, but don't overwrite
-          if (!!results.continue) {
-            self.log("stop")
-            callback()
-          }
-
-          self.log("continue")
-
-          // Without sample scene
-          if (!!results.sampleScene) {
-            createDirFromTemplate(dirName)
-          } else {
-            // TODO: create project from template WITH sample scene
-            self.log("[not yet implemented] create project from template WITH sample scene")
-            callback()
-          }
-        })
-    } else {
-      // TODO: create project from template WITH sample scene
-      self.log("[not yet implemented] create project from template WITH sample scene")
-      callback()
     }
   });
 
