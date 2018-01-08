@@ -2,7 +2,7 @@
 
 CLI tool for parcel management.
 
-* [ ] Quickly create new projects
+* [x] Quickly create new projects
 * [ ] Uploading scenes to IPFS
 * [ ] Hot reloading
 * [ ] Linking Ethereum to the scene
