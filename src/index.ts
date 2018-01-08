@@ -246,12 +246,12 @@ cli
   .description("Uploads scene to IPFS.")
   .action(function(args: string, callback: () => void) {
     const self = this;
+    self.log("")
+    self.log(chalk.yellow("Starting IPFS node..."))
+    self.log("")
     // Create the IPFS node instance
     const ipfs = new IPFS()
     ipfs.on('ready', async () => {
-      // Your node is now ready to use \o/
-      self.log("ipfs ready")
-
       let projectName = "dcl-app"
       if (isDev) {
         await self.prompt({
@@ -263,7 +263,7 @@ cli
       }
 
       const root = isDev ? `tmp/${projectName}` : "."
-      console.log(root)
+
       await fs.access(`${root}/scene.json`, fs.constants.F_OK | fs.constants.R_OK, (err: Error) => {
         if (err) {
           self.log(`Seems like this is not a Decentraland project! ${chalk.grey("('scene.json' not found.)")}`)
@@ -272,46 +272,43 @@ cli
       })
 
       const data = [{
-        path: `${root}/scene.html`,
+        path: `tmp/scene.html`,
         content: new Buffer(fs.readFileSync(`${root}/scene.html`))
       },{
-        path: `${root}/scene.json`,
+        path: `tmp/scene.json`,
         content: new Buffer(fs.readFileSync(`${root}/scene.json`))
       }]
 
       // Go through project folders and add files if available
-      await fs.readdir(`${root}/audio`).then(files => files.forEach(name => data.push({path: `${root}/audio/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
-      await fs.readdir(`${root}/gltf`).then(files => files.forEach(name => data.push({path: `${root}/gltf/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
-      await fs.readdir(`${root}/obj`).then(files => files.forEach(name => data.push({path: `${root}/obj/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
-      await fs.readdir(`${root}/scripts`).then(files => files.forEach(name => data.push({path: `${root}/scripts/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
-      await fs.readdir(`${root}/textures`).then(files => files.forEach(name => data.push({path: `${root}/textures/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
+      await fs.readdir(`${root}/audio`).then(files => files.forEach(name => data.push({path: `tmp/audio/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
+      await fs.readdir(`${root}/gltf`).then(files => files.forEach(name => data.push({path: `tmp/gltf/${name}`, content: new Buffer(fs.readFileSync(`${root}/gltf/${name}`))})))
+      await fs.readdir(`${root}/obj`).then(files => files.forEach(name => data.push({path: `tmp/obj/${name}`, content: new Buffer(fs.readFileSync(`${root}/obj/${name}`))})))
+      await fs.readdir(`${root}/scripts`).then(files => files.forEach(name => data.push({path: `tmp/scripts/${name}`, content: new Buffer(fs.readFileSync(`${root}/scripts/${name}`))})))
+      await fs.readdir(`${root}/textures`).then(files => files.forEach(name => data.push({path: `tmp/textures/${name}`, content: new Buffer(fs.readFileSync(`${root}/textures/${name}`))})))
 
       let progCount = 0
       let accumProgress = 0
       const handler = (p) => {
-        self.log(p)
         progCount += 1
         accumProgress += p
-        self.log(`${progCount}, ${accumProgress}`)
+        //self.log(`${progCount}, ${accumProgress}`)
       }
 
-      self.log("does it work?", data)
-
       await ipfs.files.add(data, { progress: handler, recursive: true }, (err, filesAdded) => {
-        self.log(filesAdded)
         if (err) {
           self.log(err.message)
           callback()
         }
 
-        self.log("uploaded")
-        const root = filesAdded[filesAdded.length - 1]
-        self.log(root)
+        const rootFolder = filesAdded[filesAdded.length - 1]
+        self.log("")
+        self.log(`Uploading ${progCount}/${progCount} files to IPFS. done! ${accumProgress} bytes uploaded.`)
+        self.log(`IPFS Folder Hash: /ipfs/${rootFolder.hash}`)
 
+        //TODO: implement IPNS update
         //TODO: pinning --- ipfs.pin.add(hash, function (err) {})
-        // stopping a node
-        //ipfs.stop()
-        //callback()
+
+        callback()
       })
     });
   });
