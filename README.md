@@ -3,8 +3,8 @@
 CLI tool for parcel management.
 
 * [x] Quickly create new projects
-* [ ] Uploading scenes to IPFS
-* [ ] Hot reloading
+* [x] Uploading scenes to IPFS
+* [x] Hot reloading
 * [ ] Linking Ethereum to the scene
 * [ ] Editor modifying local files and “uploading” to the directory
 * [ ] Optimizing objects, textures
@@ -36,6 +36,9 @@ $ dcl start
 ```
 
 - Upload scene to IPFS:
+
+First, you need to have IPFS installed locally. Download it [here](https://ipfs.io/docs/install/).
+Note: You need to have IPFS daemon running for this to work!
 
 ```bash
 $ dcl upload
