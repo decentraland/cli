@@ -48,7 +48,7 @@ cli
     "-p, --path <path>",
     "Output path (default is the current working directory)."
   )
-  .option("--with-sample", "Include sample scene.")
+  .option("--boilerplate", "Include sample scene.")
   .action(async function(args: any, callback: () => void) {
     const self = this;
 
@@ -206,7 +206,7 @@ cli
         })
     }
 
-    if (args.options["with-sample"]) {
+    if (args.options["boilerplate"]) {
       const html = generateHtml({withSampleScene: true})
       await createScene(dirName, html, true)
     } else {
