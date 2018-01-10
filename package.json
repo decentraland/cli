@@ -39,6 +39,7 @@
     "decentraland-commons": "git+https://github.com/decentraland/commons.git#release",
     "fs-extra": "^5.0.0",
     "ipfs": "^0.27.5",
+    "ipfs-api": "^17.2.6",
     "progress": "^2.0.0",
     "root-check": "^1.0.0",
     "vorpal": "^1.12.0"

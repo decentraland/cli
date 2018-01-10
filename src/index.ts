@@ -13,7 +13,7 @@ import fs = require("fs-extra");
 import path = require("path");
 import ProgressBar = require("progress");
 import vorpal = require("vorpal");
-const IPFS = require('ipfs');
+const ipfsAPI = require('ipfs-api');
 import start from "./utils/start-server";
 import generateHtml from "./utils/generate-html";
 const pkg = require("../package.json");
@@ -243,74 +243,89 @@ cli
  */
 cli
   .command("upload")
-  .description("Uploads scene to IPFS.")
-  .action(function(args: string, callback: () => void) {
+  .description("Uploads scene to IPFS and updates IPNS.")
+  .option(
+    "-p, --port <number>",
+    "IPFS daemon API port (default is 5001)."
+  )
+  .action(async function(args: any, callback: () => void) {
     const self = this;
+
+    // You need to have ipfs daemon running!
+    const ipfsApi = ipfsAPI('localhost', args.options["port"] || '5001');
+
     self.log("")
     self.log(chalk.yellow("Starting IPFS node..."))
     self.log("")
-    // Create the IPFS node instance
-    const ipfs = new IPFS()
-    ipfs.on('ready', async () => {
-      let projectName = "dcl-app"
-      if (isDev) {
-        await self.prompt({
-          type: "input",
-          name: "projectName",
-          default: "dcl-app",
-          message: "(Development-mode) Project name you want to upload: "
-        }).then((res: any) => projectName = res.projectName)
+
+    let projectName = "dcl-app";
+
+    if (isDev) {
+      await self.prompt({
+        type: "input",
+        name: "projectName",
+        default: "dcl-app",
+        message: "(Development-mode) Project name you want to upload: "
+      }).then((res: any) => projectName = res.projectName)
+    }
+
+    const root = isDev ? `tmp/${projectName}` : "."
+
+    await fs.access(`${root}/scene.json`, fs.constants.F_OK | fs.constants.R_OK, (err: Error) => {
+      if (err) {
+        self.log(`Seems like this is not a Decentraland project! ${chalk.grey("('scene.json' not found.)")}`)
+        callback()
       }
+    })
 
-      const root = isDev ? `tmp/${projectName}` : "."
+    const data = [{
+      path: `tmp/scene.html`,
+      content: new Buffer(fs.readFileSync(`${root}/scene.html`))
+    },{
+      path: `tmp/scene.json`,
+      content: new Buffer(fs.readFileSync(`${root}/scene.json`))
+    }]
 
-      await fs.access(`${root}/scene.json`, fs.constants.F_OK | fs.constants.R_OK, (err: Error) => {
-        if (err) {
-          self.log(`Seems like this is not a Decentraland project! ${chalk.grey("('scene.json' not found.)")}`)
-          callback()
-        }
-      })
+    // Go through project folders and add files if available
+    await fs.readdir(`${root}/audio`).then(files => files.forEach(name => data.push({path: `tmp/audio/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
+    await fs.readdir(`${root}/gltf`).then(files => files.forEach(name => data.push({path: `tmp/gltf/${name}`, content: new Buffer(fs.readFileSync(`${root}/gltf/${name}`))})))
+    await fs.readdir(`${root}/obj`).then(files => files.forEach(name => data.push({path: `tmp/obj/${name}`, content: new Buffer(fs.readFileSync(`${root}/obj/${name}`))})))
+    await fs.readdir(`${root}/scripts`).then(files => files.forEach(name => data.push({path: `tmp/scripts/${name}`, content: new Buffer(fs.readFileSync(`${root}/scripts/${name}`))})))
+    await fs.readdir(`${root}/textures`).then(files => files.forEach(name => data.push({path: `tmp/textures/${name}`, content: new Buffer(fs.readFileSync(`${root}/textures/${name}`))})))
 
-      const data = [{
-        path: `tmp/scene.html`,
-        content: new Buffer(fs.readFileSync(`${root}/scene.html`))
-      },{
-        path: `tmp/scene.json`,
-        content: new Buffer(fs.readFileSync(`${root}/scene.json`))
-      }]
+    let progCount = 0
+    let accumProgress = 0
+    const handler = (p) => {
+      progCount += 1
+      accumProgress += p
+      //self.log(`${progCount}, ${accumProgress}`)
+    }
 
-      // Go through project folders and add files if available
-      await fs.readdir(`${root}/audio`).then(files => files.forEach(name => data.push({path: `tmp/audio/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
-      await fs.readdir(`${root}/gltf`).then(files => files.forEach(name => data.push({path: `tmp/gltf/${name}`, content: new Buffer(fs.readFileSync(`${root}/gltf/${name}`))})))
-      await fs.readdir(`${root}/obj`).then(files => files.forEach(name => data.push({path: `tmp/obj/${name}`, content: new Buffer(fs.readFileSync(`${root}/obj/${name}`))})))
-      await fs.readdir(`${root}/scripts`).then(files => files.forEach(name => data.push({path: `tmp/scripts/${name}`, content: new Buffer(fs.readFileSync(`${root}/scripts/${name}`))})))
-      await fs.readdir(`${root}/textures`).then(files => files.forEach(name => data.push({path: `tmp/textures/${name}`, content: new Buffer(fs.readFileSync(`${root}/textures/${name}`))})))
+    let ipfsHash
 
-      let progCount = 0
-      let accumProgress = 0
-      const handler = (p) => {
-        progCount += 1
-        accumProgress += p
-        //self.log(`${progCount}, ${accumProgress}`)
-      }
-
-      await ipfs.files.add(data, { progress: handler, recursive: true }, (err, filesAdded) => {
-        if (err) {
-          self.log(err.message)
-          callback()
-        }
-
+    await ipfsApi.files.add(data, { progress: handler, recursive: true })
+      .then((filesAdded: any) => {
         const rootFolder = filesAdded[filesAdded.length - 1]
+        ipfsHash = `/ipfs/${rootFolder.hash}`
         self.log("")
         self.log(`Uploading ${progCount}/${progCount} files to IPFS. done! ${accumProgress} bytes uploaded.`)
-        self.log(`IPFS Folder Hash: /ipfs/${rootFolder.hash}`)
-
-        //TODO: implement IPNS update
+        self.log(`IPFS Folder Hash: ${ipfsHash}`)
         //TODO: pinning --- ipfs.pin.add(hash, function (err) {})
-
+      }).catch((err: Error) => {
+        self.log(err.message)
         callback()
       })
-    });
+
+    self.log('Updating IPNS reference to folder hash... (this might take a while)')
+
+    await ipfsApi.name.publish(ipfsHash)
+      .then((res: any) => {
+        self.log(`IPNS Link: /ipns/${res.Name}`)
+        callback()
+      }).catch((err: Error) => {
+        self.log(err.message)
+        callback()
+      })
   });
 
 cli.delimiter(DELIMITER).show();
