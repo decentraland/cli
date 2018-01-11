@@ -196,7 +196,7 @@ cli
         default: "https://signalling-01.decentraland.org",
         message: chalk.blue(" signalling server: ")
       })
-      .then((res: any) => (sceneMeta.communications.signalling = res.fly));
+      .then((res: any) => (sceneMeta.communications.signalling = res.signalling));
 
     self.log(chalk.blue("Policy:"));
 
@@ -444,6 +444,7 @@ cli
     await ipfsApi.name
       .publish(ipfsHash)
       .then((res: any) => {
+        self.log(res)
         self.log(`IPNS Link: /ipns/${res.Name}`);
         callback();
       })
