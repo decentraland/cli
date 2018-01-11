@@ -97,6 +97,13 @@ cli
       message: chalk.blue(" project title: ")
     }).then((res: any) => sceneMeta.display.title = res.title)
 
+    await self.prompt({
+      type: "input",
+      name: "tags",
+      default: "",
+      message: chalk.blue(" tags: ")
+    }).then((res: any) => sceneMeta.tags = res.tags ? res.tags.split(",") : [])
+
     self.log(chalk.blue("Contact information:"))
 
     await self.prompt({
@@ -187,9 +194,7 @@ cli
 
     // Project folder
     fs.ensureDirSync(`${dirName}/audio`)
-    fs.ensureDirSync(`${dirName}/gltf`)
-    fs.ensureDirSync(`${dirName}/obj`)
-    fs.ensureDirSync(`${dirName}/scripts`)
+    fs.ensureDirSync(`${dirName}/models`)
     fs.ensureDirSync(`${dirName}/textures`)
     fs.outputFileSync(`${dirName}/scene.json`, JSON.stringify(sceneMeta, null, 2))
     self.log(`\nNew project created in '${dirName}' directory.\n`)
@@ -254,10 +259,6 @@ cli
     // You need to have ipfs daemon running!
     const ipfsApi = ipfsAPI('localhost', args.options["port"] || '5001');
 
-    self.log("")
-    self.log(chalk.yellow("Starting IPFS node..."))
-    self.log("")
-
     let projectName = "dcl-app";
 
     if (isDev) {
@@ -288,9 +289,7 @@ cli
 
     // Go through project folders and add files if available
     await fs.readdir(`${root}/audio`).then(files => files.forEach(name => data.push({path: `tmp/audio/${name}`, content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))})))
-    await fs.readdir(`${root}/gltf`).then(files => files.forEach(name => data.push({path: `tmp/gltf/${name}`, content: new Buffer(fs.readFileSync(`${root}/gltf/${name}`))})))
-    await fs.readdir(`${root}/obj`).then(files => files.forEach(name => data.push({path: `tmp/obj/${name}`, content: new Buffer(fs.readFileSync(`${root}/obj/${name}`))})))
-    await fs.readdir(`${root}/scripts`).then(files => files.forEach(name => data.push({path: `tmp/scripts/${name}`, content: new Buffer(fs.readFileSync(`${root}/scripts/${name}`))})))
+    await fs.readdir(`${root}/models`).then(files => files.forEach(name => data.push({path: `tmp/models/${name}`, content: new Buffer(fs.readFileSync(`${root}/models/${name}`))})))
     await fs.readdir(`${root}/textures`).then(files => files.forEach(name => data.push({path: `tmp/textures/${name}`, content: new Buffer(fs.readFileSync(`${root}/textures/${name}`))})))
 
     let progCount = 0
