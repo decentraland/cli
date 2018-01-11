@@ -15,7 +15,7 @@ export default function generateHtml({
 <html>
   <head>
     <title>Blank Decentraland scene</title>
-    <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+    <script src="https://client.decentraland.today/preview.js" />
   </head>
   <body>
     <a-scene>
