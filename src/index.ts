@@ -102,7 +102,10 @@ cli
       name: "tags",
       default: "",
       message: chalk.blue(" tags: ")
-    }).then((res: any) => sceneMeta.tags = res.tags ? res.tags.split(",") : [])
+    }).then((res: any) =>
+      sceneMeta.tags = res.tags
+      ? res.tags.split(",").map((tag: string) => tag.replace(/\s/g,''))
+      : [])
 
     self.log(chalk.blue("Contact information:"))
 
@@ -126,6 +129,27 @@ cli
       default: "",
       message: chalk.blue(" your email: ")
     }).then((res: any) => sceneMeta.contact.email = res.email)
+
+    self.log(chalk.blue("Scene information:"))
+
+    await self.prompt({
+      type: "input",
+      name: "parcels",
+      default: "",
+      message: chalk.blue(" parcels: ")
+    }).then((res: any) =>
+      sceneMeta.scene.parcels = res.parcels
+      ? res.parcels.split(";").map((coord: string) => coord.replace(/\s/g,''))
+      : [])
+
+    if (sceneMeta.scene.parcels.length > 0) {
+      await self.prompt({
+        type: "input",
+        name: "base",
+        default: sceneMeta.scene.parcels[0] || "",
+        message: chalk.blue(" base: ")
+      }).then((res: any) => sceneMeta.scene.base = res.base)
+    }
 
     self.log(chalk.blue("Communications:"))
 
