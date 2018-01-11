@@ -444,8 +444,7 @@ cli
     await ipfsApi.name
       .publish(ipfsHash)
       .then((res: any) => {
-        self.log(res)
-        self.log(`IPNS Link: /ipns/${res.Name}`);
+        self.log(`IPNS Link: /ipns/${res.name}`);
         callback();
       })
       .catch((err: Error) => {
