@@ -16,7 +16,7 @@ import vorpal = require("vorpal");
 const ipfsAPI = require("ipfs-api");
 import generateHtml from "./utils/generate-html";
 import start from "./utils/start-server";
-//import linker from "./utils/linker";
+import linker from "./utils/linker";
 const pkg = require("../package.json");
 
 /**
@@ -444,7 +444,16 @@ cli
     await ipfsApi.name
       .publish(ipfsHash)
       .then((res: any) => {
-        self.log(`IPNS Link: /ipns/${res.name}`);
+        let scene = fs.readFileSync(`${root}/scene.json`);
+        scene = JSON.parse(scene)
+        self.log(`IPNS Link: /ipns/${res.name || res.Name}`);
+        scene.assets = {
+          "ipns": res.name || res.Name
+        }
+        fs.outputFileSync(
+          `${root}/scene.json`,
+          JSON.stringify(scene, null, 2)
+        );
         callback();
       })
       .catch((err: Error) => {
@@ -456,14 +465,16 @@ cli
 /**
  * `link` command for linking IPNS hash to Ethereum.
  */
-// cli
-//   .command("link")
-//   .description("Link IPNS hash to Ethereum.")
-//   .action(function(args: any, callback: () => void) {
-//     const self = this;
+ cli
+   .command("link")
+   .description("Link IPNS hash to Ethereum.")
+   .action(function(args: any, callback: () => void) {
+     const self = this;
+     let projectName = "dcl-app";
 
-//     linker.bind(cli)(args, this, callback)
-//   })
+     const port = args.options.port || "1337";
+     linker.bind(cli)({isDev : isDev, port: port}, this, callback)
+   })
 
 cli.delimiter(DELIMITER).show();
 
