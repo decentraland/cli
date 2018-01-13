@@ -254,6 +254,7 @@ cli
     const dirName = isDev ? `tmp/${projectDir}` : `${projectDir}`;
 
     // Project folder
+    fs.ensureDirSync(`${dirName}/.decentraland`);
     fs.ensureDirSync(`${dirName}/audio`);
     fs.ensureDirSync(`${dirName}/models`);
     fs.ensureDirSync(`${dirName}/textures`);
