@@ -14,6 +14,8 @@ import path = require("path");
 import ProgressBar = require("progress");
 import vorpal = require("vorpal");
 const ipfsAPI = require("ipfs-api");
+const copyfiles = require('copyfiles');
+const { getInstalledPathSync } = require('get-installed-path');
 import generateHtml from "./utils/generate-html";
 import isDev from "./utils/is-dev";
 import start from "./utils/start-server";
@@ -253,8 +255,23 @@ cli
 
     const dirName = isDev ? `tmp/${projectDir}` : `${projectDir}`;
 
-    // Project folder
+    // Project folders
     fs.ensureDirSync(`${dirName}/.decentraland`);
+
+    const cliPath = getInstalledPathSync('dcl-cli');
+    copyfiles([
+      `${cliPath}/dist/linker-app/*`,
+      `${cliPath}/dist/linker-app/bundles/pages/*`,
+      `${cliPath}/dist/linker-app/dist/pages/*`,
+      ".decentraland"
+    ], 1, (err: Error, res: any) => {
+      if (err) {
+        vorpal.log(err.message);
+        callback();
+      }
+      vorpal.log(res)
+    });
+
     fs.ensureDirSync(`${dirName}/audio`);
     fs.ensureDirSync(`${dirName}/models`);
     fs.ensureDirSync(`${dirName}/textures`);
