@@ -6,7 +6,6 @@ tmp/
 *.log
 
 .decentraland/ipns
-.decentraland/linker-app/
 
 # Until API is stable
 package-lock.json
