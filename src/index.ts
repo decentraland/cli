@@ -15,8 +15,9 @@ import ProgressBar = require("progress");
 import vorpal = require("vorpal");
 const ipfsAPI = require("ipfs-api");
 import generateHtml from "./utils/generate-html";
+import isDev from "./utils/is-dev";
 import start from "./utils/start-server";
-//import linker from "./utils/linker";
+import linker from "./utils/linker";
 const pkg = require("../package.json");
 
 /**
@@ -28,13 +29,6 @@ export const VERSION = pkg.version;
  * CLI delimiter.
  */
 export const DELIMITER = "dcl-cli$";
-
-/**
- * Check if CLI is used in development mode.
- */
-export const isDev =
-  process.argv[1].indexOf("index") !== -1 ||
-  process.argv[1].indexOf("dev") !== -1;
 
 /**
  * CLI instance.
@@ -441,12 +435,21 @@ cli
       "Updating IPNS reference to folder hash... (this might take a while)"
     );
 
-    await ipfsApi.name
+    const ipnsHash = await ipfsApi.name
       .publish(ipfsHash)
       .then((res: any) => {
-        self.log(`IPNS Link: /ipns/${res.Name}`);
-        callback();
+        const hash = res.name || res.Name
+        self.log(`IPNS Link: /ipns/${res.name || res.Name}`);
+        return hash;
       })
+      .catch((err: Error) => {
+        self.log(err.message);
+        callback();
+      });
+
+    await fs
+      .outputFile(`.decentraland/ipns`, ipnsHash)
+      .then(() => { callback(); })
       .catch((err: Error) => {
         self.log(err.message);
         callback();
@@ -456,14 +459,14 @@ cli
 /**
  * `link` command for linking IPNS hash to Ethereum.
  */
-// cli
-//   .command("link")
-//   .description("Link IPNS hash to Ethereum.")
-//   .action(function(args: any, callback: () => void) {
-//     const self = this;
+cli
+  .command("link")
+  .description("Link scene to Ethereum.")
+  .action(function(args: any, callback: () => void) {
+    const self = this;
 
-//     linker.bind(cli)(args, this, callback)
-//   })
+    linker.bind(cli)(args, this, callback)
+  })
 
 cli.delimiter(DELIMITER).show();
 
