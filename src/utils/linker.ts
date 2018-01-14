@@ -9,7 +9,7 @@ export default function(args: any): Promise<any> {
     console.log("Webserver started on http://localhost:"+port)
     console.log("Please go to this page with a browser using MetaMask extension")
     app.use(express.static('public'))
-    app.get('/:sceneName', function (req, res) {
+    app.get('/:sceneName', function (req: any, res: any) {
       const root = args.isDev ? `tmp/${req.params.sceneName}` : `./${req.params.sceneName}`;
       readFile(root+"/scene.json", (err, data)=>{
         if(err){
