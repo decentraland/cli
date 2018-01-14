@@ -483,8 +483,7 @@ if (process.argv.length > 2) {
   cli.parse(process.argv);
 } else {
   // Enters immersive mode if no commands supplied
-  cli.log(`DCL CLI v${VERSION}\n`);
-  cli.log("Welcome to the Decentraland command line tool!");
+  cli.log(`Decentraland CLI v${VERSION}\n`);
   cli.log('Type "exit" to quit, "help" for a list of commands.\n');
 }
 
