@@ -1,0 +1,10 @@
+{
+  "presets": [
+    "next/babel",
+    "env"
+  ],
+  "plugins": [
+    "transform-regenerator",
+    "transform-class-properties"
+  ]
+}

@@ -1,66 +1,114 @@
-//import 'babel-polyfill';
+import "babel-polyfill";
 import React from 'react';
+import Router from 'next/router';
 import { eth } from 'decentraland-commons';
 import LANDRegistry from '../contracts/LANDRegistry';
 
-
 async function ethereum() {
-  const ethInstance = await eth.connect(null, [LANDRegistry])
-  console.log(eth)
-  const landRegistry = await eth.getContract('LANDRegistry')
-  console.log(landRegistry)
-  const gasParams = { gas: 1e6, gasPrice: 21e9 }
-  await landRegistry.assignMultipleParcels([40, 40, 41, 41], [10, 11, 10, 11], eth.getAddress())
-  //await landRegistry.updateManyLandData([1, 2], [0, 0], "QmemJeRDjo8JxmPEVhq7YR36uhe2FzANCRGtNhr5A5h8x5")
-  // console.log(await landRegistry.getOwner(41, 10))
-  // console.log(await landRegistry.getOwner(41, 11))
-  // console.log(await landRegistry.getOwner(40, 10))
-  // console.log(await landRegistry.getOwner(40, 11))
+  await eth.connect(null, [LANDRegistry])
+  const land = await eth.getContract('LANDRegistry')
+
   return {
-    address: eth.getAddress(),
-    landRegistry: await eth.getContract('LANDRegistry')
+    address: await eth.getAddress(),
+    land,
+    web3: eth.web3
   }
 }
 
-export default class extends React.Component {
+async function getSceneMetadata() {
+  const res = await fetch('http://localhost:4044/api/get-scene-data');
+  return await res.json();
+}
+
+async function getIpnsHash() {
+  const res = await fetch('http://localhost:4044/api/get-ipns-hash');
+  const ipnsHash = await res.json();
+  console.log(ipnsHash);
+  return ipnsHash;
+}
+
+export default class Page extends React.Component {
   constructor(...args) {
     super(...args);
 
     this.state = {
       loading: true,
       error: false,
-      address: null
+      address: null,
+      tx: null
     }
   }
 
-  componentDidMount() {
-    ethereum()
-      .then(res => {
-        this.setState({
-          loading: false,
-          address: res.address,
-          landRegistry: res.landRegistry
-        })
+  async componentDidMount() {
+    const sceneMetadata = await getSceneMetadata();
+    const ipnsHashTest = await getIpnsHash();
+    const ipnsHash = 'QmemJeRDjo8JxmPEVhq7YR36uhe2FzANCRGtNhr5A5h8x5'
+    try {
+      const { land, address, web3 } = await ethereum()
+
+      this.setState({
+        loading: false,
+        address
       })
-      .catch(err => {
-        this.setState({error: err.message})
-      });
+
+      //console.log(await land.ownerOfLandMany([5, 5, 5], [0, -1, -2]))
+
+      const tx = await land.updateManyLandData(
+        [5, 5, 5],
+        [0, -1, -2],
+        ipnsHash
+      )
+      console.log(tx)
+      this.setState({ tx })
+    } catch(err) {
+      this.setState({loading: false, error: err.message})
+    }
   }
 
-  updateLandData = async () => {
-    await landRegistry.getOwner(0, 0)
-  }
+  renderTxHash = () => (
+    this.state.tx ? (
+      <p>Transaction:<br />
+        <a href={`https://ropsten.etherscan.io/tx/${this.state.tx}`} target="_blank">
+          {`https://ropsten.etherscan.io/tx/${this.state.tx}`}
+        </a>
+      </p>
+     ) : null
+  )
 
-  renderUI = () => {
-
-  }
+  renderError = () => (
+    this.state.error ? <p>{this.state.error}</p> : null
+  )
 
   render() {
     return (
-      <div>
-        MetaMask address: {this.state.name}
-
-        {this.state.error}
+      <div className="dcl-linker-main">
+        <div className="dcl-icon"></div>
+        <h3>UPDATE LAND DATA</h3>
+        <p>MetaMask address:<br />
+          {this.state.loading ? "loading..." : this.state.address}
+        </p>
+        {this.renderTxHash()}
+        {this.renderError()}
+        <style jsx>{`
+          .dcl-icon {
+            width: 52px;
+            height: 52px;
+            margin: 30px auto 0;
+            background-image: url("https://decentraland.org/images/icons.svg");
+          }
+        `}</style>
+        <style global jsx>{`
+          body {
+            font-family: "Arial";
+            width: 700px;
+            text-align: center;
+            margin: 30px auto 0;
+          }
+          a {
+            font-size: 12px;
+            color: #00a55b;
+          }
+        `}</style>
       </div>
     )
   }

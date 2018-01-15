@@ -38,6 +38,55 @@ export const DELIMITER = "dcl-cli$";
 const cli = vorpal();
 
 /**
+ * `upload` command for uploading scene to IPFS.
+ */
+cli
+  .command("update-linker")
+  .description("Update Ethereum linker tool.")
+  .action(async function(args: any, callback: () => void) {
+    const self = this;
+
+    let projectName = "dcl-app";
+    const cliPath = getInstalledPathSync('dcl-cli');
+
+    if (isDev) {
+      await self
+        .prompt({
+          type: "input",
+          name: "projectName",
+          default: "dcl-app",
+          message: "(Development-mode) Project name (in 'tmp/' folder) you want to update: "
+        })
+        .then((res: any) => projectName = res.projectName);
+
+      const isDclProject = await fs.pathExists(`tmp/${projectName}/scene.json`);
+      if (!isDclProject) {
+        self.log(
+          `Seems like that is not a Decentraland project! ${chalk.grey(
+            "('scene.json' not found.)"
+          )}`
+        );
+        callback();
+      }
+
+      await fs.copy(`${cliPath}/dist/linker-app`, `tmp/${projectName}/.decentraland/linker-app`)
+    } else {
+      const isDclProject = await fs.pathExists('./scene.json');
+      if (!isDclProject) {
+        self.log(
+          `Seems like this is not a Decentraland project! ${chalk.grey(
+            "('scene.json' not found.)"
+          )}`
+        );
+        callback();
+      }
+
+      await fs.copy(`${cliPath}/dist/linker-app`, './.decentraland/linker-app');
+      self.log('CLI linking app updated!');
+    }
+  });
+
+/**
  * `init` command for generating new Decentraland scene.
  */
 cli
@@ -51,16 +100,11 @@ cli
   .action(async function(args: any, callback: () => void) {
     const self = this;
 
-    await fs.access(
-      "./scene.json",
-      fs.constants.F_OK | fs.constants.R_OK,
-      (err: Error) => {
-        if (!err) {
-          self.log("Project already exists!");
-          callback();
-        }
-      }
-    );
+    const isDclProject = await fs.pathExists('./scene.json');
+    if (isDclProject) {
+      self.log("Project already exists!");
+      callback();
+    }
 
     const sceneMeta: DCL.SceneMetadata = {
       display: {
@@ -255,23 +299,10 @@ cli
 
     const dirName = isDev ? `tmp/${projectDir}` : `${projectDir}`;
 
-    // Project folders
-    fs.ensureDirSync(`${dirName}/.decentraland`);
-
+    // Linker app folders
     const cliPath = getInstalledPathSync('dcl-cli');
-    copyfiles([
-      `${cliPath}/dist/linker-app/*`,
-      `${cliPath}/dist/linker-app/bundles/pages/*`,
-      `${cliPath}/dist/linker-app/dist/pages/*`,
-      ".decentraland"
-    ], 1, (err: Error, res: any) => {
-      if (err) {
-        vorpal.log(err.message);
-        callback();
-      }
-      vorpal.log(res)
-    });
-
+    fs.copySync(`${cliPath}/dist/linker-app`, `${dirName}/.decentraland/linker-app`)
+    // Project folders
     fs.ensureDirSync(`${dirName}/audio`);
     fs.ensureDirSync(`${dirName}/models`);
     fs.ensureDirSync(`${dirName}/textures`);
@@ -364,20 +395,15 @@ cli
 
     const root = isDev ? `tmp/${projectName}` : ".";
 
-    await fs.access(
-      `${root}/scene.json`,
-      fs.constants.F_OK | fs.constants.R_OK,
-      (err: Error) => {
-        if (err) {
-          self.log(
-            `Seems like this is not a Decentraland project! ${chalk.grey(
-              "('scene.json' not found.)"
-            )}`
-          );
-          callback();
-        }
-      }
-    );
+    const isDclProject = await fs.pathExists(`${root}/scene.json`);
+    if (!isDclProject) {
+      self.log(
+        `Seems like this is not a Decentraland project! ${chalk.grey(
+          "('scene.json' not found.)"
+        )}`
+      );
+      callback();
+    }
 
     const data = [
       {
@@ -466,7 +492,7 @@ cli
       });
 
     await fs
-      .outputFile(`.decentraland/ipns`, ipnsHash)
+      .outputFile(`${root}/.decentraland/ipns`, ipnsHash)
       .then(() => { callback(); })
       .catch((err: Error) => {
         self.log(err.message);

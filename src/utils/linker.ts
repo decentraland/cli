@@ -1,40 +1,72 @@
 import chalk from "chalk";
-//import path = require("path");
-//const { getInstalledPathSync } = require('get-installed-path')
-//import isDev from "./is-dev";
-const nextConfig = require("../../next.config");
-const express = require('express');
-const next = require('next');
+import fs = require("fs-extra");
+const Koa = require('koa');
+const Router = require('koa-router');
+const serve = require('koa-static');
+import isDev from "../utils/is-dev";
 
-// const cliPath = getInstalledPathSync('dcl-cli')
-// console.log(cliPath)
-// console.log(`${cliPath}/dist`)
+export default async (args: any, vorpal: any, callback: () => void) => {
+  let projectName = "dcl-app";
 
-const app = next({ quiet: true, conf: nextConfig })
-const handle = app.getRequestHandler()
+  if (isDev) {
+    await vorpal
+      .prompt({
+        type: "input",
+        name: "projectName",
+        default: "dcl-app",
+        message: "(Development-mode) Project name you want to upload: "
+      })
+      .then((res: any) => (projectName = res.projectName));
+  }
 
-export default function(args: any, vorpal: any, callback: () => void): void {
+  const root = isDev ? `tmp/${projectName}` : ".";
+
+  const isDclProject = await fs.pathExists(`${root}/scene.json`);
+  if (!isDclProject) {
+    vorpal.log(
+      `Seems like this is not a Decentraland project! ${chalk.grey(
+        "('scene.json' not found.)"
+      )}`
+    );
+    callback();
+  }
+
+  const hasLinker = await fs.pathExists(`${root}/.decentraland/linker-app/linker/index.html`);
+  if (!hasLinker) {
+    vorpal.log(
+      `Looks like linker app is missing. Try to re-initialize your project.`
+    );
+    callback();
+  }
+
   vorpal.log(chalk.blue("\nConfiguring linking app...\n"));
 
-  app.prepare().then(() => {
-    const server = express();
+  const app = new Koa();
+  const router = new Router();
 
-    server.get('/linker', (req: any, res: any) => {
-      return app.render(req, res, '/linker', req.query)
-    });
+  app.use(serve(`${root}/.decentraland/linker-app`));
 
-    server.get('/linking-finished', (req: any, res: any) => {
-      // TODO: show confirmation in terminal
-    });
+  router.get('/api/get-scene-data', async (ctx: any) => {
+    ctx.body = await fs.readJson(`${root}/scene.json`)
+  });
 
-    server.get('*', (req: any, res: any) => {
-      return handle(req, res)
-    });
+  router.get('/api/get-ipns-hash', async (ctx: any) => {
+    ctx.body = await fs.readFile(`${root}/.decentraland/ipns`, 'utf8');
+  });
 
-    server.listen(4044, (err: Error) => {
-      if (err) throw err
-      vorpal.log("Linking app ready.")
-      vorpal.log(`Please proceed to link: ${chalk.blue("http://localhost:4044/linker")}.`);
-    });
-  })
+  router.get('*', async (ctx: any) => {
+    ctx.respond = false
+  });
+
+  app.use(async (ctx: any, next: () => void) => {
+    ctx.res.statusCode = 200
+    await next()
+  });
+
+  app.use(router.routes());
+
+  vorpal.log("Linking app ready.");
+  vorpal.log(`Please proceed to ${chalk.blue("http://localhost:4044/linker")}.`);
+
+  await app.listen(4044);
 }

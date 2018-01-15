@@ -5,6 +5,7 @@ node_modules/
 tmp/
 *.log
 
+.next/
 .decentraland/ipns
 
 # Until API is stable
