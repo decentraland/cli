@@ -30,7 +30,7 @@ export const VERSION = pkg.version;
 /**
  * CLI delimiter.
  */
-export const DELIMITER = "dcl-cli$";
+export const DELIMITER = "dcl $";
 
 /**
  * CLI instance.
