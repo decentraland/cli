@@ -370,7 +370,7 @@ cli
  */
 cli
   .command("start")
-  .alias("run")
+  .alias("serve")
   .description("Starts local development server.")
   .action(function(args: string, callback: () => void) {
     start.bind(cli)(args, this, callback);
