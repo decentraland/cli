@@ -1,9 +1,9 @@
-import ethereum from 'decentraland-commons';
+import { Contract } from 'decentraland-commons';
 import { abi } from '../contracts/LANDRegistry.json';
 
 let instance = null
 
-export default class LANDRegistry extends ethereum.Contract {
+export default class LANDRegistry extends Contract {
     static getInstance() {
       if (! instance) {
         instance = new LANDRegistry(
