@@ -10,6 +10,7 @@
     "no-reference": false,
     "no-this-assignment": false,
     "no-var-requires": false,
-    "object-literal-sort-keys": false
+    "object-literal-sort-keys": false,
+    "interface-name": [true, "never-prefix"]
   }
 }

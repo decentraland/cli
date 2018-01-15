@@ -5,5 +5,10 @@ node_modules/
 tmp/
 *.log
 
+dist/
+
+.next/
+.decentraland/ipns
+
 # Until API is stable
 package-lock.json
