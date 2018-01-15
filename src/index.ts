@@ -14,12 +14,12 @@ import path = require("path");
 import ProgressBar = require("progress");
 import vorpal = require("vorpal");
 const ipfsAPI = require("ipfs-api");
-const copyfiles = require('copyfiles');
-const { getInstalledPathSync } = require('get-installed-path');
+const copyfiles = require("copyfiles");
+const { getInstalledPathSync } = require("get-installed-path");
 import generateHtml from "./utils/generate-html";
 import isDev from "./utils/is-dev";
-import start from "./utils/start-server";
 import linker from "./utils/linker";
+import start from "./utils/start-server";
 const pkg = require("../package.json");
 
 /**
@@ -47,7 +47,7 @@ cli
     const self = this;
 
     let projectName = "dcl-app";
-    const cliPath = getInstalledPathSync('dcl-cli');
+    const cliPath = getInstalledPathSync("dcl-cli");
 
     if (isDev) {
       await self
@@ -55,9 +55,10 @@ cli
           type: "input",
           name: "projectName",
           default: "dcl-app",
-          message: "(Development-mode) Project name (in 'tmp/' folder) you want to update: "
+          message:
+            "(Development-mode) Project name (in 'tmp/' folder) you want to update: "
         })
-        .then((res: any) => projectName = res.projectName);
+        .then((res: any) => (projectName = res.projectName));
 
       const isDclProject = await fs.pathExists(`tmp/${projectName}/scene.json`);
       if (!isDclProject) {
@@ -69,9 +70,12 @@ cli
         callback();
       }
 
-      await fs.copy(`${cliPath}/dist/linker-app`, `tmp/${projectName}/.decentraland/linker-app`)
+      await fs.copy(
+        `${cliPath}/dist/linker-app`,
+        `tmp/${projectName}/.decentraland/linker-app`
+      );
     } else {
-      const isDclProject = await fs.pathExists('./scene.json');
+      const isDclProject = await fs.pathExists("./scene.json");
       if (!isDclProject) {
         self.log(
           `Seems like this is not a Decentraland project! ${chalk.grey(
@@ -81,8 +85,8 @@ cli
         callback();
       }
 
-      await fs.copy(`${cliPath}/dist/linker-app`, './.decentraland/linker-app');
-      self.log('CLI linking app updated!');
+      await fs.copy(`${cliPath}/dist/linker-app`, "./.decentraland/linker-app");
+      self.log("CLI linking app updated!");
     }
   });
 
@@ -100,7 +104,7 @@ cli
   .action(async function(args: any, callback: () => void) {
     const self = this;
 
-    const isDclProject = await fs.pathExists('./scene.json');
+    const isDclProject = await fs.pathExists("./scene.json");
     if (isDclProject) {
       self.log("Project already exists!");
       callback();
@@ -236,7 +240,9 @@ cli
         default: "https://signalling-01.decentraland.org",
         message: chalk.blue(" signalling server: ")
       })
-      .then((res: any) => (sceneMeta.communications.signalling = res.signalling));
+      .then(
+        (res: any) => (sceneMeta.communications.signalling = res.signalling)
+      );
 
     self.log(chalk.blue("Policy:"));
 
@@ -300,8 +306,11 @@ cli
     const dirName = isDev ? `tmp/${projectDir}` : `${projectDir}`;
 
     // Linker app folders
-    const cliPath = getInstalledPathSync('dcl-cli');
-    fs.copySync(`${cliPath}/dist/linker-app`, `${dirName}/.decentraland/linker-app`)
+    const cliPath = getInstalledPathSync("dcl-cli");
+    fs.copySync(
+      `${cliPath}/dist/linker-app`,
+      `${dirName}/.decentraland/linker-app`
+    );
     // Project folders
     fs.ensureDirSync(`${dirName}/audio`);
     fs.ensureDirSync(`${dirName}/models`);
@@ -313,12 +322,12 @@ cli
     self.log(`\nNew project created in '${dirName}' directory.\n`);
 
     async function createScene(
-      dirName: string,
+      pathToProject: string,
       html: string,
       withSampleScene?: boolean
     ) {
       await fs
-        .outputFile(`${dirName}/scene.html`, html)
+        .outputFile(`${pathToProject}/scene.html`, html)
         .then(() => {
           if (withSampleScene) {
             self.log(
@@ -417,43 +426,37 @@ cli
     ];
 
     // Go through project folders and add files if available
-    await fs
-      .readdir(`${root}/audio`)
-      .then(files =>
-        files.forEach(name =>
-          data.push({
-            path: `tmp/audio/${name}`,
-            content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))
-          })
-        )
-      );
-    await fs
-      .readdir(`${root}/models`)
-      .then(files =>
-        files.forEach(name =>
-          data.push({
-            path: `tmp/models/${name}`,
-            content: new Buffer(fs.readFileSync(`${root}/models/${name}`))
-          })
-        )
-      );
-    await fs
-      .readdir(`${root}/textures`)
-      .then(files =>
-        files.forEach(name =>
-          data.push({
-            path: `tmp/textures/${name}`,
-            content: new Buffer(fs.readFileSync(`${root}/textures/${name}`))
-          })
-        )
-      );
+    await fs.readdir(`${root}/audio`).then(files =>
+      files.forEach(name =>
+        data.push({
+          path: `tmp/audio/${name}`,
+          content: new Buffer(fs.readFileSync(`${root}/audio/${name}`))
+        })
+      )
+    );
+    await fs.readdir(`${root}/models`).then(files =>
+      files.forEach(name =>
+        data.push({
+          path: `tmp/models/${name}`,
+          content: new Buffer(fs.readFileSync(`${root}/models/${name}`))
+        })
+      )
+    );
+    await fs.readdir(`${root}/textures`).then(files =>
+      files.forEach(name =>
+        data.push({
+          path: `tmp/textures/${name}`,
+          content: new Buffer(fs.readFileSync(`${root}/textures/${name}`))
+        })
+      )
+    );
 
     let progCount = 0;
     let accumProgress = 0;
     const handler = (p: any) => {
       progCount += 1;
       accumProgress += p;
-      //self.log(`${progCount}, ${accumProgress}`)
+      // self.log(`${progCount}, ${accumProgress}`)
     };
 
     let ipfsHash;
@@ -468,7 +471,7 @@ cli
           `Uploading ${progCount}/${progCount} files to IPFS. done! ${accumProgress} bytes uploaded.`
         );
         self.log(`IPFS Folder Hash: ${ipfsHash}`);
-        //TODO: pinning --- ipfs.pin.add(hash, function (err) {})
+        // TODO: pinning --- ipfs.pin.add(hash, function (err) {})
       })
       .catch((err: Error) => {
         self.log(err.message);
@@ -482,7 +485,7 @@ cli
     const ipnsHash = await ipfsApi.name
       .publish(ipfsHash)
       .then((res: any) => {
-        const hash = res.name || res.Name
+        const hash = res.name || res.Name;
         self.log(`IPNS Link: /ipns/${res.name || res.Name}`);
         return hash;
       })
@@ -493,7 +496,9 @@ cli
 
     await fs
       .outputFile(`${root}/.decentraland/ipns`, ipnsHash)
-      .then(() => { callback(); })
+      .then(() => {
+        callback();
+      })
       .catch((err: Error) => {
         self.log(err.message);
         callback();
@@ -509,8 +514,8 @@ cli
   .action(function(args: any, callback: () => void) {
     const self = this;
 
-    linker.bind(cli)(args, this, callback)
-  })
+    linker.bind(cli)(args, this, callback);
+  });
 
 cli.delimiter(DELIMITER).show();
 
