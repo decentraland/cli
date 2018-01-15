@@ -43,7 +43,6 @@
     "decentraland-commons": "git+https://github.com/decentraland/commons.git#release",
     "decentraland-contracts": "git+https://github.com/decentraland/contracts.git#release",
     "fs-extra": "^5.0.0",
-    "get-installed-path": "^4.0.8",
     "ipfs-api": "^17.2.6",
     "koa": "^2.4.1",
     "koa-router": "^7.3.0",

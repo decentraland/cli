@@ -8,19 +8,21 @@
 /// <reference path="../typings/vorpal.d.ts" />
 /// <reference path="../typings/dcl.d.ts" />
 
-import chalk from "chalk";
-import fs = require("fs-extra");
-import path = require("path");
-import ProgressBar = require("progress");
-import vorpal = require("vorpal");
-const ipfsAPI = require("ipfs-api");
-const copyfiles = require("copyfiles");
-const { getInstalledPathSync } = require("get-installed-path");
-import generateHtml from "./utils/generate-html";
-import isDev from "./utils/is-dev";
-import linker from "./utils/linker";
-import start from "./utils/start-server";
-const pkg = require("../package.json");
+import chalk from 'chalk';
+import fs = require('fs-extra');
+import path = require('path');
+import ProgressBar = require('progress');
+import vorpal = require('vorpal');
+const ipfsAPI = require('ipfs-api');
+const copyfiles = require('copyfiles');
+import generateHtml from './utils/generate-html';
+import isDev from './utils/is-dev';
+import linker from './utils/linker';
+import start from './utils/start-server';
+import { prompt } from './utils/prompt';
+const pkg = require('../package.json');
+
+
 
 /**
  * Export the current version.
@@ -30,41 +32,43 @@ export const VERSION = pkg.version;
 /**
  * CLI delimiter.
  */
-export const DELIMITER = "dcl $";
+export const DELIMITER = 'dcl $';
 
 /**
  * CLI instance.
  */
-const cli = vorpal();
+export const cli = vorpal();
+
+const cliPath = path.resolve(__dirname, '..');
+
 
 /**
  * `upload` command for uploading scene to IPFS.
  */
 cli
-  .command("update-linker")
-  .description("Update Ethereum linker tool.")
-  .action(async function(args: any, callback: () => void) {
+  .command('update-linker')
+  .description('Update Ethereum linker tool.')
+  .action(async function (args: any, callback: () => void) {
     const self = this;
 
-    let projectName = "dcl-app";
-    const cliPath = getInstalledPathSync("dcl-cli");
+    let projectName = 'dcl-app';
 
     if (isDev) {
-      await self
-        .prompt({
-          type: "input",
-          name: "projectName",
-          default: "dcl-app",
-          message:
-            "(Development-mode) Project name (in 'tmp/' folder) you want to update: "
-        })
-        .then((res: any) => (projectName = res.projectName));
+      const res = await self.prompt({
+        type: 'input',
+        name: 'projectName',
+        default: 'dcl-app',
+        message:
+          '(Development-mode) Project name (in \'tmp/\' folder) you want to update: '
+      });
+
+      projectName = res.projectName;
 
       const isDclProject = await fs.pathExists(`tmp/${projectName}/scene.json`);
       if (!isDclProject) {
         self.log(
           `Seems like that is not a Decentraland project! ${chalk.grey(
-            "('scene.json' not found.)"
+            '(\'scene.json\' not found.)'
           )}`
         );
         callback();
@@ -75,18 +79,18 @@ cli
         `tmp/${projectName}/.decentraland/linker-app`
       );
     } else {
-      const isDclProject = await fs.pathExists("./scene.json");
+      const isDclProject = await fs.pathExists('./scene.json');
       if (!isDclProject) {
         self.log(
           `Seems like this is not a Decentraland project! ${chalk.grey(
-            "('scene.json' not found.)"
+            '(\'scene.json\' not found.)'
           )}`
         );
         callback();
       }
 
-      await fs.copy(`${cliPath}/dist/linker-app`, "./.decentraland/linker-app");
-      self.log("CLI linking app updated!");
+      await fs.copy(`${cliPath}/dist/linker-app`, './.decentraland/linker-app');
+      self.log('CLI linking app updated!');
     }
   });
 
@@ -94,208 +98,116 @@ cli
  * `init` command for generating new Decentraland scene.
  */
 cli
-  .command("init")
-  .description("Generates new Decentraland scene.")
+  .command('init')
+  .description('Generates new Decentraland scene.')
   .option(
-    "-p, --path <path>",
-    "Output path (default is the current working directory)."
+  '-p, --path <path>',
+  'Output path (default is the current working directory).'
   )
-  .option("--boilerplate", "Include sample scene.")
-  .action(async function(args: any, callback: () => void) {
+  .option('--boilerplate', 'Include sample scene.')
+  .action(async function (args: any, callback: () => void) {
     const self = this;
 
-    const isDclProject = await fs.pathExists("./scene.json");
+    const isDclProject = await fs.pathExists('./scene.json');
     if (isDclProject) {
-      self.log("Project already exists!");
+      self.log('Project already exists!');
       callback();
     }
 
     const sceneMeta: DCL.SceneMetadata = {
       display: {
-        title: "My Land",
-        favicon: "favicon_asset"
+        title: 'My Land',
+        favicon: 'favicon_asset'
       },
-      owner: "",
+      owner: '',
       contact: {
-        name: "",
-        email: ""
+        name: '',
+        email: ''
       },
-      main: "scene",
+      main: 'scene',
       tags: [],
       scene: {
-        base: "",
+        base: '',
         parcels: []
       },
       communications: {
-        type: "webrtc",
-        signalling: "https://signalling-01.decentraland.org"
+        type: 'webrtc',
+        signalling: 'https://signalling-01.decentraland.org'
       },
       policy: {
-        contentRating: "E",
-        fly: "yes",
-        voiceEnabled: "yes",
+        contentRating: 'E',
+        fly: 'yes',
+        voiceEnabled: 'yes',
         blacklist: [],
-        teleportPosition: ""
+        teleportPosition: ''
       }
     };
 
-    self.log(chalk.blue("Project information:"));
+    self.log(chalk.blue('Project information:'));
 
-    await self
-      .prompt({
-        type: "input",
-        name: "title",
-        default: "dcl-app",
-        message: chalk.blue(" project title: ")
-      })
-      .then((res: any) => (sceneMeta.display.title = res.title));
+    sceneMeta.display.title = await prompt(self, chalk.blue(' project title: '), 'dcl-app');
 
-    await self
-      .prompt({
-        type: "input",
-        name: "tags",
-        default: "",
-        message: chalk.blue(" tags: ")
-      })
-      .then(
-        (res: any) =>
-          (sceneMeta.tags = res.tags
-            ? res.tags.split(",").map((tag: string) => tag.replace(/\s/g, ""))
-            : [])
-      );
+    const tags = await prompt(self, chalk.blue(' tags: '), '');
 
-    self.log(chalk.blue("Contact information:"));
+    sceneMeta.tags = tags
+      ? tags
+        .split(',')
+        .map(tag => tag.replace(/\s/g, ''))
+        .filter(tag => tag.length > 0)
+      : [];
 
-    await self
-      .prompt({
-        type: "input",
-        name: "owner",
-        default: "",
-        message: chalk.blue(" your MetaMask address: ")
-      })
-      .then((res: any) => (sceneMeta.owner = res.owner));
+    self.log(chalk.blue('Contact information:'));
 
-    await self
-      .prompt({
-        type: "input",
-        name: "name",
-        default: "",
-        message: chalk.blue(" your name: ")
-      })
-      .then((res: any) => (sceneMeta.contact.name = res.name));
+    sceneMeta.owner = await prompt(self, chalk.blue(' your MetaMask address: '));
+    sceneMeta.contact.name = await prompt(self, chalk.blue(' your name: '));
+    sceneMeta.contact.email = await prompt(self, chalk.blue(' your email: '));
 
-    await self
-      .prompt({
-        type: "input",
-        name: "email",
-        default: "",
-        message: chalk.blue(" your email: ")
-      })
-      .then((res: any) => (sceneMeta.contact.email = res.email));
+    self.log(chalk.blue('Scene information:'));
+    self.log(' (use the format: \'x,y; x,y; x,y\')');
 
-    self.log(chalk.blue("Scene information:"));
-    self.log(" (use the format: 'x,y; x,y; x,y')");
-    await self
-      .prompt({
-        type: "input",
-        name: "parcels",
-        default: "",
-        message: chalk.blue(" parcels: ")
-      })
-      .then(
-        (res: any) =>
-          (sceneMeta.scene.parcels = res.parcels
-            ? res.parcels
-                .split(";")
-                .map((coord: string) => coord.replace(/\s/g, ""))
-            : [])
-      );
+    const parcels = await prompt(self, chalk.blue(' parcels: '));
+
+    sceneMeta.scene.parcels = parcels
+      ? parcels.split(';').map((coord: string) => coord.replace(/\s/g, ''))
+      : [];
 
     if (sceneMeta.scene.parcels.length > 0) {
-      await self
-        .prompt({
-          type: "input",
-          name: "base",
-          default: sceneMeta.scene.parcels[0] || "",
-          message: chalk.blue(" base: ")
-        })
-        .then((res: any) => (sceneMeta.scene.base = res.base));
+      sceneMeta.scene.base = await prompt(self, chalk.blue(' base: '), sceneMeta.scene.parcels[0] || '');
     }
 
-    self.log(chalk.blue("Communications:"));
+    self.log(chalk.blue('Communications:'));
 
-    await self
-      .prompt({
-        type: "input",
-        name: "type",
-        default: "webrtc",
-        message: chalk.blue(" type: ")
-      })
-      .then((res: any) => (sceneMeta.communications.type = res.type));
+    sceneMeta.communications.type = await prompt(self, chalk.blue(' type: '));
+    sceneMeta.communications.signalling = await prompt(self, chalk.blue(' signalling server: '), 'https://signalling-01.decentraland.org');
 
-    await self
-      .prompt({
-        type: "input",
-        name: "signalling",
-        default: "https://signalling-01.decentraland.org",
-        message: chalk.blue(" signalling server: ")
-      })
-      .then(
-        (res: any) => (sceneMeta.communications.signalling = res.signalling)
-      );
+    self.log(chalk.blue('Policy:'));
 
-    self.log(chalk.blue("Policy:"));
+    sceneMeta.policy.contentRating = await prompt(self, chalk.blue(' content rating: '), 'E');
+    sceneMeta.policy.fly = await prompt(self, chalk.blue(' fly enabled: '), 'yes');
+    sceneMeta.policy.voiceEnabled = await prompt(self, chalk.blue(' voice enabled: '), 'yes');
 
-    await self
-      .prompt({
-        type: "input",
-        name: "contentRating",
-        default: "E",
-        message: chalk.blue(" content rating: ")
-      })
-      .then((res: any) => (sceneMeta.policy.contentRating = res.contentRating));
-
-    await self
-      .prompt({
-        type: "input",
-        name: "fly",
-        default: "yes",
-        message: chalk.blue(" fly enabled: ")
-      })
-      .then((res: any) => (sceneMeta.policy.fly = res.fly));
-
-    await self
-      .prompt({
-        type: "input",
-        name: "voiceEnabled",
-        default: "yes",
-        message: chalk.blue(" voice enabled: ")
-      })
-      .then((res: any) => (sceneMeta.policy.voiceEnabled = res.voiceEnabled));
-
-    self.log("");
-    self.log(`Scene metadata: (${chalk.grey("scene.json")})`);
-    self.log("");
+    self.log('');
+    self.log(`Scene metadata: (${chalk.grey('scene.json')})`);
+    self.log('');
     self.log(chalk.blue(JSON.stringify(sceneMeta, null, 2)));
-    self.log("");
+    self.log('');
 
-    await self
-      .prompt([
-        {
-          type: "confirm",
-          name: "continue",
-          default: true,
-          message: chalk.yellow("Do you want to continue?")
-        }
-      ])
-      .then((results: any) => {
-        if (!results.continue) {
-          callback();
-        }
-      });
+    const results = await self.prompt([
+      {
+        type: 'confirm',
+        name: 'continue',
+        default: true,
+        message: chalk.yellow('Do you want to continue?')
+      }
+    ]);
+
+    if (!results.continue) {
+      callback();
+      return;
+    }
 
     let projectDir;
-    if (args.options.path && args.options.path === ".") {
+    if (args.options.path && args.options.path === '.') {
       projectDir = args.options.path;
     } else {
       projectDir = args.options.path
@@ -305,8 +217,6 @@ cli
 
     const dirName = isDev ? `tmp/${projectDir}` : `${projectDir}`;
 
-    // Linker app folders
-    const cliPath = getInstalledPathSync("dcl-cli");
     fs.copySync(
       `${cliPath}/dist/linker-app`,
       `${dirName}/.decentraland/linker-app`
@@ -326,42 +236,39 @@ cli
       html: string,
       withSampleScene?: boolean
     ) {
-      await fs
-        .outputFile(`${pathToProject}/scene.html`, html)
-        .then(() => {
-          if (withSampleScene) {
-            self.log(
-              `\nSample scene was placed into ${chalk.green("scene.html")}.`
-            );
-          }
-        })
-        .catch((err: Error) => {
-          self.log(err.message);
-        });
+      try {
+        await fs.outputFile(`${pathToProject}/scene.html`, html);
+
+        if (withSampleScene) {
+          self.log(
+            `\nSample scene was placed into ${chalk.green('scene.html')}.`
+          );
+        }
+      } catch (err) {
+        self.log(err.message);
+      }
     }
 
     if (args.options.boilerplate) {
       const html = generateHtml({ withSampleScene: true });
       await createScene(dirName, html, true);
     } else {
-      await self
-        .prompt({
-          type: "confirm",
-          name: "sampleScene",
-          default: true,
-          message: chalk.yellow(
-            "Do you want to create new project with sample scene?"
-          )
-        })
-        .then(async (results: any) => {
-          if (!results.sampleScene) {
-            const html = generateHtml({ withSampleScene: false });
-            await createScene(dirName, html, false);
-          } else {
-            const html = generateHtml({ withSampleScene: true });
-            await createScene(dirName, html, true);
-          }
-        });
+      const results = await self.prompt({
+        type: 'confirm',
+        name: 'sampleScene',
+        default: true,
+        message: chalk.yellow(
+          'Do you want to create new project with sample scene?'
+        )
+      });
+
+      if (!results.sampleScene) {
+        const html = generateHtml({ withSampleScene: false });
+        await createScene(dirName, html, false);
+      } else {
+        const html = generateHtml({ withSampleScene: true });
+        await createScene(dirName, html, true);
+      }
     }
   });
 
@@ -369,10 +276,10 @@ cli
  * `start` command for starting local development server.
  */
 cli
-  .command("start")
-  .alias("serve")
-  .description("Starts local development server.")
-  .action(function(args: string, callback: () => void) {
+  .command('start')
+  .alias('serve')
+  .description('Starts local development server.')
+  .action(function (args: string, callback: () => void) {
     start.bind(cli)(args, this, callback);
   });
 
@@ -380,35 +287,35 @@ cli
  * `upload` command for uploading scene to IPFS.
  */
 cli
-  .command("upload")
-  .description("Uploads scene to IPFS and updates IPNS.")
-  .option("-p, --port <number>", "IPFS daemon API port (default is 5001).")
-  .action(async function(args: any, callback: () => void) {
+  .command('upload')
+  .description('Uploads scene to IPFS and updates IPNS.')
+  .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
+  .action(async function (args: any, callback: () => void) {
     const self = this;
 
     // You need to have ipfs daemon running!
-    const ipfsApi = ipfsAPI("localhost", args.options.port || "5001");
+    const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
 
-    let projectName = "dcl-app";
+    let projectName = 'dcl-app';
 
     if (isDev) {
       await self
         .prompt({
-          type: "input",
-          name: "projectName",
-          default: "dcl-app",
-          message: "(Development-mode) Project name you want to upload: "
+          type: 'input',
+          name: 'projectName',
+          default: 'dcl-app',
+          message: '(Development-mode) Project name you want to upload: '
         })
         .then((res: any) => (projectName = res.projectName));
     }
 
-    const root = isDev ? `tmp/${projectName}` : ".";
+    const root = isDev ? `tmp/${projectName}` : '.';
 
     const isDclProject = await fs.pathExists(`${root}/scene.json`);
     if (!isDclProject) {
       self.log(
         `Seems like this is not a Decentraland project! ${chalk.grey(
-          "('scene.json' not found.)"
+          '(\'scene.json\' not found.)'
         )}`
       );
       callback();
@@ -461,57 +368,41 @@ cli
 
     let ipfsHash;
 
-    await ipfsApi.files
-      .add(data, { progress: handler, recursive: true })
-      .then((filesAdded: any) => {
-        const rootFolder = filesAdded[filesAdded.length - 1];
-        ipfsHash = `/ipfs/${rootFolder.hash}`;
-        self.log("");
-        self.log(
-          `Uploading ${progCount}/${progCount} files to IPFS. done! ${accumProgress} bytes uploaded.`
-        );
-        self.log(`IPFS Folder Hash: ${ipfsHash}`);
-        // TODO: pinning --- ipfs.pin.add(hash, function (err) {})
-      })
-      .catch((err: Error) => {
-        self.log(err.message);
-        callback();
+    try {
+      const filesAdded = await ipfsApi.files.add(data, {
+        progress: handler,
+        recursive: true
       });
 
-    self.log(
-      "Updating IPNS reference to folder hash... (this might take a while)"
-    );
+      const rootFolder = filesAdded[filesAdded.length - 1];
+      ipfsHash = `/ipfs/${rootFolder.hash}`;
+      self.log('');
+      self.log(`Uploading ${progCount}/${progCount} files to IPFS. done! ${accumProgress} bytes uploaded.`);
+      self.log(`IPFS Folder Hash: ${ipfsHash}`);
+      // TODO: pinning --- ipfs.pin.add(hash, function (err) {})
 
-    const ipnsHash = await ipfsApi.name
-      .publish(ipfsHash)
-      .then((res: any) => {
-        const hash = res.name || res.Name;
-        self.log(`IPNS Link: /ipns/${res.name || res.Name}`);
-        return hash;
-      })
-      .catch((err: Error) => {
-        self.log(err.message);
-        callback();
-      });
+      self.log('Updating IPNS reference to folder hash... (this might take a while)');
 
-    await fs
-      .outputFile(`${root}/.decentraland/ipns`, ipnsHash)
-      .then(() => {
-        callback();
-      })
-      .catch((err: Error) => {
-        self.log(err.message);
-        callback();
-      });
+      const publishResult = await ipfsApi.name.publish(ipfsHash);
+
+      const ipnsHash = publishResult.name || publishResult.Name;
+      self.log(`IPNS Link: /ipns/${publishResult.name || publishResult.Name}`);
+
+      await fs.outputFile(`${root}/.decentraland/ipns`, ipnsHash);
+    } catch (err) {
+      self.log(err.message);
+    }
+
+    callback();
   });
 
 /**
  * `link` command for linking IPNS hash to Ethereum.
  */
 cli
-  .command("link")
-  .description("Link scene to Ethereum.")
-  .action(function(args: any, callback: () => void) {
+  .command('link')
+  .description('Link scene to Ethereum.')
+  .action(function (args: any, callback: () => void) {
     const self = this;
 
     linker.bind(cli)(args, this, callback);
