@@ -194,7 +194,7 @@ cli
       .then((res: any) => (sceneMeta.contact.email = res.email));
 
     self.log(chalk.blue("Scene information:"));
-
+    self.log(" (use the format: 'x,y; x,y; x,y')");
     await self
       .prompt({
         type: "input",
