@@ -284,7 +284,7 @@ cli
         {
           type: "confirm",
           name: "continue",
-          default: false,
+          default: true,
           message: chalk.yellow("Do you want to continue?")
         }
       ])
@@ -348,7 +348,7 @@ cli
         .prompt({
           type: "confirm",
           name: "sampleScene",
-          default: false,
+          default: true,
           message: chalk.yellow(
             "Do you want to create new project with sample scene?"
           )
