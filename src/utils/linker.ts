@@ -51,7 +51,8 @@ export default async (args: any, vorpal: any, callback: () => void) => {
   });
 
   router.get('/api/get-ipns-hash', async (ctx: any) => {
-    ctx.body = await fs.readFile(`${root}/.decentraland/ipns`, 'utf8');
+    const ipnsHash = await fs.readFile(`${root}/.decentraland/ipns`, "utf8");
+    ctx.body = JSON.stringify(ipnsHash);
   });
 
   router.get('*', async (ctx: any) => {

@@ -23,7 +23,6 @@ async function getSceneMetadata() {
 async function getIpnsHash() {
   const res = await fetch('http://localhost:4044/api/get-ipns-hash');
   const ipnsHash = await res.json();
-  console.log(ipnsHash);
   return ipnsHash;
 }
 
@@ -41,8 +40,8 @@ export default class Page extends React.Component {
 
   async componentDidMount() {
     const sceneMetadata = await getSceneMetadata();
-    const ipnsHashTest = await getIpnsHash();
-    const ipnsHash = 'QmemJeRDjo8JxmPEVhq7YR36uhe2FzANCRGtNhr5A5h8x5'
+    const ipnsHash = await getIpnsHash();
+
     try {
       const { land, address, web3 } = await ethereum()
 
@@ -51,14 +50,20 @@ export default class Page extends React.Component {
         address
       })
 
-      //console.log(await land.ownerOfLandMany([5, 5, 5], [0, -1, -2]))
+      const x = [];
+      const y = [];
+
+      sceneMetadata.scene.parcels.forEach(parcel => {
+        x.push(Number(parcel.split(",")[0]));
+        y.push(Number(parcel.split(",")[1]));
+      });
 
       const tx = await land.updateManyLandData(
-        [5, 5, 5],
-        [0, -1, -2],
+        x,
+        y,
         ipnsHash
       )
-      console.log(tx)
+
       this.setState({ tx })
     } catch(err) {
       this.setState({loading: false, error: err.message})
