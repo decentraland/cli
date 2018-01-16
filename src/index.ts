@@ -13,6 +13,7 @@ import fs = require('fs-extra');
 import path = require('path');
 import ProgressBar = require('progress');
 import Vorpal = require('vorpal');
+import { help } from './commands/help';
 import { init } from './commands/init';
 import { link } from './commands/link';
 import { start } from './commands/start';
@@ -38,13 +39,12 @@ export const vorpal = new Vorpal();
 const cli = {
   vorpal,
   init(options = {}) {
-    const dir = `${__dirname}/.`;
-
     vorpal.use(init);
     vorpal.use(start);
     vorpal.use(upload);
     vorpal.use(link);
-    vorpal.use(update);
+    vorpal.use(help);
+    // vorpal.use(update); TODO: implement auto-update
 
     vorpal
       .delimiter(DELIMITER)
