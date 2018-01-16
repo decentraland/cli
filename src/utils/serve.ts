@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 const budo = require('budo');
 
-export function serve(args: any, vorpalInstance: any, callback: () => void): void {
-  vorpalInstance.log(chalk.blue('Parcel server is starting...\n'));
+export function serve(vorpal: any, args: any, ): void {
+  vorpal.log(chalk.blue('Parcel server is starting...\n'));
 
   budo('./', {
     host: '0.0.0.0',

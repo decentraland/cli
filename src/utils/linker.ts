@@ -6,7 +6,7 @@ import serve = require('koa-static');
 import { isDev } from './is-dev';
 import { prompt } from './prompt';
 
-export async function linker(args: any, vorpal: any, callback: () => void) {
+export async function linker(vorpal: any, args: any, callback: () => void) {
   let projectName = 'dcl-app';
 
   if (isDev) {
@@ -64,4 +64,4 @@ export async function linker(args: any, vorpal: any, callback: () => void) {
   vorpal.log(`Please proceed to ${chalk.blue('http://localhost:4044/linker')}.`);
 
   return await app.listen(4044);
-};
+}

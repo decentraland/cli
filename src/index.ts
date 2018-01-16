@@ -59,6 +59,6 @@ const cli = {
       vorpal.log('Type "exit" to quit, "help" for a list of commands.\n');
     }
   }
-}
+};
 
 module.exports = cli;

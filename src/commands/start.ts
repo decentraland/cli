@@ -6,6 +6,6 @@ export function start(vorpal: any) {
     .alias('serve')
     .description('Starts local development server.')
     .action(function (args: string, callback: () => void) {
-      serve.bind(vorpal)(args, this, callback);
+      serve(vorpal, args);
     });
 }

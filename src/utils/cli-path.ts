@@ -5,4 +5,4 @@ const { getInstalledPathSync } = require('get-installed-path');
  * We need this path to copy linker webpage to
  * DCL project directory created after `dcl init`.
  */
-export const cliPath:string = getInstalledPathSync('dcl-cli');
+export const cliPath: string = getInstalledPathSync('dcl-cli');

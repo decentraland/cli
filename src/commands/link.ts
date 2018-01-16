@@ -5,8 +5,6 @@ export function link(vorpal: any) {
     .command('link')
     .description('Link scene to Ethereum.')
     .action(function (args: any, callback: () => void) {
-      const self = this;
-
-      linker.bind(vorpal)(args, this, callback);
+      linker(vorpal, args, callback);
     });
 }

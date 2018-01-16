@@ -1,35 +1,12 @@
-
-
 export function help(vorpal: any) {
-  function showHelp(commandName: string) {
-    commandName = commandName.toLowerCase().trim();
-
-    const command = vorpal.commands.find(
-      (command: any) => command._name === commandName
-    );
-
-    if (command && !command._hidden) {
-      if (typeof command._help === 'function') {
-        command._help(commandName, (str: string) =>
-          vorpal.log(str)
-        );
-      } else {
-        vorpal.log(command.helpInformation());
-      }
-    }
-  }
-
-  const help = vorpal.find('help');
-  if (help) {
-    help.remove();
-  }
+  removeDefaultHelp(vorpal);
 
   vorpal
     .command('help [command...]')
     .description('Provides help for a given command.')
     .action(function(args: any, callback: () => void) {
       if (args.command) {
-        showHelp(args.command.join(' '));
+        showHelp(vorpal, args.command.join(' '));
       } else {
         // vorpal doesn't have a nice way to customize the full help list.
         // It uses a somewhat internal `_commandHelp` ( https://github.com/dthree/vorpal/blob/master/lib/vorpal.js#L1079 ) which is huge and not abstracted.
@@ -50,4 +27,29 @@ export function help(vorpal: any) {
 
       callback();
     });
-};
+}
+
+function removeDefaultHelp(vorpal: any) {
+  const help = vorpal.find('help');
+  if (help) {
+    help.remove();
+  }
+}
+
+function showHelp(vorpal: any, commandName: string) {
+  commandName = commandName.toLowerCase().trim();
+
+  const command = vorpal.commands.find(
+    (command: any) => command._name === commandName
+  );
+
+  if (command && !command._hidden) {
+    if (typeof command._help === 'function') {
+      command._help(commandName, (str: string) =>
+        vorpal.log(str)
+      );
+    } else {
+      vorpal.log(command.helpInformation());
+    }
+  }
+}

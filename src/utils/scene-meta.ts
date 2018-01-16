@@ -1,4 +1,4 @@
-const sceneMeta: DCL.SceneMetadata = {
+export const sceneMeta: DCL.SceneMetadata = {
   display: {
     title: 'My Land',
     favicon: 'favicon_asset'
@@ -26,5 +26,3 @@ const sceneMeta: DCL.SceneMetadata = {
     teleportPosition: ''
   }
 };
-
-export default sceneMeta;

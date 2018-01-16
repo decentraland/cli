@@ -2,8 +2,10 @@ import chalk from 'chalk';
 import fs = require('fs-extra');
 import { cliPath }from '../utils/cli-path';
 import { prompt } from '../utils/prompt';
+import { sceneMeta } from '../utils/scene-meta';
 import { generateHtml } from '../utils/generate-html';
 import { isDev } from '../utils/is-dev';
+import { wrapAsync } from '../utils/wrap-async';
 
 export function init(vorpal: any) {
   vorpal
@@ -14,7 +16,7 @@ export function init(vorpal: any) {
     'Output path (default is the current working directory).'
     )
     .option('--boilerplate', 'Include sample scene.')
-    .action(async function (args: any, callback: () => void) {
+    .action(wrapAsync(async function (args: any, callback: () => void) {
       const self = this;
 
       const isDclProject = await fs.pathExists('./scene.json');
@@ -22,35 +24,6 @@ export function init(vorpal: any) {
         self.log('Project already exists!');
         callback();
       }
-
-      const sceneMeta: DCL.SceneMetadata = {
-        display: {
-          title: 'My Land',
-          favicon: 'favicon_asset'
-        },
-        owner: '',
-        contact: {
-          name: '',
-          email: ''
-        },
-        main: 'scene',
-        tags: [],
-        scene: {
-          base: '',
-          parcels: []
-        },
-        communications: {
-          type: 'webrtc',
-          signalling: 'https://signalling-01.decentraland.org'
-        },
-        policy: {
-          contentRating: 'E',
-          fly: 'yes',
-          voiceEnabled: 'yes',
-          blacklist: [],
-          teleportPosition: ''
-        }
-      };
 
       self.log(chalk.blue('Project information:'));
 
@@ -179,5 +152,5 @@ export function init(vorpal: any) {
           await createScene(dirName, html, true);
         }
       }
-    });
+    }));
 }
