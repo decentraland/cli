@@ -39,9 +39,6 @@ export default class Page extends React.Component {
   }
 
   async componentDidMount() {
-    const sceneMetadata = await getSceneMetadata();
-    const ipnsHash = await getIpnsHash();
-
     try {
       const { land, address, web3 } = await ethereum()
 
@@ -50,10 +47,32 @@ export default class Page extends React.Component {
         address
       })
 
+      try {
+        const sceneMetadata = await getSceneMetadata();
+        this.setState({ sceneMetadata });
+      } catch(err) {
+        this.setState({
+          loading: false,
+          error: `There was a problem getting scene data.\nTry to re-initialize the project with dcl init.`
+        });
+        return;
+      }
+
+      try {
+        const ipnsHash = await getIpnsHash();
+        this.setState({ ipnsHash });
+      } catch(err) {
+        this.setState({
+          loading: false,
+          error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
+        });
+        return;
+      }
+
       const x = [];
       const y = [];
 
-      sceneMetadata.scene.parcels.forEach(parcel => {
+      this.state.sceneMetadata.scene.parcels.forEach(parcel => {
         x.push(Number(parcel.split(",")[0]));
         y.push(Number(parcel.split(",")[1]));
       });
@@ -61,7 +80,7 @@ export default class Page extends React.Component {
       const tx = await land.updateManyLandData(
         x,
         y,
-        ipnsHash
+        this.state.ipnsHash
       )
 
       this.setState({ tx })

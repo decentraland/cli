@@ -177,7 +177,7 @@ cli
 
     self.log(chalk.blue('Communications:'));
 
-    sceneMeta.communications.type = await prompt(self, chalk.blue(' type: '));
+    sceneMeta.communications.type = await prompt(self, chalk.blue(' type: '), 'webrtc');
     sceneMeta.communications.signalling = await prompt(self, chalk.blue(' signalling server: '), 'https://signalling-01.decentraland.org');
 
     self.log(chalk.blue('Policy:'));
