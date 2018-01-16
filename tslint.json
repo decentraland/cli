@@ -1,16 +1,63 @@
 {
-  "extends": [
-    "tslint:latest",
-    "tslint-plugin-prettier",
-    "tslint-config-prettier"
-  ],
   "rules": {
-    "prettier": true,
-    "no-implicit-dependencies": false,
-    "no-reference": false,
-    "no-this-assignment": false,
-    "no-var-requires": false,
-    "object-literal-sort-keys": false,
-    "interface-name": [true, "never-prefix"]
+    "class-name": true,
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "indent": [
+      true,
+      "spaces"
+    ],
+    "no-duplicate-variable": true,
+    "no-eval": true,
+    "no-internal-module": true,
+    "no-trailing-whitespace": true,
+    "no-var-keyword": true,
+    "no-use-before-declare": true,
+    "no-console": [
+      true,
+      "log",
+      "error"
+    ],
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-whitespace"
+    ],
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "semicolon": [
+      true,
+      "always"
+    ],
+    "triple-equals": [
+      false,
+      "allow-null-check"
+    ],
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      }
+    ],
+    "variable-name": [
+      true,
+      "ban-keywords"
+    ],
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-operator",
+      "check-separator",
+      "check-type"
+    ]
   }
 }
