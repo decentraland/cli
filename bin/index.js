@@ -3,4 +3,4 @@
 'use strict';
 
 var cli = require("./../");
-cli.parse(process.argv);
+cli.init();

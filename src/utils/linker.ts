@@ -3,10 +3,10 @@ import fs = require('fs-extra');
 import Koa = require('koa');
 import Router = require('koa-router');
 import serve = require('koa-static');
-import isDev from './is-dev';
+import { isDev } from './is-dev';
 import { prompt } from './prompt';
 
-export default async (args: any, vorpal: any, callback: () => void) => {
+export async function linker(args: any, vorpal: any, callback: () => void) {
   let projectName = 'dcl-app';
 
   if (isDev) {
@@ -63,5 +63,5 @@ export default async (args: any, vorpal: any, callback: () => void) => {
   vorpal.log('Linking app ready.');
   vorpal.log(`Please proceed to ${chalk.blue('http://localhost:4044/linker')}.`);
 
-  await app.listen(4044);
+  return await app.listen(4044);
 };
