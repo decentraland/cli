@@ -408,6 +408,59 @@ cli
     linker.bind(cli)(args, this, callback);
   });
 
+ /**
+ * `help` command for a description of all commands or a single one
+ */
+const help = cli.find('help');
+if (help) {
+  help.remove();
+}
+
+cli
+  .command('help [command...]')
+  .description('Provides help for a given command.')
+  .action(function(args: any, callback: () => void) {
+    if (args.command) {
+      showHelp(args.command.join(' '));
+    } else {
+      // vorpal doesn't have a nice way to customize the full help list.
+      // It uses a somewhat internal `_commandHelp` ( https://github.com/dthree/vorpal/blob/master/lib/vorpal.js#L1079 ) which is huge and not abstracted.
+      // To avoid having to rewrite so much logic, we'll trick vorpal to do what we need.
+      // Keep in mind that `_commandHelp` can change so, future mantainer, if this breaks and vorpal is on a version higher than 1.12.0
+      // this is probably the culprit
+      const oldCommands = cli.commands;
+      const fullCommands = ['init', 'start', 'upload', 'link', 'help'];
+
+      cli.commands = fullCommands.map((commandName: string) =>
+        oldCommands.find((command: any) => command._name === commandName)
+       );
+
+      this.log(cli._commandHelp());
+
+      cli.commands = oldCommands;
+    }
+
+    callback();
+  });
+
+function showHelp(commandName: string) {
+  commandName = commandName.toLowerCase().trim();
+
+  const command = cli.commands.find(
+    (command: any) => command._name === commandName
+  );
+
+  if (command && !command._hidden) {
+    if (typeof command._help === 'function') {
+      command._help(commandName, (str: string) =>
+        cli.log(str)
+      );
+    } else {
+      cli.log(command.helpInformation());
+    }
+  }
+}
+
 cli.delimiter(DELIMITER).show();
 
 // If one or more command, execute and close
