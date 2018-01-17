@@ -122,7 +122,7 @@ export function init(vorpal: any) {
         } catch (err) {
           this.log(err.message);
         }
-      }
+      };
 
       if (args.options.boilerplate) {
         const html = generateHtml({ withSampleScene: true });
