@@ -52,7 +52,6 @@ export default class Page extends React.Component {
         this.setState({ sceneMetadata });
       } catch(err) {
         this.setState({
-          loading: false,
           error: `There was a problem getting scene data.\nTry to re-initialize the project with dcl init.`
         });
         return;
@@ -63,7 +62,6 @@ export default class Page extends React.Component {
         this.setState({ ipnsHash });
       } catch(err) {
         this.setState({
-          loading: false,
           error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
         });
         return;
