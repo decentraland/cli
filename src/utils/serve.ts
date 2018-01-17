@@ -13,7 +13,6 @@ export function serve(vorpal: any, args: any, ): void {
     ignore: '.decentraland',
     file: 'scene.html',
     wait: 500,
-    logLevel: 3,
-    middleware: 
+    logLevel: 3
   });
 }
