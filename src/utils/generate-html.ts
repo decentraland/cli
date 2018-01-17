@@ -13,13 +13,13 @@ export function generateHtml({ withSampleScene = false }: GeneratorSettings): st
 <html>
   <head>
     <title>Blank Decentraland scene</title>
-    <script src="https://client.decentraland.today/preview.js" />
   </head>
   <body>
     <a-scene>
       ${withSampleScene ? sampleScene : '<!-- Your scene code -->'}
     </a-scene>
   </body>
+  <script src="https://client.decentraland.today/preview.js" />
 </html>`;
 
   return html;
