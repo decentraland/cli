@@ -51,15 +51,18 @@ const cli = {
 
     vorpal
       .delimiter(DELIMITER)
-      .show();
+      .catch('[words...]', 'Catches incorrect commands')
+      .action(() => {
+        vorpal.execSync('help');
+      });
 
-    // If one or more command, execute and close
     if (process.argv.length > 2) {
+      // If one or more command, execute and close
       vorpal.parse(process.argv);
     } else {
-      // Enters immersive mode if no commands supplied
+      // Show help if no commands are supplied
       vorpal.log(`Decentraland CLI v${VERSION}\n`);
-      vorpal.log('Type "exit" to quit, "help" for a list of commands.\n');
+      vorpal.exec('help');
     }
   }
 };

@@ -1,7 +1,7 @@
-
 import chalk from 'chalk';
 import fs = require('fs-extra');
 import path = require('path');
+import inquirer = require('inquirer');
 import * as project from '../utils/project';
 import { cliPath }from '../utils/cli-path';
 import { isDev } from '../utils/is-dev';
@@ -15,7 +15,7 @@ export function update(vorpal: any) {
       let projectName = project.getDefaultName();
 
       if (isDev) {
-        const res = await vorpal.prompt({
+        const res = await inquirer.prompt({
           type: 'input',
           name: 'projectName',
           default: projectName,

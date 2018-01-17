@@ -18,7 +18,7 @@ export function upload(vorpal: any) {
     let projectName = project.getDefaultName();
 
     if (isDev) {
-      projectName = await prompt(vorpal, '(Development-mode) Project name you want to upload: ', projectName);
+      projectName = await prompt('(Development-mode) Project name you want to upload: ', projectName);
     }
 
     const root = isDev ? `tmp/${projectName}` : '.';
