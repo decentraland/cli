@@ -3,5 +3,5 @@
 'use strict';
 
 var cli = require(".");
-console.log('\nYou\'re now in development mode.\n');
+console.log('\nYou\'re now in development mode.');
 cli.init();
