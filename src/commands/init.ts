@@ -42,7 +42,6 @@ export function init(vorpal: any) {
         { type: 'input', name: 'policy.blacklist', message: `${chalk.blue('Blacklisted parcels')} ${chalk.grey('(use the format \'x,y; x,y; x,y ...\'):')} ` },
         { type: 'input', name: 'policy.teleportPosition', message: `${chalk.blue('Teleport position')} ${chalk.grey('(use the format \'x,y\'):')} ` },
       ]);
-      vorpal.log(sceneMeta)
 
       // Additional data parsing
       sceneMeta.tags = sceneMeta.tags
