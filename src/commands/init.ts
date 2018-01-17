@@ -29,9 +29,9 @@ export function init(vorpal: any) {
       const sceneMeta = await inquirer.prompt([
         { type: 'input', name: 'display.title', message: chalk.blue('Project title: '), default: project.getRandomName() },
         { type: 'input', name: 'display.favicon', message: chalk.blue('Project favicon: '), default: 'favicon_asset' },
-        { type: 'input', name: 'owner', message: chalk.blue('Your MetaMask address: '), default: '' },
-        { type: 'input', name: 'contact.name', message: chalk.blue('Your name: '), default: '' },
-        { type: 'input', name: 'contact.email', message: chalk.blue('Your email: '), default: '' },
+        { type: 'input', name: 'owner', message: chalk.blue('Your MetaMask address: ') },
+        { type: 'input', name: 'contact.name', message: chalk.blue('Your name: ') },
+        { type: 'input', name: 'contact.email', message: chalk.blue('Your email: ') },
         { type: 'input', name: 'main', message: chalk.blue('Main: '), default: 'scene' },
         { type: 'input', name: 'tags', message: chalk.blue('Tags: ') },
         { type: 'input', name: 'scene.parcels', message: `${chalk.blue('Parcels')} ${chalk.grey('(use the format \'x,y; x,y; x,y ...\'):')} ` },
