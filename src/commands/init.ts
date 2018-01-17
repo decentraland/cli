@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import fs = require('fs-extra');
 import inquirer = require('inquirer');
+import * as project from '../utils/project';
 import { cliPath }from '../utils/cli-path';
 import { prompt } from '../utils/prompt';
 import { generateHtml } from '../utils/generate-html';
@@ -26,7 +27,7 @@ export function init(vorpal: any) {
       }
 
       const sceneMeta = await inquirer.prompt([
-        { type: 'input', name: 'display.title', message: chalk.blue('Project title: '), default: 'DCL app' },
+        { type: 'input', name: 'display.title', message: chalk.blue('Project title: '), default: project.getRandomName() },
         { type: 'input', name: 'display.favicon', message: chalk.blue('Project favicon: '), default: 'favicon_asset' },
         { type: 'input', name: 'owner', message: chalk.blue('Your MetaMask address: '), default: '' },
         { type: 'input', name: 'contact.name', message: chalk.blue('Your name: '), default: '' },
