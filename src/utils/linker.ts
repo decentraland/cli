@@ -3,11 +3,12 @@ import fs = require('fs-extra');
 import Koa = require('koa');
 import Router = require('koa-router');
 import serve = require('koa-static');
+import * as project from '../utils/project';
 import { isDev } from './is-dev';
 import { prompt } from './prompt';
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
-  let projectName = 'dcl-app';
+  let projectName = project.getDefaultName();
 
   if (isDev) {
     projectName = await prompt(vorpal, '(Development-mode) Project name you want to upload: ', projectName);
