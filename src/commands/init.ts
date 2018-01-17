@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import fs = require('fs-extra');
+import inquirer = require('inquirer');
 import { cliPath }from '../utils/cli-path';
 import { prompt } from '../utils/prompt';
-import { sceneMeta } from '../utils/scene-meta';
 import { generateHtml } from '../utils/generate-html';
 import { isDev } from '../utils/is-dev';
 import { wrapAsync } from '../utils/wrap-async';
@@ -25,76 +25,72 @@ export function init(vorpal: any) {
         callback();
       }
 
-      self.log(chalk.blue('Project information:'));
+      const sceneMeta = await inquirer.prompt([
+        { type: 'input', name: 'display.title', message: chalk.blue('Project title: '), default: 'DCL app' },
+        { type: 'input', name: 'display.favicon', message: chalk.blue('Project favicon: '), default: 'favicon_asset' },
+        { type: 'input', name: 'owner', message: chalk.blue('Your MetaMask address: '), default: '' },
+        { type: 'input', name: 'contact.name', message: chalk.blue('Your name: '), default: '' },
+        { type: 'input', name: 'contact.email', message: chalk.blue('Your email: '), default: '' },
+        { type: 'input', name: 'main', message: chalk.blue('Main: '), default: 'scene' },
+        { type: 'input', name: 'tags', message: chalk.blue('Tags: ') },
+        { type: 'input', name: 'scene.parcels', message: `${chalk.blue('Parcels')} ${chalk.grey('(use the format \'x,y; x,y; x,y ...\'):')} ` },
+        { type: 'input', name: 'communications.type', message: chalk.blue('Communication type: '), default: 'webrtc' },
+        { type: 'input', name: 'communications.signalling', message: chalk.blue('Link to signalling server: '), default: 'https://signalling-01.decentraland.org' },
+        { type: 'input', name: 'policy.contentRating', message: chalk.blue('Content rating: '), default: 'E' },
+        { type: 'confirm', name: 'policy.fly', message: chalk.blue('Allow flying?: '), default: true },
+        { type: 'confirm', name: 'policy.voiceEnabled', message: chalk.blue('Allow voice?: '), default: true },
+        { type: 'input', name: 'policy.blacklist', message: `${chalk.blue('Blacklisted parcels')} ${chalk.grey('(use the format \'x,y; x,y; x,y ...\'):')} ` },
+        { type: 'input', name: 'policy.teleportPosition', message: `${chalk.blue('Teleport position')} ${chalk.grey('(use the format \'x,y\'):')} ` },
+      ]);
+      vorpal.log(sceneMeta)
 
-      sceneMeta.display.title = await prompt(self, chalk.blue(' project title: '), 'dcl-app');
-
-      const tags = await prompt(self, chalk.blue(' tags: '), '');
-
-      sceneMeta.tags = tags
-        ? tags
+      // Additional data parsing
+      sceneMeta.tags = sceneMeta.tags
+        ? sceneMeta.tags
           .split(',')
-          .map(tag => tag.replace(/\s/g, ''))
-          .filter(tag => tag.length > 0)
+          .map((tag: string) => tag.replace(/\s/g, ''))
+          .filter((tag: string) => tag.length > 0)
         : [];
 
-      self.log(chalk.blue('Contact information:'));
-
-      sceneMeta.owner = await prompt(self, chalk.blue(' your MetaMask address: '));
-      sceneMeta.contact.name = await prompt(self, chalk.blue(' your name: '));
-      sceneMeta.contact.email = await prompt(self, chalk.blue(' your email: '));
-
-      self.log(chalk.blue('Scene information:'));
-      self.log(' (use the format: \'x,y; x,y; x,y\')');
-
-      const parcels = await prompt(self, chalk.blue(' parcels: '));
-
-      sceneMeta.scene.parcels = parcels
-        ? parcels.split(';').map((coord: string) => coord.replace(/\s/g, ''))
+      sceneMeta.scene.parcels = sceneMeta.scene.parcels
+        ? sceneMeta.scene.parcels.split(';').map((coord: string) => coord.replace(/\s/g, ''))
         : [];
 
-      if (sceneMeta.scene.parcels.length > 0) {
-        sceneMeta.scene.base = await prompt(self, chalk.blue(' base: '), sceneMeta.scene.parcels[0] || '');
-      }
+      sceneMeta.policy.blacklist = sceneMeta.policy.blacklist
+        ? sceneMeta.policy.blacklist.split(';').map((coord: string) => coord.replace(/\s/g, ''))
+        : [];
 
-      self.log(chalk.blue('Communications:'));
+      sceneMeta.scene.base = sceneMeta.scene.parcels[0] || '';
 
-      sceneMeta.communications.type = await prompt(self, chalk.blue(' type: '), 'webrtc');
-      sceneMeta.communications.signalling = await prompt(self, chalk.blue(' signalling server: '), 'https://signalling-01.decentraland.org');
-
-      self.log(chalk.blue('Policy:'));
-
-      sceneMeta.policy.contentRating = await prompt(self, chalk.blue(' content rating: '), 'E');
-      sceneMeta.policy.fly = await prompt(self, chalk.blue(' fly enabled: '), 'yes');
-      sceneMeta.policy.voiceEnabled = await prompt(self, chalk.blue(' voice enabled: '), 'yes');
-
+      // Print the data to console
       self.log('');
       self.log(`Scene metadata: (${chalk.grey('scene.json')})`);
       self.log('');
       self.log(chalk.blue(JSON.stringify(sceneMeta, null, 2)));
       self.log('');
+      self.log(chalk.grey('(you can always update the metadata manually later)'));
+      self.log('');
 
-      const results = await self.prompt([
-        {
-          type: 'confirm',
-          name: 'continue',
-          default: true,
-          message: chalk.yellow('Do you want to continue?')
-        }
-      ]);
+      const results = await self.prompt({
+        type: 'confirm',
+        name: 'continue',
+        default: true,
+        message: chalk.yellow('Do you want to continue?')
+      });
 
       if (!results.continue) {
         callback();
         return;
       }
 
+      const parsedProjectName = sceneMeta.display.title.toLowerCase().replace(/\s/g, '-');
       let projectDir;
       if (args.options.path && args.options.path === '.') {
         projectDir = args.options.path;
       } else {
         projectDir = args.options.path
-          ? `${args.options.path}/${sceneMeta.display.title}`
-          : sceneMeta.display.title;
+          ? `${args.options.path}/${parsedProjectName}`
+          : parsedProjectName;
       }
 
       const dirName = isDev ? `tmp/${projectDir}` : `${projectDir}`;
