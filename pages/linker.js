@@ -2,11 +2,13 @@ import "babel-polyfill";
 import React from 'react';
 import Router from 'next/router';
 import { eth } from 'decentraland-commons';
-import LANDRegistry from '../contracts/LANDRegistry';
+import { LANDRegistry } from 'decentraland-contracts';
 
 async function ethereum() {
   await eth.connect(null, [LANDRegistry])
-  const land = await eth.getContract('LANDRegistry')
+
+  const land = LANDRegistry.getInstance()
+  land.address = '0x9519216b1d15a91e71e8cfa17cc45bcc7707e500'
 
   return {
     address: await eth.getAddress(),
