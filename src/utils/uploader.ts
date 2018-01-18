@@ -81,5 +81,5 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     vorpal.log(err.message);
   }
 
-  return ipnsHash
+  return ipnsHash;
 }

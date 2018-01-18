@@ -48,12 +48,12 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   });
 
   router.get('/api/contract-address', async (ctx) => {
-    let LANDRegistryAddress:string = null
+    let LANDRegistryAddress: string = null;
 
     try {
-      const { data } = await axios.get('https://contracts.decentraland.org/addresses.json')
-      LANDRegistryAddress = data.mainnet.LANDRegistry
-    } catch(error) {
+      const { data } = await axios.get('https://contracts.decentraland.org/addresses.json');
+      LANDRegistryAddress = data.mainnet.LANDRegistry;
+    } catch (error) {
       // fallback to ENV
     }
 
