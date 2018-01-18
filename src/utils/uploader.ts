@@ -2,9 +2,10 @@ import chalk from 'chalk';
 import fs = require('fs-extra');
 import inquirer = require('inquirer');
 const ipfsAPI = require('ipfs-api');
-import * as project from '../utils/project';
-import { cliPath }from '../utils/cli-path';
-import { isDev } from '../utils/is-dev';
+import * as project from './project';
+import { cliPath }from './cli-path';
+import { isDev } from './is-dev';
+import { prompt } from './prompt';
 
 export async function uploader(vorpal: any, args: any, callback: () => void) {
   // You need to have ipfs daemon running!
@@ -59,6 +60,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   };
 
   let ipfsHash;
+  let ipnsHash;
 
   try {
     const filesAdded = await ipfsApi.files.add(data, {
@@ -77,11 +79,13 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
 
     const publishResult = await ipfsApi.name.publish(ipfsHash);
 
-    const ipnsHash = publishResult.name || publishResult.Name;
+    ipnsHash = publishResult.name || publishResult.Name;
     vorpal.log(`IPNS Link: /ipns/${publishResult.name || publishResult.Name}`);
 
     await fs.outputFile(`${root}/.decentraland/ipns`, ipnsHash);
   } catch (err) {
     vorpal.log(err.message);
   }
+
+  return ipnsHash
 }
