@@ -30,7 +30,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   vorpal.log(chalk.blue('\nConfiguring linking app...\n'));
 
-  env.load()
+  env.load();
 
   const app = new Koa();
   const router = new Router();
@@ -47,7 +47,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   });
 
   router.get('/api/contract-address', async (ctx) => {
-    ctx.body = env.get('LAND_REGISTRY_CONTRACT_ADDRESS')
+    ctx.body = env.get('LAND_REGISTRY_CONTRACT_ADDRESS');
   });
 
   router.get('*', async (ctx) => {
