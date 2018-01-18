@@ -3,7 +3,8 @@ import fs = require('fs-extra');
 import Koa = require('koa');
 import Router = require('koa-router');
 import serve = require('koa-static');
-import * as project from './project';
+import { env } from 'decentraland-commons';
+import * as project from '../utils/project';
 import { isDev } from './is-dev';
 import { prompt } from './prompt';
 
@@ -29,6 +30,8 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   vorpal.log(chalk.blue('\nConfiguring linking app...\n'));
 
+  env.load()
+
   const app = new Koa();
   const router = new Router();
 
@@ -41,6 +44,10 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   router.get('/api/get-ipns-hash', async (ctx) => {
     const ipnsHash = await fs.readFile(`${path}/.decentraland/ipns`, 'utf8');
     ctx.body = JSON.stringify(ipnsHash);
+  });
+
+  router.get('/api/contract-address', async (ctx) => {
+    ctx.body = env.get('LAND_REGISTRY_CONTRACT_ADDRESS')
   });
 
   router.get('*', async (ctx) => {

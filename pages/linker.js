@@ -8,13 +8,18 @@ async function ethereum() {
   await eth.connect(null, [LANDRegistry])
 
   const land = LANDRegistry.getInstance()
-  land.address = '0x9519216b1d15a91e71e8cfa17cc45bcc7707e500'
+  land.address = await getContractAddress()
 
   return {
     address: await eth.getAddress(),
     land,
     web3: eth.web3
   }
+}
+
+async function getContractAddress() {
+  const res = await fetch('http://localhost:4044/api//apcontract-address');
+  return await res.json();
 }
 
 async function getSceneMetadata() {
