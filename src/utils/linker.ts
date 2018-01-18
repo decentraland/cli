@@ -3,6 +3,7 @@ import fs = require('fs-extra');
 import Koa = require('koa');
 import Router = require('koa-router');
 import serve = require('koa-static');
+import axios from 'axios';
 import { env } from 'decentraland-commons';
 import * as project from '../utils/project';
 import { isDev } from './is-dev';
@@ -47,7 +48,16 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   });
 
   router.get('/api/contract-address', async (ctx) => {
-    ctx.body = env.get('LAND_REGISTRY_CONTRACT_ADDRESS');
+    let LANDRegistryAddress:string = null
+
+    try {
+      const { data } = await axios.get('https://contracts.decentraland.org/addresses.json')
+      LANDRegistryAddress = data.mainnet.LANDRegistry
+    } catch(error) {
+      // fallback to ENV
+    }
+
+    ctx.body = env.get('LAND_REGISTRY_CONTRACT_ADDRESS', () => LANDRegistryAddress);
   });
 
   router.get('*', async (ctx) => {

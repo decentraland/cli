@@ -18,7 +18,7 @@ async function ethereum() {
 }
 
 async function getContractAddress() {
-  const res = await fetch('http://localhost:4044/api//apcontract-address');
+  const res = await fetch('http://localhost:4044/api/contract-address');
   return await res.json();
 }
 
