@@ -5,7 +5,7 @@ CLI tool for parcel management.
 * [x] Quickly create new projects
 * [x] Uploading scenes to IPFS
 * [x] Hot reloading
-* [ ] Linking Ethereum to the scene
+* [x] Linking Ethereum to the scene
 * [ ] Editor modifying local files and “uploading” to the directory
 * [ ] Optimizing objects, textures
 * [ ] Warnings and linting of scenes
@@ -23,7 +23,7 @@ $ npm install -g dcl-cli
 
 ## Usage
 
-- Initialize new Decentraland project:
+- Initialize new Decentraland project **from working directory**:
 
 ```bash
 $ dcl init
@@ -48,6 +48,12 @@ $ dcl upload
 
 ```bash
 $ dcl link
+```
+
+- Upload scene to IPFS, update IPNS and link Ethereum to the current scene in one go:
+
+```bash
+$ dcl push
 ```
 
 ## Building
