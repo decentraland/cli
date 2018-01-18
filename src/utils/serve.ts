@@ -4,11 +4,11 @@ const liveServer = require('live-server');
 
 export function serve(vorpal: any, args: any, ): void {
   vorpal.log(chalk.blue('Parcel server is starting...\n'));
-  const dir = isDev ? './tmp/dcl-app' : '.';
+
   liveServer.start({
     port: 2044,
     host: '0.0.0.0',
-    root: dir,
+    root: isDev ? './tmp/' : '.',
     open: true,
     ignore: '.decentraland',
     file: 'scene.html',

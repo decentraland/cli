@@ -8,16 +8,9 @@ import { isDev } from './is-dev';
 import { prompt } from './prompt';
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
-  let projectName = project.getDefaultName();
+  const path = isDev ? './tmp/' : '.';
 
-  if (isDev) {
-    projectName = await prompt('(Development-mode) Project name you want to upload: ', projectName);
-  }
-
-  const root = isDev ? `tmp/${projectName}` : '.';
-
-  const isDclProject = await fs.pathExists(`${root}/scene.json`);
-
+  const isDclProject = await fs.pathExists(`${path}/scene.json`);
   if (!isDclProject) {
     vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey('(\'scene.json\' not found.)')}`);
     callback();
@@ -25,7 +18,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   }
 
   const hasLinker = await fs.pathExists(
-    `${root}/.decentraland/linker-app/linker/index.html`
+    `${path}/.decentraland/linker-app/linker/index.html`
   );
 
   if (!hasLinker) {
@@ -39,14 +32,14 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   const app = new Koa();
   const router = new Router();
 
-  app.use(serve(`${root}/.decentraland/linker-app`));
+  app.use(serve(`${path}/.decentraland/linker-app`));
 
   router.get('/api/get-scene-data', async (ctx) => {
-    ctx.body = await fs.readJson(`${root}/scene.json`);
+    ctx.body = await fs.readJson(`${path}/scene.json`);
   });
 
   router.get('/api/get-ipns-hash', async (ctx) => {
-    const ipnsHash = await fs.readFile(`${root}/.decentraland/ipns`, 'utf8');
+    const ipnsHash = await fs.readFile(`${path}/.decentraland/ipns`, 'utf8');
     ctx.body = JSON.stringify(ipnsHash);
   });
 

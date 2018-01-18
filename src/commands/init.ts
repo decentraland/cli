@@ -80,17 +80,8 @@ export function init(vorpal: any) {
         return;
       }
 
-      const parsedProjectName = sceneMeta.display.title.toLowerCase().replace(/\s/g, '-');
-      let projectDir;
-      if (args.options.path && args.options.path === '.') {
-        projectDir = args.options.path;
-      } else {
-        projectDir = args.options.path
-          ? `${args.options.path}/${parsedProjectName}`
-          : parsedProjectName;
-      }
-
-      const dirName = isDev ? `tmp/${projectDir}` : `${projectDir}`;
+      const path = args.options.path ? args.options.path : '.';
+      const dirName = isDev ? './tmp/' : path;
 
       fs.copySync(
         `${cliPath}/dist/linker-app`,
