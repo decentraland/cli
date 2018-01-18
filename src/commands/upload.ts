@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import fs = require('fs-extra');
 const ipfsAPI = require('ipfs-api');
+import * as project from '../utils/project';
 import { isDev } from '../utils/is-dev';
 import { prompt } from '../utils/prompt';
 import { wrapAsync } from '../utils/wrap-async';
@@ -14,10 +15,10 @@ export function upload(vorpal: any) {
     // You need to have ipfs daemon running!
     const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
 
-    let projectName = 'dcl-app';
+    let projectName = project.getDefaultName();
 
     if (isDev) {
-      projectName = await prompt(vorpal, '(Development-mode) Project name you want to upload: ', 'dcl-app');
+      projectName = await prompt('(Development-mode) Project name you want to upload: ', projectName);
     }
 
     const root = isDev ? `tmp/${projectName}` : '.';

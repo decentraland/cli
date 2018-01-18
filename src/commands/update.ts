@@ -1,7 +1,8 @@
-
 import chalk from 'chalk';
 import fs = require('fs-extra');
 import path = require('path');
+import inquirer = require('inquirer');
+import * as project from '../utils/project';
 import { cliPath }from '../utils/cli-path';
 import { isDev } from '../utils/is-dev';
 import { wrapAsync } from '../utils/wrap-async';
@@ -11,13 +12,13 @@ export function update(vorpal: any) {
     .command('update')
     .description('Update Ethereum linker tool.')
     .action(wrapAsync(async function (args: any, callback: () => void) {
-      let projectName = 'dcl-app';
+      let projectName = project.getDefaultName();
 
       if (isDev) {
-        const res = await vorpal.prompt({
+        const res = await inquirer.prompt({
           type: 'input',
           name: 'projectName',
-          default: 'dcl-app',
+          default: projectName,
           message:
             '(Development-mode) Project name (in \'tmp/\' folder) you want to update: '
         });

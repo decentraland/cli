@@ -1,13 +1,18 @@
 import chalk from 'chalk';
-const budo = require('budo');
+import { isDev } from '../utils/is-dev';
+const liveServer = require('live-server');
 
 export function serve(vorpal: any, args: any, ): void {
   vorpal.log(chalk.blue('Parcel server is starting...\n'));
-
-  budo('./', {
-    host: '0.0.0.0',
-    live: true,
+  const dir = isDev ? './tmp/dcl-app' : '.';
+  liveServer.start({
     port: 2044,
-    stream: process.stdout
+    host: '0.0.0.0',
+    root: dir,
+    open: true,
+    ignore: '.decentraland',
+    file: 'scene.html',
+    wait: 500,
+    logLevel: 3
   });
 }
