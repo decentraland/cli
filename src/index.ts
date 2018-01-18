@@ -19,6 +19,7 @@ import Vorpal = require('vorpal');
 import { help } from './commands/help';
 import { init } from './commands/init';
 import { link } from './commands/link';
+import { push } from './commands/push';
 import { start } from './commands/start';
 import { update } from './commands/update';
 import { upload } from './commands/upload';
@@ -46,6 +47,7 @@ const cli = {
     vorpal.use(start);
     vorpal.use(upload);
     vorpal.use(link);
+    vorpal.use(push);
     vorpal.use(help);
     // vorpal.use(update); TODO: implement auto-update
 

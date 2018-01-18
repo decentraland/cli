@@ -3,7 +3,7 @@ import fs = require('fs-extra');
 import Koa = require('koa');
 import Router = require('koa-router');
 import serve = require('koa-static');
-import * as project from '../utils/project';
+import * as project from './project';
 import { isDev } from './is-dev';
 import { prompt } from './prompt';
 
@@ -64,5 +64,5 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   vorpal.log('Linking app ready.');
   vorpal.log(`Please proceed to ${chalk.blue('http://localhost:4044/linker')}.`);
 
-  return await app.listen(4044);
+  await app.listen(4044);
 }
