@@ -5,6 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "start": "./dev.js",
+    "watch": "tsc --watch",
     "build": "npm run clean && tsc && npm run linker:build",
     "clean": "rimraf dist && rimraf tmp",
     "linker:dev": "next",
@@ -37,6 +38,7 @@
   "dependencies": {
     "@types/fs-extra": "^5.0.0",
     "@types/next": "^2.4.7",
+    "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "chalk": "^2.3.0",
     "decentraland-commons": "git+https://github.com/decentraland/commons.git#release",

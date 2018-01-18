@@ -66,3 +66,7 @@ $ dcl push
 `dcl` command should now be available.
 
 For CLI tool development, run `npm start` in your terminal.
+
+You can run CLI commands in development mode like this: `npm start -- init`
+
+You can do incremental compilations by running `npm run watch`, but you will need to run `npm run build` at least once before to build the `linker-app`, and if you make changes to the linker you will need to re-run `npm run build`.
