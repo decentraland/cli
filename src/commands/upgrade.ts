@@ -7,10 +7,10 @@ import { cliPath }from '../utils/cli-path';
 import { isDev } from '../utils/is-dev';
 import { wrapAsync } from '../utils/wrap-async';
 
-export function update(vorpal: any) {
+export function upgrade(vorpal: any) {
   vorpal
-    .command('update')
-    .description('Update Ethereum linker tool.')
+    .command('upgrade')
+    .description('Get latest version of Ethereum linker.')
     .action(wrapAsync(async function (args: any, callback: () => void) {
       const path = isDev ? './tmp/' : '.';
 
@@ -24,6 +24,7 @@ export function update(vorpal: any) {
         callback();
       }
 
+      await fs.remove(`${path}/.decentraland/linker-app`)
       await fs.copy(`${cliPath}/dist/linker-app`, `${path}/.decentraland/linker-app`);
       vorpal.log('CLI linking app updated!');
     }));
