@@ -91,6 +91,10 @@ export function init(vorpal: any) {
         `${cliPath}/live-reload.js`,
         `${dirName}/.decentraland/live-reload.js`
       );
+      fs.copySync(
+        `${cliPath}/parcel-boundary.js`,
+        `${dirName}/.decentraland/parcel-boundary.js`
+      );
       // Project folders
       fs.ensureDirSync(`${dirName}/audio`);
       fs.ensureDirSync(`${dirName}/models`);
