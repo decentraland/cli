@@ -57,7 +57,11 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
       // fallback to ENV
     }
 
-    ctx.body = env.get('LAND_REGISTRY_CONTRACT_ADDRESS', () => LANDRegistryAddress);
+    LANDRegistryAddress = env.get('LAND_REGISTRY_CONTRACT_ADDRESS', () => LANDRegistryAddress);
+
+    ctx.body = JSON.stringify({
+      address: LANDRegistryAddress
+    })
   });
 
   router.get('*', async (ctx) => {

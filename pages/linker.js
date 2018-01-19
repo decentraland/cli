@@ -5,10 +5,10 @@ import { eth } from 'decentraland-commons';
 import { LANDRegistry } from 'decentraland-contracts';
 
 async function ethereum() {
-  await eth.connect(null, [LANDRegistry])
+  const { address } = await getContractAddress()
+  const land = new LANDRegistry(address)
 
-  const land = LANDRegistry.getInstance()
-  land.address = await getContractAddress()
+  await eth.connect([land])
 
   return {
     address: await eth.getAddress(),
