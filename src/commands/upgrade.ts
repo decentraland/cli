@@ -26,7 +26,7 @@ export function upgrade(vorpal: any) {
         return;
       }
 
-      if (isOutdated(vorpal, callback)) {
+      if (isOutdated()) {
         await fs.remove(`${path}/.decentraland/linker-app`)
         await fs.copy(`${cliPath}/dist/linker-app`, `${path}/.decentraland/linker-app`);
         vorpal.log(chalk.green('Ethereum linker app updated!'));
