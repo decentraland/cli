@@ -2,17 +2,24 @@ import "babel-polyfill";
 import React from 'react';
 import Router from 'next/router';
 import { eth } from 'decentraland-commons';
-import LANDRegistry from '../contracts/LANDRegistry';
+import { LANDRegistry } from 'decentraland-contracts';
 
 async function ethereum() {
-  await eth.connect(null, [LANDRegistry])
-  const land = await eth.getContract('LANDRegistry')
+  const { address } = await getContractAddress()
+  const land = new LANDRegistry(address)
+
+  await eth.connect([land])
 
   return {
     address: await eth.getAddress(),
     land,
     web3: eth.web3
   }
+}
+
+async function getContractAddress() {
+  const res = await fetch('http://localhost:4044/api/contract-address');
+  return await res.json();
 }
 
 async function getSceneMetadata() {
@@ -67,17 +74,19 @@ export default class Page extends React.Component {
         return;
       }
 
-      const x = [];
-      const y = [];
+      const coordinates = [];
 
       this.state.sceneMetadata.scene.parcels.forEach(parcel => {
-        x.push(Number(parcel.split(",")[0]));
-        y.push(Number(parcel.split(",")[1]));
+        const [x, y] = parcel.split(",");
+
+        coordinates.push({
+          x: parseInt(x, 10),
+          y: parseInt(y, 10)
+        })
       });
 
       const tx = await land.updateManyLandData(
-        x,
-        y,
+        coordinates,
         this.state.ipnsHash
       )
 

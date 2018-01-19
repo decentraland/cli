@@ -36,8 +36,6 @@
     "dcl": "./bin/index.js"
   },
   "dependencies": {
-    "@types/fs-extra": "^5.0.0",
-    "@types/next": "^2.4.7",
     "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "chalk": "^2.3.0",
@@ -62,11 +60,13 @@
   "devDependencies": {
     "@types/chai": "^4.0.10",
     "@types/chalk": "^2.2.0",
+    "@types/fs-extra": "^5.0.0",
     "@types/inquirer": "0.0.36",
     "@types/koa": "^2.0.43",
     "@types/koa-router": "^7.0.27",
     "@types/koa-static": "^4.0.0",
     "@types/mocha": "^2.2.45",
+    "@types/next": "^2.4.7",
     "@types/node": "^8.5.2",
     "@types/progress": "^2.0.1",
     "babel-cli": "^6.26.0",

@@ -11,6 +11,9 @@
 // Use custom docker names type definitions until there's official one
 /// <reference path="../typings/docker-names.d.ts" />
 
+// Use decentraland-commons definitions
+/// <reference path="../typings/decentraland-commons.d.ts" />
+
 import chalk from 'chalk';
 import fs = require('fs-extra');
 import path = require('path');
