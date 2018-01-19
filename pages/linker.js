@@ -74,17 +74,19 @@ export default class Page extends React.Component {
         return;
       }
 
-      const x = [];
-      const y = [];
+      const coordinates = [];
 
       this.state.sceneMetadata.scene.parcels.forEach(parcel => {
-        x.push(Number(parcel.split(",")[0]));
-        y.push(Number(parcel.split(",")[1]));
+        const [x, y] = parcel.split(",");
+
+        coordinates.push({
+          x: parseInt(x, 10),
+          y: parseInt(y, 10)
+        })
       });
 
       const tx = await land.updateManyLandData(
-        x,
-        y,
+        coordinates,
         this.state.ipnsHash
       )
 
