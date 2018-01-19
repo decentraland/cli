@@ -8,6 +8,7 @@ import { env } from 'decentraland-commons';
 import * as project from '../utils/project';
 import { isDev } from './is-dev';
 import { prompt } from './prompt';
+import opn = require('opn');
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
   const path = isDev ? './tmp/' : '.';
@@ -64,6 +65,17 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     })
   });
 
+  router.get('/api/close', async (ctx) => {
+    ctx.res.end()
+    const ok = require('url').parse(ctx.req.url, true).query.ok
+    if (ok === 'true') {
+      console.log(chalk.green('\nThe project was linked to Ethereum!'))
+    } else {
+      console.log(chalk.red('\nThe project was not linked to Ethereum'))
+    }
+    process.exit(0)
+  });
+
   router.get('*', async (ctx) => {
     ctx.respond = false;
   });
@@ -75,8 +87,8 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   app.use(router.routes());
 
+  const url = 'http://localhost:4044/linker'
   vorpal.log('Linking app ready.');
-  vorpal.log(`Please proceed to ${chalk.blue('http://localhost:4044/linker')}.`);
-
-  await app.listen(4044);
+  vorpal.log(`Please proceed to ${chalk.blue(url)}`);
+  await app.listen(4044, () => opn(url));
 }
