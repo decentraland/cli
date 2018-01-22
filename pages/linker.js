@@ -18,19 +18,23 @@ async function ethereum() {
 }
 
 async function getContractAddress() {
-  const res = await fetch('http://localhost:4044/api/contract-address');
+  const res = await fetch('/api/contract-address');
   return await res.json();
 }
 
 async function getSceneMetadata() {
-  const res = await fetch('http://localhost:4044/api/get-scene-data');
+  const res = await fetch('/api/get-scene-data');
   return await res.json();
 }
 
 async function getIpnsHash() {
-  const res = await fetch('http://localhost:4044/api/get-ipns-hash');
+  const res = await fetch('/api/get-ipns-hash');
   const ipnsHash = await res.json();
   return ipnsHash;
+}
+
+async function closeServer(ok) {
+  const res = await fetch(`/api/close?ok=${ok}`);
 }
 
 export default class Page extends React.Component {
@@ -84,15 +88,14 @@ export default class Page extends React.Component {
           y: parseInt(y, 10)
         })
       });
-
-      const tx = await land.updateManyLandData(
-        coordinates,
-        this.state.ipnsHash
-      )
-
+      const data = `0,${this.state.ipnsHash}`
+      const tx = await land.updateManyLandData(coordinates, data)
       this.setState({ tx })
+
+      closeServer(true)
     } catch(err) {
       this.setState({loading: false, error: err.message})
+      closeServer(false)
     }
   }
 
