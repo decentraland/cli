@@ -69,9 +69,9 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     ctx.res.end()
     const ok = require('url').parse(ctx.req.url, true).query.ok
     if (ok === 'true') {
-      vorpal.log((chalk.green('\nThe project was linked to Ethereum!'))
+      vorpal.log(chalk.green('\nThe project was linked to Ethereum!'))
     } else {
-      vorpal.log((chalk.red('\nThe project was not linked to Ethereum'))
+      vorpal.log(chalk.red('\nThe project was not linked to Ethereum'))
     }
     process.exit(0)
   });
