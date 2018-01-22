@@ -3,9 +3,12 @@ import fs = require('fs-extra');
 import Koa = require('koa');
 import Router = require('koa-router');
 import serve = require('koa-static');
-import * as project from './project';
+import axios from 'axios';
+import { env } from 'decentraland-commons';
+import * as project from '../utils/project';
 import { isDev } from './is-dev';
 import { prompt } from './prompt';
+import opn = require('opn');
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
   const path = isDev ? './tmp/' : '.';
@@ -29,6 +32,8 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   vorpal.log(chalk.blue('\nConfiguring linking app...\n'));
 
+  env.load();
+
   const app = new Koa();
   const router = new Router();
 
@@ -43,6 +48,34 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     ctx.body = JSON.stringify(ipnsHash);
   });
 
+  router.get('/api/contract-address', async (ctx) => {
+    let LANDRegistryAddress: string = null;
+
+    try {
+      const { data } = await axios.get('https://contracts.decentraland.org/addresses.json');
+      LANDRegistryAddress = data.mainnet.LANDRegistry;
+    } catch (error) {
+      // fallback to ENV
+    }
+
+    LANDRegistryAddress = env.get('LAND_REGISTRY_CONTRACT_ADDRESS', () => LANDRegistryAddress);
+
+    ctx.body = JSON.stringify({
+      address: LANDRegistryAddress
+    })
+  });
+
+  router.get('/api/close', async (ctx) => {
+    ctx.res.end()
+    const ok = require('url').parse(ctx.req.url, true).query.ok
+    if (ok === 'true') {
+      vorpal.log((chalk.green('\nThe project was linked to Ethereum!'))
+    } else {
+      vorpal.log((chalk.red('\nThe project was not linked to Ethereum'))
+    }
+    process.exit(0)
+  });
+
   router.get('*', async (ctx) => {
     ctx.respond = false;
   });
@@ -54,8 +87,8 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   app.use(router.routes());
 
+  const url = 'http://localhost:4044/linker'
   vorpal.log('Linking app ready.');
-  vorpal.log(`Please proceed to ${chalk.blue('http://localhost:4044/linker')}.`);
-
-  await app.listen(4044);
+  vorpal.log(`Please proceed to ${chalk.blue(url)}`);
+  await app.listen(4044, () => opn(url));
 }
