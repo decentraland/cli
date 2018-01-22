@@ -8,15 +8,13 @@ import { isDev } from './is-dev';
 import { isOutdated } from './is-outdated';
 import { wrapAsync } from './wrap-async';
 
-export async function linkerChecker(vorpal: any) {
+export function linkerChecker(vorpal: any) {
   const path = isDev ? './tmp/' : '.';
 
-  const isDclProject = await fs.pathExists(`${path}/scene.json`);
-  if (!isDclProject) {
+  const isDclProject = fs.pathExistsSync(`${path}/scene.json`);
+  if (!isDclProject || process.argv[2].indexOf('upgrade') !== -1 || !isOutdated()) {
     return;
   }
 
-  if (!isOutdated()) return;
-
-  vorpal.log(`${chalk.red('Ethereum linker app is outdated! Please run ')}${chalk.yellow('dcl upgrade')}`);
+  vorpal.log(`${chalk.red('Ethereum linker app is outdated! Please run ')}${chalk.yellow('dcl upgrade')}${chalk.red('!')}\n`);
 }
