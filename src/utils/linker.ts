@@ -62,18 +62,18 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
     ctx.body = JSON.stringify({
       address: LANDRegistryAddress
-    })
+    });
   });
 
   router.get('/api/close', async (ctx) => {
-    ctx.res.end()
-    const ok = require('url').parse(ctx.req.url, true).query.ok
+    ctx.res.end();
+    const ok = require('url').parse(ctx.req.url, true).query.ok;
     if (ok === 'true') {
-      vorpal.log(chalk.green('\nThe project was linked to Ethereum!'))
+      vorpal.log(chalk.green('\nThe project was linked to Ethereum!'));
     } else {
-      vorpal.log(chalk.red('\nThe project was not linked to Ethereum'))
+      vorpal.log(chalk.red('\nThe project was not linked to Ethereum'));
     }
-    process.exit(0)
+    process.exit(0);
   });
 
   router.get('*', async (ctx) => {
@@ -87,7 +87,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   app.use(router.routes());
 
-  const url = 'http://localhost:4044/linker'
+  const url = 'http://localhost:4044/linker';
   vorpal.log('Linking app ready.');
   vorpal.log(`Please proceed to ${chalk.blue(url)}`);
   await app.listen(4044, () => opn(url));

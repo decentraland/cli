@@ -103,7 +103,7 @@ export function init(vorpal: any) {
         `${dirName}/scene.json`,
         JSON.stringify(sceneMeta, null, 2)
       );
-      this.log(`\nNew project created in '${dirName}' directory.\n`)
+      this.log(`\nNew project created in '${dirName}' directory.\n`);
 
       const createScene = async (
         pathToProject: string,
@@ -124,7 +124,7 @@ export function init(vorpal: any) {
       };
 
       if (args.options.boilerplate) {
-        const html = await generateHtml({ withSampleScene: true })
+        const html = await generateHtml({ withSampleScene: true });
         await createScene(dirName, html, true);
       } else {
         const results = await inquirer.prompt({
@@ -137,10 +137,10 @@ export function init(vorpal: any) {
         });
 
         if (results.sampleScene) {
-          const html = await generateHtml({ withSampleScene: true })
+          const html = await generateHtml({ withSampleScene: true });
           await createScene(dirName, html, true);
         } else {
-          const html = await generateHtml({ withSampleScene: false })
+          const html = await generateHtml({ withSampleScene: false });
           await createScene(dirName, html, false);
         }
       }

@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from 'axios';
 
 interface GeneratorSettings {
   withSampleScene?: boolean;
@@ -11,7 +11,7 @@ export async function generateHtml({ withSampleScene = false }: GeneratorSetting
       <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
       <a-sky color="#ECECEC"></a-sky>`;
 
-  const { data } = await axios.get('https://client.decentraland.today/assets.json')
+  const { data } = await axios.get('https://client.decentraland.today/assets.json');
 
   const html = `<!DOCTYPE html>
 <html>
@@ -26,7 +26,7 @@ export async function generateHtml({ withSampleScene = false }: GeneratorSetting
     </a-scene>
   </body>
   <script charset="utf-8" src=".decentraland/parcel-boundary.js"></script>
-</html>`
+</html>`;
 
-  return html
+  return html;
 }

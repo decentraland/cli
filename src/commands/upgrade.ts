@@ -27,14 +27,14 @@ export function upgrade(vorpal: any) {
       }
 
       if (isOutdated()) {
-        await fs.remove(`${path}/.decentraland/linker-app`)
+        await fs.remove(`${path}/.decentraland/linker-app`);
         await fs.copy(`${cliPath}/dist/linker-app`, `${path}/.decentraland/linker-app`);
         vorpal.log(chalk.green('Ethereum linker app updated!'));
       } else {
         vorpal.log('You have the latest version of Ethereum linker app.');
       }
 
-      callback()
-      return
+      callback();
+      return;
     }));
 }
