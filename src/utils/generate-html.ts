@@ -25,6 +25,7 @@ export async function generateHtml({ withSampleScene = false }: GeneratorSetting
       ${withSampleScene ? sampleScene : '<!-- Your scene code -->'}
     </a-scene>
   </body>
+  <script charset="utf-8" src=".decentraland/parcel-boundary.js"></script>
 </html>`
 
   return html
