@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get the bounds of the parcel
     var parcels = sceneMetadata.scene.parcels.map(p => p.split(',')).map((p) => new THREE.Vector2(parseInt(p[0]), parseInt(p[1])))
 
+    var boundsForOffset = new THREE.Box2().setFromPoints(parcels)
+    // Offset so that the north-west most tile is at 0,0
+    parcels.forEach((p) => p.sub(boundsForOffset.min))
+
     var bounds = new THREE.Box2().setFromPoints(parcels)
 
     // Create a 1 parcel buffer
