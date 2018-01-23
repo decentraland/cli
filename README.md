@@ -18,7 +18,7 @@ CLI tool for parcel management.
 ## Installation
 
 ```bash
-$ npm install -g dcl-cli
+$ npm install -g decentraland
 ```
 
 ## Usage
