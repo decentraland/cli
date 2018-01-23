@@ -50,13 +50,25 @@ export default class Page extends React.Component {
   }
 
   async componentDidMount() {
-    try {
-      const { land, address, web3 } = await ethereum()
+    try { 
+      let land, address, web3
 
-      this.setState({
-        loading: false,
-        address
-      })
+      try {
+        const res = await ethereum()
+        land = res.land
+        address = res.address
+        web3 = res.web3
+
+        this.setState({
+          loading: false,
+          address
+        })
+      } catch(err) {
+        this.setState({
+          error: `Could not connect to MetaMask`
+        });
+        return;
+      }
 
       try {
         const sceneMetadata = await getSceneMetadata();
@@ -90,7 +102,23 @@ export default class Page extends React.Component {
           y: parseInt(y, 10)
         })
       });
-      const data = `0,${this.state.ipnsHash}`
+      
+      const oldData = await land.getData(coordinates[0].x, coordinates[0].y)
+      let name, description
+      try {
+        const decoded = LANDRegistry.decodeLandData(oldData)
+        name = decoded.name
+        description = decoded.description
+      } catch(err) {
+        name = ''
+        description = ''
+      }
+      const data = LANDRegistry.encodeLandData({
+        version: 0,
+        name,
+        description,
+        ipns: this.state.ipnsHash
+      })
       const tx = await land.updateManyLandData(coordinates, data)
       this.setState({ tx })
 
