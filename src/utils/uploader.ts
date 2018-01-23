@@ -4,14 +4,14 @@ import inquirer = require('inquirer');
 const ipfsAPI = require('ipfs-api');
 import * as project from './project';
 import { cliPath }from './cli-path';
-import { isDev } from './is-dev';
 import { prompt } from './prompt';
+import { getRoot } from './get-root';
 
 export async function uploader(vorpal: any, args: any, callback: () => void) {
   // You need to have ipfs daemon running!
   const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
 
-  const path = isDev ? './tmp/' : '.';
+  const path = getRoot()
 
   const isDclProject = await fs.pathExists(`${path}/scene.json`);
   if (!isDclProject) {
