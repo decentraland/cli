@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { isDev } from '../utils/is-dev';
+import { getRoot } from './get-root';
 const liveServer = require('live-server');
 
 export function serve(vorpal: any, args: any, ): void {
@@ -8,7 +8,7 @@ export function serve(vorpal: any, args: any, ): void {
   liveServer.start({
     port: 2044,
     host: '0.0.0.0',
-    root: isDev ? './tmp/' : '.',
+    root: getRoot(),
     open: true,
     ignore: '.decentraland',
     file: 'scene.html',

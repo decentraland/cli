@@ -4,8 +4,8 @@ import inquirer = require('inquirer');
 import * as project from '../utils/project';
 import { cliPath }from '../utils/cli-path';
 import { generateHtml } from '../utils/generate-html';
-import { isDev } from '../utils/is-dev';
 import { wrapAsync } from '../utils/wrap-async';
+import { getRoot } from '../utils/get-root';
 
 export function init(vorpal: any) {
   vorpal
@@ -80,8 +80,7 @@ export function init(vorpal: any) {
         return;
       }
 
-      const path = args.options.path ? args.options.path : '.';
-      const dirName = isDev ? './tmp/' : path;
+      const dirName = args.options.path || getRoot()
 
       fs.copySync(
         `${cliPath}/dist/linker-app`,

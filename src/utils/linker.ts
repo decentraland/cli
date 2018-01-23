@@ -6,12 +6,12 @@ import serve = require('koa-static');
 import axios from 'axios';
 import { env } from 'decentraland-commons';
 import * as project from '../utils/project';
-import { isDev } from './is-dev';
 import { prompt } from './prompt';
 import opn = require('opn');
+import { getRoot } from './get-root';
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
-  const path = isDev ? './tmp' : '.';
+  const path = getRoot()
 
   const isDclProject = await fs.pathExists(`${path}/scene.json`);
   if (!isDclProject) {
