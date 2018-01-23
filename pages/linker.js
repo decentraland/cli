@@ -2,13 +2,13 @@ import "babel-polyfill";
 import React from 'react';
 import Router from 'next/router';
 import { eth } from 'decentraland-commons';
-import { LANDRegistry } from 'decentraland-contracts';
+import { LANDRegistry } from 'decentraland-commons/dist/contracts/LANDRegistry';
 
 async function ethereum() {
   const { address } = await getContractAddress()
   const land = new LANDRegistry(address)
 
-  await eth.connect([land])
+  await eth.connect({ contracts: [land]})
 
   return {
     address: await eth.getAddress(),
@@ -65,6 +65,7 @@ export default class Page extends React.Component {
         this.setState({
           error: `There was a problem getting scene data.\nTry to re-initialize the project with dcl init.`
         });
+        closeServer(false)
         return;
       }
 
@@ -75,6 +76,7 @@ export default class Page extends React.Component {
         this.setState({
           error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
         });
+        closeServer(false)
         return;
       }
 
