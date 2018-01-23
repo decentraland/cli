@@ -58,7 +58,7 @@ $ dcl push
 
 ## Building
 
-1. Clone the dcl-cli: `git clone https://github.com/decentraland/cli.git`
+1. Clone the repo: `git clone https://github.com/decentraland/cli.git`
 2. Go into the cli directory: `cd cli`
 3. Run `npm install`
 4. Link the cli with: `npm link`
