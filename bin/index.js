@@ -2,5 +2,5 @@
 
 'use strict';
 
-var cli = require("./../");
+var cli = require("../dist");
 cli.init();
