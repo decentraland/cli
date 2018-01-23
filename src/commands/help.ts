@@ -14,7 +14,7 @@ export function help(vorpal: any) {
         // Keep in mind that `_commandHelp` can change so, future mantainer, if this breaks and vorpal is on a version higher than 1.12.0
         // this is probably the culprit
         const oldCommands = vorpal.commands;
-        const fullCommands = ['init', 'start', 'upload', 'link', 'help'];
+        const fullCommands = ['init', 'start', 'upload', 'link', 'push', 'upgrade', 'help'];
 
         vorpal.commands = fullCommands.map((commandName: string) =>
           oldCommands.find((command: any) => command._name === commandName)

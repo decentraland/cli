@@ -6,13 +6,14 @@ import * as project from '../utils/project';
 import { cliPath }from '../utils/cli-path';
 import { isDev } from '../utils/is-dev';
 import { wrapAsync } from '../utils/wrap-async';
+import { isOutdated }from '../utils/is-outdated';
 
-export function update(vorpal: any) {
+export function upgrade(vorpal: any) {
   vorpal
-    .command('update')
-    .description('Update Ethereum linker tool.')
+    .command('upgrade')
+    .description('Get latest version of Ethereum linker.')
     .action(wrapAsync(async function (args: any, callback: () => void) {
-      const path = isDev ? './tmp/' : '.';
+      const path = isDev ? './tmp' : '.';
 
       const isDclProject = await fs.pathExists(`${path}/scene.json`);
       if (!isDclProject) {
@@ -22,9 +23,18 @@ export function update(vorpal: any) {
           )}`
         );
         callback();
+        return;
       }
 
-      await fs.copy(`${cliPath}/dist/linker-app`, `${path}/.decentraland/linker-app`);
-      vorpal.log('CLI linking app updated!');
+      if (isOutdated()) {
+        await fs.remove(`${path}/.decentraland/linker-app`);
+        await fs.copy(`${cliPath}/dist/linker-app`, `${path}/.decentraland/linker-app`);
+        vorpal.log(chalk.green('Ethereum linker app updated!'));
+      } else {
+        vorpal.log('You have the latest version of Ethereum linker app.');
+      }
+
+      callback();
+      return;
     }));
 }

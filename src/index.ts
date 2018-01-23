@@ -24,8 +24,9 @@ import { init } from './commands/init';
 import { link } from './commands/link';
 import { push } from './commands/push';
 import { start } from './commands/start';
-import { update } from './commands/update';
+import { upgrade } from './commands/upgrade';
 import { upload } from './commands/upload';
+import { linkerChecker } from './utils/linker-checker';
 const pkg = require('../package.json');
 
 /**
@@ -51,8 +52,10 @@ const cli = {
     vorpal.use(upload);
     vorpal.use(link);
     vorpal.use(push);
+    vorpal.use(upgrade);
     vorpal.use(help);
-    // vorpal.use(update); TODO: implement auto-update
+
+    linkerChecker(vorpal);
 
     vorpal
       .delimiter(DELIMITER)
