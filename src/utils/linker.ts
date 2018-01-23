@@ -11,7 +11,7 @@ import { prompt } from './prompt';
 import opn = require('opn');
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
-  const path = isDev ? './tmp/' : '.';
+  const path = isDev ? './tmp' : '.';
 
   const isDclProject = await fs.pathExists(`${path}/scene.json`);
   if (!isDclProject) {
