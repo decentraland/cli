@@ -129,10 +129,14 @@ export default class Page extends React.Component {
         description,
         ipns: this.state.ipnsHash
       })
-      const tx = await land.updateManyLandData(coordinates, data)
-      this.setState({ tx })
-
-      closeServer(true)
+      try {
+        const tx = await land.updateManyLandData(coordinates, data)
+        this.setState({ tx })
+        closeServer(true)
+      } catch(err) {
+        this.setState({loading: false, error: 'Transaction Rejected'})
+        closeServer(false)
+      }
     } catch(err) {
       this.setState({loading: false, error: err.message})
       closeServer(false)
@@ -150,7 +154,7 @@ export default class Page extends React.Component {
   )
 
   renderError = () => (
-    this.state.error ? <p>{this.state.error}</p> : null
+    this.state.error ? <p style={{ color: 'red' }}>{this.state.error}</p> : null
   )
 
   render() {
