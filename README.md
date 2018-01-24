@@ -65,7 +65,7 @@ $ dcl push
 
 `dcl` command should now be available.
 
-For CLI tool development, run `npm start` in your terminal. The cli will use the mainnet address for the LANDRegistry contract by default. If you want to change it, you can add a `.env` file on the root folder, with a `LAND_REGISTRY_CONTRACT_ADDRESS` var. It'll use [dotenv](https://github.com/motdotla/dotenv#faq) to fetch the value. You can check the current contract addresses [here](https://contracts.decentraland.org/addresses.json).
+For CLI tool development, run `npm start` in your terminal. The cli will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can add a `.env` file on the root folder, with a `LAND_REGISTRY_CONTRACT_ADDRESS` var. It'll use [dotenv](https://github.com/motdotla/dotenv#faq) to fetch the value. You can check the current contract addresses [here](https://contracts.decentraland.org/addresses.json).
 
 You can run CLI commands in development mode like this: `npm start -- init`
 
