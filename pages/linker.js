@@ -107,8 +107,13 @@ export default class Page extends React.Component {
           y: parseInt(y, 10)
         })
       });
-      
-      const oldData = await land.getData(coordinates[0].x, coordinates[0].y)
+      let oldData
+      try {
+        console.log('oldData', coordinates[0].x, coordinates[0].y)
+        oldData = await land.getData(coordinates[0].x, coordinates[0].y)
+      } catch(e) {
+        console.error('oldData', e)
+      }
       let name, description
       try {
         const decoded = LANDRegistry.decodeLandData(oldData)
