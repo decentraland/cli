@@ -50,6 +50,11 @@ export default class Page extends React.Component {
   }
 
   async componentDidMount() {
+    window.onbeforeunload = function() {
+      var request = new XMLHttpRequest();
+      request.open('GET', '/api/close?ok=false', false);  // `false` makes the request synchronous
+      request.send(null);
+    }
     try { 
       let land, address, web3
 
