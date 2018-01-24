@@ -148,8 +148,8 @@ export default class Page extends React.Component {
   renderTxHash = () => (
     this.state.tx ? (
       <p>Transaction:<br />
-        <a href={`https://ropsten.etherscan.io/tx/${this.state.tx}`} target="_blank">
-          {`https://ropsten.etherscan.io/tx/${this.state.tx}`}
+        <a href={`https://etherscan.io/tx/${this.state.tx}`} target="_blank">
+          {`https://etherscan.io/tx/${this.state.tx}`}
         </a>
       </p>
      ) : null
