@@ -1,0 +1,15 @@
+.vs/
+.vscode/
+bower_components/
+node_modules/
+tmp/
+*.log
+.env
+
+
+
+.next/
+.decentraland/ipns
+
+# Until API is stable
+package-lock.json
