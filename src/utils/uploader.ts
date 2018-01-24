@@ -79,6 +79,10 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     await fs.outputFile(`${path}/.decentraland/ipns`, ipnsHash);
   } catch (err) {
     vorpal.log(err.message);
+    if (err.message.indexOf('ECONNREFUSED') != -1) {
+      vorpal.log(chalk.red('\nMake sure you have the IPFS daemon running (https://ipfs.io/docs/install/).'));
+    }
+    process.exit(0)
   }
 
   return ipnsHash;
