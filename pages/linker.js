@@ -128,9 +128,10 @@ export default class Page extends React.Component {
         version: 0,
         name,
         description,
-        ipns: this.state.ipnsHash
+        ipns: `ipns:${this.state.ipnsHash}`
       })
       try {
+        console.log('update land data', coordinates, data)
         const tx = await land.updateManyLandData(coordinates, data)
         this.setState({ tx })
         closeServer(true)
