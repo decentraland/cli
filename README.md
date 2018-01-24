@@ -21,6 +21,10 @@ CLI tool for parcel management.
 $ npm install -g decentraland
 ```
 
+## Documentation
+
+* [Decentraland CLI Docs](http://docs.decentraland.org/docs/command-line-interface)
+
 ## Usage
 
 - Initialize new Decentraland project **from working directory**:
