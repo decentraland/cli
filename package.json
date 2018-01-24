@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/decentraland/cli#readme",
   "bin": {
-    "dcl": "./bin/index.js"
+    "dcl": "./bin/dcl"
   },
   "dependencies": {
     "axios": "^0.17.1",
