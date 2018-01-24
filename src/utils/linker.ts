@@ -53,7 +53,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
     try {
       const { data } = await axios.get('https://contracts.decentraland.org/addresses.json');
-      LANDRegistryAddress = data.mainnet.LANDRegistry;
+      LANDRegistryAddress = data.mainnet.LANDProxy;
     } catch (error) {
       // fallback to ENV
     }
