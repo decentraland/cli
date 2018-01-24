@@ -109,10 +109,11 @@ export default class Page extends React.Component {
       });
       let oldData
       try {
-        console.log('oldData', coordinates[0].x, coordinates[0].y)
+        console.log('oldData coordinates', coordinates[0].x, coordinates[0].y)
         oldData = await land.getData(coordinates[0].x, coordinates[0].y)
+        console.log('oldData data', oldData)
       } catch(e) {
-        console.error('oldData', e)
+        console.error('oldData error', e)
       }
       let name, description
       try {
