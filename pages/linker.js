@@ -33,8 +33,9 @@ async function getIpnsHash() {
   return ipnsHash;
 }
 
-async function closeServer(ok) {
-  const res = await fetch(`/api/close?ok=${ok}`);
+async function closeServer(ok, message) {
+  console.log('closing server:', message)
+  await fetch(`/api/close?ok=${ok}&reason=${message}`);
 }
 
 export default class Page extends React.Component {
@@ -50,11 +51,6 @@ export default class Page extends React.Component {
   }
 
   async componentDidMount() {
-    window.onbeforeunload = function() {
-      var request = new XMLHttpRequest();
-      request.open('GET', '/api/close?ok=false', false);  // `false` makes the request synchronous
-      request.send(null);
-    }
     try { 
       let land, address, web3
 
@@ -82,7 +78,7 @@ export default class Page extends React.Component {
         this.setState({
           error: `There was a problem getting scene data.\nTry to re-initialize the project with dcl init.`
         });
-        closeServer(false)
+        closeServer(false, 'scene metadata error')
         return;
       }
 
@@ -93,7 +89,7 @@ export default class Page extends React.Component {
         this.setState({
           error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
         });
-        closeServer(false)
+        closeServer(false, 'ipns error')
         return;
       }
 
@@ -134,14 +130,14 @@ export default class Page extends React.Component {
         console.log('update land data', coordinates, data)
         const tx = await land.updateManyLandData(coordinates, data)
         this.setState({ tx })
-        closeServer(true)
+        closeServer(true, 'transaction successful')
       } catch(err) {
         this.setState({loading: false, error: 'Transaction Rejected'})
-        closeServer(false)
+        closeServer(false, 'transaction rejected')
       }
     } catch(err) {
       this.setState({loading: false, error: err.message})
-      closeServer(false)
+      closeServer(false, 'unexpected error')
     }
   }
 
