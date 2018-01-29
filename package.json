@@ -39,7 +39,7 @@
     "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "chalk": "^2.3.0",
-    "decentraland-commons": "git+https://github.com/decentraland/commons.git#release",
+    "decentraland-commons": "^2.3.2",
     "docker-names": "^1.0.3",
     "fs-extra": "^5.0.0",
     "get-installed-path": "^4.0.8",
