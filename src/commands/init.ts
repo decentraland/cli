@@ -6,6 +6,7 @@ import { cliPath }from '../utils/cli-path';
 import { generateHtml } from '../utils/generate-html';
 import { wrapAsync } from '../utils/wrap-async';
 import { getRoot } from '../utils/get-root';
+import * as uuid from 'uuid';
 
 export function init(vorpal: any) {
   vorpal
@@ -97,6 +98,13 @@ export function init(vorpal: any) {
       fs.copySync(
         `${cliPath}/static/preview.js`,
         `${dirName}/.decentraland/preview.js`
+      );
+      fs.outputFileSync(
+        `${dirName}/.decentraland/project.json`,
+        JSON.stringify({
+          id: uuid.v4(),
+          ipfsKey: null
+        }, null, 2)
       );
       // Project folders
       fs.ensureDirSync(`${dirName}/audio`);

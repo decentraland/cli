@@ -43,9 +43,15 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     ctx.body = await fs.readJson(`${path}/scene.json`);
   });
 
-  router.get('/api/get-ipns-hash', async (ctx) => {
-    const ipnsHash = await fs.readFile(`${path}/.decentraland/ipns`, 'utf8');
-    ctx.body = JSON.stringify(ipnsHash);
+  router.get('/api/get-ipfs-key', async (ctx) => {
+    let project
+    try {
+      project = JSON.parse(fs.readFileSync(`${path}/.decentraland/project.json`, 'utf-8'))
+    } catch (error) {
+      vorpal.error('Could not find `.decentraland/project.json`')
+      process.exit(1)
+    }
+    ctx.body = JSON.stringify(project.ipfsKey);
   });
 
   router.get('/api/contract-address', async (ctx) => {
