@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "CLI tool for parcel management.",
   "main": "./dist/index.js",
   "scripts": {
