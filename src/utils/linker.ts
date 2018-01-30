@@ -48,7 +48,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     try {
       project = JSON.parse(fs.readFileSync(`${path}/.decentraland/project.json`, 'utf-8'))
     } catch (error) {
-      vorpal.error('Could not find `.decentraland/project.json`')
+      vorpal.log(chalk.red('Could not find `.decentraland/project.json`'))
       process.exit(1)
     }
     ctx.body = JSON.stringify(project.ipfsKey);
