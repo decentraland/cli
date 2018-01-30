@@ -87,12 +87,16 @@ export function init(vorpal: any) {
         `${dirName}/.decentraland/linker-app`
       );
       fs.copySync(
-        `${cliPath}/live-reload.js`,
+        `${cliPath}/static/live-reload.js`,
         `${dirName}/.decentraland/live-reload.js`
       );
       fs.copySync(
-        `${cliPath}/parcel-boundary.js`,
+        `${cliPath}/static/parcel-boundary.js`,
         `${dirName}/.decentraland/parcel-boundary.js`
+      );
+      fs.copySync(
+        `${cliPath}/static/preview.js`,
+        `${dirName}/.decentraland/preview.js`
       );
       // Project folders
       fs.ensureDirSync(`${dirName}/audio`);
