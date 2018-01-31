@@ -21,6 +21,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
       )}`
     );
     callback();
+    return
   }
 
   const data = [
@@ -53,6 +54,23 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     // vorpal.log(`${progCount}, ${accumProgress}`)
   };
 
+  // generate an ipfs private key for this project if it doesn't have any yet
+  let project
+  try {
+    project = JSON.parse(fs.readFileSync(`${path}/.decentraland/project.json`, 'utf-8'))
+  } catch (error) {
+    vorpal.log(chalk.red('Could not find `.decentraland/project.json`'))
+    process.exit(1)
+  }
+
+  if (project.ipfsKey == null) {
+    vorpal.log('Generating IPFS key...')
+    const { id } = await ipfsApi.key.gen(project.id, { type: 'rsa', size: 2048 })
+    project.ipfsKey = id
+    vorpal.log(`New IPFS key: ${project.ipfsKey}`)
+    fs.outputFileSync(`${path}/.decentraland/project.json`, JSON.stringify(project, null, 2))
+  }
+
   let ipfsHash;
   let ipnsHash;
 
@@ -70,19 +88,14 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     // TODO: pinning --- ipfs.pin.add(hash, function (err) {})
 
     vorpal.log('Updating IPNS reference to folder hash... (this might take a while)');
-
-    const publishResult = await ipfsApi.name.publish(ipfsHash);
-
-    ipnsHash = publishResult.name || publishResult.Name;
-    vorpal.log(`IPNS Link: /ipns/${publishResult.name || publishResult.Name}`);
-
-    await fs.outputFile(`${path}/.decentraland/ipns`, ipnsHash);
+    const { name } = await ipfsApi.name.publish(ipfsHash, { key: project.id });
+    vorpal.log(`IPNS Link: /ipns/${name}`);
   } catch (err) {
     vorpal.log(err.message);
     if (err.message.indexOf('ECONNREFUSED') != -1) {
       vorpal.log(chalk.red('\nMake sure you have the IPFS daemon running (https://ipfs.io/docs/install/).'));
     }
-    process.exit(0)
+    process.exit(1)
   }
 
   return ipnsHash;

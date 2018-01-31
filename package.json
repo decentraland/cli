@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "CLI tool for parcel management.",
   "main": "./dist/index.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "dcl": "./bin/dcl"
   },
   "dependencies": {
+    "@types/uuid": "^3.4.3",
     "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "chalk": "^2.3.0",
@@ -55,6 +56,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "root-check": "^1.0.0",
+    "uuid": "^3.2.1",
     "vorpal": "^1.12.0"
   },
   "devDependencies": {

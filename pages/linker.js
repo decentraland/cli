@@ -27,10 +27,10 @@ async function getSceneMetadata() {
   return await res.json();
 }
 
-async function getIpnsHash() {
-  const res = await fetch('/api/get-ipns-hash');
-  const ipnsHash = await res.json();
-  return ipnsHash;
+async function getIPFSKey() {
+  const res = await fetch('/api/get-ipfs-key');
+  const ipfsKey = await res.json();
+  return ipfsKey;
 }
 
 async function closeServer(ok, message) {
@@ -83,8 +83,8 @@ export default class Page extends React.Component {
       }
 
       try {
-        const ipnsHash = await getIpnsHash();
-        this.setState({ ipnsHash });
+        const ipfsKey = await getIPFSKey();
+        this.setState({ ipfsKey });
       } catch(err) {
         this.setState({
           error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
@@ -124,7 +124,7 @@ export default class Page extends React.Component {
         version: 0,
         name,
         description,
-        ipns: `ipns:${this.state.ipnsHash}`
+        ipns: `ipns:${this.state.ipfsKey}`
       })
       try {
         console.log('update land data', coordinates, data)
