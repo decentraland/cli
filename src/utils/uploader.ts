@@ -67,7 +67,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     vorpal.log('Generating IPFS key...')
     const { id } = await ipfsApi.key.gen(project.id, { type: 'rsa', size: 2048 })
     project.ipfsKey = id
-    console.log('New IPFS key', project.ipfsKey)
+    vorpal.log(`New IPFS key: ${project.ipfsKey}`)
     fs.outputFileSync(`${path}/.decentraland/project.json`, JSON.stringify(project, null, 2))
   }
 
