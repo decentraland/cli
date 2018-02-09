@@ -6,10 +6,12 @@ import * as project from './project';
 import { cliPath }from './cli-path';
 import { prompt } from './prompt';
 import { getRoot } from './get-root';
+import axios from 'axios';
 
 export async function uploader(vorpal: any, args: any, callback: () => void) {
+  let isUpdate = true
   // You need to have ipfs daemon running!
-  const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
+  const ipfsApi = ipfsAPI('0.0.0.0', args.options.port || '5001');
 
   const path = getRoot()
 
@@ -63,8 +65,18 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     process.exit(1)
   }
 
+  // Get ipfs node peer ID
+  if (project.peerId == null) {
+    vorpal.log('Getting IPFS node peer ID...')
+    const { id } = await ipfsApi.id()
+    project.peerId = id
+    vorpal.log(`Peer ID: ${JSON.stringify(project.peerId)}`)
+    fs.outputFileSync(`${path}/.decentraland/project.json`, JSON.stringify(project, null, 2))
+  }
+
   if (project.ipfsKey == null) {
     vorpal.log('Generating IPFS key...')
+    isUpdate = false
     const { id } = await ipfsApi.key.gen(project.id, { type: 'rsa', size: 2048 })
     project.ipfsKey = id
     vorpal.log(`New IPFS key: ${project.ipfsKey}`)
@@ -85,8 +97,6 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     vorpal.log('');
     vorpal.log(`Uploading ${progCount}/${progCount} files to IPFS. done! ${accumProgress} bytes uploaded.`);
     vorpal.log(`IPFS Folder Hash: ${ipfsHash}`);
-    // TODO: pinning --- ipfs.pin.add(hash, function (err) {})
-
     vorpal.log('Updating IPNS reference to folder hash... (this might take a while)');
     const { name } = await ipfsApi.name.publish(ipfsHash, { key: project.id });
     vorpal.log(`IPNS Link: /ipns/${name}`);
@@ -96,6 +106,27 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
       vorpal.log(chalk.red('\nMake sure you have the IPFS daemon running (https://ipfs.io/docs/install/).'));
     }
     process.exit(1)
+  }
+
+  if (isUpdate) { // TODO: support multiples parcels
+    try {
+      vorpal.log('Pinning Files to Decentraland IPFS node... (this might take a while)');
+      const coordinates: any = [];
+      const sceneMetadata = JSON.parse(fs.readFileSync(`${path}/scene.json`, 'utf-8'));
+      sceneMetadata.scene.parcels.forEach((parcel: any) => {
+        const [x, y] = parcel.split(',');
+
+        coordinates.push({
+          x: parseInt(x, 10),
+          y: parseInt(y, 10)
+        });
+      });
+      const { ok } = await axios.get(`http://ipfs.decentraland.zone:3000/api/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
+      .then(response => response.data);
+      vorpal.log(`Pinning files ${ok ? 'success' : 'failed'}`);
+    } catch (err) {
+      vorpal.log('Error', JSON.stringify(err.message));
+    }
   }
 
   return ipnsHash;

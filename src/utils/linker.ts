@@ -54,6 +54,17 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     ctx.body = JSON.stringify(project.ipfsKey);
   });
 
+  router.get('/api/get-ipfs-peerid', async (ctx) => {
+    let project
+    try {
+      project = JSON.parse(fs.readFileSync(`${path}/.decentraland/project.json`, 'utf-8'))
+    } catch (error) {
+      vorpal.log(chalk.red('Could not find `.decentraland/project.json`'))
+      process.exit(1)
+    }
+    ctx.body = JSON.stringify(project.peerId);
+  });
+
   router.get('/api/contract-address', async (ctx) => {
     let LANDRegistryAddress: string = null;
 
