@@ -60,16 +60,29 @@ $ dcl link
 $ dcl push
 ```
 
+## Updating
+
+If you encounter a message `Ethereum linker app is outdated! Please run dcl upgrade!`, you need to update the Ethereum linker inside your Decentraland project:
+
+1. `cd your-dcl-project`
+2. `dcl upgrade`
+
+To update the CLI tool:
+
+```bash
+$ npm update -g decentraland
+```
+
 ## Building
 
 1. Clone the repo: `git clone https://github.com/decentraland/cli.git`
-2. Go into the cli directory: `cd cli`
+2. Go into the CLI directory: `cd cli`
 3. Run `npm install`
-4. Link the cli with: `npm link`
+4. Link the CLI with: `npm link`
 
 `dcl` command should now be available.
 
-For CLI tool development, run `npm start` in your terminal. The cli will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can add a `.env` file on the root folder, with a `LAND_REGISTRY_CONTRACT_ADDRESS` var. It'll use [dotenv](https://github.com/motdotla/dotenv#faq) to fetch the value. You can check the current contract addresses [here](https://contracts.decentraland.org/addresses.json).
+For CLI tool development, run `npm start` in your terminal. The CLI will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can add a `.env` file on the root folder, with a `LAND_REGISTRY_CONTRACT_ADDRESS` var. It'll use [dotenv](https://github.com/motdotla/dotenv#faq) to fetch the value. You can check the current contract addresses [here](https://contracts.decentraland.org/addresses.json).
 
 You can run CLI commands in development mode like this: `npm start -- init`
 
