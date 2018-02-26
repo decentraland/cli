@@ -4,7 +4,7 @@
   "description": "CLI tool for parcel management.",
   "main": "./dist/index.js",
   "scripts": {
-    "start": "LAND_REGISTRY_CONTRACT_ADDRESS='0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b' ./dev.js",
+    "start": "./dev.js",
     "watch": "tsc --watch",
     "build": "npm run clean && tsc && npm run linker:build",
     "clean": "rimraf dist && rimraf tmp",

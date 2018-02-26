@@ -82,6 +82,14 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     });
   });
 
+  router.get('/api/pin-files/:peerId/:x/:y', async (ctx) => {
+    const { peerId, x, y } = ctx.params;
+    const { ok } = await axios.get(`${env.get('IPFS_GATEWAY')}pin/${peerId}/${x}/${y}`)
+      .then(response => response.data)
+      .catch(error => ({ 'ok': false }));
+    ctx.body = JSON.stringify({ ok });
+  });
+
   router.get('/api/close', async (ctx) => {
     ctx.res.end();
     const ok = require('url').parse(ctx.req.url, true).query.ok;

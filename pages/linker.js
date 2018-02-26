@@ -48,7 +48,7 @@ async function closeServer(ok, message) {
 }
 
 async function pinFiles (peerId, x, y) {
-  const res = await fetch(`http://ipfs.decentraland.zone:3000/api/pin/${peerId}/${x}/${y}`);
+  const res = await fetch(`/api/pin-files/${peerId}/${x}/${y}`);
   const { ok } = await res.json()
   return ok
 }
@@ -56,7 +56,6 @@ async function pinFiles (peerId, x, y) {
 export default class Page extends React.Component {
   constructor(...args) {
     super(...args);
-
     this.state = {
       loading: true,
       transactionLoading: false,

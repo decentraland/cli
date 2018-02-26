@@ -7,6 +7,8 @@ import { cliPath }from './cli-path';
 import { prompt } from './prompt';
 import { getRoot } from './get-root';
 import axios from 'axios';
+import { env } from 'decentraland-commons';
+env.load()
 
 export async function uploader(vorpal: any, args: any, callback: () => void) {
   let isUpdate = true
@@ -121,7 +123,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
           y: parseInt(y, 10)
         });
       });
-      const { ok } = await axios.get(`http://ipfs.decentraland.zone:3000/api/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
+      const { ok } = await axios.get(`${process.env.IPFS_GATEWAY}pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
       .then(response => response.data);
       vorpal.log(`Pinning files ${ok ? 'success' : 'failed'}`);
     } catch (err) {
