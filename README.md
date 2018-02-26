@@ -15,11 +15,31 @@ CLI tool for parcel management.
 * [ ] Test framework for scripting
 * [ ] Snapshots of the scene
 
-## Installation
+## Requirements
+
+- NodeJS v8 and above
+- [Python 2.7](https://www.python.org/downloads/)
+- [IPFS](https://dist.ipfs.io/#go-ipfs)
+
+## NodeJS Installation
+
+### MacOS/Linux:
+
+You need to have NodeJS (version 8.*.* and above) installed on your system to use the CLI. You can use official NodeJS installer, but on MacOS/Linux we recommend to use [NVM](https://github.com/creationix/nvm) for managing your NodeJS installation. Please follow the installation instructions.
+
+### Windows:
+
+We recommend using official NodeJS installer - download the latest LTS version [here](https://nodejs.org/en/download/) (we only support version 8.*.* and above).
+
+### CLI installation
+
+If you have NodeJS installed, run this command from terminal:
 
 ```bash
 $ npm install -g decentraland
 ```
+
+This should install CLI tool and make it available globally. Please proceed to [usage](https://github.com/decentraland/cli#usage) documentation.
 
 ## Documentation
 
