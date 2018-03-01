@@ -9,11 +9,12 @@ import * as project from '../utils/project';
 import { prompt } from './prompt';
 import opn = require('opn');
 import { getRoot } from './get-root';
+import path = require('path');
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
-  const path = getRoot()
+  const root = getRoot()
 
-  const isDclProject = await fs.pathExists(`${path}/scene.json`);
+  const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
   if (!isDclProject) {
     vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey('(\'scene.json\' not found.)')}`);
     callback();
@@ -21,7 +22,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   }
 
   const hasLinker = await fs.pathExists(
-    `${path}/.decentraland/linker-app/linker/index.html`
+    path.join(root, '.decentraland', 'linker-app', 'linker', 'index.html')
   );
 
   if (!hasLinker) {
@@ -37,16 +38,16 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   const app = new Koa();
   const router = new Router();
 
-  app.use(serve(`${path}/.decentraland/linker-app`));
+  app.use(serve(path.join(root, '.decentraland', 'linker-app')));
 
   router.get('/api/get-scene-data', async (ctx) => {
-    ctx.body = await fs.readJson(`${path}/scene.json`);
+    ctx.body = await fs.readJson(path.join(root, 'scene.json'));
   });
 
   router.get('/api/get-ipfs-key', async (ctx) => {
     let project
     try {
-      project = JSON.parse(fs.readFileSync(`${path}/.decentraland/project.json`, 'utf-8'))
+      project = JSON.parse(fs.readFileSync(path.join(root, '.decentraland', 'project.json'), 'utf-8'))
     } catch (error) {
       vorpal.log(chalk.red('Could not find `.decentraland/project.json`'))
       process.exit(1)

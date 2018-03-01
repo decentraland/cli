@@ -6,14 +6,15 @@ import * as project from './project';
 import { cliPath }from './cli-path';
 import { prompt } from './prompt';
 import { getRoot } from './get-root';
+import path = require('path');
 
 export async function uploader(vorpal: any, args: any, callback: () => void) {
   // You need to have ipfs daemon running!
   const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
 
-  const path = getRoot()
+  const root = getRoot()
 
-  const isDclProject = await fs.pathExists(`${path}/scene.json`);
+  const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
   if (!isDclProject) {
     vorpal.log(
       `Seems like this is not a Decentraland project! ${chalk.grey(
@@ -27,21 +28,21 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   const data = [
     {
       path: `tmp/scene.html`,
-      content: new Buffer(fs.readFileSync(`${path}/scene.html`))
+      content: new Buffer(fs.readFileSync(path.join(root, 'scene.html')))
     },
     {
       path: `tmp/scene.json`,
-      content: new Buffer(fs.readFileSync(`${path}/scene.json`))
+      content: new Buffer(fs.readFileSync(path.join(root, 'scene.json')))
     }
   ];
 
   // Go through project folders and add files if available
   ['audio', 'models', 'textures'].forEach(async (type: string) => {
-    const folder = await fs.readdir(`${path}/${type}`);
+    const folder = await fs.readdir(path.join(root, type));
     folder.forEach((name: string) =>
       data.push({
         path: `tmp/${type}/${name}`,
-        content: new Buffer(fs.readFileSync(`${path}/${type}/${name}`))
+        content: new Buffer(fs.readFileSync(path.join(root, type, name)))
       })
     );
   });
@@ -57,7 +58,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   // generate an ipfs private key for this project if it doesn't have any yet
   let project
   try {
-    project = JSON.parse(fs.readFileSync(`${path}/.decentraland/project.json`, 'utf-8'))
+    project = JSON.parse(fs.readFileSync(path.join(root, '.decentraland', 'project.json'), 'utf-8'))
   } catch (error) {
     vorpal.log(chalk.red('Could not find `.decentraland/project.json`'))
     process.exit(1)
@@ -68,7 +69,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     const { id } = await ipfsApi.key.gen(project.id, { type: 'rsa', size: 2048 })
     project.ipfsKey = id
     vorpal.log(`New IPFS key: ${project.ipfsKey}`)
-    fs.outputFileSync(`${path}/.decentraland/project.json`, JSON.stringify(project, null, 2))
+    fs.outputFileSync(path.join(root, '.decentraland', 'project.json'), JSON.stringify(project, null, 2))
   }
 
   let ipfsHash;
