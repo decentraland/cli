@@ -1,22 +1,21 @@
 import "babel-polyfill";
 import React from 'react';
 import Router from 'next/router';
-import { eth, txUtils } from 'decentraland-commons';
-import { LANDRegistry } from 'decentraland-commons/dist/contracts/LANDRegistry';
+import { eth, txUtils, contracts } from 'decentraland-commons';
+const { LANDRegistry } = contracts
 
 async function ethereum() {
-  // const { address } = await getContractAddress()
-  const address = '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b'
+  const { address } = await getContractAddress()
   const land = new LANDRegistry(address)
 
-  const connected = await eth.connect({
-    contracts: [LANDRegistry]
+  await eth.connect({
+    contracts: [land]
   })
 
   return {
     address: await eth.getAddress(),
-    land: eth.getContract('LANDRegistry'),
     web3: eth.web3,
+    land
   }
 }
 
@@ -123,7 +122,7 @@ export default class Page extends React.Component {
       let oldData
       try {
         console.log('oldData coordinates', coordinates[0].x, coordinates[0].y)
-        oldData = await land.getData(coordinates[0].x, coordinates[0].y)
+        oldData = await land.landData(coordinates[0].x, coordinates[0].y)
         console.log('oldData data', oldData)
       } catch(e) {
         console.error('oldData error', e)
