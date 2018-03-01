@@ -63,9 +63,20 @@ export default class Page extends React.Component {
       address: null,
       tx: null
     }
+
+    this.onUnload = this.onUnload.bind(this)
+  }
+
+  onUnload(event) {
+    event.returnValue = 'Please, wait until the transaction and pinning are completed'
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.onUnload)
   }
 
   async componentDidMount() {
+    window.addEventListener("beforeunload", this.onUnload)
     try {
       let land, address, web3
 
@@ -159,15 +170,20 @@ export default class Page extends React.Component {
     }
   }
 
-  async watchTransactions (tx, x, y) {
-    const { peerId } = this.state
-    await txUtils.waitForCompletion(tx)
-    this.setState({ transactionLoading: false, pinningLoading: true })
-    const success = await pinFiles(peerId, x, y)
-    this.setState({
-      pinningLoading: false,
-      error: !success ? 'Failed pinning files to ipfs' : null
-    })
+  async watchTransactions (txId, x, y) {
+    const {peerId} = this.state
+    const tx = await txUtils.waitForCompletion(txId)
+    if (!txUtils.isFailure(tx)) {
+      this.setState({transactionLoading: false, pinningLoading: true})
+      const success = await pinFiles(peerId, x, y)
+      this.setState({
+        pinningLoading: false,
+        error: !success ? 'Failed pinning files to ipfs' : null
+      })
+    } else {
+      this.setState({transactionLoading: false, error: 'Transaction failed'})
+    }
+    window.removeEventListener("beforeunload", this.onUnload)
   }
 
   renderTxHash = () => (

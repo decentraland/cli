@@ -6,6 +6,7 @@ CLI tool for parcel management.
 * [x] Uploading scenes to IPFS
 * [x] Hot reloading
 * [x] Linking Ethereum to the scene
+* [x] Pinning scene to Decentraland IPFS node
 * [ ] Editor modifying local files and “uploading” to the directory
 * [ ] Optimizing objects, textures
 * [ ] Warnings and linting of scenes
@@ -48,7 +49,7 @@ Note: You need to have IPFS daemon running for this to work!
 $ dcl upload
 ```
 
-- Link Ethereum to the current scene:
+- Link Ethereum to the current scene and pin scene to Decentraland IPFS node:
 
 ```bash
 $ dcl link
