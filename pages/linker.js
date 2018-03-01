@@ -158,10 +158,8 @@ export default class Page extends React.Component {
         const tx = await land.updateManyLandData(coordinates, data)
         this.watchTransactions(tx, coordinates[0].x, coordinates[0].y)
         this.setState({ tx, transactionLoading: true })
-        // closeServer(true, 'transaction successful')
       } catch(err) {
         this.setState({loading: false, error: 'Transaction Rejected'})
-        console.log(err.message)
         closeServer(false, 'transaction rejected')
       }
     } catch(err) {

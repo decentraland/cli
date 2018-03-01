@@ -11,11 +11,13 @@ import { env } from 'decentraland-commons';
 env.load()
 
 export async function uploader(vorpal: any, args: any, callback: () => void) {
-  let isUpdate = true
-  // You need to have ipfs daemon running!
-  const ipfsApi = ipfsAPI('0.0.0.0', args.options.port || '5001');
+  // If it is the first time, not pin the scene to Decentraland IPFS node
+  let isUpdate = true;
 
-  const path = getRoot()
+  // You need to have ipfs daemon running!
+  const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
+
+  const path = getRoot();
 
   const isDclProject = await fs.pathExists(`${path}/scene.json`);
   if (!isDclProject) {
