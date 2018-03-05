@@ -72,6 +72,8 @@ $ dcl push
 
 For CLI tool development, run `npm start` in your terminal. The cli will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can add a `.env` file on the root folder, with a `LAND_REGISTRY_CONTRACT_ADDRESS` var. It'll use [dotenv](https://github.com/motdotla/dotenv#faq) to fetch the value. You can check the current contract addresses [here](https://contracts.decentraland.org/addresses.json).
 
+For the Decentraland IPFS node, we are getting the url from [here](decentraland.github.io/ipfs-node/url.json). If you want to set a different url set the `IPFS_GATEWAY` var in the `.env` file.
+
 You can run CLI commands in development mode like this: `npm start -- init`
 
 You can do incremental compilations by running `npm run watch`, but you will need to run `npm run build` at least once before to build the `linker-app`, and if you make changes to the linker you will need to re-run `npm run build`.

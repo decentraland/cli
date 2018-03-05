@@ -172,7 +172,7 @@ export default class Page extends React.Component {
     const {peerId} = this.state
     const tx = await txUtils.waitForCompletion(txId)
     if (!txUtils.isFailure(tx)) {
-      this.setState({transactionLoading: false, pinningLoading: true})
+      this.setState({ transactionLoading: false, pinningLoading: true })
       const success = await pinFiles(peerId, x, y)
       this.setState({
         pinningLoading: false,

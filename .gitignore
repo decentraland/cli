@@ -10,7 +10,9 @@ tmp/
 dist/
 
 .next/
-.decentraland/ipns
+.decentraland
+scene.html
+scene.json
 
 # Until API is stable
 package-lock.json

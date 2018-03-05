@@ -84,10 +84,19 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   router.get('/api/pin-files/:peerId/:x/:y', async (ctx) => {
     const { peerId, x, y } = ctx.params;
-    const { ok } = await axios.get(`${env.get('IPFS_GATEWAY')}pin/${peerId}/${x}/${y}`)
+    let ipfsURL: string = null;
+    try {
+      const { data } = await axios.get('https://decentraland.github.io/ipfs-node/url.json');
+      ipfsURL = data.staging;
+    } catch (error) {
+      // fallback to ENV
+    }
+
+    const url = env.get('IPFS_GATEWAY', () => ipfsURL);
+    const { ok, message } = await axios.get(`${url}/pin/${peerId}/${x}/${y}`)
       .then(response => response.data)
-      .catch(error => ({ 'ok': false }));
-    ctx.body = JSON.stringify({ ok });
+      .catch(error => ({ 'ok': false, message: error.message }));
+    ctx.body = JSON.stringify({ ok, message });
   });
 
   router.get('/api/close', async (ctx) => {

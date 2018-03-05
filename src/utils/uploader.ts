@@ -112,10 +112,10 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     process.exit(1)
   }
 
-  if (isUpdate) { // TODO: support multiples parcels
+  if (isUpdate) {
+    vorpal.log('Pinning Files to Decentraland IPFS node... (this might take a while)');
+    const coordinates: any = [];
     try {
-      vorpal.log('Pinning Files to Decentraland IPFS node... (this might take a while)');
-      const coordinates: any = [];
       const sceneMetadata = JSON.parse(fs.readFileSync(`${path}/scene.json`, 'utf-8'));
       sceneMetadata.scene.parcels.forEach((parcel: any) => {
         const [x, y] = parcel.split(',');
@@ -125,11 +125,26 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
           y: parseInt(y, 10)
         });
       });
-      const { ok } = await axios.get(`${process.env.IPFS_GATEWAY}pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
+    } catch (err) {
+      vorpal.log('Error', JSON.stringify(err.message));
+      process.exit(1);
+    }
+
+    let ipfsURL: string = null;
+    try {
+      const { data } = await axios.get('https://decentraland.github.io/ipfs-node/url.json');
+      ipfsURL = data.staging;
+    } catch (error) {
+      // fallback to ENV
+    }
+    const url = env.get('IPFS_GATEWAY', () => ipfsURL);
+    try {
+      const { ok } = await axios.get(`${url}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
       .then(response => response.data);
       vorpal.log(`Pinning files ${ok ? 'success' : 'failed'}`);
     } catch (err) {
       vorpal.log('Error', JSON.stringify(err.message));
+      process.exit(1);
     }
   }
 
