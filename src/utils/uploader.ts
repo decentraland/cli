@@ -2,13 +2,11 @@ import chalk from 'chalk';
 import fs = require('fs-extra');
 import inquirer = require('inquirer');
 const ipfsAPI = require('ipfs-api');
-import * as project from './project';
-import { cliPath }from './cli-path';
-import { prompt } from './prompt';
 import { getRoot } from './get-root';
+import { getIPFSURL } from './get-ipfs-url';
 import axios from 'axios';
 import { env } from 'decentraland-commons';
-env.load()
+env.load();
 
 export async function uploader(vorpal: any, args: any, callback: () => void) {
   // If it is the first time, not pin the scene to Decentraland IPFS node
@@ -130,16 +128,9 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
       process.exit(1);
     }
 
-    let ipfsURL: string = null;
+    let ipfsURL: string = await getIPFSURL();
     try {
-      const { data } = await axios.get('https://decentraland.github.io/ipfs-node/url.json');
-      ipfsURL = data.staging;
-    } catch (error) {
-      // fallback to ENV
-    }
-    const url = env.get('IPFS_GATEWAY', () => ipfsURL);
-    try {
-      const { ok } = await axios.get(`${url}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
+      const { ok } = await axios.get(`${ipfsURL}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
       .then(response => response.data);
       vorpal.log(`Pinning files ${ok ? 'success' : 'failed'}`);
     } catch (err) {
