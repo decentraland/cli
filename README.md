@@ -6,6 +6,7 @@ CLI tool for parcel management.
 * [x] Uploading scenes to IPFS
 * [x] Hot reloading
 * [x] Linking Ethereum to the scene
+* [x] Pinning scene to Decentraland IPFS node
 * [ ] Editor modifying local files and “uploading” to the directory
 * [ ] Optimizing objects, textures
 * [ ] Warnings and linting of scenes
@@ -68,7 +69,7 @@ Note: You need to have IPFS daemon running for this to work!
 $ dcl upload
 ```
 
-- Link Ethereum to the current scene:
+- Link Ethereum to the current scene and pin scene to Decentraland IPFS node:
 
 ```bash
 $ dcl link
@@ -103,6 +104,8 @@ $ npm update -g decentraland
 `dcl` command should now be available.
 
 For CLI tool development, run `npm start` in your terminal. The CLI will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can add a `.env` file on the root folder, with a `LAND_REGISTRY_CONTRACT_ADDRESS` var. It'll use [dotenv](https://github.com/motdotla/dotenv#faq) to fetch the value. You can check the current contract addresses [here](https://contracts.decentraland.org/addresses.json).
+
+For the Decentraland IPFS node, we are getting the url from [here](decentraland.github.io/ipfs-node/url.json). If you want to set a different url set the `IPFS_GATEWAY` var in the `.env` file.
 
 You can run CLI commands in development mode like this: `npm start -- init`
 

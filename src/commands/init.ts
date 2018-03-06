@@ -31,7 +31,7 @@ export function init(vorpal: any) {
         { type: 'input', name: 'owner', message: chalk.blue('Your MetaMask address: ') },
         { type: 'input', name: 'contact.name', message: chalk.blue('Your name: ') },
         { type: 'input', name: 'contact.email', message: chalk.blue('Your email: ') },
-        { type: 'input', name: 'main', message: chalk.blue('Main: '), default: 'scene' },
+        { type: 'input', name: 'main', message: chalk.blue('Main: '), default: 'scene.html' },
         { type: 'input', name: 'tags', message: chalk.blue('Tags: ') },
         { type: 'input', name: 'scene.parcels', message: `${chalk.blue('Parcels')} ${chalk.grey('(use the format \'x,y; x,y; x,y ...\'):')} ` },
         { type: 'input', name: 'communications.type', message: chalk.blue('Communication type: '), default: 'webrtc' },

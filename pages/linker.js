@@ -1,19 +1,21 @@
 import "babel-polyfill";
 import React from 'react';
 import Router from 'next/router';
-import { eth } from 'decentraland-commons';
-import { LANDRegistry } from 'decentraland-commons/dist/contracts/LANDRegistry';
+import { eth, txUtils, contracts } from 'decentraland-commons';
+const { LANDRegistry } = contracts
 
 async function ethereum() {
   const { address } = await getContractAddress()
   const land = new LANDRegistry(address)
 
-  await eth.connect({ contracts: [land]})
+  await eth.connect({
+    contracts: [land]
+  })
 
   return {
     address: await eth.getAddress(),
-    land,
-    web3: eth.web3
+    web3: eth.web3,
+    land
   }
 }
 
@@ -33,25 +35,49 @@ async function getIPFSKey() {
   return ipfsKey;
 }
 
+async function getPeerId() {
+  const res = await fetch('/api/get-ipfs-peerid');
+  const peerId = await res.json();
+  return peerId;
+}
+
 async function closeServer(ok, message) {
   console.log('closing server:', message)
   await fetch(`/api/close?ok=${ok}&reason=${message}`);
 }
 
+async function pinFiles (peerId, x, y) {
+  const res = await fetch(`/api/pin-files/${peerId}/${x}/${y}`);
+  const { ok } = await res.json()
+  return ok
+}
+
 export default class Page extends React.Component {
   constructor(...args) {
     super(...args);
-
     this.state = {
       loading: true,
+      transactionLoading: false,
+      pinningLoading: false,
       error: false,
       address: null,
       tx: null
     }
+
+    this.onUnload = this.onUnload.bind(this)
+  }
+
+  onUnload(event) {
+    event.returnValue = 'Please, wait until the transaction and pinning are completed'
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.onUnload)
   }
 
   async componentDidMount() {
-    try { 
+    window.addEventListener("beforeunload", this.onUnload)
+    try {
       let land, address, web3
 
       try {
@@ -59,12 +85,12 @@ export default class Page extends React.Component {
         land = res.land
         address = res.address
         web3 = res.web3
-
         this.setState({
           loading: false,
           address
         })
       } catch(err) {
+        console.log(err.message)
         this.setState({
           error: `Could not connect to MetaMask`
         });
@@ -84,7 +110,8 @@ export default class Page extends React.Component {
 
       try {
         const ipfsKey = await getIPFSKey();
-        this.setState({ ipfsKey });
+        const peerId = await getPeerId();
+        this.setState({ ipfsKey, peerId });
       } catch(err) {
         this.setState({
           error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
@@ -106,7 +133,7 @@ export default class Page extends React.Component {
       let oldData
       try {
         console.log('oldData coordinates', coordinates[0].x, coordinates[0].y)
-        oldData = await land.getData(coordinates[0].x, coordinates[0].y)
+        oldData = await land.landData(coordinates[0].x, coordinates[0].y)
         console.log('oldData data', oldData)
       } catch(e) {
         console.error('oldData error', e)
@@ -129,8 +156,8 @@ export default class Page extends React.Component {
       try {
         console.log('update land data', coordinates, data)
         const tx = await land.updateManyLandData(coordinates, data)
-        this.setState({ tx })
-        closeServer(true, 'transaction successful')
+        this.watchTransactions(tx, coordinates[0].x, coordinates[0].y)
+        this.setState({ tx, transactionLoading: true })
       } catch(err) {
         this.setState({loading: false, error: 'Transaction Rejected'})
         closeServer(false, 'transaction rejected')
@@ -139,6 +166,22 @@ export default class Page extends React.Component {
       this.setState({loading: false, error: err.message})
       closeServer(false, 'unexpected error')
     }
+  }
+
+  async watchTransactions (txId, x, y) {
+    const {peerId} = this.state
+    const tx = await txUtils.waitForCompletion(txId)
+    if (!txUtils.isFailure(tx)) {
+      this.setState({ transactionLoading: false, pinningLoading: true })
+      const success = await pinFiles(peerId, x, y)
+      this.setState({
+        pinningLoading: false,
+        error: !success ? 'Failed pinning files to ipfs' : null
+      })
+    } else {
+      this.setState({transactionLoading: false, error: 'Transaction failed'})
+    }
+    window.removeEventListener("beforeunload", this.onUnload)
   }
 
   renderTxHash = () => (
@@ -155,6 +198,22 @@ export default class Page extends React.Component {
     this.state.error ? <p style={{ color: 'red' }}>{this.state.error}</p> : null
   )
 
+  renderTransactionStatus = () => (
+    this.state.tx ?
+      !this.state.transactionLoading ?
+        <p style={{ color: 'green' }}>{`Transaction confirmed.`}</p>
+        :  <p style={{ color: 'orange' }}>{`Transaction pending. Will take a while...`}</p>
+      : null
+  )
+
+  renderPinningIPFSStatus = () => (
+    !this.state.error && this.state.tx && !this.state.transactionLoading ?
+      !this.state.pinningLoading ?
+        <p style={{ color: 'green' }}>{`Pinning Success.`}</p>
+        :  <p style={{ color: 'orange' }}>{`Pinning pending. Will take a while...`}</p>
+      : null
+  )
+
   render() {
     return (
       <div className="dcl-linker-main">
@@ -163,8 +222,10 @@ export default class Page extends React.Component {
         <p>MetaMask address:<br />
           {this.state.loading ? "loading..." : this.state.address}
         </p>
-        {this.renderTxHash()}
-        {this.renderError()}
+        { this.renderTxHash() }
+        { this.renderTransactionStatus() }
+        { this.renderPinningIPFSStatus() }
+        { this.renderError() }
         <style jsx>{`
           .dcl-icon {
             width: 52px;
