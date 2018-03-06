@@ -16,11 +16,31 @@ CLI tool for parcel management.
 * [ ] Test framework for scripting
 * [ ] Snapshots of the scene
 
-## Installation
+## Requirements
+
+- [NodeJS v8 and above](https://github.com/decentraland/cli#nodejs-installation)
+- [Python 2.7](https://www.python.org/downloads/)
+- [IPFS](https://dist.ipfs.io/#go-ipfs)
+
+## NodeJS Installation
+
+### MacOS/Linux:
+
+You need to have NodeJS (version 8.*.* and above) installed on your system to use the CLI. You can use official NodeJS installer, but on MacOS/Linux we recommend to use [NVM](https://github.com/creationix/nvm) for managing your NodeJS installation. Please follow the installation instructions.
+
+### Windows:
+
+We recommend using official NodeJS installer - download the latest LTS version [here](https://nodejs.org/en/download/) (we only support version 8.*.* and above).
+
+### CLI installation
+
+If you have NodeJS installed, run this command from terminal:
 
 ```bash
 $ npm install -g decentraland
 ```
+
+This should install CLI tool and make it available globally. Please proceed to [usage](https://github.com/decentraland/cli#usage) documentation.
 
 ## Documentation
 
@@ -61,16 +81,29 @@ $ dcl link
 $ dcl push
 ```
 
+## Updating
+
+If you encounter a message `Ethereum linker app is outdated! Please run dcl upgrade!`, you need to update the Ethereum linker inside your Decentraland project:
+
+1. `cd your-dcl-project`
+2. `dcl upgrade`
+
+To update the CLI tool:
+
+```bash
+$ npm update -g decentraland
+```
+
 ## Building
 
 1. Clone the repo: `git clone https://github.com/decentraland/cli.git`
-2. Go into the cli directory: `cd cli`
+2. Go into the CLI directory: `cd cli`
 3. Run `npm install`
-4. Link the cli with: `npm link`
+4. Link the CLI with: `npm link`
 
 `dcl` command should now be available.
 
-For CLI tool development, run `npm start` in your terminal. The cli will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can add a `.env` file on the root folder, with a `LAND_REGISTRY_CONTRACT_ADDRESS` var. It'll use [dotenv](https://github.com/motdotla/dotenv#faq) to fetch the value. You can check the current contract addresses [here](https://contracts.decentraland.org/addresses.json).
+For CLI tool development, run `npm start` in your terminal. The CLI will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can add a `.env` file on the root folder, with a `LAND_REGISTRY_CONTRACT_ADDRESS` var. It'll use [dotenv](https://github.com/motdotla/dotenv#faq) to fetch the value. You can check the current contract addresses [here](https://contracts.decentraland.org/addresses.json).
 
 For the Decentraland IPFS node, we are getting the url from [here](decentraland.github.io/ipfs-node/url.json). If you want to set a different url set the `IPFS_GATEWAY` var in the `.env` file.
 

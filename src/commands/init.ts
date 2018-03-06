@@ -7,6 +7,7 @@ import { generateHtml } from '../utils/generate-html';
 import { wrapAsync } from '../utils/wrap-async';
 import { getRoot } from '../utils/get-root';
 import * as uuid from 'uuid';
+import path = require('path');
 
 export function init(vorpal: any) {
   vorpal
@@ -84,34 +85,34 @@ export function init(vorpal: any) {
       const dirName = args.options.path || getRoot()
 
       fs.copySync(
-        `${cliPath}/dist/linker-app`,
-        `${dirName}/.decentraland/linker-app`
+        path.join(cliPath, 'dist', 'linker-app'),
+        path.join(dirName, '.decentraland', 'linker-app')
       );
       fs.copySync(
-        `${cliPath}/static/live-reload.js`,
-        `${dirName}/.decentraland/live-reload.js`
+        path.join(cliPath, 'static', 'live-reload.js'),
+        path.join(dirName, '.decentraland', 'live-reload.js')
       );
       fs.copySync(
-        `${cliPath}/static/parcel-boundary.js`,
-        `${dirName}/.decentraland/parcel-boundary.js`
+        path.join(cliPath, 'static', 'parcel-boundary.js'),
+        path.join(dirName, '.decentraland', 'parcel-boundary.js')
       );
       fs.copySync(
-        `${cliPath}/static/preview.js`,
-        `${dirName}/.decentraland/preview.js`
+        path.join(cliPath, 'static', 'preview.js'),
+        path.join(dirName, '.decentraland', 'preview.js')
       );
       fs.outputFileSync(
-        `${dirName}/.decentraland/project.json`,
+        path.join(dirName, '.decentraland', 'project.json'),
         JSON.stringify({
           id: uuid.v4(),
           ipfsKey: null
         }, null, 2)
       );
       // Project folders
-      fs.ensureDirSync(`${dirName}/audio`);
-      fs.ensureDirSync(`${dirName}/models`);
-      fs.ensureDirSync(`${dirName}/textures`);
+      fs.ensureDirSync(path.join(dirName, 'audio'));
+      fs.ensureDirSync(path.join(dirName, 'models'));
+      fs.ensureDirSync(path.join(dirName, 'textures'));
       fs.outputFileSync(
-        `${dirName}/scene.json`,
+        path.join(dirName, 'scene.json'),
         JSON.stringify(sceneMeta, null, 2)
       );
       this.log(`\nNew project created in '${dirName}' directory.\n`);
@@ -122,7 +123,7 @@ export function init(vorpal: any) {
         withSampleScene?: boolean
       ) => {
         try {
-          await fs.outputFile(`${pathToProject}/scene.html`, html);
+          await fs.outputFile(path.join(pathToProject, 'scene.html'), html);
 
           if (withSampleScene) {
             this.log(

@@ -13,9 +13,9 @@ export function upgrade(vorpal: any) {
     .command('upgrade')
     .description('Get latest version of Ethereum linker.')
     .action(wrapAsync(async function (args: any, callback: () => void) {
-      const path = getRoot()
+      const root = getRoot()
 
-      const isDclProject = await fs.pathExists(`${path}/scene.json`);
+      const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
       if (!isDclProject) {
         vorpal.log(
           `Seems like this is not a Decentraland project! ${chalk.grey(
@@ -27,8 +27,8 @@ export function upgrade(vorpal: any) {
       }
 
       if (isOutdated()) {
-        await fs.remove(`${path}/.decentraland/linker-app`);
-        await fs.copy(`${cliPath}/dist/linker-app`, `${path}/.decentraland/linker-app`);
+        await fs.remove(path.join(root, '.decentraland', 'linker-app'));
+        await fs.copy(path.join(cliPath, 'dist', 'linker-app'), path.join(root, '.decentraland', 'linker-app'));
         vorpal.log(chalk.green('Ethereum linker app updated!'));
       } else {
         vorpal.log('You have the latest version of Ethereum linker app.');
