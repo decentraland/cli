@@ -6,7 +6,7 @@
   "scripts": {
     "start": "./dev.js",
     "watch": "tsc --watch",
-    "build": "npm run clean && tsc && npm run linker:build && chmod +x dist/postinstall.js",
+    "build": "npm run clean && tsc && npm run linker:build",
     "clean": "rimraf dist && rimraf tmp",
     "linker:dev": "next",
     "linker:start": "npm run linker:build && ts-node src/index.ts link",
@@ -22,10 +22,11 @@
     "type": "git",
     "url": "git+https://github.com/decentraland/cli.git"
   },
-  "keywords": [
-    "decentraland",
-    "cli"
-  ],
+  "prettier": {
+    "singleQuote": true,
+    "printWidth": 120
+  },
+  "keywords": ["decentraland", "cli"],
   "author": "Decentraland",
   "license": "Apache-2.0",
   "bugs": {
@@ -43,6 +44,7 @@
     "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "chalk": "^2.3.1",
+    "dcl-sdk": "^2.2.1",
     "decentraland-commons": "^3.1.1",
     "docker-names": "^1.0.3",
     "express": "^4.16.2",
@@ -58,7 +60,6 @@
     "progress": "^2.0.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "reloadify": "^0.2.2",
     "root-check": "^1.0.0",
     "uuid": "^3.2.1",
     "vorpal": "^1.12.0"
