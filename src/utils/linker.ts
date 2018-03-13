@@ -18,11 +18,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   const root = getRoot();
   const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
   if (!isDclProject) {
-    vorpal.log(
-      `Seems like this is not a Decentraland project! ${chalk.grey(
-        `('scene.json' not found.)`,
-      )}`,
-    );
+    vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
     callback();
     return;
   }
@@ -40,7 +36,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     return JSON.parse(await readFile(path.join(root, '.decentraland', 'project.json'), 'utf-8'));
   }
 
-  router.get('/api/get-scene-data', async (ctx) => {
+  router.get('/api/get-scene-data', async ctx => {
     ctx.body = await fs.readJson(path.join(root, 'scene.json'));
   });
 
@@ -70,21 +66,16 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     let LANDRegistryAddress: string = null;
 
     try {
-      const { data } = await axios.get(
-        'https://contracts.decentraland.org/addresses.json',
-      );
+      const { data } = await axios.get('https://contracts.decentraland.org/addresses.json');
       LANDRegistryAddress = data.mainnet.LANDProxy;
     } catch (error) {
       // fallback to ENV
     }
 
-    LANDRegistryAddress = env.get(
-      'LAND_REGISTRY_CONTRACT_ADDRESS',
-      () => LANDRegistryAddress,
-    );
+    LANDRegistryAddress = env.get('LAND_REGISTRY_CONTRACT_ADDRESS', () => LANDRegistryAddress);
 
     ctx.body = JSON.stringify({
-      address: LANDRegistryAddress,
+      address: LANDRegistryAddress
     });
   });
 

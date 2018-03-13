@@ -1,6 +1,6 @@
 import fs = require('fs-extra');
 import path = require('path');
-import { cliPath }from './cli-path';
+import { cliPath } from './cli-path';
 import { getRoot } from './get-root';
 
 export function isOutdated(): boolean {

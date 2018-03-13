@@ -39,15 +39,11 @@ function removeDefaultHelp(vorpal: any) {
 function showHelp(vorpal: any, commandName: string) {
   commandName = commandName.toLowerCase().trim();
 
-  const command = vorpal.commands.find(
-    (command: any) => command._name === commandName
-  );
+  const command = vorpal.commands.find((command: any) => command._name === commandName);
 
   if (command && !command._hidden) {
     if (typeof command._help === 'function') {
-      command._help(commandName, (str: string) =>
-        vorpal.log(str)
-      );
+      command._help(commandName, (str: string) => vorpal.log(str));
     } else {
       vorpal.log(command.helpInformation());
     }

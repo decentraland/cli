@@ -6,7 +6,7 @@ export function start(vorpal: any) {
     .command('start')
     .alias('serve')
     .description('Starts local development server.')
-    .action(function (args: string, callback: () => void) {
+    .action(function(args: string, callback: () => void) {
       serve(vorpal, args);
       opn('http://localhost:2044');
     });

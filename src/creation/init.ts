@@ -4,18 +4,21 @@ import path = require('path');
 
 import * as project from '../utils/project';
 import { ensureFolder } from '../utils/filesystem';
-import { cliPath }from '../utils/cli-path';
+import { cliPath } from '../utils/cli-path';
 import { getRoot } from '../utils/get-root';
 
 export async function initProject(args: any, sceneMeta: any) {
-
   const dirName = args.options.path || getRoot();
   fs.outputFileSync(
     path.join(dirName, '.decentraland', 'project.json'),
-    JSON.stringify({
-      id: uuid.v4(),
-      ipfsKey: null
-    }, null, 2)
+    JSON.stringify(
+      {
+        id: uuid.v4(),
+        ipfsKey: null
+      },
+      null,
+      2
+    )
   );
 
   // Project folders
@@ -24,10 +27,7 @@ export async function initProject(args: any, sceneMeta: any) {
   await ensureLocal('models');
   await ensureLocal('textures');
 
-  fs.outputFileSync(
-    path.join(dirName, 'scene.json'),
-    JSON.stringify(sceneMeta, null, 2)
-  );
+  fs.outputFileSync(path.join(dirName, 'scene.json'), JSON.stringify(sceneMeta, null, 2));
 }
 
 interface GeneratorSettings {
@@ -47,9 +47,6 @@ export async function generateHtml({ withSampleScene = false }: GeneratorSetting
 }
 
 export async function buildHtml(pathToProject: string, withSampleScene: boolean): Promise<void> {
-
   const html = await generateHtml({ withSampleScene });
   await fs.outputFile(path.join(pathToProject, 'scene.html'), html);
-
 }
-

@@ -21,11 +21,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
 
   const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
   if (!isDclProject) {
-    vorpal.log(
-      `Seems like this is not a Decentraland project! ${chalk.grey(
-        '(\'scene.json\' not found.)'
-      )}`
-    );
+    vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
     callback();
     return;
   }
@@ -134,7 +130,8 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
 
     let ipfsURL: string = await getIPFSURL();
     try {
-      const { ok } = await axios.get(`${ipfsURL}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
+      const { ok } = await axios
+        .get(`${ipfsURL}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
         .then(response => response.data);
 
       vorpal.log(`Pinning files ${ok ? 'success' : 'failed'}`);

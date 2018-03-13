@@ -3,11 +3,11 @@ import * as path from 'path';
 import { promisify } from 'util';
 
 export const pathExists = promisify(fs.pathExists);
-export const writeFile = <(file: string, data: string) => void> promisify(fs.writeFile);
-export const readFile = <(file: string, format?: string) => Promise<string>> promisify(fs.readFile);
+export const writeFile = <(file: string, data: string) => void>promisify(fs.writeFile);
+export const readFile = <(file: string, format?: string) => Promise<string>>promisify(fs.readFile);
 export const mkdir = promisify(fs.mkdir);
 
-export async function ensureFolder(path: string|Array<string>): Promise<void> {
+export async function ensureFolder(path: string | Array<string>): Promise<void> {
   if (typeof path === 'string') {
     if (await pathExists(path)) {
       return;
