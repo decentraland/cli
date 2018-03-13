@@ -14,6 +14,7 @@ import { isDev } from './is-dev';
 ///
 
 const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3';
+const SINGLE_USER = 'cli-user';
 export const analytics = new Analytics(WRITE_KEY);
 
 ///
@@ -30,8 +31,9 @@ export const deploy = track('Scene deploy requested');
 export async function postInstall() {
   const userId = await getUserId();
   analytics.identify({
-    userId,
+    userId: SINGLE_USER,
     traits: {
+      userId,
       os: process.platform,
       createdAt: new Date().getTime()
     }
@@ -50,8 +52,11 @@ export function track(eventName: string) {
     }
     const userId = await getUserId();
     analytics.track({
-      userId,
+      userId: SINGLE_USER,
       event: eventName,
+      properties: {
+        userId
+      }
     });
   };
 }
