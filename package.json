@@ -1,12 +1,12 @@
 {
   "name": "decentraland",
-  "version": "0.3.1",
+  "version": "0.4.8",
   "description": "CLI tool for parcel management.",
   "main": "./dist/index.js",
   "scripts": {
     "start": "./dev.js",
     "watch": "tsc --watch",
-    "build": "npm run clean && tsc && npm run linker:build",
+    "build": "npm run clean && tsc && npm run linker:build && chmod +x dist/postinstall.js",
     "clean": "rimraf dist && rimraf tmp",
     "linker:dev": "next",
     "linker:start": "npm run linker:build && ts-node src/index.ts link",
@@ -16,7 +16,8 @@
     "lint:fix": "tslint -c tslint.json 'src/**/*.ts' --fix",
     "tsc": "tsc",
     "test": "mocha -r ts-node/register src/**/*.spec.ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postinstall": "node dist/postinstall.js"
   },
   "repository": {
     "type": "git",
@@ -40,11 +41,13 @@
   },
   "dependencies": {
     "@types/uuid": "^3.4.3",
+    "analytics-node": "^3.2.0",
     "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "chalk": "^2.3.1",
     "decentraland-commons": "^3.1.1",
     "docker-names": "^1.0.3",
+    "express": "^4.16.2",
     "fs-extra": "^5.0.0",
     "get-installed-path": "^4.0.8",
     "inquirer": "^5.1.0",
@@ -52,12 +55,12 @@
     "koa": "^2.5.0",
     "koa-router": "^7.4.0",
     "koa-static": "^4.0.2",
-    "live-server": "^1.2.0",
     "next": "^4.2.2",
     "opn": "^5.2.0",
     "progress": "^2.0.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "reloadify": "^0.2.2",
     "root-check": "^1.0.0",
     "uuid": "^3.2.1",
     "vorpal": "^1.12.0"

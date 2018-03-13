@@ -1,3 +1,3 @@
-import { isDev } from './is-dev'
+import { isDev } from './is-dev';
 
-export const getRoot = () => isDev ? './tmp' : '.'
+export const getRoot = () => isDev ? './tmp' : '.';

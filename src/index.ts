@@ -26,7 +26,6 @@ import { push } from './commands/push';
 import { start } from './commands/start';
 import { upgrade } from './commands/upgrade';
 import { upload } from './commands/upload';
-import { linkerChecker } from './utils/linker-checker';
 const pkg = require('../package.json');
 
 /**
@@ -54,8 +53,6 @@ const cli = {
     vorpal.use(push);
     vorpal.use(upgrade);
     vorpal.use(help);
-
-    linkerChecker(vorpal);
 
     vorpal
       .delimiter(DELIMITER)
