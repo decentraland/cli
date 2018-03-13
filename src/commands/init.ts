@@ -1,13 +1,15 @@
 import chalk from 'chalk';
 import fs = require('fs-extra');
 import inquirer = require('inquirer');
-import * as project from '../utils/project';
-import { cliPath }from '../utils/cli-path';
-import { generateHtml } from '../utils/generate-html';
-import { wrapAsync } from '../utils/wrap-async';
-import { getRoot } from '../utils/get-root';
 import * as uuid from 'uuid';
 import path = require('path');
+
+import * as project from '../utils/project';
+import { cliPath }from '../utils/cli-path';
+import { wrapAsync } from '../utils/wrap-async';
+import { getRoot } from '../utils/get-root';
+
+import { initProject, buildHtml } from '../creation/init';
 
 export function init(vorpal: any) {
   vorpal
@@ -26,49 +28,64 @@ export function init(vorpal: any) {
       }
 
       const sceneMeta = await inquirer.prompt([
-        { type: 'input', name: 'display.title', message: chalk.blue('Project title: '), default: project.getRandomName() },
-        { type: 'input', name: 'display.favicon', message: chalk.blue('Project favicon: '), default: 'favicon_asset' },
-        { type: 'input', name: 'owner', message: chalk.blue('Your MetaMask address: ') },
-        { type: 'input', name: 'contact.name', message: chalk.blue('Your name: ') },
-        { type: 'input', name: 'contact.email', message: chalk.blue('Your email: ') },
-        { type: 'input', name: 'main', message: chalk.blue('Main: '), default: 'scene.html' },
-        { type: 'input', name: 'tags', message: chalk.blue('Tags: ') },
-        { type: 'input', name: 'scene.parcels', message: `${chalk.blue('Parcels')} ${chalk.grey('(use the format \'x,y; x,y; x,y ...\'):')} ` },
-        { type: 'input', name: 'communications.type', message: chalk.blue('Communication type: '), default: 'webrtc' },
-        { type: 'input', name: 'communications.signalling', message: chalk.blue('Link to signalling server: '), default: 'https://signalling-01.decentraland.org' },
-        { type: 'input', name: 'policy.contentRating', message: chalk.blue('Content rating: '), default: 'E' },
-        { type: 'confirm', name: 'policy.fly', message: chalk.blue('Allow flying?: '), default: true },
-        { type: 'confirm', name: 'policy.voiceEnabled', message: chalk.blue('Allow voice?: '), default: true },
-        { type: 'input', name: 'policy.blacklist', message: `${chalk.blue('Blacklisted parcels')} ${chalk.grey('(use the format \'x,y; x,y; x,y ...\'):')} ` },
-        { type: 'input', name: 'policy.teleportPosition', message: `${chalk.blue('Teleport position')} ${chalk.grey('(use the format \'x,y\'):')} ` },
+        { type: 'input', name: 'display.title', message: chalk.blue('Scene title: '), default: project.getRandomName() },
+        { type: 'input', name: 'owner', message: `${
+            chalk.blue('Your ethereum address: ')
+        } ${
+            chalk.grey('(recommended -- used to check ownership of parcels when deploying your scene)')
+        }` },
+        {
+          type: 'input',
+          name: 'contact.name',
+          message: `${
+            chalk.blue('Your name: ')
+          } ${
+            chalk.grey('(optional -- shown to other users so that they can contact you)')
+          }`
+        },
+        {
+          type: 'input',
+          name: 'contact.email',
+          message: `${
+            chalk.blue('Your email: ')
+          } ${
+            chalk.grey('(optional -- shown to other users so that they can contact you)')
+          }`
+        },
+        {
+          type: 'input',
+          name: 'scene.parcels',
+          message: `${
+            chalk.blue('Parcels comprising the scene')
+          } ${
+            chalk.grey('(recommended -- used to show the limts of your scene and upload to these coordinates)')
+          }\n ${
+            chalk.blue('Please use this format: \'x,y; x,y; x,y ...\'')
+          }\n`
+        }
       ]);
-
-      // Additional data parsing
-      sceneMeta.tags = sceneMeta.tags
-        ? sceneMeta.tags
-          .split(',')
-          .map((tag: string) => tag.replace(/\s/g, ''))
-          .filter((tag: string) => tag.length > 0)
-        : [];
+      sceneMeta.communications = {
+        type: 'webrtc',
+        signalling: 'https://rendezvous.decentraland.org'
+      };
+      sceneMeta.policy = {
+        fly: true,
+        voiceEnabled: true,
+        blacklist: [],
+        teleportPosition: '0,0,0'
+      };
 
       sceneMeta.scene.parcels = sceneMeta.scene.parcels
         ? sceneMeta.scene.parcels.split(';').map((coord: string) => coord.replace(/\s/g, ''))
-        : [];
+        : ['0,0'];
 
-      sceneMeta.policy.blacklist = sceneMeta.policy.blacklist
-        ? sceneMeta.policy.blacklist.split(';').map((coord: string) => coord.replace(/\s/g, ''))
-        : [];
-
-      sceneMeta.scene.base = sceneMeta.scene.parcels[0] || '';
+      sceneMeta.main = 'scene.html';
+      sceneMeta.scene.base = sceneMeta.scene.parcels[0];
 
       // Print the data to console
-      this.log('');
-      this.log(`Scene metadata: (${chalk.grey('scene.json')})`);
-      this.log('');
+      this.log(`\nScene metadata: (${chalk.grey('scene.json')})\n`);
       this.log(chalk.blue(JSON.stringify(sceneMeta, null, 2)));
-      this.log('');
-      this.log(chalk.grey('(you can always update the metadata manually later)'));
-      this.log('');
+      this.log(chalk.grey('\n(you can always update the metadata manually later)\n'));
 
       const results = await inquirer.prompt({
         type: 'confirm',
@@ -82,24 +99,7 @@ export function init(vorpal: any) {
         return;
       }
 
-      const dirName = args.options.path || getRoot()
-
-      fs.copySync(
-        path.join(cliPath, 'dist', 'linker-app'),
-        path.join(dirName, '.decentraland', 'linker-app')
-      );
-      fs.copySync(
-        path.join(cliPath, 'static', 'live-reload.js'),
-        path.join(dirName, '.decentraland', 'live-reload.js')
-      );
-      fs.copySync(
-        path.join(cliPath, 'static', 'parcel-boundary.js'),
-        path.join(dirName, '.decentraland', 'parcel-boundary.js')
-      );
-      fs.copySync(
-        path.join(cliPath, 'static', 'preview.js'),
-        path.join(dirName, '.decentraland', 'preview.js')
-      );
+      const dirName = args.options.path || getRoot();
       fs.outputFileSync(
         path.join(dirName, '.decentraland', 'project.json'),
         JSON.stringify({
@@ -107,54 +107,27 @@ export function init(vorpal: any) {
           ipfsKey: null
         }, null, 2)
       );
-      // Project folders
-      fs.ensureDirSync(path.join(dirName, 'audio'));
-      fs.ensureDirSync(path.join(dirName, 'models'));
-      fs.ensureDirSync(path.join(dirName, 'textures'));
-      fs.outputFileSync(
-        path.join(dirName, 'scene.json'),
-        JSON.stringify(sceneMeta, null, 2)
-      );
+
+      initProject(args, sceneMeta);
+
       this.log(`\nNew project created in '${dirName}' directory.\n`);
 
-      const createScene = async (
-        pathToProject: string,
-        html: string,
-        withSampleScene?: boolean
-      ) => {
-        try {
-          await fs.outputFile(path.join(pathToProject, 'scene.html'), html);
+      let withSampleScene = args.options.boilerplate;
 
-          if (withSampleScene) {
-            this.log(
-              `\nSample scene was placed into ${chalk.green('scene.html')}.`
-            );
-          }
-        } catch (err) {
-          this.log(err.message);
-        }
-      };
-
-      if (args.options.boilerplate) {
-        const html = await generateHtml({ withSampleScene: true });
-        await createScene(dirName, html, true);
-      } else {
+      if (args.options.boilerplate === undefined) {
         const results = await inquirer.prompt({
           type: 'confirm',
           name: 'sampleScene',
           default: true,
           message: chalk.yellow(
-            'Do you want to create new project with sample scene?'
+            'Do you want to bootstrap this new project with a sample scene?'
           )
         });
 
-        if (results.sampleScene) {
-          const html = await generateHtml({ withSampleScene: true });
-          await createScene(dirName, html, true);
-        } else {
-          const html = await generateHtml({ withSampleScene: false });
-          await createScene(dirName, html, false);
-        }
+        withSampleScene = results.sampleScene;
       }
+
+      await buildHtml(dirName, withSampleScene);
+
     }));
 }

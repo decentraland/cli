@@ -4,7 +4,7 @@ import { cliPath }from './cli-path';
 import { getRoot } from './get-root';
 
 export function isOutdated(): boolean {
-  const root = getRoot()
+  const root = getRoot();
   const localHash = fs.readdirSync(path.join(root, '.decentraland', 'linker-app', '_next'));
   const latestHash = fs.readdirSync(path.join(cliPath, 'dist', 'linker-app', '_next'));
 
