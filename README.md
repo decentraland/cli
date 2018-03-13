@@ -28,19 +28,43 @@ CLI tool for parcel management.
 
 You need to have NodeJS (version 8.*.* and above) installed on your system to use the CLI. You can use official NodeJS installer, but on MacOS/Linux we recommend to use [NVM](https://github.com/creationix/nvm) for managing your NodeJS installation. Please follow the installation instructions.
 
-### Windows:
-
-We recommend using official NodeJS installer - download the latest LTS version [here](https://nodejs.org/en/download/) (we only support version 8.*.* and above).
-
-### CLI installation
-
-If you have NodeJS installed, run this command from terminal:
-
 ```bash
 $ npm install -g decentraland
 ```
 
 This should install CLI tool and make it available globally. Please proceed to [usage](https://github.com/decentraland/cli#usage) documentation.
+
+### Windows:
+
+Thanks @HAZARDU5 for this guide
+
+1. Install Node.js v8 LTS from https://nodejs.org/en/download/
+
+2. Search Windows for *cmd* and right click the *Command Prompt* app and select *Run as Administrator*
+
+3. Install windows-build-tools: `npm install --global --production windows-build-tools`
+
+4. Wait for both the Visual Studio Build Tools and Python installers to both read *Successfully installed xxxx*. When everything is done it will return you to the command prompt.
+
+5. Download git (you'll likely want the 64-bit Windows version): https://git-scm.com/download/win
+
+6. Install git and when prompted choose to install git bash
+
+7. When prompted for a default text editor select *Use the Nano editor by default*
+
+8. When prompted to adjust your path environment, select *Use Git from the Windows Command Prompt*
+
+9. When prompted to choose the SSH executable, select *Use OpenSSH*
+
+10. When prompted to choose the HTTPS transport backend, select *Use the OpenSSL library*
+
+11. When prompted to configure the line ending conversions, select *Checkout Windows-style, commit Unix-style line endings*
+
+12. When prompted to configure the terminal emulator to use with Git Bash select *Use MinTTY*
+
+13. On the final installation screen select the following options: *Enable file system caching* and *Enable Git Credential Manager* and *Enable symbolic links*
+
+14. Run `npm install -g decentraland`
 
 ## Documentation
 
