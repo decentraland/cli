@@ -7,31 +7,18 @@ import axios from 'axios';
 import { env } from 'decentraland-commons';
 import * as project from '../utils/project';
 import opn = require('opn');
+import { readFile } from './filesystem';
 import { getRoot } from './get-root';
 import { getIPFSURL } from './get-ipfs-url';
+import { cliPath } from './cli-path';
+import * as urlParse from 'url';
 import path = require('path');
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
   const root = getRoot();
   const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
   if (!isDclProject) {
-    vorpal.log(
-      `Seems like this is not a Decentraland project! ${chalk.grey(
-        `('scene.json' not found.)`,
-      )}`,
-    );
-    callback();
-    return;
-  }
-
-  const hasLinker = await fs.pathExists(
-    path.join(root, '.decentraland', 'linker-app', 'linker', 'index.html')
-  );
-
-  if (!hasLinker) {
-    vorpal.log(
-      `Looks like linker app is missing. Try to re-initialize your project.`,
-    );
+    vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
     callback();
     return;
   }
@@ -43,16 +30,20 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   const app = new Koa();
   const router = new Router();
 
-  app.use(serve(path.join(root, '.decentraland', 'linker-app')));
+  app.use(serve(path.join(cliPath, 'dist', 'linker-app')));
 
-  router.get('/api/get-scene-data', async (ctx) => {
+  async function getProject(): Promise<any> {
+    return JSON.parse(await readFile(path.join(root, '.decentraland', 'project.json'), 'utf-8'));
+  }
+
+  router.get('/api/get-scene-data', async ctx => {
     ctx.body = await fs.readJson(path.join(root, 'scene.json'));
   });
 
   router.get('/api/get-ipfs-key', async ctx => {
     let project;
     try {
-      project = JSON.parse(fs.readFileSync(path.join(root, '.decentraland', 'project.json'), 'utf-8'))
+      project = await getProject();
     } catch (error) {
       vorpal.log(chalk.red('Could not find `.decentraland/project.json`'));
       process.exit(1);
@@ -63,9 +54,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   router.get('/api/get-ipfs-peerid', async ctx => {
     let project;
     try {
-      project = JSON.parse(
-        fs.readFileSync(path.join(root, '.decentraland', 'project.json'), 'utf-8'),
-      );
+      project = await getProject();
     } catch (error) {
       vorpal.log(chalk.red('Could not find `.decentraland/project.json`'));
       process.exit(1);
@@ -77,21 +66,16 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     let LANDRegistryAddress: string = null;
 
     try {
-      const { data } = await axios.get(
-        'https://contracts.decentraland.org/addresses.json',
-      );
+      const { data } = await axios.get('https://contracts.decentraland.org/addresses.json');
       LANDRegistryAddress = data.mainnet.LANDProxy;
     } catch (error) {
       // fallback to ENV
     }
 
-    LANDRegistryAddress = env.get(
-      'LAND_REGISTRY_CONTRACT_ADDRESS',
-      () => LANDRegistryAddress,
-    );
+    LANDRegistryAddress = env.get('LAND_REGISTRY_CONTRACT_ADDRESS', () => LANDRegistryAddress);
 
     ctx.body = JSON.stringify({
-      address: LANDRegistryAddress,
+      address: LANDRegistryAddress
     });
   });
 
@@ -108,7 +92,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   router.get('/api/close', async ctx => {
     ctx.res.end();
-    const ok = require('url').parse(ctx.req.url, true).query.ok;
+    const ok = urlParse.parse(ctx.req.url, true).query.ok;
     if (ok === 'true') {
       vorpal.log(chalk.green('\nThe project was linked to Ethereum!'));
     } else {

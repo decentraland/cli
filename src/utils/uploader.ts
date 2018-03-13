@@ -13,20 +13,17 @@ env.load();
 export async function uploader(vorpal: any, args: any, callback: () => void) {
   // If it is the first time, not pin the scene to Decentraland IPFS node
   let isUpdate = true;
+
   // You need to have ipfs daemon running!
   const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
 
-  const root = getRoot()
+  const root = getRoot();
 
   const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
   if (!isDclProject) {
-    vorpal.log(
-      `Seems like this is not a Decentraland project! ${chalk.grey(
-        '(\'scene.json\' not found.)'
-      )}`
-    );
+    vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
     callback();
-    return
+    return;
   }
 
   const data = [
@@ -60,30 +57,30 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   };
 
   // generate an ipfs private key for this project if it doesn't have any yet
-  let project
+  let project;
   try {
-    project = JSON.parse(fs.readFileSync(path.join(root, '.decentraland', 'project.json'), 'utf-8'))
+    project = JSON.parse(fs.readFileSync(path.join(root, '.decentraland', 'project.json'), 'utf-8'));
   } catch (error) {
-    vorpal.log(chalk.red('Could not find `.decentraland/project.json`'))
-    process.exit(1)
+    vorpal.log(chalk.red('Could not find `.decentraland/project.json`'));
+    process.exit(1);
   }
 
   // Get ipfs node peer ID
   if (project.peerId == null) {
-    vorpal.log('Getting IPFS node peer ID...')
-    const { id } = await ipfsApi.id()
-    project.peerId = id
-    vorpal.log(`Peer ID: ${JSON.stringify(project.peerId)}`)
-    fs.outputFileSync(path.join(root, '.decentraland', 'project.json'), JSON.stringify(project, null, 2))
+    vorpal.log('Getting IPFS node peer ID...');
+    const { id } = await ipfsApi.id();
+    project.peerId = id;
+    vorpal.log(`Peer ID: ${JSON.stringify(project.peerId)}`);
+    fs.outputFileSync(path.join(root, '.decentraland', 'project.json'), JSON.stringify(project, null, 2));
   }
 
   if (project.ipfsKey == null) {
-    vorpal.log('Generating IPFS key...')
-    isUpdate = false
-    const { id } = await ipfsApi.key.gen(project.id, { type: 'rsa', size: 2048 })
-    project.ipfsKey = id
-    vorpal.log(`New IPFS key: ${project.ipfsKey}`)
-    fs.outputFileSync(path.join(root, '.decentraland', 'project.json'), JSON.stringify(project, null, 2))
+    vorpal.log('Generating IPFS key...');
+    isUpdate = false;
+    const { id } = await ipfsApi.key.gen(project.id, { type: 'rsa', size: 2048 });
+    project.ipfsKey = id;
+    vorpal.log(`New IPFS key: ${project.ipfsKey}`);
+    fs.outputFileSync(path.join(root, '.decentraland', 'project.json'), JSON.stringify(project, null, 2));
   }
 
   let ipfsHash;
@@ -103,13 +100,14 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     // TODO: pinning --- ipfs.pin.add(hash, function (err) {})
     vorpal.log('Updating IPNS reference to folder hash... (this might take a while)');
     const { name } = await ipfsApi.name.publish(ipfsHash, { key: project.id });
+
     vorpal.log(`IPNS Link: /ipns/${name}`);
   } catch (err) {
     vorpal.log(err.message);
     if (err.message.indexOf('ECONNREFUSED') != -1) {
       vorpal.log(chalk.red('\nMake sure you have the IPFS daemon running (https://ipfs.io/docs/install/).'));
     }
-    process.exit(1)
+    process.exit(1);
   }
 
   if (isUpdate) {
@@ -132,8 +130,10 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
 
     let ipfsURL: string = await getIPFSURL();
     try {
-      const { ok } = await axios.get(`${ipfsURL}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
+      const { ok } = await axios
+        .get(`${ipfsURL}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
         .then(response => response.data);
+
       vorpal.log(`Pinning files ${ok ? 'success' : 'failed'}`);
     } catch (err) {
       vorpal.log('Error', JSON.stringify(err.message));

@@ -1,6 +1,6 @@
 import dockerNames = require('docker-names');
 
-export function getDefaultName(): string  {
+export function getDefaultName(): string {
   return 'dcl-app';
 }
 

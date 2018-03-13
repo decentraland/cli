@@ -20,13 +20,12 @@ import path = require('path');
 import ProgressBar = require('progress');
 import Vorpal = require('vorpal');
 import { help } from './commands/help';
-import { init } from './commands/init';
+import { init as initCommand } from './commands/init';
 import { link } from './commands/link';
 import { push } from './commands/push';
 import { start } from './commands/start';
 import { upgrade } from './commands/upgrade';
 import { upload } from './commands/upload';
-import { linkerChecker } from './utils/linker-checker';
 const pkg = require('../package.json');
 
 /**
@@ -44,35 +43,28 @@ export const DELIMITER = 'dcl $';
  */
 export const vorpal = new Vorpal();
 
-const cli = {
-  vorpal,
-  init(options = {}) {
-    vorpal.use(init);
-    vorpal.use(start);
-    vorpal.use(upload);
-    vorpal.use(link);
-    vorpal.use(push);
-    vorpal.use(upgrade);
-    vorpal.use(help);
+export function init(options = {}) {
+  vorpal.use(initCommand);
+  vorpal.use(start);
+  vorpal.use(upload);
+  vorpal.use(link);
+  vorpal.use(push);
+  vorpal.use(upgrade);
+  vorpal.use(help);
 
-    linkerChecker(vorpal);
+  vorpal
+    .delimiter(DELIMITER)
+    .catch('[words...]', 'Catches incorrect commands')
+    .action(() => {
+      vorpal.execSync('help');
+    });
 
-    vorpal
-      .delimiter(DELIMITER)
-      .catch('[words...]', 'Catches incorrect commands')
-      .action(() => {
-        vorpal.execSync('help');
-      });
-
-    if (process.argv.length > 2) {
-      // If one or more command, execute and close
-      vorpal.parse(process.argv);
-    } else {
-      // Show help if no commands are supplied
-      vorpal.log(`Decentraland CLI v${VERSION}\n`);
-      vorpal.exec('help');
-    }
+  if (process.argv.length > 2) {
+    // If one or more command, execute and close
+    vorpal.parse(process.argv);
+  } else {
+    // Show help if no commands are supplied
+    vorpal.log(`Decentraland CLI v${VERSION}\n`);
+    vorpal.exec('help');
   }
-};
-
-module.exports = cli;
+}
