@@ -11,11 +11,13 @@ import { readFile } from './filesystem';
 import { getRoot } from './get-root';
 import { getIPFSURL } from './get-ipfs-url';
 import { cliPath } from './cli-path';
+import { sceneLink, sceneLinked } from './analytics';
 import * as urlParse from 'url';
 import path = require('path');
 
 export async function linker(vorpal: any, args: any, callback: () => void) {
   const root = getRoot();
+  sceneLink();
   const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
   if (!isDclProject) {
     vorpal.log(
@@ -103,6 +105,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     ctx.res.end();
     const ok = urlParse.parse(ctx.req.url, true).query.ok;
     if (ok === 'true') {
+      sceneLinked();
       vorpal.log(chalk.green('\nThe project was linked to Ethereum!'));
     } else {
       vorpal.log(chalk.red('\nThe project was not linked to Ethereum'));

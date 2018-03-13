@@ -5,6 +5,7 @@ import * as express from 'express';
 
 import { getRoot } from '../utils/get-root';
 import { cliPath } from '../utils/cli-path';
+import { preview } from '../utils/analytics';
 
 export function serve(vorpal: any, args: any): any {
   vorpal.log(chalk.blue('Parcel server is starting...\n'));
@@ -12,6 +13,7 @@ export function serve(vorpal: any, args: any): any {
   const root = getRoot();
 
   const app = express();
+  preview();
 
   app.get('/', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html' });
