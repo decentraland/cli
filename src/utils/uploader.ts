@@ -7,6 +7,7 @@ import { getIPFSURL } from './get-ipfs-url';
 import axios from 'axios';
 import { env } from 'decentraland-commons';
 import path = require('path');
+const parser = require('gitignore-parser');
 
 env.load();
 
@@ -19,34 +20,50 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
 
   const root = getRoot();
 
-  const isDclProject = await fs.pathExists(path.join(root, 'scene.json'));
-  if (!isDclProject) {
+  try {
+    const scene = JSON.parse(fs.readFileSync(path.join(root, 'scene.json'), 'utf-8'));
+    const isWebSocket = /(ws(s?))\:\/\//gi;
+    const supportedExtensions = ['js', 'html', 'xml'];
+    const mainExt = scene.main.split('.').pop();
+    if (
+      !isWebSocket.test(scene.main) &&
+      (!supportedExtensions.filter(ext => ext === mainExt).length === 0 || !fs.existsSync(path.join(root, scene.main)))
+    ) {
+      vorpal.log(`Seems like the main file ${scene.main} not found or ${scene.main} is not a supported format`);
+      callback();
+      return;
+    }
+  } catch (error) {
     vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
     callback();
     return;
   }
 
-  const data = [
-    {
-      path: `tmp/scene.html`,
-      content: new Buffer(fs.readFileSync(path.join(root, 'scene.html')))
-    },
-    {
-      path: `tmp/scene.json`,
-      content: new Buffer(fs.readFileSync(path.join(root, 'scene.json')))
-    }
-  ];
+  const data: string[] = [];
+
+  // Go through project folders and add files if not ignored
+  const decentralandignore = parser.compile(fs.readFileSync(path.join(root, '.decentralandignore'), 'utf8'));
+
+  const getFiles = (dir: string): string[] =>
+    fs
+      .readdirSync(dir)
+      .reduce(
+        (files, file) =>
+          fs.statSync(path.join(dir, file)).isDirectory()
+            ? files.concat(getFiles(path.join(dir, file)))
+            : files.concat(path.join(dir, file)),
+        [],
+      );
+
+  const files: string[] = getFiles(root);
 
   // Go through project folders and add files if available
-  ['audio', 'models', 'textures'].forEach(async (type: string) => {
-    const folder = await fs.readdir(path.join(root, type));
-    folder.forEach((name: string) =>
-      data.push({
-        path: `tmp/${type}/${name}`,
-        content: new Buffer(fs.readFileSync(path.join(root, type, name)))
-      })
-    );
-  });
+  files.filter(decentralandignore.accepts).forEach(async (name: string) =>
+    data.push({
+      path: name,
+      content: new Buffer(fs.readFileSync(name)),
+    }),
+  );
 
   let progCount = 0;
   let accumProgress = 0;
@@ -89,7 +106,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   try {
     const filesAdded = await ipfsApi.files.add(data, {
       progress: handler,
-      recursive: true
+      recursive: true,
     });
 
     const rootFolder = filesAdded[filesAdded.length - 1];
@@ -120,7 +137,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
 
         coordinates.push({
           x: parseInt(x, 10),
-          y: parseInt(y, 10)
+          y: parseInt(y, 10),
         });
       });
     } catch (err) {

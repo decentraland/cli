@@ -109,6 +109,32 @@ export function init(vorpal: any) {
           )
         );
 
+        fs.outputFileSync(
+          path.join(dirName, '.decentralandignore'),
+          [
+            '.gitgnore',
+            '.decentraland',
+            '.npmignore',
+            '.editorconfig',
+            '.vs/',
+            '.vscode/',
+            '.idea',
+            '.babelrc',
+            '.env',
+            'package.json',
+            'package-lock.json',
+            'yarn-lock.json',
+            'node_modules/',
+            'bower_components/',
+            'README.md',
+            '*.log',
+            'dist',
+            'build.json',
+            'tsconfig.json',
+            'tslint.json'
+          ].join('\n')
+        );
+
         initProject(args, sceneMeta);
 
         this.log(`\nNew project created in '${dirName}' directory.\n`);
