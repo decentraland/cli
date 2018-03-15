@@ -6,6 +6,7 @@ import * as project from '../utils/project';
 import { ensureFolder } from '../utils/filesystem';
 import { cliPath } from '../utils/cli-path';
 import { getRoot } from '../utils/get-root';
+import { sceneCreated } from '../utils/analytics';
 
 export async function initProject(args: any, sceneMeta: any) {
   const dirName = args.options.path || getRoot();
@@ -26,6 +27,7 @@ export async function initProject(args: any, sceneMeta: any) {
   await ensureLocal(path.join(dirName, 'audio'));
   await ensureLocal(path.join(dirName, 'models'));
   await ensureLocal(path.join(dirName, 'textures'));
+  sceneCreated();
 
   fs.outputFileSync(path.join(dirName, 'scene.json'), JSON.stringify(sceneMeta, null, 2));
 }

@@ -8,6 +8,7 @@ import axios from 'axios';
 import { env } from 'decentraland-commons';
 import path = require('path');
 const parser = require('gitignore-parser');
+import { sceneUpload, sceneUploadSuccess } from './analytics';
 
 env.load();
 
@@ -19,6 +20,9 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     vorpal.log(message);
     callback();
   };
+
+  // Upload requested
+  sceneUpload();
 
   // You need to have ipfs daemon running!
   const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
@@ -125,6 +129,9 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     vorpal.log('Updating IPNS reference to folder hash... (this might take a while)');
     const { name } = await ipfsApi.name.publish(ipfsHash, { key: project.id });
 
+    // Upload successful
+    sceneUploadSuccess({ ipfsHash, ipnsHash });
+
     vorpal.log(`IPNS Link: /ipns/${name}`);
   } catch (err) {
     vorpal.log(err.message);
@@ -152,11 +159,14 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
       process.exit(1);
     }
 
-    let ipfsURL: string = await getIPFSURL();
     try {
+      const ipfsURL: string = await getIPFSURL();
       const { ok } = await axios
         .get(`${ipfsURL}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
         .then(response => response.data);
+
+      // Upload successful
+      sceneUploadSuccess({ ipfsURL, ipfsHash, ipnsHash });
 
       vorpal.log(`Pinning files ${ok ? 'success' : 'failed'}`);
     } catch (err) {
