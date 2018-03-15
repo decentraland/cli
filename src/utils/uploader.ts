@@ -27,7 +27,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     const mainExt = scene.main.split('.').pop();
     if (
       !isWebSocket.test(scene.main) &&
-      (!supportedExtensions.filter(ext => ext === mainExt).length === 0 || !fs.existsSync(path.join(root, scene.main)))
+      (!supportedExtensions.filter(ext => ext === mainExt).length || !fs.existsSync(path.join(root, scene.main)))
     ) {
       vorpal.log(`Seems like the main file ${scene.main} not found or ${scene.main} is not a supported format`);
       callback();
@@ -39,10 +39,10 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     return;
   }
 
-  const data: string[] = [];
+  const data: object[] = [];
 
   // Go through project folders and add files if not ignored
-  const decentralandignore = parser.compile(fs.readFileSync(path.join(root, '.decentralandignore'), 'utf8'));
+  const decentralandignore = parser.compile(fs.readFileSync(path.join(root, '.dclignore'), 'utf8'));
 
   const getFiles = (dir: string): string[] =>
     fs

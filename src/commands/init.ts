@@ -110,7 +110,7 @@ export function init(vorpal: any) {
         );
 
         fs.outputFileSync(
-          path.join(dirName, '.decentralandignore'),
+          path.join(dirName, '.dclignore'),
           [
             '.gitgnore',
             '.decentraland',
