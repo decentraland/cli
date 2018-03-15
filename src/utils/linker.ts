@@ -11,6 +11,7 @@ import { readFile } from './filesystem';
 import { getRoot } from './get-root';
 import { getIPFSURL } from './get-ipfs-url';
 import { cliPath } from './cli-path';
+import { sceneLink, sceneLinkSuccess } from './analytics';
 import * as urlParse from 'url';
 import path = require('path');
 
@@ -27,6 +28,18 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   env.load();
 
+  let project: any;
+  try {
+    project = await getProject();
+  } catch (error) {
+    vorpal.log(chalk.red('Could not find `.decentraland/project.json`'));
+    process.exit(1);
+  }
+  const { ipfsKey, peerId } = project;
+  const ipfsURL = await getIPFSURL()
+
+  sceneLink({ ipfsURL, ipfsKey, peerId });
+
   const app = new Koa();
   const router = new Router();
 
@@ -41,24 +54,10 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   });
 
   router.get('/api/get-ipfs-key', async ctx => {
-    let project;
-    try {
-      project = await getProject();
-    } catch (error) {
-      vorpal.log(chalk.red('Could not find `.decentraland/project.json`'));
-      process.exit(1);
-    }
     ctx.body = JSON.stringify(project.ipfsKey);
   });
 
   router.get('/api/get-ipfs-peerid', async ctx => {
-    let project;
-    try {
-      project = await getProject();
-    } catch (error) {
-      vorpal.log(chalk.red('Could not find `.decentraland/project.json`'));
-      process.exit(1);
-    }
     ctx.body = JSON.stringify(project.peerId);
   });
 
@@ -81,7 +80,6 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   router.get('/api/pin-files/:peerId/:x/:y', async ctx => {
     const { peerId, x, y } = ctx.params;
-    let ipfsURL: string = await getIPFSURL();
 
     const { ok, message } = await axios
       .get(`${ipfsURL}/pin/${peerId}/${x}/${y}`)
@@ -92,6 +90,8 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   router.get('/api/close', async ctx => {
     ctx.res.end();
+    sceneLinkSuccess({ ipfsURL, ipfsKey, peerId });
+
     const ok = urlParse.parse(ctx.req.url, true).query.ok;
     if (ok === 'true') {
       vorpal.log(chalk.green('\nThe project was linked to Ethereum!'));
