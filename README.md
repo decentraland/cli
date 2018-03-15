@@ -7,10 +7,10 @@ CLI tool for parcel management.
 * [x] Hot reloading
 * [x] Linking Ethereum to the scene
 * [x] Pinning scene to Decentraland IPFS node
+* [x] Compiling scripts
 * [ ] Editor modifying local files and “uploading” to the directory
 * [ ] Optimizing objects, textures
 * [ ] Warnings and linting of scenes
-* [ ] Compiling scripts
 * [ ] Generating bundles of assets
 * [ ] Manage IPFS uploading/differential uploads
 * [ ] Test framework for scripting

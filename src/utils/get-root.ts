@@ -1,3 +1,1 @@
-import { isDev } from './is-dev';
-
-export const getRoot = () => (isDev ? './tmp' : '.');
+export const getRoot = () => process.cwd();
