@@ -9,7 +9,9 @@ import { cliPath } from '../utils/cli-path';
 import { wrapAsync } from '../utils/wrap-async';
 import { getRoot } from '../utils/get-root';
 
-import { initProject, buildHtml } from '../creation/init';
+import { initProject, BoilerplateType, isValidBoilerplateType, copySample, scaffoldWebsockets } from '../creation/init';
+import { installDependencies, buildTypescript } from '../utils/module-helpers';
+
 
 export function init(vorpal: any) {
   vorpal
@@ -76,13 +78,8 @@ export function init(vorpal: any) {
           ? sceneMeta.scene.parcels.split(';').map((coord: string) => coord.replace(/\s/g, ''))
           : ['0,0'];
 
-        sceneMeta.main = 'scene.html';
+        sceneMeta.main = 'scene.xml'; // replaced by chosen template
         sceneMeta.scene.base = sceneMeta.scene.parcels[0];
-
-        // Print the data to console
-        this.log(`\nScene metadata: (${chalk.grey('scene.json')})\n`);
-        this.log(chalk.blue(JSON.stringify(sceneMeta, null, 2)));
-        this.log(chalk.grey('\n(you can always update the metadata manually later)\n'));
 
         const results = await inquirer.prompt({
           type: 'confirm',
@@ -120,6 +117,8 @@ export function init(vorpal: any) {
             'tsconfig.json',
             'tslint.json',
             'node_modules/',
+            '*.ts',
+            '*.tsx',
             'dist/'
           ].join('\n')
         );
@@ -128,20 +127,54 @@ export function init(vorpal: any) {
 
         this.log(`\nNew project created in '${dirName}' directory.\n`);
 
-        let withSampleScene = args.options.boilerplate;
+        let boilerplateType = args.options.boilerplate;
+        let websocketServer: string;
 
         if (args.options.boilerplate === undefined) {
           const results = await inquirer.prompt({
-            type: 'confirm',
-            name: 'sampleScene',
-            default: true,
-            message: chalk.yellow('Do you want to bootstrap this new project with a sample scene?')
+            type: 'list',
+            name: 'archetype',
+            message: chalk.yellow('Which type of project would you like to generate?'),
+            choices: [
+              { name: 'Static a-minus scene project', value: BoilerplateType.STATIC },
+              { name: 'Dynamic Typescript project', value: BoilerplateType.TYPESCRIPT },
+              { name: 'Remote project (WebSockets)', value: BoilerplateType.WEBSOCKETS }
+            ],
+            default: BoilerplateType.STATIC,
           });
 
-          withSampleScene = results.sampleScene;
+          boilerplateType = results.archetype;
+
+          if (results.archetype === BoilerplateType.WEBSOCKETS) {
+            const ws = await inquirer.prompt({
+              type: 'input',
+              name: 'server',
+              message: `${chalk.blue('Your websocket server')}`,
+              default: 'ws://localhost:3000'
+            });
+
+            websocketServer = ws.server;
+          }
+        } else if (!isValidBoilerplateType(boilerplateType)) {
+          vorpal.log(chalk.red(`Invalid boilerplate type. Supported types are 'static', 'ts' and 'ws'.`));
+          process.exit(1);
         }
 
-        await buildHtml(dirName, withSampleScene);
+        switch (boilerplateType) {
+          case BoilerplateType.TYPESCRIPT:
+            copySample('basic-ts');
+            installDependencies().then(() => {
+              buildTypescript();
+            });
+            break;
+          case BoilerplateType.WEBSOCKETS:
+            scaffoldWebsockets(websocketServer);
+            break;
+          case BoilerplateType.STATIC:
+          default:
+            copySample('basic-static');
+            break;
+        }
       })
     );
 }
