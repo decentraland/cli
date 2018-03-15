@@ -23,9 +23,9 @@ export async function initProject(args: any, sceneMeta: any) {
 
   // Project folders
   const ensureLocal = async (folder: string) => await ensureFolder([dirName, folder]);
-  await ensureLocal('audio');
-  await ensureLocal('models');
-  await ensureLocal('textures');
+  await ensureLocal(path.join(dirName, 'audio'));
+  await ensureLocal(path.join(dirName, 'models'));
+  await ensureLocal(path.join(dirName, 'textures'));
 
   fs.outputFileSync(path.join(dirName, 'scene.json'), JSON.stringify(sceneMeta, null, 2));
 }
@@ -35,7 +35,8 @@ interface GeneratorSettings {
 }
 
 export async function generateHtml({ withSampleScene = false }: GeneratorSettings): Promise<string> {
-  const sampleScene = `<a-box position="5 0.5 5" rotation="0 45 0" color="#4CC3D9"></a-box>
+  const sampleScene = `
+    <a-box position="5 0.5 5" rotation="0 45 0" color="#4CC3D9"></a-box>
     <a-sphere position="6 1.25 4" radius="1.25" color="#EF2D5E"></a-sphere>
     <a-cylinder position="7 0.75 3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
     <a-plane position="5 0 6" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>`;

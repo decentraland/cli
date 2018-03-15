@@ -109,6 +109,21 @@ export function init(vorpal: any) {
           )
         );
 
+        fs.outputFileSync(
+          path.join(dirName, '.dclignore'),
+          [
+            '.*',
+            'package.json',
+            'package-lock.json',
+            'yarn-lock.json',
+            'build.json',
+            'tsconfig.json',
+            'tslint.json',
+            'node_modules/',
+            'dist/'
+          ].join('\n')
+        );
+
         initProject(args, sceneMeta);
 
         this.log(`\nNew project created in '${dirName}' directory.\n`);
