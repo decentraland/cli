@@ -197,7 +197,7 @@ export default class Page extends React.Component {
   renderError = () => (this.state.error ? <p style={{ color: 'red' }}>{this.state.error}</p> : null);
 
   renderTransactionStatus = () =>
-    this.state.tx ? (
+    !this.state.error && this.state.tx ? (
       !this.state.transactionLoading ? (
         <p style={{ color: 'green' }}>{`Transaction confirmed.`}</p>
       ) : (
