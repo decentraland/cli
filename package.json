@@ -16,7 +16,8 @@
     "lint:fix": "tslint -c tslint.json 'src/**/*.ts' --fix",
     "tsc": "tsc",
     "test": "mocha -r ts-node/register src/**/*.spec.ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postinstall": "node dist/postinstall.js"
   },
   "repository": {
     "type": "git",
@@ -44,6 +45,7 @@
   },
   "dependencies": {
     "@types/uuid": "^3.4.3",
+    "analytics-node": "^3.2.0",
     "axios": "^0.17.1",
     "babel-polyfill": "^6.26.0",
     "chalk": "^2.3.1",
