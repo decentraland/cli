@@ -112,26 +112,15 @@ export function init(vorpal: any) {
         fs.outputFileSync(
           path.join(dirName, '.dclignore'),
           [
-            '.gitgnore',
-            '.decentraland',
-            '.npmignore',
-            '.editorconfig',
-            '.vs/',
-            '.vscode/',
-            '.idea',
-            '.babelrc',
-            '.env',
+            '.*',
             'package.json',
             'package-lock.json',
             'yarn-lock.json',
-            'node_modules/',
-            'bower_components/',
-            'README.md',
-            '*.log',
-            'dist',
             'build.json',
             'tsconfig.json',
-            'tslint.json'
+            'tslint.json',
+            'node_modules/',
+            'dist/'
           ].join('\n')
         );
 

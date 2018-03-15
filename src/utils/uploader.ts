@@ -15,6 +15,12 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   // If it is the first time, not pin the scene to Decentraland IPFS node
   let isUpdate = true;
 
+  const exitWithError = (message: string) => {
+    vorpal.log(message);
+    callback();
+    return;
+  };
+
   // You need to have ipfs daemon running!
   const ipfsApi = ipfsAPI('localhost', args.options.port || '5001');
 
@@ -22,16 +28,15 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
 
   try {
     const scene = JSON.parse(fs.readFileSync(path.join(root, 'scene.json'), 'utf-8'));
-    const isWebSocket = /(ws(s?))\:\/\//gi;
     const supportedExtensions = ['js', 'html', 'xml'];
     const mainExt = scene.main.split('.').pop();
-    if (
-      !isWebSocket.test(scene.main) &&
-      (!supportedExtensions.filter(ext => ext === mainExt).length || !fs.existsSync(path.join(root, scene.main)))
-    ) {
-      vorpal.log(`Seems like the main file ${scene.main} not found or ${scene.main} is not a supported format`);
-      callback();
-      return;
+    const isWebSocket = (str: string) => /(ws(s?))\:\/\//gi.test(str);
+    const isInvalidFormat = !supportedExtensions.filter(ext => ext === mainExt).length;
+    const mainExists = fs.existsSync(path.join(root, scene.main));
+
+    if (!isWebSocket(scene.main)) {
+      if (isInvalidFormat) return exitWithError(`Main scene format file (${scene.main}) is not a supported format`);
+      if (!mainExists) return exitWithError(`Main scene file ${scene.main} is missing`);
     }
   } catch (error) {
     vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
@@ -42,7 +47,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   const data: object[] = [];
 
   // Go through project folders and add files if not ignored
-  const decentralandignore = parser.compile(fs.readFileSync(path.join(root, '.dclignore'), 'utf8'));
+  const dclignore = parser.compile(fs.readFileSync(path.join(root, '.dclignore'), 'utf8'));
 
   const getFiles = (dir: string): string[] =>
     fs
@@ -53,14 +58,15 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
             ? files.concat(getFiles(path.join(dir, file)))
             : files.concat(path.join(dir, file)),
         [],
-      );
+      )
+      .map(file => path.relative(root, file));
 
   const files: string[] = getFiles(root);
 
   // Go through project folders and add files if available
-  files.filter(decentralandignore.accepts).forEach(async (name: string) =>
+  files.filter(dclignore.accepts).forEach(async (name: string) =>
     data.push({
-      path: name,
+      path: `/tmp/${name}`,
       content: new Buffer(fs.readFileSync(name)),
     }),
   );

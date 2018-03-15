@@ -4,7 +4,7 @@
   "description": "CLI tool for parcel management.",
   "main": "./dist/index.js",
   "scripts": {
-    "start": "./dev.js",
+    "start": "(mkdir tmp || true) && cd tmp && NODE_ENV=dev ../bin/dcl",
     "watch": "tsc --watch",
     "build": "npm run clean && tsc && npm run linker:build",
     "clean": "rimraf dist && rimraf tmp",
