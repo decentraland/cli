@@ -18,7 +18,6 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   const exitWithError = (message: string) => {
     vorpal.log(message);
     callback();
-    return;
   };
 
   // You need to have ipfs daemon running!
@@ -35,13 +34,11 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     const mainExists = fs.existsSync(path.join(root, scene.main));
 
     if (!isWebSocket(scene.main)) {
-      if (isInvalidFormat) return exitWithError(`Main scene format file (${scene.main}) is not a supported format`);
-      if (!mainExists) return exitWithError(`Main scene file ${scene.main} is missing`);
+      if (isInvalidFormat) exitWithError(`Main scene format file (${scene.main}) is not a supported format`);
+      if (!mainExists) exitWithError(`Main scene file ${scene.main} is missing`);
     }
   } catch (error) {
-    vorpal.log(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
-    callback();
-    return;
+    exitWithError(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
   }
 
   const data: object[] = [];
