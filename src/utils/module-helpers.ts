@@ -1,34 +1,20 @@
 import fs = require('fs-extra');
-import child = require('child_process');
+import { spawn } from 'child_process';
 
 export function installDependencies(): Promise<void> {
-  const files = fs.readdirSync(process.cwd());
-
   return new Promise((resolve, reject) => {
-    if (files.find(file => file === 'package.json')) {
-      child.exec('npm i', (err, stdout, stderr) => {
-        if (!err) {
-          resolve();
-        } else {
-          reject(err);
-        }
-      });
-    }
+    const child = spawn('npm', ['install']);
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
+    child.on('close', () => resolve());
   });
 }
 
 export function buildTypescript(): Promise<void> {
-  const files = fs.readdirSync(process.cwd());
-
   return new Promise((resolve, reject) => {
-    if (files.find(file => file === 'tsconfig.json')) {
-      child.exec('npm run build', (err) => {
-        if (!err) {
-          resolve();
-        } else {
-          reject(err);
-        }
-      });
-    }
+    const child = spawn('npm', ['run', 'build']);
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
+    child.on('close', () => resolve());
   });
 }

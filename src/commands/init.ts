@@ -161,12 +161,16 @@ export function init(vorpal: any) {
         }
 
         switch (boilerplateType) {
-          case BoilerplateType.TYPESCRIPT:
+          case BoilerplateType.TYPESCRIPT: {
             copySample('basic-ts');
-            installDependencies().then(() => {
-              buildTypescript();
-            });
+            const files = fs.readdirSync(process.cwd());
+
+            if (files.find(file => file === 'package.json')) {
+              await installDependencies();
+            }
+
             break;
+          }
           case BoilerplateType.WEBSOCKETS:
             scaffoldWebsockets(websocketServer);
             break;

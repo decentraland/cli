@@ -63,12 +63,13 @@ export function copySample(project: string, destination: string = process.cwd())
   const src = path.resolve(__dirname, '..', 'samples', project);
   const files = fs.readdirSync(src);
 
-  files.forEach(file => {
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
     if (file === 'scene.json') {
       const sampleSceneFile = JSON.parse(fs.readFileSync(path.join(src, 'scene.json'), 'utf-8'));
       overwriteSceneFile(sampleSceneFile, destination);
     } else {
       fs.copyFileSync(path.join(src, file), path.join(destination, file));
     }
-  });
+  }
 }
