@@ -8,7 +8,7 @@ export function push(vorpal: any) {
     .command('push')
     .description('Upload, link IPNS, and link Ethereum in one go.')
     .action(function(args: any, callback: () => void) {
-      deploy()
+      deploy();
       uploader(vorpal, args, callback).then(() => linker(vorpal, args, callback));
     });
 }

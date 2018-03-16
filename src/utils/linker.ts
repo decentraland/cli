@@ -36,7 +36,7 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     process.exit(1);
   }
   const { ipfsKey, peerId } = project;
-  const ipfsURL = await getIPFSURL()
+  const ipfsURL = await getIPFSURL();
 
   sceneLink({ ipfsURL, ipfsKey, peerId });
 

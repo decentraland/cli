@@ -29,7 +29,7 @@ export function init(vorpal: any) {
 
         if (fs.readdirSync('.').length !== 0) {
           this.log('The directory is not empty! Please run `dcl init` again on an empty directory');
-          return callback()
+          return callback();
         }
 
         const sceneMeta = await inquirer.prompt([
