@@ -128,11 +128,14 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     // TODO: pinning --- ipfs.pin.add(hash, function (err) {})
     vorpal.log('Updating IPNS reference to folder hash... (this might take a while)');
     const { name } = await ipfsApi.name.publish(ipfsHash, { key: project.id });
+    ipnsHash = name;
 
-    // Upload successful
-    sceneUploadSuccess({ ipfsHash, ipnsHash });
+    if (!isUpdate) {
+      // Upload successful
+      sceneUploadSuccess({ipfsHash, ipnsHash});
+    }
 
-    vorpal.log(`IPNS Link: /ipns/${name}`);
+    vorpal.log(`IPNS Link: /ipns/${ipnsHash}`);
   } catch (err) {
     vorpal.log(err.message);
     if (err.message.indexOf('ECONNREFUSED') != -1) {
