@@ -32,7 +32,7 @@ export const deploy = track('Scene deploy requested');
 export async function postInstall() {
   const userId = await getUserId();
   analytics.identify({
-    userId,
+    SINGLEUSER,
     traits: {
       os: process.platform,
       createdAt: new Date().getTime(),
