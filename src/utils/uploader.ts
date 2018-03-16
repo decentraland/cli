@@ -34,11 +34,15 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
     const mainExists = fs.existsSync(path.join(root, scene.main));
 
     if (!isWebSocket(scene.main)) {
-      if (isInvalidFormat) exitWithError(`Main scene format file (${scene.main}) is not a supported format`);
-      if (!mainExists) exitWithError(`Main scene file ${scene.main} is missing`);
+      if (isInvalidFormat) {
+        return exitWithError(`Main scene format file (${scene.main}) is not a supported format`);
+      }
+      if (!mainExists) {
+        return exitWithError(`Main scene file ${scene.main} is missing`);
+      }
     }
   } catch (error) {
-    exitWithError(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
+    return exitWithError(`Seems like this is not a Decentraland project! ${chalk.grey(`('scene.json' not found.)`)}`);
   }
 
   const data: object[] = [];
