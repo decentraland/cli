@@ -48,8 +48,7 @@ async function closeServer(ok, message) {
 
 async function pinFiles(peerId, x, y) {
   const res = await fetch(`/api/pin-files/${peerId}/${x}/${y}`);
-  const { ok } = await res.json();
-  return ok;
+  return await res.json();
 }
 
 export default class Page extends React.Component {
@@ -173,10 +172,10 @@ export default class Page extends React.Component {
     const tx = await txUtils.waitForCompletion(txId);
     if (!txUtils.isFailure(tx)) {
       this.setState({ transactionLoading: false, pinningLoading: true });
-      const success = await pinFiles(peerId, x, y);
+      const { error } = await pinFiles(peerId, x, y);
       this.setState({
         pinningLoading: false,
-        error: !success ? 'Failed pinning files to ipfs' : null
+        error
       });
     } else {
       this.setState({ transactionLoading: false, error: 'Transaction failed' });
