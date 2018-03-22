@@ -153,7 +153,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
       sceneUploadSuccess({ ipfsHash, ipnsHash });
       vorpal.log('Pinning files to IPFS succeeded');
     } catch (err) {
-      vorpal.log('Pinning files to IPFS failed: ', JSON.stringify(err.message));
+      vorpal.log('Pinning files to IPFS failed: ', err.message);
       process.exit(1);
     }
   }
