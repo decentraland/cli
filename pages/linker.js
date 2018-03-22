@@ -42,13 +42,13 @@ async function getPeerId() {
 }
 
 async function closeServer(ok, message) {
-  console.log('closing server:', message);
   await fetch(`/api/close?ok=${ok}&reason=${message}`);
 }
 
 async function pinFiles(peerId, x, y) {
   const res = await fetch(`/api/pin-files/${peerId}/${x}/${y}`);
-  return await res.json();
+  const { error } = await res.json();
+  return error;
 }
 
 export default class Page extends React.Component {
@@ -103,7 +103,7 @@ export default class Page extends React.Component {
         this.setState({
           error: `There was a problem getting scene data.\nTry to re-initialize the project with dcl init.`
         });
-        closeServer(false, 'scene metadata error');
+        closeServer(false, 'There was a problem getting scene data.\nTry to re-initialize the project with dcl init.');
         return;
       }
 
@@ -115,7 +115,7 @@ export default class Page extends React.Component {
         this.setState({
           error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
         });
-        closeServer(false, 'ipns error');
+        closeServer(false, 'There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.');
         return;
       }
 
@@ -155,11 +155,12 @@ export default class Page extends React.Component {
       try {
         console.log('update land data', coordinates, data);
         const tx = await land.updateManyLandData(coordinates, data);
-        this.watchTransactions(tx, coordinates[0].x, coordinates[0].y);
+        const [x, y] = this.state.sceneMetadata.scene.base.split(',');
+        this.watchTransactions(tx, x, y);
         this.setState({ tx, transactionLoading: true });
       } catch (err) {
         this.setState({ loading: false, error: 'Transaction Rejected' });
-        closeServer(false, 'transaction rejected');
+        closeServer(false, 'Transaction rejected');
       }
     } catch (err) {
       this.setState({ loading: false, error: err.message });
@@ -172,15 +173,21 @@ export default class Page extends React.Component {
     const tx = await txUtils.waitForCompletion(txId);
     if (!txUtils.isFailure(tx)) {
       this.setState({ transactionLoading: false, pinningLoading: true });
-      const { error } = await pinFiles(peerId, x, y);
+      const error = await pinFiles(peerId, x, y);
       this.setState({
         pinningLoading: false,
-        error
+        error: error && `Pinning files to IPFS failed. ${error}`
       });
+      window.removeEventListener('beforeunload', this.onUnload);
+      if (error) {
+        closeServer(false, `Pinning files to IPFS failed. ${error}`);
+      } else {
+        closeServer(true);
+      }
     } else {
       this.setState({ transactionLoading: false, error: 'Transaction failed' });
+      closeServer(false, 'Transaction failed');
     }
-    window.removeEventListener('beforeunload', this.onUnload);
   }
 
   renderTxHash = () =>
@@ -207,9 +214,9 @@ export default class Page extends React.Component {
   renderPinningIPFSStatus = () =>
     !this.state.error && this.state.tx && !this.state.transactionLoading ? (
       !this.state.pinningLoading ? (
-        <p style={{ color: 'green' }}>{`Pinning Success.`}</p>
+        <p style={{ color: 'green' }}>{`Pinning files to IPFS succeeded.`}</p>
       ) : (
-        <p style={{ color: 'orange' }}>{`Pinning pending. Will take a while...`}</p>
+        <p style={{ color: 'orange' }}>{`Pinning files to IPFS pending. Will take a while...`}</p>
       )
     ) : null;
 

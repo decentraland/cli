@@ -144,32 +144,16 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   }
 
   if (isUpdate) {
-    vorpal.log('Pinning Files to Decentraland IPFS node... (this might take a while)');
-    const coordinates: any = [];
+    vorpal.log('Pinning files to Decentraland IPFS node... (this might take a while)');
     try {
       const sceneMetadata = JSON.parse(fs.readFileSync(path.join(root, 'scene.json'), 'utf-8'));
-      sceneMetadata.scene.parcels.forEach((parcel: any) => {
-        const [x, y] = parcel.split(',');
-
-        coordinates.push({
-          x: parseInt(x, 10),
-          y: parseInt(y, 10),
-        });
-      });
+      const [x, y] = sceneMetadata.scene.base.split(',');
+      await pinFiles(project.peerId, { x, y });
+      // Upload successful
+      sceneUploadSuccess({ ipfsHash, ipnsHash });
+      vorpal.log('Pinning files to IPFS succeeded');
     } catch (err) {
-      vorpal.log('Error', JSON.stringify(err.message));
-      process.exit(1);
-    }
-
-    try {
-      const { error } = await pinFiles(project.peerId, coordinates[0]);
-      if (!error) {
-        // Upload successful
-        sceneUploadSuccess({ ipfsHash, ipnsHash });
-      }
-      vorpal.log(`Pinning files ${error ? `failed: ${error}` : 'success'}`);
-    } catch (err) {
-      vorpal.log('Error', JSON.stringify(err.message));
+      vorpal.log('Pinning files to IPFS failed: ', JSON.stringify(err.message));
       process.exit(1);
     }
   }

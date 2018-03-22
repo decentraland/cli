@@ -80,23 +80,21 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
   router.get('/api/pin-files/:peerId/:x/:y', async ctx => {
     const { peerId, x, y } = ctx.params;
     try {
-      const res = await pinFiles(peerId, { x, y });
-      ctx.body = JSON.stringify(res);
+      await pinFiles(peerId, { x, y });
+      ctx.body = JSON.stringify({ ok: true });
     } catch (e) {
-      vorpal.log({ error: e.message });
-      ctx.body = JSON.stringify({ ok: false, error: e.message});
+      ctx.body = JSON.stringify({ error: e.message });
     }
   });
 
   router.get('/api/close', async ctx => {
     ctx.res.end();
-    sceneLinkSuccess({ ipfsKey, peerId });
-
-    const ok = urlParse.parse(ctx.req.url, true).query.ok;
+    const { ok, reason } = urlParse.parse(ctx.req.url, true).query;
     if (ok === 'true') {
-      vorpal.log(chalk.green('\nThe project was linked to Ethereum!'));
+      sceneLinkSuccess({ ipfsKey, peerId });
+      vorpal.log(chalk.green('\nThe project was pinned & linked to Ethereum!'));
     } else {
-      vorpal.log(chalk.red('\nThe project was not linked to Ethereum'));
+      vorpal.log(chalk.red(`\nFailed: ${reason}`));
     }
     process.exit(0);
   });
