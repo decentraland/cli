@@ -20,7 +20,7 @@ const SINGLEUSER = 'cli-user';
 ///
 /// List of tracked events
 ///
-
+export const cliInstalled = track('Installed');
 export const sceneCreated = track('Scene created');
 export const preview = track('Preview started');
 export const sceneUpload = track('Scene upload started');
@@ -36,7 +36,7 @@ export async function postInstall() {
     traits: {
       os: process.platform,
       createdAt: new Date().getTime(),
-      userId,
+      devId: userId,
     }
   });
 }
@@ -45,7 +45,7 @@ export async function postInstall() {
 /// Helper "track" function
 ///
 
-export function track(eventName: string) {
+function track(eventName: string) {
   return async (properties = {}) => {
     // No reporting if running under development mode
     if (isDev) {
@@ -58,7 +58,7 @@ export function track(eventName: string) {
       properties: {
         ...properties,
         os: process.platform,
-        userId
+        devId: userId
       }
     });
   };
