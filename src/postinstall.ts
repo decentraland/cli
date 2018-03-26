@@ -1,6 +1,6 @@
-import { postInstall, track } from './utils/analytics';
+import { postInstall, cliInstalled } from './utils/analytics';
 
 (async function() {
   await postInstall();
-  await track('Installed');
+  await cliInstalled();
 })();
