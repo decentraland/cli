@@ -14,8 +14,8 @@ interface GeneratorSettings {
 
 export enum BoilerplateType {
   STATIC = 'static',
-  TYPESCRIPT = 'ts',
-  WEBSOCKETS = 'ws'
+  TYPESCRIPT = 'singleplayer',
+  WEBSOCKETS = 'multiplayer-experimental'
 }
 
 export async function initProject(args: any, sceneMeta: any) {
@@ -53,6 +53,7 @@ export function isValidBoilerplateType(boilerplateType: string): boolean {
 
 export function scaffoldWebsockets(server: string) {
   overwriteSceneFile({ main: server }, process.cwd());
+  copySample('websockets');
 }
 
 export function overwriteSceneFile(scene: any, destination: string) {

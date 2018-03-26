@@ -42,30 +42,30 @@ export function init(vorpal: any) {
           {
             type: 'input',
             name: 'owner',
-            message: `${chalk.blue('Your ethereum address: ')} ${chalk.grey(
-              '(recommended -- used to check ownership of parcels when deploying your scene)'
-            )}`
+            message: `${chalk.blue('Your ethereum address: ')}\n${chalk.grey(
+              '(optional, recommended -- used to check ownership of parcels when deploying your scene)'
+            )}\n`
           },
           {
             type: 'input',
             name: 'contact.name',
-            message: `${chalk.blue('Your name: ')} ${chalk.grey(
+            message: `${chalk.blue('Your name: ')}\n${chalk.grey(
               '(optional -- shown to other users so that they can contact you)'
-            )}`
+            )}\n`
           },
           {
             type: 'input',
             name: 'contact.email',
-            message: `${chalk.blue('Your email: ')} ${chalk.grey(
+            message: `${chalk.blue('Your email: ')}\n${chalk.grey(
               '(optional -- shown to other users so that they can contact you)'
-            )}`
+            )}\n`
           },
           {
             type: 'input',
             name: 'scene.parcels',
-            message: `${chalk.blue('Parcels comprising the scene')} ${chalk.grey(
-              '(recommended -- used to show the limts of your scene and upload to these coordinates)'
-            )}\n ${chalk.blue(`Please use this format: 'x,y; x,y; x,y ...'`)}\n`
+            message: `${chalk.blue('Parcels comprising the scene')}\n${chalk.grey(
+              '(optional, recommended -- used to show the limts of your scene and upload to these coordinates)'
+            )}\n${chalk.blue(`Please use this format: 'x,y; x,y; x,y ...'`)}\n`
           }
         ]);
         sceneMeta.communications = {
@@ -85,18 +85,6 @@ export function init(vorpal: any) {
 
         sceneMeta.main = 'scene.xml'; // replaced by chosen template
         sceneMeta.scene.base = sceneMeta.scene.parcels[0];
-
-        const results = await inquirer.prompt({
-          type: 'confirm',
-          name: 'continue',
-          default: true,
-          message: chalk.yellow('Do you want to continue?')
-        });
-
-        if (!results.continue) {
-          callback();
-          return;
-        }
 
         const dirName = args.options.path || getRoot();
         fs.outputFileSync(
@@ -121,7 +109,8 @@ export function init(vorpal: any) {
             'build.json',
             'tsconfig.json',
             'tslint.json',
-            'node_modules/',
+            'server',
+            '**/node_modules/*',
             '*.ts',
             '*.tsx',
             'dist/'
@@ -141,9 +130,9 @@ export function init(vorpal: any) {
             name: 'archetype',
             message: chalk.yellow('Which type of project would you like to generate?'),
             choices: [
-              { name: 'Static a-minus scene project', value: BoilerplateType.STATIC },
-              { name: 'Dynamic Typescript project', value: BoilerplateType.TYPESCRIPT },
-              { name: 'Remote project (WebSockets)', value: BoilerplateType.WEBSOCKETS }
+              { name: 'Static scene project', value: BoilerplateType.STATIC },
+              { name: 'Dynamic scene (single player)', value: BoilerplateType.TYPESCRIPT },
+              { name: 'Dynamic multiplayer scene (EXPERIMENTAL)', value: BoilerplateType.WEBSOCKETS }
             ],
             default: BoilerplateType.STATIC,
           });
@@ -161,7 +150,7 @@ export function init(vorpal: any) {
             websocketServer = ws.server;
           }
         } else if (!isValidBoilerplateType(boilerplateType)) {
-          vorpal.log(chalk.red(`Invalid boilerplate type. Supported types are 'static', 'ts' and 'ws'.`));
+          vorpal.log(chalk.red(`Invalid boilerplate type. Supported types are 'static', 'singleplayer' and 'multiplayer-experimental'.`));
           process.exit(1);
         }
 
@@ -184,6 +173,7 @@ export function init(vorpal: any) {
             copySample('basic-static');
             break;
         }
+        this.log(`\nRun 'dcl preview' to see your scene`);
       })
     );
 }
