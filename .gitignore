@@ -14,6 +14,7 @@ dist/
 .decentraland
 scene.html
 scene.json
+userId
 
 # Until API is stable
 package-lock.json

@@ -3,8 +3,7 @@ import fs = require('fs-extra');
 import inquirer = require('inquirer');
 const ipfsAPI = require('ipfs-api');
 import { getRoot } from './get-root';
-import { getIPFSURL } from './get-ipfs-url';
-import axios from 'axios';
+import { pinFiles } from './pin-files';
 import { env } from 'decentraland-commons';
 import path = require('path');
 const parser = require('gitignore-parser');
@@ -132,7 +131,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
 
     if (!isUpdate) {
       // Upload successful
-      sceneUploadSuccess({ipfsHash, ipnsHash});
+      sceneUploadSuccess({ ipfsHash, ipnsHash });
     }
 
     vorpal.log(`IPNS Link: /ipns/${ipnsHash}`);
@@ -145,35 +144,16 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   }
 
   if (isUpdate) {
-    vorpal.log('Pinning Files to Decentraland IPFS node... (this might take a while)');
-    const coordinates: any = [];
+    vorpal.log('Pinning files to Decentraland IPFS node... (this might take a while)');
     try {
       const sceneMetadata = JSON.parse(fs.readFileSync(path.join(root, 'scene.json'), 'utf-8'));
-      sceneMetadata.scene.parcels.forEach((parcel: any) => {
-        const [x, y] = parcel.split(',');
-
-        coordinates.push({
-          x: parseInt(x, 10),
-          y: parseInt(y, 10),
-        });
-      });
-    } catch (err) {
-      vorpal.log('Error', JSON.stringify(err.message));
-      process.exit(1);
-    }
-
-    try {
-      const ipfsURL: string = await getIPFSURL();
-      const { ok } = await axios
-        .get(`${ipfsURL}/pin/${project.peerId}/${coordinates[0].x}/${coordinates[0].y}`)
-        .then(response => response.data);
-
+      const [x, y] = sceneMetadata.scene.base.split(',');
+      await pinFiles(project.peerId, { x, y });
       // Upload successful
-      sceneUploadSuccess({ ipfsURL, ipfsHash, ipnsHash });
-
-      vorpal.log(`Pinning files ${ok ? 'success' : 'failed'}`);
+      sceneUploadSuccess({ ipfsHash, ipnsHash });
+      vorpal.log('Pinning files to IPFS succeeded');
     } catch (err) {
-      vorpal.log('Error', JSON.stringify(err.message));
+      vorpal.log('Pinning files to IPFS failed: ', err.message);
       process.exit(1);
     }
   }

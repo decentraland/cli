@@ -9,7 +9,7 @@ import * as project from '../utils/project';
 import opn = require('opn');
 import { readFile } from './filesystem';
 import { getRoot } from './get-root';
-import { getIPFSURL } from './get-ipfs-url';
+import { pinFiles } from './pin-files';
 import { cliPath } from './cli-path';
 import { sceneLink, sceneLinkSuccess } from './analytics';
 import * as urlParse from 'url';
@@ -36,9 +36,8 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
     process.exit(1);
   }
   const { ipfsKey, peerId } = project;
-  const ipfsURL = await getIPFSURL();
 
-  sceneLink({ ipfsURL, ipfsKey, peerId });
+  sceneLink({ ipfsKey, peerId });
 
   const app = new Koa();
   const router = new Router();
@@ -80,23 +79,22 @@ export async function linker(vorpal: any, args: any, callback: () => void) {
 
   router.get('/api/pin-files/:peerId/:x/:y', async ctx => {
     const { peerId, x, y } = ctx.params;
-
-    const { ok, message } = await axios
-      .get(`${ipfsURL}/pin/${peerId}/${x}/${y}`)
-      .then(response => response.data)
-      .catch(error => ({ ok: false, message: error.message }));
-    ctx.body = JSON.stringify({ ok, message });
+    try {
+      await pinFiles(peerId, { x, y });
+      ctx.body = JSON.stringify({ ok: true });
+    } catch (e) {
+      ctx.body = JSON.stringify({ error: e.message });
+    }
   });
 
   router.get('/api/close', async ctx => {
     ctx.res.end();
-    sceneLinkSuccess({ ipfsURL, ipfsKey, peerId });
-
-    const ok = urlParse.parse(ctx.req.url, true).query.ok;
+    const { ok, reason } = urlParse.parse(ctx.req.url, true).query;
     if (ok === 'true') {
-      vorpal.log(chalk.green('\nThe project was linked to Ethereum!'));
+      sceneLinkSuccess({ ipfsKey, peerId });
+      vorpal.log(chalk.green('\nThe project was pinned & linked to Ethereum!'));
     } else {
-      vorpal.log(chalk.red('\nThe project was not linked to Ethereum'));
+      vorpal.log(chalk.red(`\nFailed: ${reason}`));
     }
     process.exit(0);
   });
