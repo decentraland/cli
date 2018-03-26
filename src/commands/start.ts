@@ -6,7 +6,8 @@ const opn = require('opn');
 
 export function start(vorpal: any) {
   vorpal
-    .command('start')
+    .command('preview')
+    .alias('start')
     .alias('serve')
     .description('Starts local development server.')
     .action(function(args: any, callback: () => void) {
