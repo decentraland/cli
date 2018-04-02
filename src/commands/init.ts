@@ -121,7 +121,11 @@ export function init(vorpal: any) {
             websocketServer = ws.server
           }
         } else if (!project.isValidBoilerplateType(boilerplateType)) {
-          vorpal.log(chalk.red(`Invalid boilerplate type. Supported types are 'static', 'ts' and 'ws'.`))
+          vorpal.log(
+            chalk.red(
+              `Invalid boilerplate type. Supported types are 'static', 'singleplayer' and 'multiplayer-experimental'.`
+            )
+          )
           process.exit(1)
         }
 
@@ -146,6 +150,7 @@ export function init(vorpal: any) {
         }
 
         await sceneCreated()
+        this.log(`\nRun 'dcl preview' to see your scene`)
       })
     )
 }

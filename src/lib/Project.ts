@@ -18,8 +18,8 @@ import { IIPFSFile } from './IPFS'
 
 export enum BoilerplateType {
   STATIC = 'static',
-  TYPESCRIPT = 'ts',
-  WEBSOCKETS = 'ws'
+  TYPESCRIPT = 'singleplayer',
+  WEBSOCKETS = 'multiplayer-experimental'
 }
 
 export class Project extends EventEmitter {
@@ -77,7 +77,7 @@ export class Project extends EventEmitter {
    * @param server The url to a websocket server
    */
   scaffoldWebsockets(server: string) {
-    writeJSON(getSceneFilePath(), { main: server })
+    this.copySample('websockets')
   }
 
   /**
