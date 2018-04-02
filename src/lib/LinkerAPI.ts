@@ -13,13 +13,15 @@ export class LinkerAPI extends EventEmitter {
   private projectMetadata: IProjectFile
   private app: Koa
   private router: Router
+  private landContract: string
 
-  constructor(sceneMetadata: DCL.SceneMetadata, projectMetadata: IProjectFile) {
+  constructor(sceneMetadata: DCL.SceneMetadata, projectMetadata: IProjectFile, landRegistryContract: string) {
     super()
     this.sceneMetadata = sceneMetadata
     this.projectMetadata = projectMetadata
     this.app = new Koa()
     this.router = new Router()
+    this.landContract = landRegistryContract
   }
 
   link() {
@@ -61,19 +63,8 @@ export class LinkerAPI extends EventEmitter {
     })
 
     this.router.get('/api/contract-address', async ctx => {
-      let LANDRegistryAddress: string = null
-
-      try {
-        const { data } = await axios.get('https://contracts.decentraland.org/addresses.json')
-        LANDRegistryAddress = data.mainnet.LANDProxy
-      } catch (error) {
-        // fallback to ENV
-      }
-
-      LANDRegistryAddress = env.get('LAND_REGISTRY_CONTRACT_ADDRESS', () => LANDRegistryAddress)
-
       ctx.body = JSON.stringify({
-        address: LANDRegistryAddress
+        address: this.landContract
       })
     })
 

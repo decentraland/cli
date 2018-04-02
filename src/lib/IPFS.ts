@@ -87,6 +87,7 @@ export class IPFS extends EventEmitter {
       if (e.response) {
         throw new Error('Failed to pin files: ' + e.response.data.error || e.response.data)
       }
+      console.log(e)
       throw new Error('Failed to pin files: ' + e.message)
     }
 

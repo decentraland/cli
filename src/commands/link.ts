@@ -4,6 +4,7 @@ import { Project } from '../lib/Project'
 import { success, notice } from '../utils/logging'
 import opn = require('opn')
 import { sceneLink, sceneLinkSuccess } from '../utils/analytics'
+import { Ethereum } from '../lib/Ethereum'
 
 export function link(vorpal: any) {
   vorpal
@@ -13,11 +14,13 @@ export function link(vorpal: any) {
       wrapAsync(async function(args: any, callback: () => void) {
         return new Promise(async (resolve, reject) => {
           const project = new Project()
+          const ethereum = new Ethereum()
           await project.validateExistingProject()
 
           const projectFile = await project.getProjectFile()
           const sceneFile = await project.getSceneFile()
-          const linker = new LinkerAPI(sceneFile, projectFile)
+          const landContract = await ethereum.getLandContract()
+          const linker = new LinkerAPI(sceneFile, projectFile, landContract)
 
           linker.on('linker_app_ready', async (url: string) => {
             await sceneLink()

@@ -4,6 +4,7 @@ import { Project } from '../lib/Project'
 import { getRootPath } from '../utils/project'
 import { success } from '../utils/logging'
 import { sceneUpload, sceneUploadSuccess } from '../utils/analytics'
+import { Ethereum } from '../lib/Ethereum'
 
 export function deploy(vorpal: any) {
   vorpal
@@ -17,6 +18,8 @@ export function deploy(vorpal: any) {
         let accumProgress = 0
         const localIPFS = new IPFS()
         const project = new Project()
+        const ethereum = new Ethereum()
+
         await project.validateExistingProject()
 
         localIPFS.on('add_progress', p => {
@@ -48,6 +51,10 @@ export function deploy(vorpal: any) {
 
         await sceneUpload()
         await localIPFS.upload(coords, files, projectFile.id, !!ipfsKey)
+
+        if (!await ethereum.hasIPNS(coords)) {
+          console.log('missing opns')
+        }
 
         if (!ipfsKey) {
           ipfsKey = await localIPFS.genIPFSKey(projectFile.id)
