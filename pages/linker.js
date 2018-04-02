@@ -91,7 +91,7 @@ export default class Page extends React.Component {
         this.setState({
           error: `There was a problem getting scene data.\nTry to re-initialize the project with dcl init.`
         })
-        closeServer(false, 'scene metadata error')
+        closeServer(false, 'There was a problem getting scene data.\nTry to re-initialize the project with dcl init.')
         return
       }
 
@@ -103,7 +103,7 @@ export default class Page extends React.Component {
         this.setState({
           error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
         })
-        closeServer(false, 'ipns error')
+        closeServer(false, 'There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.')
         return
       }
 
@@ -147,7 +147,7 @@ export default class Page extends React.Component {
         this.setState({ tx, transactionLoading: true })
       } catch (err) {
         this.setState({ loading: false, error: 'Transaction Rejected' })
-        closeServer(false, 'transaction rejected')
+        closeServer(false, 'Transaction rejected')
       }
     } catch (err) {
       this.setState({ loading: false, error: err.message })
