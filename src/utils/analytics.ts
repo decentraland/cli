@@ -20,6 +20,8 @@ export const sceneUploadSuccess = track('Scene upload success')
 export const sceneLink = track('Scene ethereum link started')
 export const sceneLinkSuccess = track('Scene ethereum link succeeded')
 export const deploy = track('Scene deploy requested')
+export const pinRequest = track('Pin requested')
+export const pinSuccess = track('Pin success')
 
 // TODO (dani): Hook deploy
 

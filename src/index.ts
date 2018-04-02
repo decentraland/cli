@@ -20,7 +20,9 @@ import { init as initCommand } from './commands/init'
 import { link } from './commands/link'
 import { start } from './commands/start'
 import { upgrade } from './commands/upgrade'
-import { upload } from './commands/upload'
+import { deploy } from './commands/deploy'
+import { pin } from './commands/pin'
+
 const pkg = require('../package.json')
 
 /**
@@ -41,7 +43,8 @@ export const vorpal = new Vorpal()
 export function init(options = {}) {
   vorpal.use(initCommand)
   vorpal.use(start)
-  vorpal.use(upload)
+  vorpal.use(deploy)
+  vorpal.use(pin)
   vorpal.use(link)
   vorpal.use(upgrade)
   vorpal.use(help)

@@ -5,9 +5,10 @@ import { getRootPath } from '../utils/project'
 import { success } from '../utils/logging'
 import { sceneUpload, sceneUploadSuccess } from '../utils/analytics'
 
-export function upload(vorpal: any) {
+export function deploy(vorpal: any) {
   vorpal
-    .command('upload')
+    .command('deploy')
+    .alias('upload')
     .description('Uploads scene to IPFS and updates IPNS.')
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .action(

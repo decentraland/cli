@@ -51,15 +51,46 @@ export class IPFS extends EventEmitter {
 
     if (hasKey) {
       const rootFolder = filesAdded[filesAdded.length - 1]
-
-      this.emit('pin')
       await this.pinFiles(peerId, coords)
-
-      this.emit('publish')
       await this.publish(projectId, `/ipfs/${rootFolder.hash}`)
 
       this.emit('done')
     }
+  }
+
+  /**
+   * Returns the peerId from the IPFS api.
+   */
+  async getPeerId(): Promise<string> {
+    try {
+      const { id } = await this.ipfsApi.id()
+      return id
+    } catch (e) {
+      throw new Error(`Unable to connect to the IPFS daemon: ${e.message}`)
+    }
+  }
+
+  /**
+   * Notifies an external IPFS node to pin the local files.
+   * @param peerId The peerId of the local IPFS node.
+   * @param coords An object containing the base X and Y coordinates for the parcel.
+   */
+  async pinFiles(peerId: string, coords: { x: number; y: number }) {
+    const { x, y } = coords
+    const ipfsURL: string = await this.getExternalURL()
+
+    this.emit('pin')
+
+    try {
+      await axios.post(`${ipfsURL}/pin/${peerId}/${x}/${y}`)
+    } catch (e) {
+      if (e.response) {
+        throw new Error('Failed to pin files: ' + e.response.data.error || e.response.data)
+      }
+      throw new Error('Failed to pin files: ' + e.message)
+    }
+
+    this.emit('pin_complete')
   }
 
   /**
@@ -88,23 +119,15 @@ export class IPFS extends EventEmitter {
    * @param ipfsHash The hash of the root directory to be published.
    */
   private async publish(projectId: string, ipfsHash: string): Promise<string> {
+    this.emit('publish')
+
     try {
       const { name } = await this.ipfsApi.name.publish(ipfsHash, { key: projectId })
+      this.emit('publish_complete')
+
       return name
     } catch (e) {
       throw new Error(`Failed to publish: ${e.message}`)
-    }
-  }
-
-  /**
-   * Returns the peerId from the IPFS api.
-   */
-  private async getPeerId(): Promise<string> {
-    try {
-      const { id } = await this.ipfsApi.id()
-      return id
-    } catch (e) {
-      throw new Error(`Unable to connect to the IPFS daemon: ${e.message}`)
     }
   }
 
@@ -125,24 +148,6 @@ export class IPFS extends EventEmitter {
       })
     } catch (e) {
       throw new Error(`Unable to connect to the IPFS daemon: ${e.message}`)
-    }
-  }
-
-  /**
-   * Notifies an external IPFS node to pin the local files.
-   * @param peerId The peerId of the local IPFS node.
-   * @param coords An object containing the base X and Y coordinates for the parcel.
-   */
-  private async pinFiles(peerId: string, coords: { x: number; y: number }) {
-    const { x, y } = coords
-    const ipfsURL: string = await this.getExternalURL()
-    try {
-      await axios.post(`${ipfsURL}/pin/${peerId}/${x}/${y}`)
-    } catch (e) {
-      if (e.response) {
-        throw new Error('Failed to pin files: ' + e.response.data.error || e.response.data)
-      }
-      throw new Error('Failed to pin files: ' + e.message)
     }
   }
 }
