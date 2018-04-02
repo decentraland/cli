@@ -1,24 +1,22 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "target": "es2015",
     "module": "commonjs",
-    "removeComments": true,
-    "noImplicitAny": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "target": "es2015",
+    "diagnostics": true,
+    "outDir": "dist",
     "moduleResolution": "node",
-    "sourceMap": false,
-    "allowJs": true,
-    "outDir": "dist"
+    "stripInternal": true,
+    "pretty": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": true,
+    "plugins": [{ "name": "tslint-language-service" }]
   },
-  "include": [
-    "src/**/*"
-  ],
   "exclude": [
     "dist",
     "node_modules",
     "**/*.spec.ts",
     "src/samples/*"
-  ]
+  ],
+  "include": ["src/**/*"]
 }

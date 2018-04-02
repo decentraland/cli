@@ -24,6 +24,7 @@
     "url": "git+https://github.com/decentraland/cli.git"
   },
   "prettier": {
+    "semi": false,
     "singleQuote": true,
     "printWidth": 120
   },

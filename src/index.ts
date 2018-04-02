@@ -14,57 +14,51 @@
 // Use decentraland-commons definitions
 /// <reference path="../typings/decentraland-commons.d.ts" />
 
-import chalk from 'chalk';
-import fs = require('fs-extra');
-import path = require('path');
-import ProgressBar = require('progress');
-import Vorpal = require('vorpal');
-import { help } from './commands/help';
-import { init as initCommand } from './commands/init';
-import { link } from './commands/link';
-import { push } from './commands/push';
-import { start } from './commands/start';
-import { upgrade } from './commands/upgrade';
-import { upload } from './commands/upload';
-const pkg = require('../package.json');
+import Vorpal = require('vorpal')
+import { help } from './commands/help'
+import { init as initCommand } from './commands/init'
+import { link } from './commands/link'
+import { start } from './commands/start'
+import { upgrade } from './commands/upgrade'
+import { upload } from './commands/upload'
+const pkg = require('../package.json')
 
 /**
  * Export the current version.
  */
-export const VERSION = pkg.version;
+export const VERSION = pkg.version
 
 /**
  * CLI delimiter.
  */
-export const DELIMITER = 'dcl $';
+export const DELIMITER = 'dcl $'
 
 /**
  * CLI instance.
  */
-export const vorpal = new Vorpal();
+export const vorpal = new Vorpal()
 
 export function init(options = {}) {
-  vorpal.use(initCommand);
-  vorpal.use(start);
-  vorpal.use(upload);
-  vorpal.use(link);
-  vorpal.use(push);
-  vorpal.use(upgrade);
-  vorpal.use(help);
+  vorpal.use(initCommand)
+  vorpal.use(start)
+  vorpal.use(upload)
+  vorpal.use(link)
+  vorpal.use(upgrade)
+  vorpal.use(help)
 
   vorpal
     .delimiter(DELIMITER)
     .catch('[words...]', 'Catches incorrect commands')
     .action(() => {
-      vorpal.execSync('help');
-    });
+      vorpal.execSync('help')
+    })
 
   if (process.argv.length > 2) {
     // If one or more command, execute and close
-    vorpal.parse(process.argv);
+    vorpal.parse(process.argv)
   } else {
     // Show help if no commands are supplied
-    vorpal.log(`Decentraland CLI v${VERSION}\n`);
-    vorpal.exec('help');
+    vorpal.log(`Decentraland CLI v${VERSION}\n`)
+    vorpal.exec('help')
   }
 }
