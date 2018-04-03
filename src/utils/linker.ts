@@ -4,7 +4,7 @@ import Koa = require('koa');
 import Router = require('koa-router');
 import serve = require('koa-static');
 import axios from 'axios';
-import { env } from 'decentraland-commons';
+import { env } from 'decentraland-commons/dist/env';
 import * as project from '../utils/project';
 import opn = require('opn');
 import { readFile } from './filesystem';

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { env } from 'decentraland-commons';
+import { env } from 'decentraland-commons/dist/env';
 
 import { isDev } from './is-dev';
 

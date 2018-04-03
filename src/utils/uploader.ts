@@ -4,7 +4,7 @@ import inquirer = require('inquirer');
 const ipfsAPI = require('ipfs-api');
 import { getRoot } from './get-root';
 import { pinFiles } from './pin-files';
-import { env } from 'decentraland-commons';
+import { env } from 'decentraland-commons/dist/env';
 import path = require('path');
 const parser = require('gitignore-parser');
 import { sceneUpload, sceneUploadSuccess } from './analytics';
@@ -61,7 +61,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
           fs.statSync(path.join(dir, file)).isDirectory()
             ? files.concat(getFiles(path.join(dir, file)))
             : files.concat(path.join(dir, file)),
-        [],
+        []
       )
       .map(file => path.relative(root, file));
 
@@ -71,8 +71,8 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   files.filter(dclignore.accepts).forEach(async (name: string) =>
     data.push({
       path: `/tmp/${name}`,
-      content: new Buffer(fs.readFileSync(name)),
-    }),
+      content: new Buffer(fs.readFileSync(name))
+    })
   );
 
   let progCount = 0;
@@ -116,7 +116,7 @@ export async function uploader(vorpal: any, args: any, callback: () => void) {
   try {
     const filesAdded = await ipfsApi.files.add(data, {
       progress: handler,
-      recursive: true,
+      recursive: true
     });
 
     const rootFolder = filesAdded[filesAdded.length - 1];
