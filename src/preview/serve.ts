@@ -8,7 +8,7 @@ import { cliPath } from '../utils/cli-path';
 import { preview } from '../utils/analytics';
 
 export function serve(vorpal: any, args: any): any {
-  vorpal.log(chalk.blue('Parcel server is starting...\n'));
+  vorpal.log(chalk.blue('Preview server is starting...\n'));
 
   const root = getRoot();
 
@@ -30,8 +30,16 @@ export function serve(vorpal: any, args: any): any {
     `);
   });
 
-  // serve the folder `dcl-sdk/artifacts` as `/dcl-sdk`
-  app.use('/dcl-sdk', express.static(path.dirname(require.resolve('dcl-sdk/artifacts/preview'))));
+  // first find the target path's node_modules/dcl-sdk
+  let sdkFolder = path.resolve(process.cwd(), 'node_modules/dcl-sdk');
+
+  // if it doesn't exist, use the bundled SDK
+  if (!fs.existsSync(sdkFolder)) {
+    sdkFolder = path.dirname(require.resolve('dcl-sdk'));
+  }
+
+  // serve the folder `${sdkFolder}/artifacts` as `/dcl-sdk`
+  app.use('/dcl-sdk', express.static(path.resolve(sdkFolder, 'artifacts')));
   app.use(express.static(root));
   app.listen(2044, '0.0.0.0');
   return app;
