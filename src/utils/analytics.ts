@@ -4,7 +4,7 @@ import * as uuidv4 from 'uuid/v4';
 
 import { cliPath } from './cli-path';
 
-const Analytics = require('analytics-node');
+import Analytics = require('analytics-node');
 
 import { ensureFolder, pathExists, readFile, writeFile } from './filesystem';
 import { isDev } from './is-dev';
@@ -32,11 +32,11 @@ export const deploy = track('Scene deploy requested');
 export async function postInstall() {
   const userId = await getUserId();
   analytics.identify({
-    SINGLEUSER,
+    userId: SINGLEUSER,
     traits: {
       os: process.platform,
       createdAt: new Date().getTime(),
-      devId: userId,
+      devId: userId
     }
   });
 }

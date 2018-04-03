@@ -1,7 +1,7 @@
 import 'babel-polyfill';
 import React from 'react';
 import Router from 'next/router';
-import { eth, txUtils, contracts } from 'decentraland-commons';
+import { eth, txUtils, contracts } from 'decentraland-commons/dist/browser';
 const { LANDRegistry } = contracts;
 
 async function ethereum() {
