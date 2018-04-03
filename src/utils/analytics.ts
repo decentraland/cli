@@ -3,7 +3,7 @@ import * as uuidv4 from 'uuid/v4'
 import { ensureFolder, pathExists, readFile, writeFile } from './filesystem'
 import { isDev } from './env'
 import { getDecentralandFolderPath } from './project'
-const Analytics = require('analytics-node')
+import Analytics = require('analytics-node')
 
 // Setup segment.io
 
@@ -28,7 +28,7 @@ export const pinSuccess = track('Pin success')
 export async function postInstall() {
   const userId = await getUserId()
   analytics.identify({
-    SINGLEUSER,
+    userId: SINGLEUSER,
     traits: {
       os: process.platform,
       createdAt: new Date().getTime(),
