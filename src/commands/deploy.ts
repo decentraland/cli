@@ -2,9 +2,11 @@ import { wrapAsync } from '../utils/wrap-async'
 import { IPFS } from '../lib/IPFS'
 import { Project } from '../lib/Project'
 import { getRootPath } from '../utils/project'
-import { success } from '../utils/logging'
+import { success, notice } from '../utils/logging'
 import { sceneUpload, sceneUploadSuccess } from '../utils/analytics'
 import { Ethereum } from '../lib/Ethereum'
+import { pin } from './pin'
+import { link } from './link'
 
 export function deploy(vorpal: any) {
   vorpal
@@ -14,55 +16,71 @@ export function deploy(vorpal: any) {
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .action(
       wrapAsync(async function(args: any, callback: () => void) {
-        let progCount = 0
-        let accumProgress = 0
         const localIPFS = new IPFS()
         const project = new Project()
         const ethereum = new Ethereum()
 
         await project.validateExistingProject()
+        await Ethereum.connect()
 
-        localIPFS.on('add_progress', p => {
-          progCount += 1
-          accumProgress += p
-          vorpal.log(`Uploading ${progCount}/${progCount} files to IPFS (${accumProgress} bytes uploaded)`)
+        localIPFS.on('add_progress', (bytes, files, total) => {
+          vorpal.log(`Uploading ${files}/${total} files to IPFS (${bytes} bytes uploaded)`)
         })
 
         localIPFS.on('add_complete', () => {
-          vorpal.log(success('Files successfully added to your IPFS node'))
+          vorpal.log('Successfully added files to local IPFS node')
         })
 
-        localIPFS.on('pin', () => {
-          vorpal.log(`Pinning files...`)
+        localIPFS.on('ipns', (x, y) => {
+          vorpal.log(`Checking IPNS for coordinates ${x}, ${y}`)
+        })
+
+        localIPFS.on('ipns_complete', (x, y) => {
+          vorpal.log(`Successfully queried blockchain IPNS`)
+        })
+
+        localIPFS.on('pin_complete', () => {
+          vorpal.log(`Successfully pinned files`)
         })
 
         localIPFS.on('publish', () => {
-          vorpal.log(`Publishing to IPFS...`)
+          vorpal.log(`Publishing to IPFS, this may take a while...`)
         })
 
-        localIPFS.on('done', async () => {
-          await sceneUploadSuccess()
+        localIPFS.on('publish_complete', (ipnsHash: string) => {
+          vorpal.log(`IPNS hash: ${ipnsHash}`)
+          vorpal.log(`Successfully published to IPFS`)
         })
-
-        const coords = await project.getParcelCoordinates()
-        const files = await project.getFiles()
-        const projectFile = await project.getProjectFile()
-        let ipfsKey = projectFile.ipfsKey
 
         await sceneUpload()
-        await localIPFS.upload(coords, files, projectFile.id, !!ipfsKey)
+        vorpal.log(notice(`Uploading project to IPFS:`))
 
-        if (!await ethereum.hasIPNS(coords)) {
-          console.log('missing opns')
-        }
+        const files = await project.getFiles()
+        const coords = await project.getParcelCoordinates()
+        const projectFile = await project.getProjectFile()
+        const filesAdded = await localIPFS.addFiles(files)
+        const rootFolder = filesAdded[filesAdded.length - 1]
+        const ipns = await ethereum.getIPNS(coords)
+        let ipfsKey = projectFile.ipfsKey
 
         if (!ipfsKey) {
           ipfsKey = await localIPFS.genIPFSKey(projectFile.id)
           await project.writeProjectFile(getRootPath(), {
             ipfsKey
           })
-          vorpal.log(success('IPFS key generated successfully'))
+          vorpal.log('IPFS key generated successfully')
         }
+
+        await localIPFS.publish(projectFile.id, `/ipfs/${rootFolder.hash}`)
+
+        if (ethereum.isValidIPNS(ipns) && ipfsKey !== ipns) {
+          await link(vorpal, project)
+        }
+
+        await pin(vorpal, project, localIPFS)
+
+        await sceneUploadSuccess()
+        vorpal.log(success(`Successfully uploaded project to IPFS`))
 
         callback()
       })

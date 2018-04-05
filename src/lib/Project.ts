@@ -104,11 +104,11 @@ export class Project extends EventEmitter {
   async copySample(project: string, destination: string = process.cwd()) {
     const src = path.resolve(__dirname, '..', 'samples', project)
     const files = await fs.readdir(src)
-    const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file === SCENE_FILE) {
+        const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))        
         this.writeSceneFile(destination, sceneFile)
       } else {
         fs.copyFileSync(path.join(src, file), path.join(destination, file))
@@ -174,7 +174,14 @@ export class Project extends EventEmitter {
    * Throws if a project contains an invalid main path or if the `scene.json` file is missing.
    */
   async validateExistingProject() {
-    const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath())
+    let sceneFile
+
+    try {
+      sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath())
+    } catch (e) {
+      throw new Error(`Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
+    }
+
     if (!this.isWebSocket(sceneFile.main)) {
       if (!this.isValidMainFormat(sceneFile.main)) {
         throw new Error(`Main scene format file (${sceneFile.main}) is not a supported format`)

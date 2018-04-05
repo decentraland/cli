@@ -1,11 +1,36 @@
 import { isDev } from '../utils/env'
 import axios from 'axios'
-import { env, contracts } from 'decentraland-commons'
+import { contracts, eth } from 'decentraland-eth'
+import { env } from 'decentraland-commons/dist/env'
+import { EventEmitter } from 'events'
 
-export class Ethereum {
-  private contract = new contracts.LANDRegistry()
+export class Ethereum extends EventEmitter {
+  static isConnected: boolean = false
 
-  async getLandContractAddress(): Promise<string> {
+  static async connect() {
+    const address = await Ethereum.getLandContractAddress()
+    const land = new contracts.LANDRegistry(address)
+    const providerUrl = env.get('RPC_URL', () => (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/'))
+
+    try {
+      Ethereum.isConnected = await eth.connect({
+        contracts: [land],
+        providerUrl
+      })
+    } catch (e) {
+      throw new Error('Unable to connect to the Ethereum Blockchain')
+    }
+
+    return land
+  }
+
+  static async getLandContractAddress(): Promise<string> {
+    const envContract = env.get('LAND_REGISTRY_CONTRACT_ADDRESS')
+
+    if (envContract) {
+      return envContract
+    }
+
     try {
       const { data } = await axios.get('https://contracts.decentraland.org/addresses.json')
 
@@ -15,22 +40,41 @@ export class Ethereum {
         return data.mainnet.LANDProxy
       }
     } catch (error) {
-      const fallback = env.get('LAND_REGISTRY_CONTRACT_ADDRESS')
-
-      if (fallback) {
-        return fallback
-      }
-
       throw new Error(`Unable to fetch land contract: ${error.message}`)
     }
   }
 
-  async hasIPNS(coordinates: { x: number; y: number }): Promise<boolean> {
-    const landData = await this.contract.call('landData', coordinates.x, coordinates.y)
-    console.log(landData)
-    const { ipns } = contracts.LANDRegistry.decodeLandData(landData)
-    console.log(ipns)
+  isValidIPNS(hash: string) {
+    return hash ? hash.trim().length > 0 : false
+  }
 
-    return ipns ? true : false
+  async getIPNS(coordinates: { x: number; y: number }) {
+    const contract = (await this.getContractInstance()) as any
+    let landData
+
+    this.emit('ipns')
+
+    try {
+      landData = await contract.landData(coordinates.x, coordinates.y)
+    } catch (e) {
+      throw new Error(`Unable to fetch land data: ${e.message}`)
+    }
+
+    if (landData.trim() === '') {
+      return null
+    }
+
+    this.emit('ipns_complete')
+
+    const { ipns } = contracts.LANDRegistry.decodeLandData(landData)
+    return ipns.replace('ipns:', '')
+  }
+
+  private getContractInstance(): contracts.LANDRegistry {
+    try {
+      return eth.getContract('LANDRegistry')
+    } catch (e) {
+      throw new Error(`Unable to get LANDRegistry contract instance`)
+    }
   }
 }

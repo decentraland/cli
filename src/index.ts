@@ -17,13 +17,16 @@
 import Vorpal = require('vorpal')
 import { help } from './commands/help'
 import { init as initCommand } from './commands/init'
-import { link } from './commands/link'
-import { start } from './commands/start'
+import { command as link } from './commands/link'
+import { start } from './commands/preview'
 import { upgrade } from './commands/upgrade'
 import { deploy } from './commands/deploy'
-import { pin } from './commands/pin'
+import { command as pin } from './commands/pin'
+import { env } from 'decentraland-commons/dist/env'
 
 const pkg = require('../package.json')
+
+env.load()
 
 /**
  * Export the current version.

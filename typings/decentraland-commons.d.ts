@@ -3,8 +3,4 @@ declare module 'decentraland-commons' {
     export function load(): void
     export function get(name: string, fallback?: () => any): string
   }
-
-  namespace contracts {
-    export const LANDRegistry: any
-  }
 }

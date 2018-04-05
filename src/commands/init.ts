@@ -6,6 +6,7 @@ import { installDependencies } from '../utils/module-helpers'
 import { getRootPath } from '../utils/project'
 import { BoilerplateType, Project } from '../lib/Project'
 import { sceneCreated } from '../utils/analytics'
+import { success } from '../utils/logging';
 
 export function init(vorpal: any) {
   vorpal
@@ -150,7 +151,7 @@ export function init(vorpal: any) {
         }
 
         await sceneCreated()
-        this.log(`\nRun 'dcl preview' to see your scene`)
+        this.log(success(`\nSuccess! Run 'dcl preview' to see your scene`))
       })
     )
 }
