@@ -9,6 +9,16 @@ export interface IIPFSFile {
   content: Buffer
 }
 
+/**
+ * Events emitted by this class:
+ *
+ * ipfs:pin-request     - A request for another IPFS node to pin the local files
+ * ipfs:pin-success     - The project was successfully pinned by an external node
+ * ipfs:add-progress    - Progress while adding files to the local IPFS node
+ * ipfs:add-success     - The files were successfully added to the local IPFS node
+ * ipfs:publish-request - A request to publish an IPNS hash
+ * ipfs:publish-success - The IPNS hash was successfully published
+ */
 export class IPFS extends EventEmitter {
   private ipfsApi: any
 
@@ -51,7 +61,7 @@ export class IPFS extends EventEmitter {
     const { x, y } = coords
     const ipfsURL: string = await this.getExternalURL()
 
-    this.emit('pin')
+    this.emit('ipfs:pin-request')
 
     try {
       await axios.post(`${ipfsURL}/pin/${peerId}/${x}/${y}`)
@@ -63,7 +73,7 @@ export class IPFS extends EventEmitter {
       throw new Error('Failed to pin files: ' + e.message)
     }
 
-    this.emit('pin_complete')
+    this.emit('ipfs:pin-success')
   }
 
   /**
@@ -71,7 +81,7 @@ export class IPFS extends EventEmitter {
    * @param files An array of objects containing the path and content for the files.
    * @param onProgress A callback function to be called for each file uploaded (receives the total amount of bytes uploaded as an agument).
    */
-  async addFiles(files: IIPFSFile[]): Promise<any> {
+  async addFiles(files: IIPFSFile[]): Promise<{ path: string; hash: string; size: number }[]> {
     if (files.length === 0) {
       throw new Error('Unable to upload files: no files available (check your .dclignore rules)')
     }
@@ -80,10 +90,10 @@ export class IPFS extends EventEmitter {
     const callback = (progress: number) => {
       count++
       if (count === files.length) {
-        this.emit('add_progress', progress, count, files.length)
-        this.emit('add_complete')
+        this.emit('ipfs:add-progress', progress, count, files.length)
+        this.emit('ipfs:add-success')
       } else {
-        this.emit('add_progress', progress, count, files.length)
+        this.emit('ipfs:add-progress', progress, count, files.length)
       }
     }
 
@@ -103,7 +113,7 @@ export class IPFS extends EventEmitter {
    * @param ipfsHash The hash of the root directory to be published.
    */
   async publish(projectId: string, ipfsHash: string): Promise<string> {
-    this.emit('publish')
+    this.emit('ipfs:publish-request')
 
     if (!ipfsHash) {
       throw new Error('Failed to publish: missing IPFS hash')
@@ -111,7 +121,7 @@ export class IPFS extends EventEmitter {
 
     try {
       const { name } = await this.ipfsApi.name.publish(ipfsHash, { key: projectId })
-      this.emit('publish_complete', name)
+      this.emit('ipfs:publish-success', name)
       return name
     } catch (e) {
       throw new Error(`Failed to publish: ${e.message}`)

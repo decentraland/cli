@@ -1,87 +1,74 @@
 import { wrapAsync } from '../utils/wrap-async'
-import { IPFS } from '../lib/IPFS'
-import { Project } from '../lib/Project'
-import { getRootPath } from '../utils/project'
 import { success, notice } from '../utils/logging'
-import { sceneUpload, sceneUploadSuccess } from '../utils/analytics'
-import { Ethereum } from '../lib/Ethereum'
-import { pin } from './pin'
-import { link } from './link'
+import { sceneUpload, sceneUploadSuccess, sceneLinkSuccess, sceneLink } from '../utils/analytics'
+import { Decentraland } from '../lib/Decentraland'
+import opn = require('opn')
+
+export interface IDeployArguments {
+  host?: string
+  port?: number
+}
 
 export function deploy(vorpal: any) {
   vorpal
     .command('deploy')
     .alias('upload')
     .description('Uploads scene to IPFS and updates IPNS.')
+    .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .action(
-      wrapAsync(async function(args: any, callback: () => void) {
-        const localIPFS = new IPFS()
-        const project = new Project()
-        const ethereum = new Ethereum()
+      wrapAsync(async function(args: IDeployArguments, callback: () => void) {
+        const dcl = new Decentraland({
+          ipfsHost: args.host || 'localhost',
+          ipfsPort: args.port || 500
+        })
 
-        await project.validateExistingProject()
-        await Ethereum.connect()
-
-        localIPFS.on('add_progress', (bytes, files, total) => {
+        dcl.on('ipfs:add-progress', (bytes, files, total) => {
           vorpal.log(`Uploading ${files}/${total} files to IPFS (${bytes} bytes uploaded)`)
         })
 
-        localIPFS.on('add_complete', () => {
+        dcl.on('ipfs:add-success', () => {
           vorpal.log('Successfully added files to local IPFS node')
         })
 
-        localIPFS.on('ipns', (x, y) => {
+        dcl.on('ethereum:get-ipns-request', (x, y) => {
           vorpal.log(`Checking IPNS for coordinates ${x}, ${y}`)
         })
 
-        localIPFS.on('ipns_complete', (x, y) => {
+        dcl.on('ethereum:get-ipns-success', (x, y) => {
           vorpal.log(`Successfully queried blockchain IPNS`)
         })
 
-        localIPFS.on('pin_complete', () => {
+        dcl.on('ipfs:pin-success', () => {
           vorpal.log(`Successfully pinned files`)
         })
 
-        localIPFS.on('publish', () => {
+        dcl.on('ipfs:publish-request', () => {
           vorpal.log(`Publishing to IPFS, this may take a while...`)
         })
 
-        localIPFS.on('publish_complete', (ipnsHash: string) => {
+        dcl.on('ipfs:publish-success', (ipnsHash: string) => {
           vorpal.log(`IPNS hash: ${ipnsHash}`)
           vorpal.log(`Successfully published to IPFS`)
         })
 
+        dcl.on('link:ready', async url => {
+          await sceneLink()
+          vorpal.log('Linking app ready.')
+          vorpal.log(`Please proceed to ${url}`)
+          opn(url)
+        })
+
+        dcl.on('link:success', async () => {
+          await sceneLinkSuccess()
+          vorpal.log('Project successfully linked to the blockchain')
+        })
+
         await sceneUpload()
         vorpal.log(notice(`Uploading project to IPFS:`))
-
-        const files = await project.getFiles()
-        const coords = await project.getParcelCoordinates()
-        const projectFile = await project.getProjectFile()
-        const filesAdded = await localIPFS.addFiles(files)
-        const rootFolder = filesAdded[filesAdded.length - 1]
-        const ipns = await ethereum.getIPNS(coords)
-        let ipfsKey = projectFile.ipfsKey
-
-        if (!ipfsKey) {
-          ipfsKey = await localIPFS.genIPFSKey(projectFile.id)
-          await project.writeProjectFile(getRootPath(), {
-            ipfsKey
-          })
-          vorpal.log('IPFS key generated successfully')
-        }
-
-        await localIPFS.publish(projectFile.id, `/ipfs/${rootFolder.hash}`)
-
-        if (ethereum.isValidIPNS(ipns) && ipfsKey !== ipns) {
-          await link(vorpal, project)
-        }
-
-        await pin(vorpal, project, localIPFS)
-
+        await dcl.deploy()
         await sceneUploadSuccess()
         vorpal.log(success(`Successfully uploaded project to IPFS`))
-
         callback()
       })
     )

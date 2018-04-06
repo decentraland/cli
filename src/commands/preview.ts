@@ -10,6 +10,7 @@ export function start(vorpal: any) {
     .command('preview')
     .alias('start')
     .alias('serve')
+    .option('-p, --port <number>', 'Parcel previewer server port (default is 2044).')
     .description('Starts local development server.')
     .action(
       wrapAsync(async function(args: any, callback: () => void) {

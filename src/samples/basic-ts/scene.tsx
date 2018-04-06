@@ -1,45 +1,53 @@
+import { WebWorkerTransport, createElement, Component } from 'dcl-sdk'
 
-import { inject, Script, WebWorkerTransport, EntityController } from 'dcl-sdk';
+const RENDER_HZ = 6
+const interval = 1000 / RENDER_HZ
 
-export class MyScript extends Script {
-  @inject('EntityController') entities: EntityController | null = null;
+export class RollerCoaster extends Component<any, { time: number }> {
+  state = { time: 0 }
 
-  private steps = [
-    {
-      position: { value: '5 3 5', duration: 750 },
-      rotation: { value: '45 0 0', duration: 750 },
-      color: { value: 'red', duration: 750 }
-    },
-    {
-      position: { value: '3 3 3', duration: 750 },
-      rotation: { value: '45 45 0', duration: 750 },
-      color: { value: 'green', duration: 750 }
-    },
-    {
-      position: { value: '3 5 3', duration: 750 },
-      rotation: { value: '45 45 45', duration: 750 },
-      color: { value: 'blue', duration: 750 }
-    },
-    {
-      position: { value: '5 5 5', duration: 750 },
-      rotation: { value: '0 0 0', duration: 750 },
-      color: { value: 'yellow', duration: 750 }
-    }
-  ];
+  timeout = setInterval(() => {
+    this.setState({
+      time: performance.now() * 0.0001
+    })
+  }, interval)
 
-  private currentStep: number = 0;
+  componentWillUnmount() {
+    clearInterval(this.timeout)
+  }
 
-  async systemDidEnable() {
-    setInterval(async () => {
-      await this.entities!.tweenTo('interactiveBox', this.steps[this.currentStep]);
+  async render() {
+    const { time } = this.state
 
-      if (this.currentStep < this.steps.length - 1) {
-        this.currentStep++;
-      } else {
-        this.currentStep = 0;
-      }
-    }, 1000);
+    const size = 5
+
+    const x = Math.cos(time) * Math.cos(time) * size
+    const y = Math.cos(time) * Math.sin(time) * size
+    const z = Math.sin(time) * size * 8
+
+    return (
+      <a-scene>
+        <a-entity position={{ x: 5, y: 4, z: -30 }}>
+          <a-entity
+            id="train"
+            position={{ x, y, z }}
+            rotation={{ x: Math.cos(time) * 40, y: Math.sin(time) * 40, z: 0 }}
+            transition={{
+              position: { duration: interval },
+              rotation: { duration: interval }
+            }}
+          >
+            <a-box position={{ x: 0, y: -1, z: 0 }} color="black" scale={{ x: 3, y: 0.4, z: 5 }} />
+            <a-box position={{ x: 1.5, y: 0, z: 0 }} color="red" scale={{ x: 0.2, y: 1, z: 5 }} />
+            <a-box position={{ x: -1.5, y: 0, z: 0 }} color="yellow" scale={{ x: 0.2, y: 1, z: 5 }} />
+
+            <a-box position={{ x: 0, y: 0, z: 2.5 }} color="green" scale={{ x: 3, y: 1, z: 0.2 }} />
+            <a-box position={{ x: 0, y: 0, z: -2.5 }} color="blue" scale={{ x: 3, y: 1, z: 0.2 }} />
+          </a-entity>
+        </a-entity>
+      </a-scene>
+    )
   }
 }
 
-export const theSystem = new MyScript(WebWorkerTransport(self as any));
+export const theSystem = new RollerCoaster(WebWorkerTransport(self as any))

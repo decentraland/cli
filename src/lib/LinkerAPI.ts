@@ -4,8 +4,13 @@ import { IProjectFile } from '../utils/project'
 import * as path from 'path'
 import * as urlParse from 'url'
 
-const PORT = 4044
-
+/**
+ * Events emitted by this class:
+ *
+ * link:ready   - The server is up and running
+ * link:success - The IPNS hash was successfully submitted to the blockchain
+ * link:error   - The transaction failed and the server was closed
+ */
 export class LinkerAPI extends EventEmitter {
   private sceneMetadata: DCL.SceneMetadata
   private projectMetadata: IProjectFile
@@ -19,17 +24,17 @@ export class LinkerAPI extends EventEmitter {
     this.landContract = landRegistryContract
   }
 
-  link() {
+  link(port: number = 4044) {
     return new Promise(async (resolve, reject) => {
-      const url = `http://localhost:${PORT}/linker`
+      const url = `http://localhost:${port}/linker`
 
       this.setRoutes()
 
-      this.on('error', err => {
+      this.on('link:error', err => {
         reject(err)
       })
 
-      return this.app.listen(PORT, () => this.emit('linker_app_ready', url))
+      return this.app.listen(port, () => this.emit('link:ready', url))
     })
   }
 
@@ -78,10 +83,10 @@ export class LinkerAPI extends EventEmitter {
       const { ok, reason } = urlParse.parse(req.url, true).query
 
       if (ok === 'true') {
-        this.emit('link_success')
+        this.emit('link:success')
       } else {
         // we can't throw an error for this one, koa will handle and log it
-        this.emit('error', new Error(`Failed to link: ${reason}`))
+        this.emit('link:error', new Error(`Failed to link: ${reason}`))
       }
     })
   }

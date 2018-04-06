@@ -1,12 +1,17 @@
 import * as path from 'path'
 import * as express from 'express'
 import { getRootPath } from '../utils/project'
+import { EventEmitter } from 'events'
 
-export class Preview {
-  // TODO (dani): Use Koa or Express, not both..
+/**
+ * Events emitted by this class:
+ *
+ * preview:ready - The server is up and running
+ */
+export class Preview extends EventEmitter {
   private app = express()
 
-  startServer() {
+  startServer(port: number = 2044) {
     const root = getRootPath()
 
     this.app.get('/', (req, res) => {
@@ -27,7 +32,8 @@ export class Preview {
     // serve the folder `dcl-sdk/artifacts` as `/dcl-sdk`
     this.app.use('/dcl-sdk', express.static(path.dirname(require.resolve('dcl-sdk/artifacts/preview'))))
     this.app.use(express.static(root))
-    this.app.listen(2044, '0.0.0.0')
+    this.emit('preview:ready')
+    this.app.listen(port, '0.0.0.0')
     return this.app
   }
 }

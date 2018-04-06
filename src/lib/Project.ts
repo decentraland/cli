@@ -2,7 +2,7 @@ import * as fs from 'fs-extra'
 import * as uuid from 'uuid'
 import dockerNames = require('docker-names')
 import * as path from 'path'
-import { writeJSON, readJSON, ensureFolder, isEmptyDirectory } from '../utils/filesystem'
+import { writeJSON, readJSON, ensureFolder } from '../utils/filesystem'
 import {
   getSceneFilePath,
   getProjectFilePath,
@@ -12,7 +12,6 @@ import {
   IProjectFile,
   DCLIGNORE_FILE
 } from '../utils/project'
-import { EventEmitter } from 'events'
 import * as parser from 'gitignore-parser'
 import { IIPFSFile } from './IPFS'
 
@@ -22,7 +21,7 @@ export enum BoilerplateType {
   WEBSOCKETS = 'multiplayer-experimental'
 }
 
-export class Project extends EventEmitter {
+export class Project {
   /**
    * Returns `true` if the provided path contains a scene file
    */
@@ -108,10 +107,10 @@ export class Project extends EventEmitter {
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file === SCENE_FILE) {
-        const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))        
+        const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
         this.writeSceneFile(destination, sceneFile)
       } else {
-        fs.copyFileSync(path.join(src, file), path.join(destination, file))
+        await fs.copy(path.join(src, file), path.join(destination, file))
       }
     }
   }
@@ -162,10 +161,6 @@ export class Project extends EventEmitter {
   async validateNewProject() {
     if (await this.sceneFileExists()) {
       throw new Error('Project already exists')
-    }
-
-    if (!await isEmptyDirectory()) {
-      throw new Error('The directory is not empty! Please run `dcl init` again on an empty directory')
     }
   }
 
@@ -224,17 +219,21 @@ export class Project extends EventEmitter {
    */
   async getFiles(): Promise<IIPFSFile[]> {
     const files = await this.getAllFilePaths()
-    const dclignore = parser.compile(await fs.readFile(getIgnoreFilePath(), 'utf8'))
+    const dclignore = parser.compile(await this.getDCLIgnore())
     let data = []
 
-    files.filter(dclignore.accepts).forEach((name: string) =>
+    files.filter(dclignore.accepts).forEach(async (name: string) =>
       data.push({
         path: `/tmp/${name}`,
-        content: new Buffer(fs.readFileSync(name))
+        content: new Buffer(await fs.readFile(name))
       })
     )
 
     return data
+  }
+
+  private getDCLIgnore(): Promise<string> {
+    return fs.readFile(getIgnoreFilePath(), 'utf8')
   }
 
   /**

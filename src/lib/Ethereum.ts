@@ -4,6 +4,12 @@ import { contracts, eth } from 'decentraland-eth'
 import { env } from 'decentraland-commons/dist/env'
 import { EventEmitter } from 'events'
 
+/**
+ * Events emitted by this class:
+ *
+ * ethereum:get-ipns-request - An attempt to load landData from the ethereum blockchain
+ * ethereum:get-ipns-success - Successfully fetched and parsed landData
+ */
 export class Ethereum extends EventEmitter {
   static isConnected: boolean = false
 
@@ -12,16 +18,18 @@ export class Ethereum extends EventEmitter {
     const land = new contracts.LANDRegistry(address)
     const providerUrl = env.get('RPC_URL', () => (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/'))
 
-    try {
-      Ethereum.isConnected = await eth.connect({
-        contracts: [land],
-        providerUrl
-      })
-    } catch (e) {
-      throw new Error('Unable to connect to the Ethereum Blockchain')
-    }
+    if (!Ethereum.isConnected) {
+      try {
+        Ethereum.isConnected = await eth.connect({
+          contracts: [land],
+          providerUrl
+        })
+      } catch (e) {
+        throw new Error('Unable to connect to the Ethereum Blockchain')
+      }
 
-    return land
+      return land
+    }
   }
 
   static async getLandContractAddress(): Promise<string> {
@@ -52,7 +60,7 @@ export class Ethereum extends EventEmitter {
     const contract = (await this.getContractInstance()) as any
     let landData
 
-    this.emit('ipns')
+    this.emit('ethereum:get-ipns-request')
 
     try {
       landData = await contract.landData(coordinates.x, coordinates.y)
@@ -64,7 +72,7 @@ export class Ethereum extends EventEmitter {
       return null
     }
 
-    this.emit('ipns_complete')
+    this.emit('ethereum:get-ipns-success')
 
     const { ipns } = contracts.LANDRegistry.decodeLandData(landData)
     return ipns.replace('ipns:', '')
