@@ -13,7 +13,6 @@ const ctx = sandbox.create()
 describe('Decentraland class', () => {
   let connectStub
   let getIPNSStub
-  let isValidIPNSStub
   let validateExistingProjectStub
   let getParcelCoordinatesStub
   let getProjectFileStub
@@ -29,7 +28,6 @@ describe('Decentraland class', () => {
     // Ethereum stubs
     connectStub = ctx.stub(Ethereum, 'connect').callsFake(() => undefined)
     getIPNSStub = ctx.stub(Ethereum.prototype, 'getIPNS').callsFake(() => 'Qmwasd')
-    isValidIPNSStub = ctx.stub(Ethereum.prototype, 'isValidIPNS').callsFake(() => true)
 
     // Project stubs
     validateExistingProjectStub = ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
@@ -64,7 +62,6 @@ describe('Decentraland class', () => {
       expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true
       expect(getIPNSStub.withArgs({ x: 0, y: 0 }).called, 'expect Ethereum.getIPNS() to be called').to.be.true
-      expect(isValidIPNSStub.withArgs('Qmwasd').called, 'expect Ethereum.isValidIPNS() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
@@ -93,7 +90,6 @@ describe('Decentraland class', () => {
       expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true
       expect(getIPNSStub.withArgs({ x: 0, y: 0 }).called, 'expect Ethereum.getIPNS() to be called').to.be.true
-      expect(isValidIPNSStub.withArgs('Qmwasd').called, 'expect Ethereum.isValidIPNS() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
@@ -118,7 +114,6 @@ describe('Decentraland class', () => {
       expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true
       expect(getIPNSStub.called, 'expect Ethereum.getIPNS() to be called').to.be.true
-      expect(isValidIPNSStub.withArgs('Qmwasd').called, 'expect Ethereum.isValidIPNS() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true

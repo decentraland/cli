@@ -5,8 +5,10 @@ import { Decentraland } from '../lib/Decentraland'
 import opn = require('opn')
 
 export interface IDeployArguments {
-  host?: string
-  port?: number
+  options: {
+    host?: string
+    port?: number
+  }
 }
 
 export function deploy(vorpal: any) {
@@ -19,8 +21,8 @@ export function deploy(vorpal: any) {
     .action(
       wrapAsync(async function(args: IDeployArguments, callback: () => void) {
         const dcl = new Decentraland({
-          ipfsHost: args.host || 'localhost',
-          ipfsPort: args.port || 500
+          ipfsHost: args.options.host || 'localhost',
+          ipfsPort: args.options.port || 5001
         })
 
         dcl.on('ipfs:add-progress', (bytes, files, total) => {
@@ -31,16 +33,12 @@ export function deploy(vorpal: any) {
           vorpal.log('Successfully added files to local IPFS node')
         })
 
-        dcl.on('ethereum:get-ipns-request', (x, y) => {
+        dcl.on('ethereum:get-ipns-request', ({ x, y }) => {
           vorpal.log(`Checking IPNS for coordinates ${x}, ${y}`)
         })
 
-        dcl.on('ethereum:get-ipns-success', (x, y) => {
+        dcl.on('ethereum:get-ipns-success', () => {
           vorpal.log(`Successfully queried blockchain IPNS`)
-        })
-
-        dcl.on('ipfs:pin-success', () => {
-          vorpal.log(`Successfully pinned files`)
         })
 
         dcl.on('ipfs:publish-request', () => {
@@ -62,6 +60,14 @@ export function deploy(vorpal: any) {
         dcl.on('link:success', async () => {
           await sceneLinkSuccess()
           vorpal.log('Project successfully linked to the blockchain')
+        })
+
+        dcl.on('ipfs:pin-request', () => {
+          vorpal.log(`Pinning to IPFS-GTW, this may take a while...`)
+        })
+
+        dcl.on('ipfs:pin-success', () => {
+          vorpal.log(`Successfully pinned files`)
         })
 
         await sceneUpload()

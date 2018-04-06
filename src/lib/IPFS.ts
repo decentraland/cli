@@ -24,7 +24,7 @@ export class IPFS extends EventEmitter {
 
   constructor(host: string = 'localhost', port: number = 5001) {
     super()
-    this.ipfsApi = ipfsAPI('localhost', port.toString())
+    this.ipfsApi = ipfsAPI(host, port.toString())
   }
 
   /**
@@ -69,7 +69,6 @@ export class IPFS extends EventEmitter {
       if (e.response) {
         throw new Error('Failed to pin files: ' + e.response.data.error || e.response.data)
       }
-      console.log(e)
       throw new Error('Failed to pin files: ' + e.message)
     }
 
@@ -129,13 +128,20 @@ export class IPFS extends EventEmitter {
   }
 
   /**
+   * Emit key-success event
+   */
+  genKeySuccess () {
+    this.emit('ipfs:key-success')
+  }
+
+  /**
    * Fetches Decentraland's IPFS node URL.
    */
   private async getExternalURL() {
     let ipfsURL: string = null
 
     try {
-      const { data } = await axios.get('https://decentraland.github.io/ipfs-node/url.json?v1')
+      const { data } = await axios.get('https://decentraland.github.io/ipfs-node/url.json')
       if (isDev) {
         ipfsURL = data.staging
       } else {
@@ -147,4 +153,5 @@ export class IPFS extends EventEmitter {
 
     return env.get('IPFS_GATEWAY', () => ipfsURL)
   }
+
 }

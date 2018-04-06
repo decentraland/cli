@@ -30,9 +30,8 @@ export class Decentraland extends EventEmitter {
     this.ethereum = new Ethereum()
 
     // Pipe all events
-    events(this.localIPFS, '*', this.pipeEvents.bind(this))
-    events(this.project, '*', this.pipeEvents.bind(this))
-    events(this.ethereum, '*', this.pipeEvents.bind(this))
+    events(this.localIPFS, 'ipfs:*', this.pipeEvents.bind(this))
+    events(this.ethereum, 'ethereum:*', this.pipeEvents.bind(this))
   }
 
   async deploy() {
@@ -52,12 +51,12 @@ export class Decentraland extends EventEmitter {
       await this.project.writeProjectFile(getRootPath(), {
         ipfsKey
       })
-      this.emit('ipfs:key-success')
+      this.localIPFS.genKeySuccess()
     }
 
     await this.localIPFS.publish(projectFile.id, `/ipfs/${rootFolder.hash}`)
 
-    if (this.ethereum.isValidIPNS(ipns) && ipfsKey !== ipns) {
+    if (ipfsKey !== ipns) {
       await this.link()
     }
 

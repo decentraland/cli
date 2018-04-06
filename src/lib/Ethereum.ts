@@ -34,7 +34,6 @@ export class Ethereum extends EventEmitter {
 
   static async getLandContractAddress(): Promise<string> {
     const envContract = env.get('LAND_REGISTRY_CONTRACT_ADDRESS')
-
     if (envContract) {
       return envContract
     }
@@ -52,15 +51,11 @@ export class Ethereum extends EventEmitter {
     }
   }
 
-  isValidIPNS(hash: string) {
-    return hash ? hash.trim().length > 0 : false
-  }
-
   async getIPNS(coordinates: { x: number; y: number }) {
     const contract = (await this.getContractInstance()) as any
     let landData
 
-    this.emit('ethereum:get-ipns-request')
+    this.emit('ethereum:get-ipns-request', coordinates)
 
     try {
       landData = await contract.landData(coordinates.x, coordinates.y)
