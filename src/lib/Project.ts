@@ -10,7 +10,8 @@ import {
   SCENE_FILE,
   getIgnoreFilePath,
   IProjectFile,
-  DCLIGNORE_FILE
+  DCLIGNORE_FILE,
+  getDecentralandFolderPath
 } from '../utils/project'
 import * as parser from 'gitignore-parser'
 import { IIPFSFile } from './IPFS'
@@ -28,6 +29,13 @@ export class Project {
    */
   sceneFileExists(): Promise<boolean> {
     return fs.pathExists(getSceneFilePath())
+  }
+
+  /**
+   * Returns `true` if the provided path contains a `.decentraland` folder
+   */
+  decentralandFolderExists(): Promise<boolean> {
+    return fs.pathExists(getDecentralandFolderPath())
   }
 
   /**
@@ -194,7 +202,7 @@ export class Project {
    * Throws if a project already exists or if the directory is not empty.
    */
   async validateNewProject() {
-    if (await this.sceneFileExists()) {
+    if ((await this.sceneFileExists()) || (await this.decentralandFolderExists())) {
       fail(ErrorType.PROJECT_ERROR, 'Project already exists')
     }
   }
