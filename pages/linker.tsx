@@ -109,9 +109,9 @@ export default class Page extends React.Component<
       } catch (err) {
         console.error(err)
         this.setState({
-          error: `There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.`
+          error: `There was a problem getting the IPNS hash of your scene.\nTry to re-upload with dcl upload.`
         })
-        closeServer(false, 'There was a problem getting IPNS hash of your scene.\nTry to re-upload with dcl upload.')
+        closeServer(false, 'There was a problem getting the IPNS hash of your scene.\nTry to re-upload with dcl upload.')
         return
       }
 

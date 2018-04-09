@@ -1,9 +1,14 @@
 import { buildTypescript } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
-import { Project } from '../lib/Project'
-import { Preview } from '../lib/Preview'
 import { Analytics } from '../utils/analytics'
+import { Decentraland } from '../lib/Decentraland'
 const opn = require('opn')
+
+export interface IPreviewArguments {
+  options: {
+    port?: number
+  }
+}
 
 export function start(vorpal: any) {
   vorpal
@@ -13,28 +18,25 @@ export function start(vorpal: any) {
     .option('-p, --port <number>', 'Parcel previewer server port (default is 2044).')
     .description('Starts local development server.')
     .action(
-      wrapCommand(async function(args: any, callback: () => void) {
+      wrapCommand(async function(args: IPreviewArguments, callback: () => void) {
         return new Promise(async (resolve, reject) => {
-          const project = new Project()
-          const paths = await project.getAllFilePaths()
+          const dcl = new Decentraland({
+            previewPort: args.options.port
+          })
 
-          if (paths.find(path => path.includes('tsconfig.json'))) {
+          await Analytics.preview()
+
+          dcl.on('preview:ready', url => {
+            vorpal.log(`Development server running at ${url}`)
+            opn(url)
+          })
+
+          if (await dcl.project.isTypescriptProject()) {
             await buildTypescript()
           }
 
-          await project.validateExistingProject()
-
-          await Analytics.preview()
-          startServer(vorpal, args)
+          await dcl.preview()
         })
       })
     )
-}
-
-export function startServer(vorpal: any, args: any[]) {
-  const preview = new Preview()
-  const url = 'http://localhost:2044'
-  vorpal.log(`Development server running at ${url}`)
-  preview.startServer()
-  opn(url)
 }

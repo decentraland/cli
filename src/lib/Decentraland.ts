@@ -11,23 +11,22 @@ import { Preview } from './Preview'
 export interface IDecentralandArguments {
   ipfsHost?: string
   ipfsPort?: number
+  linkerPort?: number
+  previewPort?: number
 }
 
-/**
- * Events emitted by this class:
- *
- * ipfs:key-success - The IPFS key was successfully generated and written to the `project.json` file
- */
 export class Decentraland extends EventEmitter {
-  private localIPFS: IPFS
-  private project: Project
-  private ethereum: Ethereum
+  localIPFS: IPFS
+  project: Project
+  ethereum: Ethereum
+  options: IDecentralandArguments = {}
 
   constructor(args: IDecentralandArguments = {}) {
     super()
     this.localIPFS = new IPFS(args.ipfsHost, args.ipfsPort)
     this.project = new Project()
     this.ethereum = new Ethereum()
+    this.options = args
 
     // Pipe all events
     events(this.localIPFS, 'ipfs:*', this.pipeEvents.bind(this))
@@ -63,7 +62,7 @@ export class Decentraland extends EventEmitter {
     await this.pin()
   }
 
-  async link(port?: number) {
+  async link() {
     await this.project.validateExistingProject()
     await Ethereum.connect()
 
@@ -80,7 +79,7 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(port)
+        await linker.link(this.options.linkerPort)
       } catch (e) {
         reject(e)
       }
@@ -89,13 +88,12 @@ export class Decentraland extends EventEmitter {
 
   async pin() {
     await this.project.validateExistingProject()
-
     const coords = await this.project.getParcelCoordinates()
     const peerId = await this.localIPFS.getPeerId()
     await this.localIPFS.pinFiles(peerId, coords)
   }
 
-  async preview(port?: number) {
+  async preview() {
     return new Promise(async (resolve, reject) => {
       await this.project.validateExistingProject()
       const paths = await this.project.getAllFilePaths()
@@ -107,7 +105,7 @@ export class Decentraland extends EventEmitter {
         await buildTypescript()
       }
 
-      preview.startServer(port)
+      preview.startServer(this.options.previewPort)
     })
   }
 

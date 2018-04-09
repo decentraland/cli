@@ -32,7 +32,7 @@ export class Preview extends EventEmitter {
     // serve the folder `dcl-sdk/artifacts` as `/dcl-sdk`
     this.app.use('/dcl-sdk', express.static(path.dirname(require.resolve('dcl-sdk/artifacts/preview'))))
     this.app.use(express.static(root))
-    this.emit('preview:ready')
+    this.emit('preview:ready', `http://localhost:${port}`)
     this.app.listen(port, '0.0.0.0')
     return this.app
   }

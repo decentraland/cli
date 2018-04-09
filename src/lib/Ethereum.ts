@@ -35,6 +35,7 @@ export class Ethereum extends EventEmitter {
 
   static async getLandContractAddress(): Promise<string> {
     const envContract = env.get('LAND_REGISTRY_CONTRACT_ADDRESS')
+
     if (envContract) {
       return envContract
     }

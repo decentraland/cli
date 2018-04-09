@@ -96,7 +96,12 @@ export class Project {
   }
 
   async hasDependencies(dir: string = getRootPath()): Promise<boolean> {
-    const files = await fs.readdir(dir)
+    const files = await this.getAllFilePaths()
+    return files.some(file => file === 'package.json')
+  }
+
+  async isTypescriptProject(dir: string = getRootPath()): Promise<boolean> {
+    const files = await this.getAllFilePaths()
     return files.some(file => file === 'package.json')
   }
 
