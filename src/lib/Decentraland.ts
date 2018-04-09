@@ -43,20 +43,20 @@ export class Decentraland extends EventEmitter {
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)
     const rootFolder = filesAdded[filesAdded.length - 1]
-    const ipns = await this.ethereum.getIPNS(coords)
-    let ipfsKey = projectFile.ipfsKey
+    const publishedIPNS = await this.ethereum.getIPNS(coords)
+    let localIPNS = projectFile.ipns
 
-    if (!ipfsKey) {
-      ipfsKey = await this.localIPFS.genIPFSKey(projectFile.id)
+    if (!localIPNS) {
+      localIPNS = await this.localIPFS.genIPFSKey(projectFile.id)
       await this.project.writeProjectFile(getRootPath(), {
-        ipfsKey
+        ipns: localIPNS
       })
       this.localIPFS.genKeySuccess()
     }
 
     await this.localIPFS.publish(projectFile.id, `/ipfs/${rootFolder.hash}`)
 
-    if (ipfsKey !== ipns) {
+    if (localIPNS !== publishedIPNS) {
       await this.link()
     }
 

@@ -64,8 +64,8 @@ export class Project {
   async initProject(dirName: string = getRootPath()) {
     await this.writeProjectFile(dirName, {
       id: uuid.v4(),
-      ipfsKey: null
-    })
+      ipns: null
+    } as IProjectFile)
 
     await ensureFolder(path.join(dirName, 'audio'))
     await ensureFolder(path.join(dirName, 'models'))
