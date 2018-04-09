@@ -1,5 +1,5 @@
 import { spawn } from 'child_process'
-import { npm } from '../utils/module-helpers'
+import { npm } from '../utils/moduleHelpers'
 
 export function upgrade(vorpal: any) {
   vorpal

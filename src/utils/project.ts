@@ -2,8 +2,7 @@ import * as path from 'path'
 
 export interface IProjectFile {
   id: string
-  ipfsKey: string
-  p
+  ipns: string
 }
 
 export const SCENE_FILE = 'scene.json'

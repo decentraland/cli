@@ -1,43 +1,31 @@
-import { wrapAsync } from '../utils/wrap-async'
-import { LinkerAPI } from '../lib/LinkerAPI'
-import { Project } from '../lib/Project'
+import { wrapCommand } from '../utils/wrapCommand'
+import { Decentraland } from '../lib/Decentraland'
+import { Analytics } from '../utils/analytics'
 import { success, notice } from '../utils/logging'
 import opn = require('opn')
-import { sceneLink, sceneLinkSuccess } from '../utils/analytics'
 
-export function link(vorpal: any) {
+export function command(vorpal: any) {
   vorpal
     .command('link')
     .description('Link scene to Ethereum.')
+    .option('-p, --port <number>', 'Linker app server port (default is 4044).')
     .action(
-      wrapAsync(async function(args: any, callback: () => void) {
-        return new Promise(async (resolve, reject) => {
-          const project = new Project()
-          await project.validateExistingProject()
+      wrapCommand(async function(args: any, callback: () => void) {
+        const dcl = new Decentraland()
 
-          const projectFile = await project.getProjectFile()
-          const sceneFile = await project.getSceneFile()
-          const linker = new LinkerAPI(sceneFile, projectFile)
-
-          linker.on('linker_app_ready', async (url: string) => {
-            await sceneLink()
-            vorpal.log(notice('Linking app ready.'))
-            vorpal.log(`Please proceed to ${url}`)
-            opn(url)
-          })
-
-          linker.on('link_success', async () => {
-            await sceneLinkSuccess()
-            vorpal.log(success('\nProject successfully linked to the blockchain'))
-            resolve()
-          })
-
-          try {
-            await linker.link()
-          } catch (e) {
-            reject(e)
-          }
+        dcl.on('link:ready', async url => {
+          await Analytics.sceneLink()
+          vorpal.log(notice('Linking app ready.'))
+          vorpal.log(`Please proceed to ${url}`)
+          opn(url)
         })
+
+        dcl.on('link:success', async () => {
+          await Analytics.sceneLinkSuccess()
+          vorpal.log(success('Project successfully linked to the blockchain'))
+        })
+
+        await dcl.link(args.port)
       })
     )
 }

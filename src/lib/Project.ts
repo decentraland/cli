@@ -2,7 +2,7 @@ import * as fs from 'fs-extra'
 import * as uuid from 'uuid'
 import dockerNames = require('docker-names')
 import * as path from 'path'
-import { writeJSON, readJSON, ensureFolder, isEmptyDirectory } from '../utils/filesystem'
+import { writeJSON, readJSON, ensureFolder } from '../utils/filesystem'
 import {
   getSceneFilePath,
   getProjectFilePath,
@@ -12,9 +12,9 @@ import {
   IProjectFile,
   DCLIGNORE_FILE
 } from '../utils/project'
-import { EventEmitter } from 'events'
 import * as parser from 'gitignore-parser'
 import { IIPFSFile } from './IPFS'
+import { fail, ErrorType } from '../utils/errors'
 
 export enum BoilerplateType {
   STATIC = 'static',
@@ -22,7 +22,7 @@ export enum BoilerplateType {
   WEBSOCKETS = 'multiplayer-experimental'
 }
 
-export class Project extends EventEmitter {
+export class Project {
   /**
    * Returns `true` if the provided path contains a scene file
    */
@@ -32,11 +32,11 @@ export class Project extends EventEmitter {
 
   /**
    * Returns `true` for valid boilerplate types (`static`, `ts` and `ws`)
-   * @param boilerplateType
+   * @param type
    */
-  isValidBoilerplateType(boilerplateType: string): boolean {
-    for (let type in BoilerplateType) {
-      if (boilerplateType === type) {
+  isValidBoilerplateType(type: string): boolean {
+    for (let key in BoilerplateType) {
+      if (type === BoilerplateType[key]) {
         return true
       }
     }
@@ -64,12 +64,40 @@ export class Project extends EventEmitter {
   async initProject(dirName: string = getRootPath()) {
     await this.writeProjectFile(dirName, {
       id: uuid.v4(),
-      ipfsKey: null
-    })
+      ipns: null
+    } as IProjectFile)
 
     await ensureFolder(path.join(dirName, 'audio'))
     await ensureFolder(path.join(dirName, 'models'))
     await ensureFolder(path.join(dirName, 'textures'))
+  }
+
+  async scaffoldProject(boilerplateType: string, websocketServer?: string) {
+    if (!this.isValidBoilerplateType(boilerplateType)) {
+      fail(
+        ErrorType.PROJECT_ERROR,
+        `Invalid boilerplate type: '${boilerplateType}'. Supported types are 'static', 'singleplayer' and 'multiplayer-experimental'.`
+      )
+    }
+
+    switch (boilerplateType) {
+      case BoilerplateType.TYPESCRIPT: {
+        await this.copySample('basic-ts')
+        break
+      }
+      case BoilerplateType.WEBSOCKETS:
+        this.scaffoldWebsockets(websocketServer)
+        break
+      case BoilerplateType.STATIC:
+      default:
+        await this.copySample('basic-static')
+        break
+    }
+  }
+
+  async hasDependencies(dir: string = getRootPath()): Promise<boolean> {
+    const files = await fs.readdir(dir)
+    return files.some(file => file === 'package.json')
   }
 
   /**
@@ -104,14 +132,14 @@ export class Project extends EventEmitter {
   async copySample(project: string, destination: string = process.cwd()) {
     const src = path.resolve(__dirname, '..', 'samples', project)
     const files = await fs.readdir(src)
-    const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file === SCENE_FILE) {
+        const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
         this.writeSceneFile(destination, sceneFile)
       } else {
-        fs.copyFileSync(path.join(src, file), path.join(destination, file))
+        await fs.copy(path.join(src, file), path.join(destination, file))
       }
     }
   }
@@ -148,6 +176,7 @@ export class Project extends EventEmitter {
         'tsconfig.json',
         'tslint.json',
         'node_modules/',
+        '**/node_modules/*',
         '*.ts',
         '*.tsx',
         'dist/'
@@ -161,11 +190,7 @@ export class Project extends EventEmitter {
    */
   async validateNewProject() {
     if (await this.sceneFileExists()) {
-      throw new Error('Project already exists')
-    }
-
-    if (!await isEmptyDirectory()) {
-      throw new Error('The directory is not empty! Please run `dcl init` again on an empty directory')
+      fail(ErrorType.PROJECT_ERROR, 'Project already exists')
     }
   }
 
@@ -174,14 +199,21 @@ export class Project extends EventEmitter {
    * Throws if a project contains an invalid main path or if the `scene.json` file is missing.
    */
   async validateExistingProject() {
-    const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath())
+    let sceneFile
+
+    try {
+      sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath())
+    } catch (e) {
+      fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
+    }
+
     if (!this.isWebSocket(sceneFile.main)) {
       if (!this.isValidMainFormat(sceneFile.main)) {
-        throw new Error(`Main scene format file (${sceneFile.main}) is not a supported format`)
+        fail(ErrorType.PROJECT_ERROR, `Main scene format file (${sceneFile.main}) is not a supported format`)
       }
 
       if (!await this.fileExists(sceneFile.main)) {
-        throw new Error(`Main scene file ${sceneFile.main} is missing`)
+        fail(ErrorType.PROJECT_ERROR, `Main scene file ${sceneFile.main} is missing`)
       }
     }
   }
@@ -217,17 +249,21 @@ export class Project extends EventEmitter {
    */
   async getFiles(): Promise<IIPFSFile[]> {
     const files = await this.getAllFilePaths()
-    const dclignore = parser.compile(await fs.readFile(getIgnoreFilePath(), 'utf8'))
+    const dclignore = parser.compile(await this.getDCLIgnore())
     let data = []
 
-    files.filter(dclignore.accepts).forEach((name: string) =>
+    files.filter(dclignore.accepts).forEach(async (name: string) =>
       data.push({
         path: `/tmp/${name}`,
-        content: new Buffer(fs.readFileSync(name))
+        content: new Buffer(await fs.readFile(name))
       })
     )
 
     return data
+  }
+
+  private getDCLIgnore(): Promise<string> {
+    return fs.readFile(getIgnoreFilePath(), 'utf8')
   }
 
   /**

@@ -17,6 +17,7 @@ export async function ensureFolder(path: string | Array<string>): Promise<void> 
     }
     await mkdir(path)
   }
+
   if (Array.isArray(path)) {
     if (path.length === 0) {
       return
@@ -57,6 +58,9 @@ export async function readJSON<T>(path: string): Promise<T> {
   return JSON.parse(content) as T
 }
 
+/**
+ * Returns true if the directory is empty
+ */
 export async function isEmptyDirectory(): Promise<boolean> {
   const files = await fs.readdir('.')
   return files.length === 0

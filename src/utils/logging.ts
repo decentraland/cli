@@ -12,6 +12,14 @@ export function success(message: string): string {
   return chalk.green(message)
 }
 
+export function comment(message: string): string {
+  return chalk.grey(message)
+}
+
+export function highlight(message: string): string {
+  return chalk.yellow(message)
+}
+
 export function exit(message: string, logger: any) {
   logger.log(error(message))
   process.exit(1)

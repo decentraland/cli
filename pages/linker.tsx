@@ -1,12 +1,10 @@
-import 'babel-polyfill'
-import React from 'react'
-import Router from 'next/router'
-import { eth, txUtils, contracts } from 'decentraland-commons/dist/browser'
-const { LANDRegistry } = contracts
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import { eth, txUtils, contracts } from 'decentraland-eth'
 
 async function ethereum() {
   const { address } = await getContractAddress()
-  const land = new LANDRegistry(address)
+  const land = new contracts.LANDRegistry(address)
 
   await eth.connect({
     contracts: [land]
@@ -14,7 +12,7 @@ async function ethereum() {
 
   return {
     address: await eth.getAddress(),
-    web3: eth.web3,
+    web3: eth.wallet.getWeb3(),
     land
   }
 }
@@ -29,8 +27,8 @@ async function getSceneMetadata() {
   return await res.json()
 }
 
-async function getIPFSKey() {
-  const res = await fetch('/api/get-ipfs-key')
+async function getLocalIPNS() {
+  const res = await fetch('/api/get-local-ipns')
   const ipfsKey = await res.json()
   return ipfsKey
 }
@@ -40,9 +38,20 @@ async function closeServer(ok, message) {
   await fetch(`/api/close?ok=${ok}&reason=${message}`)
 }
 
-export default class Page extends React.Component {
-  constructor(...args) {
-    super(...args)
+export default class Page extends React.Component<
+  any,
+  {
+    loading: boolean
+    transactionLoading: boolean
+    error: boolean | string
+    address: string
+    tx: string
+    sceneMetadata?: any
+    ipfsKey?: string
+  }
+> {
+  constructor(a, b) {
+    super(a, b)
     this.state = {
       loading: true,
       transactionLoading: false,
@@ -65,13 +74,12 @@ export default class Page extends React.Component {
   async componentDidMount() {
     window.addEventListener('beforeunload', this.onUnload)
     try {
-      let land, address, web3
+      let land: contracts.LANDRegistry, address: string
 
       try {
         const res = await ethereum()
         land = res.land
         address = res.address
-        web3 = res.web3
         this.setState({
           loading: false,
           address
@@ -96,7 +104,7 @@ export default class Page extends React.Component {
       }
 
       try {
-        const ipfsKey = await getIPFSKey()
+        const ipfsKey = await getLocalIPNS()
         this.setState({ ipfsKey })
       } catch (err) {
         console.error(err)
@@ -120,21 +128,21 @@ export default class Page extends React.Component {
       let oldData
       try {
         console.log('oldData coordinates', coordinates[0].x, coordinates[0].y)
-        oldData = await land.landData(coordinates[0].x, coordinates[0].y)
+        oldData = await (land as any).landData(coordinates[0].x, coordinates[0].y)
         console.log('oldData data', oldData)
       } catch (e) {
         console.error('oldData error', e)
       }
       let name, description
       try {
-        const decoded = LANDRegistry.decodeLandData(oldData)
+        const decoded = contracts.LANDRegistry.decodeLandData(oldData)
         name = decoded.name
         description = decoded.description
       } catch (err) {
         name = ''
         description = ''
       }
-      const data = LANDRegistry.encodeLandData({
+      const data = contracts.LANDRegistry.encodeLandData({
         version: 0,
         name,
         description,
@@ -142,20 +150,24 @@ export default class Page extends React.Component {
       })
       try {
         console.log('update land data', coordinates, data)
+        console.log('land', land, land.updateManyLandData)
         const tx = await land.updateManyLandData(coordinates, data)
-        this.watchTransactions(tx, coordinates[0].x, coordinates[0].y)
+        console.log('tx', tx)
+        this.watchTransactions(tx)
         this.setState({ tx, transactionLoading: true })
       } catch (err) {
+        console.log(err)
         this.setState({ loading: false, error: 'Transaction Rejected' })
         closeServer(false, 'Transaction rejected')
       }
     } catch (err) {
+      console.log(err)
       this.setState({ loading: false, error: err.message })
       closeServer(false, 'unexpected error')
     }
   }
 
-  async watchTransactions(txId, x, y) {
+  async watchTransactions(txId: string) {
     const tx = await txUtils.waitForCompletion(txId)
     if (txUtils.isFailure(tx)) {
       this.setState({ transactionLoading: false, error: 'Transaction failed' })
@@ -203,15 +215,13 @@ export default class Page extends React.Component {
         {this.renderTxHash()}
         {this.renderTransactionStatus()}
         {this.renderError()}
-        <style jsx>{`
+        <style>{`
           .dcl-icon {
             width: 52px;
             height: 52px;
             margin: 30px auto 0;
             background-image: url('https://decentraland.org/images/icons.svg');
           }
-        `}</style>
-        <style global jsx>{`
           body {
             font-family: 'Arial';
             width: 700px;
@@ -227,3 +237,5 @@ export default class Page extends React.Component {
     )
   }
 }
+
+ReactDOM.render(<Page />, document.getElementById('main'))

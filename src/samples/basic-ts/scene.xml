@@ -1,5 +1,0 @@
-<a-scene>
-    <a-system src="scene.js">
-        <a-box id="interactiveBox" position="5 0.5 5" rotation="0 45 0" color="#4CC3D9"></a-box>
-    </a-system>
-</a-scene>
