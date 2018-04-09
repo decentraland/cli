@@ -80,16 +80,25 @@ export default class Page extends React.Component<
         const res = await ethereum()
         land = res.land
         address = res.address
+
+        if (!(typeof eth.wallet.getAccount() === 'string')) {
+          throw new Error('Please unlock your wallet to continue')
+        }
+
         this.setState({
           loading: false,
           address
         })
       } catch (err) {
-        console.log(err.message)
+        if (err.message === 'Please unlock your wallet to continue') {
+          return this.setState({
+            error: err.message
+          })
+        }
         this.setState({
-          error: `Could not connect to MetaMask`
+          error: err.message || `Could not connect to Ethereum`
         })
-        return
+        closeServer(false, 'Could not connect to Ethereum')
       }
 
       try {
@@ -157,12 +166,8 @@ export default class Page extends React.Component<
         this.setState({ tx, transactionLoading: true })
       } catch (err) {
         console.log(err)
-        if (err.message.includes('invalid address')) {
-          this.setState({ loading: false, error: 'Please unlock your wallet and reload this page.' })
-        } else {
-          this.setState({ loading: false, error: 'Transaction Rejected' })
-          closeServer(false, 'Transaction rejected')
-        }
+        this.setState({ loading: false, error: 'Transaction Rejected' })
+        closeServer(false, 'Transaction rejected')
       }
     } catch (err) {
       console.log(err)

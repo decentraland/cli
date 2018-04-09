@@ -108,7 +108,7 @@ export function init(vorpal: any) {
 
         if (await project.hasDependencies()) {
           vorpal.log('Installing dependencies...')
-          installDependencies()
+          await installDependencies()
         }
 
         await Analytics.sceneCreated()
