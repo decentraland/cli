@@ -157,8 +157,12 @@ export default class Page extends React.Component<
         this.setState({ tx, transactionLoading: true })
       } catch (err) {
         console.log(err)
-        this.setState({ loading: false, error: 'Transaction Rejected' })
-        closeServer(false, 'Transaction rejected')
+        if (err.message.includes('invalid address')) {
+          this.setState({ loading: false, error: 'Please unlock your wallet and reload this page.' })
+        } else {
+          this.setState({ loading: false, error: 'Transaction Rejected' })
+          closeServer(false, 'Transaction rejected')
+        }
       }
     } catch (err) {
       console.log(err)

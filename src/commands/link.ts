@@ -31,6 +31,7 @@ export function command(vorpal: any) {
         dcl.on('link:success', async () => {
           await Analytics.sceneLinkSuccess()
           vorpal.log(success('Project successfully linked to the blockchain'))
+          process.exit(1)
         })
 
         await dcl.link()
