@@ -120,23 +120,23 @@ describe('Project class', () => {
   })
 
   describe('validateNewProject', () => {
-    it('should pass if the working directory is not dirty', async () => {
+    it('should pass if the working directory is not dirty', () => {
       const project = new Project()
-      expect(await project.validateNewProject.bind(project)).to.not.throw()
+      expect(project.validateNewProject(), 'expect validateNewProject not to fail').to.be['fulfilled']
     })
 
     it('should fail if the working directory contains a scene.json file', async () => {
       decentralandFolderExistsStub.callsFake(() => false)
       sceneFileExistsStub.callsFake(() => true)
       const project = new Project()
-      return expect(project.validateNewProject()).to.be['rejected']
+      return expect(project.validateNewProject(), 'expect validateNewProject fail').to.be['rejectedWith']('Project already exists')
     })
 
     it('should fail if the working directory contains a .decentraland folder', async () => {
       sceneFileExistsStub.callsFake(() => false)
       decentralandFolderExistsStub.callsFake(() => true)
       const project = new Project()
-      return expect(project.validateNewProject()).to.be['rejected']
+      return expect(project.validateNewProject(), 'expect validateNewProject fail').to.be['rejectedWith']('Project already exists')
     })
   })
 })
