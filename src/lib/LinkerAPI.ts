@@ -64,8 +64,8 @@ export class LinkerAPI extends EventEmitter {
       res.end()
     })
 
-    this.app.get('/api/get-local-ipns', (req, res) => {
-      res.json(this.projectMetadata.ipns)
+    this.app.get('/api/get-ipfs-key', (req, res) => {
+      res.json(this.projectMetadata.ipfsKey)
       res.end()
     })
 

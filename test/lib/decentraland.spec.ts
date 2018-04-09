@@ -71,7 +71,7 @@ describe('Decentraland class', () => {
       ).to.be.true
       expect(genIPFSKeyStub.withArgs('projectId').calledBefore(writeProjectFileStub), 'expect IPFS.genIPFSKey() to be called').to.be.true
       expect(
-        writeProjectFileStub.withArgs('.', { ipns: 'Qmwqwe' }).calledBefore(publishStub),
+        writeProjectFileStub.withArgs('.', { ipfsKey: 'Qmwqwe' }).calledBefore(publishStub),
         'expect Project.writeProjectFile to be called'
       ).to.be.true
       expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(linkStub), 'expect IPFS.publish() to be called').to.be.true
@@ -82,7 +82,7 @@ describe('Decentraland class', () => {
     it('should skip generating a new IPFS key if one is already available', async () => {
       getProjectFileStub.callsFake(() => ({
         id: 'projectId',
-        ipns: 'QmExists'
+        ipfsKey: 'QmExists'
       }))
       const decentraland = new Decentraland()
       await decentraland.deploy()
@@ -106,7 +106,7 @@ describe('Decentraland class', () => {
     it('should skip pinning when the local IPFS equals the one in the blockchain', async () => {
       getProjectFileStub.callsFake(() => ({
         id: 'projectId',
-        ipns: 'Qmwasd'
+        ipfsKey: 'Qmwasd'
       }))
       const decentraland = new Decentraland()
       await decentraland.deploy()

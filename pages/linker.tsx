@@ -27,8 +27,8 @@ async function getSceneMetadata() {
   return await res.json()
 }
 
-async function getLocalIPNS() {
-  const res = await fetch('/api/get-local-ipns')
+async function getIPFSKey() {
+  const res = await fetch('/api/get-ipfs-key')
   const ipfsKey = await res.json()
   return ipfsKey
 }
@@ -104,7 +104,7 @@ export default class Page extends React.Component<
       }
 
       try {
-        const ipfsKey = await getLocalIPNS()
+        const ipfsKey = await getIPFSKey()
         this.setState({ ipfsKey })
       } catch (err) {
         console.error(err)
