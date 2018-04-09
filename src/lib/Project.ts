@@ -118,7 +118,7 @@ export class Project {
   }
 
   /**
-   * Returns true if te project root contains a `tsconfig.json` gole
+   * Returns true if te project root contains a `tsconfig.json` file
    * @param dir
    */
   async isTypescriptProject(dir: string = getRootPath()): Promise<boolean> {
