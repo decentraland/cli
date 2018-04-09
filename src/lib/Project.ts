@@ -32,11 +32,11 @@ export class Project {
 
   /**
    * Returns `true` for valid boilerplate types (`static`, `ts` and `ws`)
-   * @param boilerplateType
+   * @param type
    */
-  isValidBoilerplateType(boilerplateType: string): boolean {
-    for (let type in BoilerplateType) {
-      if (boilerplateType === type) {
+  isValidBoilerplateType(type: string): boolean {
+    for (let key in BoilerplateType) {
+      if (type === BoilerplateType[key]) {
         return true
       }
     }
@@ -70,6 +70,34 @@ export class Project {
     await ensureFolder(path.join(dirName, 'audio'))
     await ensureFolder(path.join(dirName, 'models'))
     await ensureFolder(path.join(dirName, 'textures'))
+  }
+
+  async scaffoldProject(boilerplateType: string, websocketServer?: string) {
+    if (!this.isValidBoilerplateType(boilerplateType)) {
+      fail(
+        ErrorType.PROJECT_ERROR,
+        `Invalid boilerplate type: '${boilerplateType}'. Supported types are 'static', 'singleplayer' and 'multiplayer-experimental'.`
+      )
+    }
+
+    switch (boilerplateType) {
+      case BoilerplateType.TYPESCRIPT: {
+        await this.copySample('basic-ts')
+        break
+      }
+      case BoilerplateType.WEBSOCKETS:
+        this.scaffoldWebsockets(websocketServer)
+        break
+      case BoilerplateType.STATIC:
+      default:
+        await this.copySample('basic-static')
+        break
+    }
+  }
+
+  async hasDependencies(dir: string = getRootPath()): Promise<boolean> {
+    const files = await fs.readdir(dir)
+    return files.some(file => file === 'package.json')
   }
 
   /**

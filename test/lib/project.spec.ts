@@ -9,14 +9,14 @@ const ctx = sandbox.create()
 describe('Project class', () => {
   let getAllFilePathsStub
   let getDCLIgnoreStub
-  let readFileSyncStub
+  let readFileStub
 
   beforeEach(() => {
     getAllFilePathsStub = ctx
       .stub(Project.prototype, 'getAllFilePaths')
       .callsFake(() => ['a.json', 'src/b.json', 'node_modules/module/a.js', '.dclignore'])
     getDCLIgnoreStub = ctx.stub(Project.prototype, 'getDCLIgnore' as any).callsFake(() => '')
-    readFileSyncStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
+    readFileStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
   })
 
   afterEach(function() {

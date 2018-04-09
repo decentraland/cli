@@ -16,11 +16,9 @@ export function help(vorpal: any) {
         const oldCommands = vorpal.commands
         const fullCommands = ['init', 'preview', 'deploy', 'link', 'pin', 'upgrade', 'help']
 
-        vorpal.commands = fullCommands.map((commandName: string) =>
-          oldCommands.find((command: any) => command._name === commandName)
-        )
+        vorpal.commands = fullCommands.map((commandName: string) => oldCommands.find((command: any) => command._name === commandName))
 
-        this.log(vorpal._commandHelp())
+        vorpal.log(vorpal._commandHelp())
 
         vorpal.commands = oldCommands
       }
