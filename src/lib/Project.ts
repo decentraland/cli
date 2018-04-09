@@ -80,6 +80,11 @@ export class Project {
     await ensureFolder(path.join(dirName, 'textures'))
   }
 
+  /**
+   * Scaffolds a project or fails for an invalid boilerplate type
+   * @param boilerplateType `static`, `singleplayer` or `multiplayer-experimental`
+   * @param websocketServer Optional websocket server URL
+   */
   async scaffoldProject(boilerplateType: string, websocketServer?: string) {
     if (!this.isValidBoilerplateType(boilerplateType)) {
       fail(
@@ -103,14 +108,22 @@ export class Project {
     }
   }
 
+  /**
+   * Returns true if the project root contains a `package.json` file
+   * @param dir
+   */
   async hasDependencies(dir: string = getRootPath()): Promise<boolean> {
     const files = await this.getAllFilePaths()
     return files.some(file => file === 'package.json')
   }
 
+  /**
+   * Returns true if te project root contains a `tsconfig.json` file
+   * @param dir
+   */
   async isTypescriptProject(dir: string = getRootPath()): Promise<boolean> {
     const files = await this.getAllFilePaths()
-    return files.some(file => file === 'package.json')
+    return files.some(file => file === 'tsconfig.json')
   }
 
   /**

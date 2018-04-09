@@ -129,14 +129,42 @@ describe('Project class', () => {
       decentralandFolderExistsStub.callsFake(() => false)
       sceneFileExistsStub.callsFake(() => true)
       const project = new Project()
-      return expect(project.validateNewProject(), 'expect validateNewProject fail').to.be['rejectedWith']('Project already exists')
+      return expect(project.validateNewProject(), 'expect validateNewProject to fail').to.be['rejectedWith']('Project already exists')
     })
 
     it('should fail if the working directory contains a .decentraland folder', async () => {
       sceneFileExistsStub.callsFake(() => false)
       decentralandFolderExistsStub.callsFake(() => true)
       const project = new Project()
-      return expect(project.validateNewProject(), 'expect validateNewProject fail').to.be['rejectedWith']('Project already exists')
+      return expect(project.validateNewProject(), 'expect validateNewProject to fail').to.be['rejectedWith']('Project already exists')
+    })
+  })
+
+  describe('hasDependencies', () => {
+    it('should return true if a package.json file is present', async () => {
+      getAllFilePathsStub.callsFake(() => ['package.json', 'test.json'])
+      const project = new Project()
+      expect(await project.hasDependencies()).to.be.true
+    })
+
+    it('should return false if no package.json file is present', async () => {
+      getAllFilePathsStub.callsFake(() => ['tsconfig.json', 'test.json'])
+      const project = new Project()
+      expect(await project.hasDependencies()).to.be.false
+    })
+  })
+
+  describe('isTypescriptProject', () => {
+    it('should return true if a tsconfig.json file is present', async () => {
+      getAllFilePathsStub.callsFake(() => ['tsconfig.json', 'test.json'])
+      const project = new Project()
+      expect(await project.isTypescriptProject()).to.be.true
+    })
+
+    it('should return false if no tsconfig.json file is present', async () => {
+      getAllFilePathsStub.callsFake(() => ['package.json', 'test.json'])
+      const project = new Project()
+      expect(await project.isTypescriptProject()).to.be.false
     })
   })
 })
