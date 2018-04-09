@@ -2,6 +2,7 @@ import { env } from 'decentraland-commons/dist/env'
 import axios from 'axios'
 import { EventEmitter } from 'events'
 import { isDev } from '../utils/env'
+import { fail, ErrorType } from '../utils/errors'
 const ipfsAPI = require('ipfs-api')
 
 export interface IIPFSFile {
@@ -36,7 +37,7 @@ export class IPFS extends EventEmitter {
       const { id } = await this.ipfsApi.key.gen(projectId, { type: 'rsa', size: 2048 })
       return id
     } catch (e) {
-      throw new Error(`Unable to connect to the IPFS daemon: ${e.message}`)
+      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon: ${e.message}`)
     }
   }
 
@@ -48,7 +49,7 @@ export class IPFS extends EventEmitter {
       const { id } = await this.ipfsApi.id()
       return id
     } catch (e) {
-      throw new Error(`Unable to connect to the IPFS daemon: ${e.message}`)
+      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon: ${e.message}`)
     }
   }
 
@@ -67,9 +68,9 @@ export class IPFS extends EventEmitter {
       await axios.post(`${ipfsURL}/pin/${peerId}/${x}/${y}`)
     } catch (e) {
       if (e.response) {
-        throw new Error('Failed to pin files: ' + e.response.data.error || e.response.data)
+        fail(ErrorType.IPFS_ERROR, 'Failed to pin files: ' + e.response.data.error || e.response.data)
       }
-      throw new Error('Failed to pin files: ' + e.message)
+      fail(ErrorType.IPFS_ERROR, 'Failed to pin files: ' + e.message)
     }
 
     this.emit('ipfs:pin-success')
@@ -82,7 +83,7 @@ export class IPFS extends EventEmitter {
    */
   async addFiles(files: IIPFSFile[]): Promise<{ path: string; hash: string; size: number }[]> {
     if (files.length === 0) {
-      throw new Error('Unable to upload files: no files available (check your .dclignore rules)')
+      fail(ErrorType.IPFS_ERROR, 'Unable to upload files: no files available (check your .dclignore rules)')
     }
 
     let count = 0
@@ -102,7 +103,7 @@ export class IPFS extends EventEmitter {
         recursive: true
       })
     } catch (e) {
-      throw new Error(`Unable to connect to the IPFS daemon: ${e.message}`)
+      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon: ${e.message}`)
     }
   }
 
@@ -115,7 +116,7 @@ export class IPFS extends EventEmitter {
     this.emit('ipfs:publish-request')
 
     if (!ipfsHash) {
-      throw new Error('Failed to publish: missing IPFS hash')
+      fail(ErrorType.IPFS_ERROR, 'Failed to publish: missing IPFS hash')
     }
 
     try {
@@ -123,14 +124,14 @@ export class IPFS extends EventEmitter {
       this.emit('ipfs:publish-success', name)
       return name
     } catch (e) {
-      throw new Error(`Failed to publish: ${e.message}`)
+      fail(ErrorType.IPFS_ERROR, `Failed to publish: ${e.message}`)
     }
   }
 
   /**
    * Emit key-success event
    */
-  genKeySuccess () {
+  genKeySuccess() {
     this.emit('ipfs:key-success')
   }
 
@@ -153,5 +154,4 @@ export class IPFS extends EventEmitter {
 
     return env.get('IPFS_GATEWAY', () => ipfsURL)
   }
-
 }

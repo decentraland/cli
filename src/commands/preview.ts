@@ -1,8 +1,8 @@
-import { buildTypescript } from '../utils/module-helpers'
-import { wrapAsync } from '../utils/wrap-async'
+import { buildTypescript } from '../utils/moduleHelpers'
+import { wrapCommand } from '../utils/wrapCommand'
 import { Project } from '../lib/Project'
 import { Preview } from '../lib/Preview'
-import { preview } from '../utils/analytics'
+import { Analytics } from '../utils/analytics'
 const opn = require('opn')
 
 export function start(vorpal: any) {
@@ -13,17 +13,18 @@ export function start(vorpal: any) {
     .option('-p, --port <number>', 'Parcel previewer server port (default is 2044).')
     .description('Starts local development server.')
     .action(
-      wrapAsync(async function(args: any, callback: () => void) {
+      wrapCommand(async function(args: any, callback: () => void) {
         return new Promise(async (resolve, reject) => {
           const project = new Project()
-          await project.validateExistingProject()
           const paths = await project.getAllFilePaths()
 
           if (paths.find(path => path.includes('tsconfig.json'))) {
             await buildTypescript()
           }
 
-          await preview()
+          await project.validateExistingProject()
+
+          await Analytics.preview()
           startServer(vorpal, args)
         })
       })

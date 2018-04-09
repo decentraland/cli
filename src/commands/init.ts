@@ -1,12 +1,12 @@
 import chalk from 'chalk'
 import fs = require('fs-extra')
 import inquirer = require('inquirer')
-import { wrapAsync } from '../utils/wrap-async'
-import { installDependencies } from '../utils/module-helpers'
+import { wrapCommand } from '../utils/wrapCommand'
+import { installDependencies } from '../utils/moduleHelpers'
 import { getRootPath } from '../utils/project'
 import { BoilerplateType, Project } from '../lib/Project'
-import { sceneCreated } from '../utils/analytics'
-import { success } from '../utils/logging';
+import { Analytics } from '../utils/analytics'
+import { success } from '../utils/logging'
 
 export function init(vorpal: any) {
   vorpal
@@ -15,7 +15,7 @@ export function init(vorpal: any) {
     .option('-p, --path <path>', 'Output path (default is the current working directory).')
     .option('--boilerplate', 'Include sample scene.')
     .action(
-      wrapAsync(async function(args: any, callback: () => void) {
+      wrapCommand(async function(args: any, callback: () => void) {
         const dirName = args.options.path || getRootPath()
         const project = new Project()
 
@@ -38,16 +38,12 @@ export function init(vorpal: any) {
           {
             type: 'input',
             name: 'contact.name',
-            message: `${chalk.blue('Your name: ')}\n${chalk.grey(
-              '(optional -- shown to other users so that they can contact you)'
-            )}\n`
+            message: `${chalk.blue('Your name: ')}\n${chalk.grey('(optional -- shown to other users so that they can contact you)')}\n`
           },
           {
             type: 'input',
             name: 'contact.email',
-            message: `${chalk.blue('Your email: ')}\n${chalk.grey(
-              '(optional -- shown to other users so that they can contact you)'
-            )}\n`
+            message: `${chalk.blue('Your email: ')}\n${chalk.grey('(optional -- shown to other users so that they can contact you)')}\n`
           },
           {
             type: 'input',
@@ -74,18 +70,6 @@ export function init(vorpal: any) {
 
         sceneMeta.main = 'scene.xml' // replaced by chosen template
         sceneMeta.scene.base = sceneMeta.scene.parcels[0]
-
-        const results = await inquirer.prompt({
-          type: 'confirm',
-          name: 'continue',
-          default: true,
-          message: chalk.yellow('Do you want to continue?')
-        })
-
-        if (!results.continue) {
-          callback()
-          return
-        }
 
         await project.writeDclIgnore(dirName)
         await project.initProject(dirName)
@@ -122,11 +106,7 @@ export function init(vorpal: any) {
             websocketServer = ws.server
           }
         } else if (!project.isValidBoilerplateType(boilerplateType)) {
-          vorpal.log(
-            chalk.red(
-              `Invalid boilerplate type. Supported types are 'static', 'singleplayer' and 'multiplayer-experimental'.`
-            )
-          )
+          vorpal.log(chalk.red(`Invalid boilerplate type. Supported types are 'static', 'singleplayer' and 'multiplayer-experimental'.`))
           process.exit(1)
         }
 
@@ -150,7 +130,7 @@ export function init(vorpal: any) {
             break
         }
 
-        await sceneCreated()
+        Analytics.sceneCreated()
         this.log(success(`\nSuccess! Run 'dcl preview' to see your scene`))
       })
     )

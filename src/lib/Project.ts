@@ -14,6 +14,7 @@ import {
 } from '../utils/project'
 import * as parser from 'gitignore-parser'
 import { IIPFSFile } from './IPFS'
+import { fail, ErrorType } from '../utils/errors'
 
 export enum BoilerplateType {
   STATIC = 'static',
@@ -161,7 +162,7 @@ export class Project {
    */
   async validateNewProject() {
     if (await this.sceneFileExists()) {
-      throw new Error('Project already exists')
+      fail(ErrorType.PROJECT_ERROR, 'Project already exists')
     }
   }
 
@@ -175,16 +176,16 @@ export class Project {
     try {
       sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath())
     } catch (e) {
-      throw new Error(`Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
+      fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
     }
 
     if (!this.isWebSocket(sceneFile.main)) {
       if (!this.isValidMainFormat(sceneFile.main)) {
-        throw new Error(`Main scene format file (${sceneFile.main}) is not a supported format`)
+        fail(ErrorType.PROJECT_ERROR, `Main scene format file (${sceneFile.main}) is not a supported format`)
       }
 
       if (!await this.fileExists(sceneFile.main)) {
-        throw new Error(`Main scene file ${sceneFile.main} is missing`)
+        fail(ErrorType.PROJECT_ERROR, `Main scene file ${sceneFile.main} is missing`)
       }
     }
   }

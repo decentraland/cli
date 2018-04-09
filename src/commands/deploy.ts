@@ -1,6 +1,6 @@
-import { wrapAsync } from '../utils/wrap-async'
+import { wrapCommand } from '../utils/wrapCommand'
 import { success, notice } from '../utils/logging'
-import { sceneUpload, sceneUploadSuccess, sceneLinkSuccess, sceneLink } from '../utils/analytics'
+import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import opn = require('opn')
 
@@ -19,7 +19,7 @@ export function deploy(vorpal: any) {
     .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .action(
-      wrapAsync(async function(args: IDeployArguments, callback: () => void) {
+      wrapCommand(async function(args: IDeployArguments, callback: () => void) {
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
           ipfsPort: args.options.port || 5001
@@ -51,14 +51,14 @@ export function deploy(vorpal: any) {
         })
 
         dcl.on('link:ready', async url => {
-          await sceneLink()
+          await Analytics.sceneLink()
           vorpal.log('Linking app ready.')
           vorpal.log(`Please proceed to ${url}`)
           opn(url)
         })
 
         dcl.on('link:success', async () => {
-          await sceneLinkSuccess()
+          await Analytics.sceneLinkSuccess()
           vorpal.log('Project successfully linked to the blockchain')
         })
 
@@ -70,10 +70,11 @@ export function deploy(vorpal: any) {
           vorpal.log(`Successfully pinned files`)
         })
 
-        await sceneUpload()
+        await Analytics.sceneUpload()
+
         vorpal.log(notice(`Uploading project to IPFS:`))
         await dcl.deploy()
-        await sceneUploadSuccess()
+        await Analytics.sceneUploadSuccess()
         vorpal.log(success(`Successfully uploaded project to IPFS`))
         callback()
       })

@@ -19,15 +19,15 @@ export class RollerCoaster extends Component<any, { time: number }> {
   async render() {
     const { time } = this.state
 
-    const size = 5
+    const size = 2
 
     const x = Math.cos(time) * Math.cos(time) * size
     const y = Math.cos(time) * Math.sin(time) * size
-    const z = Math.sin(time) * size * 8
+    const z = Math.sin(time) * size
 
     return (
       <a-scene>
-        <a-entity position={{ x: 5, y: 4, z: -30 }}>
+        <a-entity position={{ x: 5, y: 4, z: 5 }}>
           <a-entity
             id="train"
             position={{ x, y, z }}

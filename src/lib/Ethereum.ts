@@ -3,6 +3,7 @@ import axios from 'axios'
 import { contracts, eth } from 'decentraland-eth'
 import { env } from 'decentraland-commons/dist/env'
 import { EventEmitter } from 'events'
+import { ErrorType, fail } from '../utils/errors'
 
 /**
  * Events emitted by this class:
@@ -25,7 +26,7 @@ export class Ethereum extends EventEmitter {
           providerUrl
         })
       } catch (e) {
-        throw new Error('Unable to connect to the Ethereum Blockchain')
+        fail(ErrorType.ETHEREUM_ERROR, 'Unable to connect to the Ethereum Blockchain')
       }
 
       return land
@@ -47,7 +48,7 @@ export class Ethereum extends EventEmitter {
         return data.mainnet.LANDProxy
       }
     } catch (error) {
-      throw new Error(`Unable to fetch land contract: ${error.message}`)
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch land contract: ${error.message}`)
     }
   }
 
@@ -60,7 +61,7 @@ export class Ethereum extends EventEmitter {
     try {
       landData = await contract.landData(coordinates.x, coordinates.y)
     } catch (e) {
-      throw new Error(`Unable to fetch land data: ${e.message}`)
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch land data: ${e.message}`)
     }
 
     if (landData.trim() === '') {
@@ -77,7 +78,7 @@ export class Ethereum extends EventEmitter {
     try {
       return eth.getContract('LANDRegistry')
     } catch (e) {
-      throw new Error(`Unable to get LANDRegistry contract instance`)
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to get LANDRegistry contract instance`)
     }
   }
 }
