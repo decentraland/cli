@@ -1,5 +1,5 @@
 {
-  "extends": ["tslint-no-circular-imports", "dcl-tslint-config-standard"],
+  "extends": ["dcl-tslint-config-standard"],
   "rules": {
     "quotemark": false,
     "no-console": true,
