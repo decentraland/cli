@@ -1,22 +1,28 @@
-import { expect } from 'chai'
+import { expect, use } from 'chai'
 import { sandbox } from 'sinon'
+const chaiAsPromised = require('chai-as-promised')
 
 import * as fs from 'fs-extra'
 import { Project } from '../../src/lib/Project'
 
+use(chaiAsPromised)
 const ctx = sandbox.create()
 
 describe('Project class', () => {
   let getAllFilePathsStub
   let getDCLIgnoreStub
-  let readFileSyncStub
+  let readFileStub
+  let sceneFileExistsStub
+  let decentralandFolderExistsStub
 
   beforeEach(() => {
     getAllFilePathsStub = ctx
       .stub(Project.prototype, 'getAllFilePaths')
       .callsFake(() => ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore'])
     getDCLIgnoreStub = ctx.stub(Project.prototype, 'getDCLIgnore' as any).callsFake(() => '')
-    readFileSyncStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
+    sceneFileExistsStub = ctx.stub(Project.prototype, 'sceneFileExists').callsFake(() => false)
+    decentralandFolderExistsStub = ctx.stub(Project.prototype, 'decentralandFolderExists').callsFake(() => false)
+    readFileStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
   })
 
   afterEach(function() {
@@ -110,6 +116,27 @@ describe('Project class', () => {
       expect(files).to.satisfy((files: any[]) => {
         return !files.some(file => file.path === 'a.json' || file.path === 'src/b.json')
       })
+    })
+  })
+
+  describe('validateNewProject', () => {
+    it('should pass if the working directory is not dirty', () => {
+      const project = new Project()
+      expect(project.validateNewProject(), 'expect validateNewProject not to fail').to.be['fulfilled']
+    })
+
+    it('should fail if the working directory contains a scene.json file', async () => {
+      decentralandFolderExistsStub.callsFake(() => false)
+      sceneFileExistsStub.callsFake(() => true)
+      const project = new Project()
+      return expect(project.validateNewProject(), 'expect validateNewProject fail').to.be['rejectedWith']('Project already exists')
+    })
+
+    it('should fail if the working directory contains a .decentraland folder', async () => {
+      sceneFileExistsStub.callsFake(() => false)
+      decentralandFolderExistsStub.callsFake(() => true)
+      const project = new Project()
+      return expect(project.validateNewProject(), 'expect validateNewProject fail').to.be['rejectedWith']('Project already exists')
     })
   })
 })
