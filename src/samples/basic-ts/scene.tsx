@@ -1,9 +1,9 @@
-import { WebWorkerTransport, createElement, Component } from 'dcl-sdk'
+import { createElement, Component } from 'dcl-sdk'
 
-const RENDER_HZ = 6
-const interval = 1000 / RENDER_HZ
+const networkHz = 6
+const interval = 1000 / networkHz
 
-export class RollerCoaster extends Component<any, { time: number }> {
+export default class RollerCoaster extends Component<any, { time: number }> {
   state = { time: 0 }
 
   timeout = setInterval(() => {
@@ -49,5 +49,3 @@ export class RollerCoaster extends Component<any, { time: number }> {
     )
   }
 }
-
-export const theSystem = new RollerCoaster(WebWorkerTransport(self as any))

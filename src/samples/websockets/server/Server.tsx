@@ -1,26 +1,27 @@
-import { static as serveStatic } from "express";
-import { createServer } from "http";
-import { Server as WebSocketServer } from "ws";
-import { RemoteScene } from "./RemoteScene";
-import { connectedClients } from "./ConnectedClients";
-import { WebSocketTransport } from "dcl-sdk";
+import { static as serveStatic } from 'express'
+import { createServer } from 'http'
+import { Server as WebSocketServer } from 'ws'
+import { connectedClients } from './ConnectedClients'
+import { WebSocketTransport } from 'dcl-sdk'
 
-const app = require("express")();
+import RemoteScene from './RemoteScene'
 
-app.use(require("cors")());
-app.use(serveStatic("client"));
+const app = require('express')()
 
-const server = createServer(app);
+app.use(require('cors')())
+app.use(serveStatic('client'))
 
-const wss = new WebSocketServer({ server });
+const server = createServer(app)
 
-wss.on("connection", function connection(ws, req) {
-  const client = new RemoteScene(WebSocketTransport(ws));
-  connectedClients.add(client);
-  ws.on("close", () => connectedClients.delete(client));
-  console.log("Client connected", client);
-});
+const wss = new WebSocketServer({ server })
+
+wss.on('connection', function connection(ws, req) {
+  const client = new RemoteScene(WebSocketTransport(ws))
+  connectedClients.add(client)
+  ws.on('close', () => connectedClients.delete(client))
+  console.log('Client connected', client)
+})
 
 server.listen(6060, function listening() {
-  console.log(`Listening on`, server.address());
-});
+  console.log(`Listening on`, server.address())
+})
