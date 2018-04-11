@@ -15,6 +15,5 @@ test-*
 scripts/*.js
 scripts/*.d.ts
 
-
 # Until API is stable
 package-lock.json
