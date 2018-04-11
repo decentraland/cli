@@ -6,7 +6,7 @@ export function help(vorpal: any) {
     .description('Provides help for a given command.')
     .action(function(args: any, callback: () => void) {
       if (args.command) {
-        showHelp(vorpal, args.commandpath.join(' '))
+        showHelp(vorpal, args.command.join(' '))
       } else {
         // vorpal doesn't have a nice way to customize the full help list.
         // It uses a somewhat internal `_commandHelp` ( https://github.com/dthree/vorpal/blob/master/lib/vorpal.js#L1079 ) which is huge and not abstracted.
