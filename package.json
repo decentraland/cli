@@ -15,7 +15,7 @@
     "lint:fix": "tslint -c tslint.json 'src/**/*.ts' --fix",
     "tsc": "tsc",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
-    "publish": "node ../scripts/npmPublish.js"
+    "publish": "node ./scripts/npmPublish.js"
   },
   "repository": {
     "type": "git",
