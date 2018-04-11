@@ -17,6 +17,7 @@ scene.json
 userId
 
 .DS_Store
+test-*
 
 # Until API is stable
 package-lock.json

@@ -4,7 +4,7 @@ const rimraf = require('rimraf')
 
 export function tmpTest(fn: any) {
   return new Promise(async (resolve, reject) => {
-    const name = (+Date.now()).toString()
+    const name = 'test-' + (+Date.now()).toString()
     const dir = path.resolve(process.cwd(), name)
     const folder = await fs.mkdir(dir)
 
