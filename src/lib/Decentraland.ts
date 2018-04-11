@@ -5,7 +5,6 @@ import { Ethereum } from './Ethereum'
 import * as events from 'wildcards'
 import { getRootPath } from '../utils/project'
 import { LinkerAPI } from './LinkerAPI'
-import { buildTypescript } from '../utils/moduleHelpers'
 import { Preview } from './Preview'
 
 export interface IDecentralandArguments {
