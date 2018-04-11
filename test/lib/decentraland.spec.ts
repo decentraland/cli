@@ -10,6 +10,19 @@ import * as ProjectUtils from '../../src/utils/project'
 
 const ctx = sandbox.create()
 
+/**
+ * Why these tests are cool:
+ * - We test the order in which methods are called, which is actually part of the business logic
+ * - We test the arguments which are passed to the methods, which verifies the data flow
+ * - Everything is mocked and test only cover the purposed mentioned above
+ *
+ * But integration tests!
+ *
+ * Integration tests are awesome but they lack the granularity to validate each one of the steps.
+ * They are black box tests and they are simply not enough. That being said, these tests are only
+ * useful when used along black-box integration tests, so keep an eye on those!
+ */
+
 describe('Decentraland class', () => {
   let connectStub
   let getIPNSStub
@@ -70,10 +83,8 @@ describe('Decentraland class', () => {
         'expect IPFS.addFiles() to be called'
       ).to.be.true
       expect(genIPFSKeyStub.withArgs('projectId').calledBefore(writeProjectFileStub), 'expect IPFS.genIPFSKey() to be called').to.be.true
-      expect(
-        writeProjectFileStub.withArgs('.', { ipfsKey: 'Qmwqwe' }).calledBefore(publishStub),
-        'expect Project.writeProjectFile to be called'
-      ).to.be.true
+      expect(writeProjectFileStub.withArgs({ ipfsKey: 'Qmwqwe' }).calledBefore(publishStub), 'expect Project.writeProjectFile to be called')
+        .to.be.true
       expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(linkStub), 'expect IPFS.publish() to be called').to.be.true
       expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
       expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
