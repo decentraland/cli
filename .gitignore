@@ -10,12 +10,6 @@ tmp/
 
 dist/
 
-.next/
-.decentraland
-scene.html
-scene.json
-userId
-
 .DS_Store
 test-*
 scripts/*.js
