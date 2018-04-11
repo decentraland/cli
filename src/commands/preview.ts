@@ -2,6 +2,7 @@ import { buildTypescript } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
+import { success } from '../utils/logging'
 const opn = require('opn')
 
 export interface IPreviewArguments {
@@ -27,7 +28,7 @@ export function start(vorpal: any) {
           await Analytics.preview()
 
           dcl.on('preview:ready', url => {
-            vorpal.log(`Development server running at ${url}`)
+            vorpal.log(success(`Development server running at ${url}`))
             opn(url)
           })
 
