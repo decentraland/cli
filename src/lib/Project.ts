@@ -163,11 +163,13 @@ export class Project {
    */
   async copySample(project: string) {
     const src = path.resolve(__dirname, '..', 'samples', project)
+    console.log('reading from', src)
     const files = await fs.readdir(src)
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file === SCENE_FILE) {
+        console.log('scene file', file)
         const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
         await this.writeSceneFile(sceneFile)
       } else {
