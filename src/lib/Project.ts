@@ -169,7 +169,7 @@ export class Project {
       const file = files[i]
       if (file === SCENE_FILE) {
         const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
-        this.writeSceneFile(sceneFile)
+        await this.writeSceneFile(sceneFile)
       } else {
         await fs.copy(path.join(src, file), path.join(this.workingDir, file))
       }

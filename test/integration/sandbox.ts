@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import rimraf = require('rimraf')
+import * as rimraf from 'rimraf'
 
 export function tmpTest(fn: any) {
   return new Promise(async (resolve, reject) => {
