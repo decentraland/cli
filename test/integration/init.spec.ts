@@ -41,7 +41,7 @@ describe('Decentraland.init()', () => {
       await expectBaseFoldersToExist(dirPath)
       await expectBasicDCLIgnore(dirPath)
     })
-  })
+  }).timeout(5000)
 
   it('should successfully create a typescript project', async () => {
     await tmpTest(async dirPath => {
@@ -64,5 +64,5 @@ describe('Decentraland.init()', () => {
       await expectBaseFoldersToExist(dirPath)
       await expectBasicDCLIgnore(dirPath)
     })
-  })
+  }).timeout(5000)
 })

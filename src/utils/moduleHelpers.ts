@@ -15,6 +15,11 @@ export function buildTypescript(): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn(npm, ['run', 'watch'], { shell: true })
     child.stdout.pipe(process.stdout)
+    child.stdout.on('data', data => {
+      if (data.toString().indexOf('The compiler is watching file changes...') > -1) {
+        return resolve()
+      }
+    })
     child.stderr.pipe(process.stderr)
     child.on('close', () => resolve())
   })
