@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events'
 import { IPFS } from './IPFS'
-import { Project } from './Project'
+import { Project, BoilerplateType } from './Project'
 import { Ethereum } from './Ethereum'
 import * as events from 'wildcards'
 import { getRootPath } from '../utils/project'
@@ -9,6 +9,7 @@ import { buildTypescript } from '../utils/moduleHelpers'
 import { Preview } from './Preview'
 
 export interface IDecentralandArguments {
+  workingDir?: string
   ipfsHost?: string
   ipfsPort?: number
   linkerPort?: number
@@ -23,14 +24,22 @@ export class Decentraland extends EventEmitter {
 
   constructor(args: IDecentralandArguments = {}) {
     super()
-    this.localIPFS = new IPFS(args.ipfsHost, args.ipfsPort)
-    this.project = new Project()
-    this.ethereum = new Ethereum()
     this.options = args
+    this.options.workingDir = args.workingDir || getRootPath()
+    this.localIPFS = new IPFS(args.ipfsHost, args.ipfsPort)
+    this.project = new Project(this.options.workingDir)
+    this.ethereum = new Ethereum()
 
     // Pipe all events
     events(this.localIPFS, 'ipfs:*', this.pipeEvents.bind(this))
     events(this.ethereum, 'ethereum:*', this.pipeEvents.bind(this))
+  }
+
+  async init(sceneMeta: DCL.SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
+    await this.project.writeDclIgnore()
+    await this.project.initProject()
+    await this.project.writeSceneFile(sceneMeta)
+    await this.project.scaffoldProject(boilerplateType, websocketServer)
   }
 
   async deploy() {
@@ -47,7 +56,7 @@ export class Decentraland extends EventEmitter {
 
     if (!ipfsKey) {
       ipfsKey = await this.localIPFS.genIPFSKey(projectFile.id)
-      await this.project.writeProjectFile(getRootPath(), {
+      await this.project.writeProjectFile({
         ipfsKey
       })
       this.localIPFS.genKeySuccess()
@@ -96,14 +105,9 @@ export class Decentraland extends EventEmitter {
   async preview() {
     return new Promise(async (resolve, reject) => {
       await this.project.validateExistingProject()
-      const paths = await this.project.getAllFilePaths()
       const preview = new Preview()
 
       events(preview, '*', this.pipeEvents.bind(this))
-
-      if (paths.find(path => path.includes('tsconfig.json'))) {
-        await buildTypescript()
-      }
 
       preview.startServer(this.options.previewPort)
     })

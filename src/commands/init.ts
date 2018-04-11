@@ -1,10 +1,10 @@
 import inquirer = require('inquirer')
 import { wrapCommand } from '../utils/wrapCommand'
 import { installDependencies } from '../utils/moduleHelpers'
-import { getRootPath } from '../utils/project'
-import { BoilerplateType, Project } from '../lib/Project'
+import { BoilerplateType } from '../lib/Project'
 import { Analytics } from '../utils/analytics'
 import { success, notice, comment, highlight } from '../utils/logging'
+import { Decentraland } from '../lib/Decentraland'
 
 export function init(vorpal: any) {
   vorpal
@@ -14,17 +14,18 @@ export function init(vorpal: any) {
     .option('--boilerplate', 'Include sample scene.')
     .action(
       wrapCommand(async function(args: any, callback: () => void) {
-        const dirName = args.options.path || getRootPath()
-        const project = new Project()
+        const dcl = new Decentraland({
+          workingDir: args.options.path
+        })
 
-        await project.validateNewProject()
+        await dcl.project.validateNewProject()
 
         const sceneMeta = await inquirer.prompt([
           {
             type: 'input',
             name: 'display.title',
             message: notice('Scene title: \n'),
-            default: project.getRandomName()
+            default: dcl.project.getRandomName()
           },
           {
             type: 'input',
@@ -101,12 +102,9 @@ export function init(vorpal: any) {
           }
         }
 
-        await project.writeDclIgnore(dirName)
-        await project.initProject(dirName)
-        await project.writeSceneFile(dirName, sceneMeta as any)
-        await project.scaffoldProject(boilerplateType, websocketServer)
+        await dcl.init(sceneMeta as DCL.SceneMetadata, boilerplateType, websocketServer)
 
-        if (await project.hasDependencies()) {
+        if (await dcl.project.hasDependencies()) {
           vorpal.log('Installing dependencies...')
           await installDependencies()
         }

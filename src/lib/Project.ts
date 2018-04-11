@@ -24,18 +24,24 @@ export enum BoilerplateType {
 }
 
 export class Project {
+  private workingDir: string
+
+  constructor(workingDir: string) {
+    this.workingDir = workingDir
+  }
+
   /**
    * Returns `true` if the provided path contains a scene file
    */
   sceneFileExists(): Promise<boolean> {
-    return fs.pathExists(getSceneFilePath())
+    return fs.pathExists(getSceneFilePath(this.workingDir))
   }
 
   /**
    * Returns `true` if the provided path contains a `.decentraland` folder
    */
   decentralandFolderExists(): Promise<boolean> {
-    return fs.pathExists(getDecentralandFolderPath())
+    return fs.pathExists(getDecentralandFolderPath(this.workingDir))
   }
 
   /**
@@ -55,29 +61,29 @@ export class Project {
    * Returns an object containing the contents of the `project.json` file.
    */
   async getProjectFile(): Promise<IProjectFile> {
-    return readJSON<IProjectFile>(getProjectFilePath())
+    return readJSON<IProjectFile>(getProjectFilePath(this.workingDir))
   }
 
   /**
    * Returns an object containing the contents of the `scene.json` file.
    */
   async getSceneFile(): Promise<DCL.SceneMetadata> {
-    return readJSON<DCL.SceneMetadata>(getSceneFilePath())
+    return readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
   }
 
   /**
    * Creates the `project.json` file and all other mandatory folders.
    * @param dirName The directory where the project file will be created.
    */
-  async initProject(dirName: string = getRootPath()) {
-    await this.writeProjectFile(dirName, {
+  async initProject() {
+    await this.writeProjectFile({
       id: uuid.v4(),
       ipfsKey: null
     })
 
-    await ensureFolder(path.join(dirName, 'audio'))
-    await ensureFolder(path.join(dirName, 'models'))
-    await ensureFolder(path.join(dirName, 'textures'))
+    await ensureFolder(path.join(this.workingDir, 'audio'))
+    await ensureFolder(path.join(this.workingDir, 'models'))
+    await ensureFolder(path.join(this.workingDir, 'textures'))
   }
 
   /**
@@ -121,8 +127,8 @@ export class Project {
    * Returns true if te project root contains a `tsconfig.json` file
    * @param dir
    */
-  async isTypescriptProject(dir: string = getRootPath()): Promise<boolean> {
-    const files = await this.getAllFilePaths()
+  async isTypescriptProject(): Promise<boolean> {
+    const files = await this.getAllFilePaths(this.workingDir)
     return files.some(file => file === 'tsconfig.json')
   }
 
@@ -136,18 +142,18 @@ export class Project {
 
   /**
    * Creates a new `project.json` file
-   * @param path The path to the project directory where the `.decentraland` folder will be located.
+   * @param content The content of the `project.json` file
    */
-  writeProjectFile(path: string, content: any): Promise<void> {
-    return writeJSON(getProjectFilePath(path), content)
+  writeProjectFile(content: any): Promise<void> {
+    return writeJSON(getProjectFilePath(this.workingDir), content)
   }
 
   /**
    * Creates a new `scene.json` file
    * @param path The path to the directory where the file will be written.
    */
-  writeSceneFile(dir: string, content: DCL.SceneMetadata): Promise<void> {
-    return writeJSON(getSceneFilePath(dir), content)
+  writeSceneFile(content: DCL.SceneMetadata): Promise<void> {
+    return writeJSON(getSceneFilePath(this.workingDir), content)
   }
 
   /**
@@ -155,7 +161,7 @@ export class Project {
    * @param project The name of the sample folder (used as an indentifier).
    * @param destination The path to the project root. By default the current working directory.
    */
-  async copySample(project: string, destination: string = process.cwd()) {
+  async copySample(project: string) {
     const src = path.resolve(__dirname, '..', 'samples', project)
     const files = await fs.readdir(src)
 
@@ -163,9 +169,9 @@ export class Project {
       const file = files[i]
       if (file === SCENE_FILE) {
         const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
-        this.writeSceneFile(destination, sceneFile)
+        this.writeSceneFile(sceneFile)
       } else {
-        await fs.copy(path.join(src, file), path.join(destination, file))
+        await fs.copy(path.join(src, file), path.join(this.workingDir, file))
       }
     }
   }
@@ -174,7 +180,7 @@ export class Project {
    * Returns a promise of an object containing the base X and Y coordinates for a parcel.
    */
   async getParcelCoordinates(): Promise<{ x: number; y: number }> {
-    const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath())
+    const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
     const [x, y] = sceneFile.scene.base.split(',')
     return { x: parseInt(x, 10), y: parseInt(y, 10) }
   }
@@ -190,9 +196,9 @@ export class Project {
    * Writes the `.dclignore` file to the provided directory path.
    * @param dir The target path where the file will be
    */
-  writeDclIgnore(dir: string = getRootPath()): Promise<void> {
+  writeDclIgnore(): Promise<void> {
     return fs.outputFile(
-      path.join(dir, DCLIGNORE_FILE),
+      path.join(this.workingDir, DCLIGNORE_FILE),
       [
         '.*',
         'package.json',
@@ -228,7 +234,7 @@ export class Project {
     let sceneFile
 
     try {
-      sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath())
+      sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
     } catch (e) {
       fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
     }
@@ -289,7 +295,7 @@ export class Project {
   }
 
   private getDCLIgnore(): Promise<string> {
-    return fs.readFile(getIgnoreFilePath(), 'utf8')
+    return fs.readFile(getIgnoreFilePath(this.workingDir), 'utf8')
   }
 
   /**

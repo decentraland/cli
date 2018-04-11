@@ -32,7 +32,7 @@ describe('Project class', () => {
 
   describe('getFiles', () => {
     it('should return all files', async () => {
-      const project = new Project()
+      const project = new Project('.')
       const files = await project.getFiles()
       const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
@@ -49,7 +49,7 @@ describe('Project class', () => {
         **/node_modules/*`
       )
 
-      const project = new Project()
+      const project = new Project('.')
       const files = await project.getFiles()
       const expected = ['a.json', 'src/b.json', '.dclignore']
 
@@ -66,7 +66,7 @@ describe('Project class', () => {
     it('should ignore . files', async () => {
       getDCLIgnoreStub.callsFake(() => `.*`)
 
-      const project = new Project()
+      const project = new Project('.')
       const files = await project.getFiles()
       const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js']
 
@@ -83,7 +83,7 @@ describe('Project class', () => {
     it('should ignore specific file', async () => {
       getDCLIgnoreStub.callsFake(() => `a.json`)
 
-      const project = new Project()
+      const project = new Project('.')
       const files = await project.getFiles()
       const expected = ['src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
@@ -104,7 +104,7 @@ describe('Project class', () => {
           src/b.json`
       )
 
-      const project = new Project()
+      const project = new Project('.')
       const files = await project.getFiles()
       const expected = ['node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
@@ -121,21 +121,21 @@ describe('Project class', () => {
 
   describe('validateNewProject', () => {
     it('should pass if the working directory is not dirty', () => {
-      const project = new Project()
+      const project = new Project('.')
       expect(project.validateNewProject(), 'expect validateNewProject not to fail').to.be['fulfilled']
     })
 
     it('should fail if the working directory contains a scene.json file', async () => {
       decentralandFolderExistsStub.callsFake(() => false)
       sceneFileExistsStub.callsFake(() => true)
-      const project = new Project()
+      const project = new Project('.')
       return expect(project.validateNewProject(), 'expect validateNewProject to fail').to.be['rejectedWith']('Project already exists')
     })
 
     it('should fail if the working directory contains a .decentraland folder', async () => {
       sceneFileExistsStub.callsFake(() => false)
       decentralandFolderExistsStub.callsFake(() => true)
-      const project = new Project()
+      const project = new Project('.')
       return expect(project.validateNewProject(), 'expect validateNewProject to fail').to.be['rejectedWith']('Project already exists')
     })
   })
@@ -143,13 +143,13 @@ describe('Project class', () => {
   describe('hasDependencies', () => {
     it('should return true if a package.json file is present', async () => {
       getAllFilePathsStub.callsFake(() => ['package.json', 'test.json'])
-      const project = new Project()
+      const project = new Project('.')
       expect(await project.hasDependencies()).to.be.true
     })
 
     it('should return false if no package.json file is present', async () => {
       getAllFilePathsStub.callsFake(() => ['tsconfig.json', 'test.json'])
-      const project = new Project()
+      const project = new Project('.')
       expect(await project.hasDependencies()).to.be.false
     })
   })
@@ -157,13 +157,13 @@ describe('Project class', () => {
   describe('isTypescriptProject', () => {
     it('should return true if a tsconfig.json file is present', async () => {
       getAllFilePathsStub.callsFake(() => ['tsconfig.json', 'test.json'])
-      const project = new Project()
+      const project = new Project('.')
       expect(await project.isTypescriptProject()).to.be.true
     })
 
     it('should return false if no tsconfig.json file is present', async () => {
       getAllFilePathsStub.callsFake(() => ['package.json', 'test.json'])
-      const project = new Project()
+      const project = new Project('.')
       expect(await project.isTypescriptProject()).to.be.false
     })
   })

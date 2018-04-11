@@ -18,7 +18,7 @@ export function getUserHome(): string {
  * Returns the path to the `.dclinfo` file located in the local HOME folder
  */
 export function getDCLInfoPath(): string {
-  return path.join(getUserHome(), '.dclinfo')
+  return path.resolve(getUserHome(), '.dclinfo')
 }
 
 /**
