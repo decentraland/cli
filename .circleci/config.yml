@@ -7,6 +7,11 @@ jobs:
     working_directory: ~/repo
 
     steps:
+      # We have `node-hid` as a dependency, which won't build on certain Linux systems without installing libusb first
+      - type: shell
+        name: Install System Dependencies
+        command: sudo apt-get update && sudo apt install -y libusb-1.0-0 libusb-1.0-0-dev
+
       - checkout
 
       # Download and cache dependencies
