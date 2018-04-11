@@ -98,6 +98,7 @@ const run = async () => {
   let linkLatest = false
 
   console.log(`  branch: ${branch}`)
+  console.log(`  gitTag: ${gitTag}`)
 
   // Travis keeps the branch name in the tags' builds
   if (gitTag) {
