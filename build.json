@@ -4,5 +4,11 @@
     "kind": "Webpack",
     "file": "./pages/linker.tsx",
     "target": "web"
+  },
+  {
+    "name": "Compile build scripts",
+    "kind": "TSC",
+    "config": "./scripts/tsconfig.json",
+    "target": "node"
   }
 ]
