@@ -21,7 +21,7 @@ async function expectBasicDCLIgnore(dirPath) {
 
 describe('Decentraland.init()', () => {
   it('should successfully create a static project', async () => {
-    await tmpTest(async dirPath => {
+    await tmpTest(async (dirPath, done) => {
       const dcl = new Decentraland({
         workingDir: dirPath
       })
@@ -40,11 +40,12 @@ describe('Decentraland.init()', () => {
       expect(sceneFile.main).to.equal('scene.xml')
       await expectBaseFoldersToExist(dirPath)
       await expectBasicDCLIgnore(dirPath)
+      done()
     })
   }).timeout(5000)
 
   it('should successfully create a typescript project', async () => {
-    await tmpTest(async dirPath => {
+    await tmpTest(async (dirPath, done) => {
       const dcl = new Decentraland({
         workingDir: dirPath
       })
@@ -63,6 +64,7 @@ describe('Decentraland.init()', () => {
       expect(sceneFile.main).to.equal('scene.js')
       await expectBaseFoldersToExist(dirPath)
       await expectBasicDCLIgnore(dirPath)
+      done()
     })
   }).timeout(5000)
 })
