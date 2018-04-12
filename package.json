@@ -15,7 +15,7 @@
     "lint:fix": "tslint -c tslint.json 'src/**/*.ts' --fix",
     "tsc": "tsc",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
-    "publish": "node ./scripts/npmPublish.js"
+    "release": "node ./scripts/npmPublish.js"
   },
   "repository": {
     "type": "git",
@@ -26,10 +26,7 @@
     "singleQuote": true,
     "printWidth": 140
   },
-  "keywords": [
-    "decentraland",
-    "cli"
-  ],
+  "keywords": ["decentraland", "cli"],
   "author": "Decentraland",
   "license": "Apache-2.0",
   "bugs": {
