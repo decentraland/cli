@@ -208,6 +208,7 @@ export class Project {
         'tslint.json',
         'node_modules/',
         '**/node_modules/*',
+        '*\\node_modules\\**',
         '*.ts',
         '*.tsx',
         'dist/'
