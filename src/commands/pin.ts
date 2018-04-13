@@ -20,15 +20,15 @@ export function command(vorpal: any) {
       wrapCommand(async function(args: IPinArguments, callback: () => void) {
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
-          ipfsPort: args.options.port || 500
+          ipfsPort: args.options.port || 5001
         })
 
-        dcl.on('pin', async () => {
+        dcl.on('ipfs:pin-request', async () => {
           await Analytics.pinRequest()
           vorpal.log(`Pinning files...`)
         })
 
-        dcl.on('pin_complete', async () => {
+        dcl.on('ipfs:pin-success', async () => {
           await Analytics.pinSuccess()
           vorpal.log(success('Files pinned successfully.'))
         })
