@@ -29,7 +29,6 @@ export class Preview extends EventEmitter {
       `)
     })
 
-    // serve the folder `metaverse-api/artifacts` as `/metaverse-api`
     this.app.use('/metaverse-api', express.static(path.dirname(require.resolve('metaverse-api/artifacts/preview'))))
     this.app.use(express.static(root))
     this.emit('preview:ready', `http://localhost:${port}`)
