@@ -2,7 +2,7 @@ import * as fs from 'fs-extra'
 import * as uuid from 'uuid'
 import dockerNames = require('docker-names')
 import * as path from 'path'
-import { writeJSON, readJSON, ensureFolder } from '../utils/filesystem'
+import { writeJSON, readJSON } from '../utils/filesystem'
 import {
   getSceneFilePath,
   getProjectFilePath,
