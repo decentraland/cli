@@ -4,10 +4,7 @@ import { tmpTest } from './sandbox'
 import { Decentraland } from '../../src/lib/Decentraland'
 import * as path from 'path'
 
-async function expectBaseFoldersToExist(dirPath) {
-  expect(await fs.pathExists(path.resolve(dirPath, 'models')), 'expect models folder to exist').to.be.true
-  expect(await fs.pathExists(path.resolve(dirPath, 'audio')), 'expect audio folder to exist').to.be.true
-  expect(await fs.pathExists(path.resolve(dirPath, 'textures')), 'expect texture folder to exist').to.be.true
+async function expectBaseFilesToExist(dirPath) {
   expect(await fs.pathExists(path.resolve(dirPath, '.decentraland')), 'expect .decentraland folder to exist').to.be.true
   expect(await fs.pathExists(path.resolve(dirPath, '.decentraland', 'project.json')), 'expect project.json file to exist').to.be.true
 }
@@ -38,7 +35,7 @@ describe('Decentraland.init()', () => {
       const sceneFile = await fs.readJson(scenePath)
 
       expect(sceneFile.main).to.equal('scene.xml')
-      await expectBaseFoldersToExist(dirPath)
+      await expectBaseFilesToExist(dirPath)
       await expectBasicDCLIgnore(dirPath)
       done()
     })
@@ -62,7 +59,7 @@ describe('Decentraland.init()', () => {
       const sceneFile = await fs.readJson(scenePath)
 
       expect(sceneFile.main).to.equal('scene.js')
-      await expectBaseFoldersToExist(dirPath)
+      await expectBaseFilesToExist(dirPath)
       await expectBasicDCLIgnore(dirPath)
       done()
     })

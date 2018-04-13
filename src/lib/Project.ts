@@ -79,10 +79,6 @@ export class Project {
       id: uuid.v4(),
       ipfsKey: null
     })
-
-    await ensureFolder(path.join(this.workingDir, 'audio'))
-    await ensureFolder(path.join(this.workingDir, 'models'))
-    await ensureFolder(path.join(this.workingDir, 'textures'))
   }
 
   /**
