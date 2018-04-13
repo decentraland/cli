@@ -23,6 +23,10 @@ async function setup(dirPath) {
       content: 'console.log()'
     },
     {
+      path: 'src/package.json',
+      content: '{}'
+    },
+    {
       path: 'src/node_modules/example/index.js',
       content: 'console.log()'
     },
@@ -76,11 +80,17 @@ tmpTest(async (dirPath, done) => {
       }).timeout(5000)
     })
 
-    describe('hasDependencies()', async () => {
+    describe('needsDependencies()', async () => {
       it('should return true when a package.json file is present', async () => {
         const project = new Project(dirPath)
-        const result = await project.hasDependencies()
+        const result = await project.needsDependencies()
         expect(result).to.be.true
+      }).timeout(5000)
+
+      it('should return false when a node_modules folder is present (and not empty)', async () => {
+        const project = new Project(path.resolve(dirPath, 'src'))
+        const result = await project.needsDependencies()
+        expect(result).to.be.false
       }).timeout(5000)
     })
 

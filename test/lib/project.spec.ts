@@ -132,17 +132,19 @@ describe('Project class', () => {
     })
   })
 
-  describe('hasDependencies', () => {
+  describe('needsDependencies', () => {
     it('should return true if a package.json file is present', async () => {
       getAllFilePathsStub.callsFake(() => ['package.json', 'test.json'])
+      const pathExistsStub = ctx.stub(fs, 'pathExists').callsFake(path => false)
+
       const project = new Project('.')
-      expect(await project.hasDependencies()).to.be.true
+      expect(await project.needsDependencies()).to.be.true
     })
 
     it('should return false if no package.json file is present', async () => {
       getAllFilePathsStub.callsFake(() => ['tsconfig.json', 'test.json'])
       const project = new Project('.')
-      expect(await project.hasDependencies()).to.be.false
+      expect(await project.needsDependencies()).to.be.false
     })
   })
 

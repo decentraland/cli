@@ -56,9 +56,11 @@
     "ignore": "^3.3.7",
     "inquirer": "^5.1.0",
     "ipfs-api": "^17.5.0",
+    "latest-version": "^3.1.0",
     "metaverse-api": "^2.3.0",
     "metaverse-rpc": "^2.6.0",
     "opn": "^5.2.0",
+    "semver": "^5.5.0",
     "uuid": "^3.2.1",
     "vorpal": "^1.12.0",
     "wildcards": "^1.0.2"
