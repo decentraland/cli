@@ -142,7 +142,7 @@ export class IPFS extends EventEmitter {
     let ipfsURL: string = null
 
     try {
-      const { data } = await axios.get('https://decentraland.github.io/ipfs-node/url.json?v2=1')
+      const { data } = await axios.get('https://decentraland.github.io/ipfs-node/url.json')
       if (isDev) {
         ipfsURL = data.staging
       } else {
