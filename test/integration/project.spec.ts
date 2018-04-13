@@ -72,13 +72,7 @@ tmpTest(async (dirPath, done) => {
         const project = new Project(dirPath)
         const result = await project.getFiles()
 
-        expect(result.map(f => f.path)).to.deep.equal([
-          '/tmp/models/test.fbx',
-          '/tmp/scene.json',
-          '/tmp/scene.xml',
-          '/tmp/src/index.ts',
-          '/tmp/test.js'
-        ])
+        expect(result.map(f => f.path)).to.deep.equal(['/tmp/models/test.fbx', '/tmp/scene.json', '/tmp/scene.xml', '/tmp/test.js'])
       }).timeout(5000)
     })
 

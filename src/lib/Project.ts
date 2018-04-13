@@ -12,7 +12,7 @@ import {
   DCLIGNORE_FILE,
   getDecentralandFolderPath
 } from '../utils/project'
-import * as parser from 'gitignore-parser'
+import ignore = require('ignore')
 import { IIPFSFile } from './IPFS'
 import { fail, ErrorType } from '../utils/errors'
 
@@ -285,8 +285,9 @@ export class Project {
    */
   async getFiles(): Promise<IIPFSFile[]> {
     const files = await this.getAllFilePaths()
-    const dclignore = parser.compile(await this.getDCLIgnore())
-    const filteredFiles = files.filter(dclignore.accepts)
+    const filteredFiles = ignore()
+      .add(await this.getDCLIgnore())
+      .filter(files) as any
     let data = []
 
     for (let i = 0; i < filteredFiles.length; i++) {

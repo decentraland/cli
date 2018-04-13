@@ -98,11 +98,7 @@ describe('Project class', () => {
     })
 
     it('should ignore several files', async () => {
-      getDCLIgnoreStub.callsFake(
-        () =>
-          `a.json
-          src/b.json`
-      )
+      getDCLIgnoreStub.callsFake(() => `a.json\nsrc/b.json`)
 
       const project = new Project('.')
       const files = await project.getFiles()
