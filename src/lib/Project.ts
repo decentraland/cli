@@ -19,7 +19,7 @@ import { fail, ErrorType } from '../utils/errors'
 export enum BoilerplateType {
   STATIC = 'static',
   TYPESCRIPT = 'singleplayer',
-  WEBSOCKETS = 'multiplayer-experimental'
+  WEBSOCKETS = 'multiplayer'
 }
 
 export class Project {
@@ -83,14 +83,14 @@ export class Project {
 
   /**
    * Scaffolds a project or fails for an invalid boilerplate type
-   * @param boilerplateType `static`, `singleplayer` or `multiplayer-experimental`
+   * @param boilerplateType `static`, `singleplayer` or `multiplayer`
    * @param websocketServer Optional websocket server URL
    */
   async scaffoldProject(boilerplateType: string, websocketServer?: string) {
     if (!this.isValidBoilerplateType(boilerplateType)) {
       fail(
         ErrorType.PROJECT_ERROR,
-        `Invalid boilerplate type: '${boilerplateType}'. Supported types are 'static', 'singleplayer' and 'multiplayer-experimental'.`
+        `Invalid boilerplate type: '${boilerplateType}'. Supported types are 'static', 'singleplayer' and 'multiplayer'.`
       )
     }
 
@@ -100,7 +100,7 @@ export class Project {
         break
       }
       case BoilerplateType.WEBSOCKETS:
-        this.scaffoldWebsockets(websocketServer)
+        await this.scaffoldWebsockets(websocketServer)
         break
       case BoilerplateType.STATIC:
       default:
@@ -131,8 +131,14 @@ export class Project {
    * Writes the provided websocket server to the `scene.json` file
    * @param server The url to a websocket server
    */
-  scaffoldWebsockets(server: string) {
-    this.copySample('websockets')
+  async scaffoldWebsockets(server: string) {
+    await this.copySample('websockets')
+
+    if (server) {
+      await this.writeSceneFile({
+        main: server
+      })
+    }
   }
 
   /**
@@ -147,7 +153,7 @@ export class Project {
    * Creates a new `scene.json` file
    * @param path The path to the directory where the file will be written.
    */
-  writeSceneFile(content: DCL.SceneMetadata): Promise<void> {
+  writeSceneFile(content: Partial<DCL.SceneMetadata>): Promise<void> {
     return writeJSON(getSceneFilePath(this.workingDir), content)
   }
 
