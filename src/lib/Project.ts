@@ -127,7 +127,7 @@ export class Project {
    * @param dir
    */
   async isTypescriptProject(): Promise<boolean> {
-    const files = await this.getAllFilePaths(this.workingDir)
+    const files = await this.getAllFilePaths()
     return files.some(file => file === 'tsconfig.json')
   }
 
@@ -291,7 +291,7 @@ export class Project {
     for (let i = 0; i < filteredFiles.length; i++) {
       const file = filteredFiles[i]
       data.push({
-        path: `/tmp/${file}`,
+        path: `/tmp/${file.replace(/\\/g, '/')}`,
         content: new Buffer(await fs.readFile(path.resolve(this.workingDir, file)))
       })
     }
