@@ -64,4 +64,29 @@ describe('Decentraland.init()', () => {
       done()
     })
   }).timeout(5000)
+
+  it('should successfully create a websocket project', async () => {
+    await tmpTest(async (dirPath, done) => {
+      const dcl = new Decentraland({
+        workingDir: dirPath
+      })
+
+      const scenePath = path.resolve(dirPath, 'scene.json')
+
+      await dcl.init(
+        {
+          main: 'scene.xml'
+        },
+        'multiplayer' as any,
+        'wss://localhost:3000'
+      )
+
+      const sceneFile = await fs.readJson(scenePath)
+
+      expect(sceneFile.main).to.equal('wss://localhost:3000')
+      await expectBaseFilesToExist(dirPath)
+      await expectBasicDCLIgnore(dirPath)
+      done()
+    })
+  }).timeout(5000)
 })

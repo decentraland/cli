@@ -15,14 +15,14 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "newLine": "LF",
+    "outDir": "build",
     "stripInternal": true,
     "strict": true,
     "jsx": "react",
     "jsxFactory": "createElement",
     "removeComments": true,
-    "outDir": ".",
     "pretty": true,
-    "lib": ["es2017", "dom"]
+    "lib": ["es2017"]
   },
-  "exclude": ["node_modules"]
+  "exclude": ["../node_modules"]
 }

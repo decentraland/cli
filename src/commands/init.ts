@@ -11,7 +11,7 @@ export function init(vorpal: any) {
     .command('init')
     .description('Generates new Decentraland scene.')
     .option('-p, --path <path>', 'Output path (default is the current working directory).')
-    .option('--boilerplate', 'Include sample scene.')
+    .option('--boilerplate', 'static, singleplayer or multiplayer')
     .action(
       wrapCommand(async function(args: any, callback: () => void) {
         const dcl = new Decentraland({

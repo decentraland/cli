@@ -1,4 +1,4 @@
-import { createElement, Component } from 'dcl-sdk'
+import { createElement, Component } from 'metaverse-api'
 
 const networkHz = 6
 const interval = 1000 / networkHz
