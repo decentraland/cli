@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "My new Decentraland project",
   "scripts": {
-    "build": "dcl-scripting build.json",
-    "watch": "dcl-scripting build.json --watch"
+    "build": "metaverse-compiler build.json",
+    "watch": "metaverse-compiler build.json --watch"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "dcl-sdk": "^2.2.7",
+    "metaverse-api": "^2.3.0",
     "typescript": "^2.7.2"
   }
 }

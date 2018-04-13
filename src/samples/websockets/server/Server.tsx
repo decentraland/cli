@@ -1,27 +1,37 @@
 import { static as serveStatic } from 'express'
 import { createServer } from 'http'
 import { Server as WebSocketServer } from 'ws'
-import { connectedClients } from './ConnectedClients'
-import { WebSocketTransport } from 'dcl-sdk'
 
+import { connectedClients } from './ConnectedClients'
+import { WebSocketTransport } from 'metaverse-api'
 import RemoteScene from './RemoteScene'
 
-const app = require('express')()
+const express = require('express')
+const cors = require('cors')
 
-app.use(require('cors')())
+const app = express()
+
+app.use(cors())
 app.use(serveStatic('client'))
 
 const server = createServer(app)
-
 const wss = new WebSocketServer({ server })
 
 wss.on('connection', function connection(ws, req) {
   const client = new RemoteScene(WebSocketTransport(ws))
+
+  client.on('error', (err: Error) => {
+    console.error(err)
+    ws.close()
+  })
+
   connectedClients.add(client)
+
   ws.on('close', () => connectedClients.delete(client))
-  console.log('Client connected', client)
+
+  console.log(`Client connected at ${req.connection.remoteAddress}`)
 })
 
-server.listen(6060, function listening() {
-  console.log(`Listening on`, server.address())
+server.listen(8087, function listening() {
+  console.log(`Listening on 8087`)
 })

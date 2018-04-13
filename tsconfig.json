@@ -4,6 +4,7 @@
     "target": "es2015",
     "diagnostics": true,
     "outDir": "dist",
+    "baseUrl": ".",
     "moduleResolution": "node",
     "stripInternal": true,
     "pretty": true,

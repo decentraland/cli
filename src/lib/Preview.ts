@@ -21,7 +21,7 @@ export class Preview extends EventEmitter {
         <html>
           <head>
             <title>Decentraland Preview</title>
-            <script charset="utf-8" src="/dcl-sdk/preview.js"></script>
+            <script charset="utf-8" src="/metaverse-api/preview.js"></script>
           </head>
           <body>
           </body>
@@ -29,8 +29,8 @@ export class Preview extends EventEmitter {
       `)
     })
 
-    // serve the folder `dcl-sdk/artifacts` as `/dcl-sdk`
-    this.app.use('/dcl-sdk', express.static(path.dirname(require.resolve('dcl-sdk/artifacts/preview'))))
+    // serve the folder `metaverse-api/artifacts` as `/metaverse-api`
+    this.app.use('/metaverse-api', express.static(path.dirname(require.resolve('metaverse-api/artifacts/preview'))))
     this.app.use(express.static(root))
     this.emit('preview:ready', `http://localhost:${port}`)
     this.app.listen(port, '0.0.0.0')
