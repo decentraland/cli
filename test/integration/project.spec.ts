@@ -44,7 +44,7 @@ async function setup(dirPath) {
     },
     {
       path: '.dclignore',
-      content: `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n**/node_modules/*\n*.ts\n*.tsx\ndist/`
+      content: `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
     }
   ]
 
