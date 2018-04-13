@@ -62,19 +62,21 @@ export function deploy(vorpal: any) {
           vorpal.log('Project successfully linked to the blockchain')
         })
 
-        dcl.on('ipfs:pin-request', () => {
+        dcl.on('ipfs:pin-request', async () => {
+          await Analytics.pinRequest()
           vorpal.log(`Pinning to IPFS-GTW, this may take a while...`)
         })
 
-        dcl.on('ipfs:pin-success', () => {
+        dcl.on('ipfs:pin-success', async () => {
+          await Analytics.pinSuccess()
           vorpal.log(`Successfully pinned files`)
         })
 
-        await Analytics.sceneUpload()
+        await Analytics.sceneDeploy()
 
         vorpal.log(notice(`Uploading project to IPFS:`))
         await dcl.deploy()
-        await Analytics.sceneUploadSuccess()
+        await Analytics.sceneDeploySuccess()
         vorpal.log(success(`Successfully uploaded project to IPFS`))
         callback()
       })
