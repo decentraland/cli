@@ -43,11 +43,7 @@ describe('Project class', () => {
     })
 
     it('should ignore node_modules', async () => {
-      getDCLIgnoreStub.callsFake(
-        () =>
-          `node_modules
-        **/node_modules/*`
-      )
+      getDCLIgnoreStub.callsFake(() => `node_modules`)
 
       const project = new Project('.')
       const files = await project.getFiles()
@@ -98,11 +94,7 @@ describe('Project class', () => {
     })
 
     it('should ignore several files', async () => {
-      getDCLIgnoreStub.callsFake(
-        () =>
-          `a.json
-          src/b.json`
-      )
+      getDCLIgnoreStub.callsFake(() => `a.json\nsrc/b.json`)
 
       const project = new Project('.')
       const files = await project.getFiles()

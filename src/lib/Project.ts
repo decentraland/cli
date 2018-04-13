@@ -6,14 +6,13 @@ import { writeJSON, readJSON, ensureFolder } from '../utils/filesystem'
 import {
   getSceneFilePath,
   getProjectFilePath,
-  getRootPath,
   SCENE_FILE,
   getIgnoreFilePath,
   IProjectFile,
   DCLIGNORE_FILE,
   getDecentralandFolderPath
 } from '../utils/project'
-import * as parser from 'gitignore-parser'
+import ignore = require('ignore')
 import { IIPFSFile } from './IPFS'
 import { fail, ErrorType } from '../utils/errors'
 
@@ -118,7 +117,7 @@ export class Project {
    * Returns true if the project root contains a `package.json` file
    * @param dir
    */
-  async hasDependencies(dir: string = getRootPath()): Promise<boolean> {
+  async hasDependencies(): Promise<boolean> {
     const files = await this.getAllFilePaths()
     return files.some(file => file === 'package.json')
   }
@@ -128,7 +127,7 @@ export class Project {
    * @param dir
    */
   async isTypescriptProject(): Promise<boolean> {
-    const files = await this.getAllFilePaths(this.workingDir)
+    const files = await this.getAllFilePaths()
     return files.some(file => file === 'tsconfig.json')
   }
 
@@ -208,7 +207,6 @@ export class Project {
         'tsconfig.json',
         'tslint.json',
         'node_modules/',
-        '**/node_modules/*',
         '*.ts',
         '*.tsx',
         'dist/'
@@ -254,22 +252,26 @@ export class Project {
    * Returns a promise of an array containing all the file paths for the given directory.
    * @param dir The given directory where to list the file paths.
    */
-  async getAllFilePaths(dir: string = getRootPath()): Promise<string[]> {
+  async getAllFilePaths(dir: string = this.workingDir): Promise<string[]> {
     try {
       const files = await fs.readdir(dir)
       let tmpFiles: string[] = []
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
-        const filePath = path.join(dir, file)
+        const filePath = path.resolve(dir, file)
+        const relativePath = path.relative(this.workingDir, filePath)
         const stat = await fs.stat(filePath)
+
         if (stat.isDirectory()) {
-          tmpFiles.concat(await this.getAllFilePaths(filePath))
+          const folderFiles = await this.getAllFilePaths(filePath)
+          tmpFiles = tmpFiles.concat(folderFiles)
         } else {
-          tmpFiles.push(filePath)
+          tmpFiles.push(relativePath)
         }
       }
-      return tmpFiles.map(file => path.relative(dir, file))
+
+      return tmpFiles
     } catch (e) {
       return []
     }
@@ -281,19 +283,25 @@ export class Project {
    */
   async getFiles(): Promise<IIPFSFile[]> {
     const files = await this.getAllFilePaths()
-    const dclignore = parser.compile(await this.getDCLIgnore())
+    const filteredFiles = ignore()
+      .add(await this.getDCLIgnore())
+      .filter(files) as any
     let data = []
 
-    files.filter(dclignore.accepts).forEach(async (name: string) =>
+    for (let i = 0; i < filteredFiles.length; i++) {
+      const file = filteredFiles[i]
       data.push({
-        path: `/tmp/${name}`,
-        content: new Buffer(await fs.readFile(name))
+        path: `/tmp/${file.replace(/\\/g, '/')}`,
+        content: new Buffer(await fs.readFile(path.resolve(this.workingDir, file)))
       })
-    )
+    }
 
     return data
   }
 
+  /**
+   * Returns the the contents of the `.dclignore` file
+   */
   private getDCLIgnore(): Promise<string> {
     return fs.readFile(getIgnoreFilePath(this.workingDir), 'utf8')
   }
@@ -326,6 +334,6 @@ export class Project {
       return true
     }
 
-    return fs.pathExists(path.join(getRootPath(), filePath))
+    return fs.pathExists(path.join(this.workingDir, filePath))
   }
 }

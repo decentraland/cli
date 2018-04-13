@@ -14,6 +14,9 @@ import { ErrorType, fail } from '../utils/errors'
 export class Ethereum extends EventEmitter {
   static isConnected: boolean = false
 
+  /**
+   * Connects to an external Ethereum node based on the NODE_ENV.
+   */
   static async connect() {
     const address = await Ethereum.getLandContractAddress()
     const land = new contracts.LANDRegistry(address)
@@ -33,6 +36,11 @@ export class Ethereum extends EventEmitter {
     }
   }
 
+  /**
+   * Returns the LandProxy contract address.
+   * If the LAND_REGISTRY_CONTRACT_ADDRESS is specified, that value will be returned.
+   * Otherwise, an external resources will be queried and the address will be resturned based on the NODE_ENV.
+   */
   static async getLandContractAddress(): Promise<string> {
     const envContract = env.get('LAND_REGISTRY_CONTRACT_ADDRESS')
 
@@ -53,6 +61,10 @@ export class Ethereum extends EventEmitter {
     }
   }
 
+  /**
+   * Queries the Blockchain and returns the IPNS return by `landData`
+   * @param coordinates An object containing the base X and Y coordinates for the parcel.
+   */
   async getIPNS(coordinates: { x: number; y: number }) {
     const contract = (await this.getContractInstance()) as any
     let landData

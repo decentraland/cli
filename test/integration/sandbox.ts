@@ -7,17 +7,18 @@ export function tmpTest(fn: any) {
     const name = 'test-' + (+Date.now()).toString()
     const dir = path.resolve(process.cwd(), name)
     const folder = await fs.mkdir(dir)
-    try {
-      await fn(dir)
-    } catch (e) {
-      reject(e)
+    const done = () => {
       rimraf(dir, () => {
         resolve()
       })
     }
 
-    rimraf(dir, () => {
-      resolve()
-    })
+    try {
+      fn(dir, done)
+    } catch (e) {
+      rimraf(dir, () => {
+        reject(e)
+      })
+    }
   })
 }
