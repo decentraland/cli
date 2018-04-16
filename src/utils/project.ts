@@ -49,3 +49,7 @@ export function getRootPath(): string {
 export function getIgnoreFilePath(dir: string): string {
   return path.resolve(dir, DCLIGNORE_FILE)
 }
+
+export function getNodeModulesPath(dir: string): string {
+  return path.resolve(dir, 'node_modules')
+}

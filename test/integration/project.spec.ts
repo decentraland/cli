@@ -1,11 +1,11 @@
 import { expect } from 'chai'
-import * as fs from 'fs-extra'
 import { tmpTest } from './sandbox'
 import { Project } from '../../src/lib/Project'
 import * as path from 'path'
+import { setupFilesystem } from '../helpers'
 
-async function setup(dirPath) {
-  const files = [
+tmpTest(async (dirPath, done) => {
+  await setupFilesystem(dirPath, [
     {
       path: '.decentraland/test.js',
       content: 'console.log()'
@@ -21,6 +21,10 @@ async function setup(dirPath) {
     {
       path: 'src/index.ts',
       content: 'console.log()'
+    },
+    {
+      path: 'src/package.json',
+      content: '{}'
     },
     {
       path: 'src/node_modules/example/index.js',
@@ -46,23 +50,7 @@ async function setup(dirPath) {
       path: '.dclignore',
       content: `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
     }
-  ]
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i]
-    const filePath = path.resolve(dirPath, file.path)
-    const fileDir = path.dirname(filePath)
-
-    if (fileDir !== dirPath) {
-      await fs.mkdirp(fileDir)
-    }
-
-    await fs.writeFile(filePath, file.content)
-  }
-}
-
-tmpTest(async (dirPath, done) => {
-  await setup(dirPath)
+  ])
 
   describe('Project', () => {
     after(() => done())
@@ -76,11 +64,17 @@ tmpTest(async (dirPath, done) => {
       }).timeout(5000)
     })
 
-    describe('hasDependencies()', async () => {
+    describe('needsDependencies()', async () => {
       it('should return true when a package.json file is present', async () => {
         const project = new Project(dirPath)
-        const result = await project.hasDependencies()
+        const result = await project.needsDependencies()
         expect(result).to.be.true
+      }).timeout(5000)
+
+      it('should return false when a node_modules folder is present (and not empty)', async () => {
+        const project = new Project(path.resolve(dirPath, 'src'))
+        const result = await project.needsDependencies()
+        expect(result).to.be.false
       }).timeout(5000)
     })
 

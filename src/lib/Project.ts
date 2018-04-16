@@ -110,12 +110,20 @@ export class Project {
   }
 
   /**
-   * Returns true if the project root contains a `package.json` file
-   * @param dir
+   * Returns true if the project contains a package.json file and an empty node_modules folder
    */
-  async hasDependencies(): Promise<boolean> {
+  async needsDependencies(): Promise<boolean> {
     const files = await this.getAllFilePaths()
-    return files.some(file => file === 'package.json')
+    const hasPackageFile = files.some(file => file === 'package.json')
+    const nodeModulesPath = path.resolve(this.workingDir, 'node_modules')
+    const hasNodeModulesFolder = await fs.pathExists(nodeModulesPath)
+    const isNodeModulesEmpty = (await this.getAllFilePaths(nodeModulesPath)).length === 0
+
+    if (hasPackageFile && (!hasNodeModulesFolder || isNodeModulesEmpty)) {
+      return true
+    }
+
+    return false
   }
 
   /**

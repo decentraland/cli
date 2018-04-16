@@ -1,9 +1,9 @@
-import { buildTypescript } from '../utils/moduleHelpers'
+import { buildTypescript, installDependencies } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import { success } from '../utils/logging'
-const opn = require('opn')
+import opn = require('opn')
 
 export interface IPreviewArguments {
   options: {
@@ -31,6 +31,11 @@ export function start(vorpal: any) {
             vorpal.log(success(`Development server running at ${url}`))
             opn(url)
           })
+
+          if (await dcl.project.needsDependencies()) {
+            vorpal.log('Installing dependencies...')
+            await installDependencies()
+          }
 
           if (await dcl.project.isTypescriptProject()) {
             await buildTypescript()
