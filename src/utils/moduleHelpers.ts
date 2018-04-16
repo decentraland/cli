@@ -54,7 +54,8 @@ export async function isMetaverseApiOutdated(): Promise<boolean> {
 }
 
 export async function isCLIOutdated(): Promise<boolean> {
-  const cliVersion = require('../../package.json').version
+  const cliPkg = await readJSON<{ version: number }>(path.resolve(__dirname, '../../package.json'))
+  const cliVersion = cliPkg.version
   const cliVersionLatest = await latestVersion('decentraland')
 
   if (semver.lt(cliVersion, cliVersionLatest)) {
