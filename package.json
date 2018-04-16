@@ -81,6 +81,7 @@
     "git-rev-sync": "^1.11.1",
     "mocha": "^4.1.0",
     "prettier": "^1.9.2",
+    "proxyquire": "^2.0.1",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
     "rimraf": "^2.6.2",
