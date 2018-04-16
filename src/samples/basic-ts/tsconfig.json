@@ -16,6 +16,7 @@
     "allowUnusedLabels": false,
     "newLine": "LF",
     "stripInternal": true,
+    "baseUrl": ".",
     "strict": true,
     "jsx": "react",
     "jsxFactory": "createElement",

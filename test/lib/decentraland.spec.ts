@@ -62,7 +62,7 @@ describe('Decentraland class', () => {
     var stub = ctx.stub(ProjectUtils, 'getRootPath').callsFake(() => '.')
   })
 
-  afterEach(function() {
+  afterEach(() => {
     // completely restore all fakes created through the sandbox
     ctx.restore()
   })

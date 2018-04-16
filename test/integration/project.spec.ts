@@ -1,11 +1,11 @@
 import { expect } from 'chai'
-import * as fs from 'fs-extra'
 import { tmpTest } from './sandbox'
 import { Project } from '../../src/lib/Project'
 import * as path from 'path'
+import { setupFilesystem } from '../helpers'
 
-async function setup(dirPath) {
-  const files = [
+tmpTest(async (dirPath, done) => {
+  await setupFilesystem(dirPath, [
     {
       path: '.decentraland/test.js',
       content: 'console.log()'
@@ -50,23 +50,7 @@ async function setup(dirPath) {
       path: '.dclignore',
       content: `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
     }
-  ]
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i]
-    const filePath = path.resolve(dirPath, file.path)
-    const fileDir = path.dirname(filePath)
-
-    if (fileDir !== dirPath) {
-      await fs.mkdirp(fileDir)
-    }
-
-    await fs.writeFile(filePath, file.content)
-  }
-}
-
-tmpTest(async (dirPath, done) => {
-  await setup(dirPath)
+  ])
 
   describe('Project', () => {
     after(() => done())

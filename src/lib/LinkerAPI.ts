@@ -39,7 +39,7 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes() {
-    this.app.use('/assets', express.static(path.resolve(__dirname, '..')))
+    this.app.use('/assets', express.static(path.resolve(__dirname, '..', 'pages')))
 
     this.app.get('/linker', (req, res) => {
       res.writeHead(200, 'OK', {

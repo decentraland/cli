@@ -25,7 +25,7 @@ describe('Project class', () => {
     readFileStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
   })
 
-  afterEach(function() {
+  afterEach(() => {
     // completely restore all fakes created through the sandbox
     ctx.restore()
   })
