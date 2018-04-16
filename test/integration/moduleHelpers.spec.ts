@@ -27,6 +27,13 @@ tmpTest(async (dirPath, done) => {
 
     beforeEach(() => {
       packageJsonStub = ctx.stub().callsFake(() => ({ version: '1.0.0' }))
+
+      /**
+       * Due to the way that node modules work we can't create a stub for a function (that belongs to a module)
+       * and then call another function (within the same module) that calls our stubbed function.
+       * We can't create a standard stub for this module either because it exports a function directly (module.exports = fn)
+       * proxyrequire is a helper that proxies nodejs's require allowing us to override dependencies using stubs.
+       */
       helpers = proxyquire('../../src/utils/moduleHelpers', {
         'package-json': packageJsonStub
       })
