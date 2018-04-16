@@ -1,6 +1,5 @@
 /// <reference path="../typings/dcl.d.ts" />
 /// <reference path="../typings/docker-names.d.ts" />
-/// <reference path="../typings/decentraland-commons.d.ts" />
 
 import Vorpal = require('vorpal')
 import { help } from './commands/help'
@@ -10,11 +9,8 @@ import { start } from './commands/preview'
 import { upgrade } from './commands/upgrade'
 import { deploy } from './commands/deploy'
 import { command as pin } from './commands/pin'
-import { env } from 'decentraland-commons/dist/env'
 
 const pkg = require('../package.json')
-
-env.load()
 
 /**
  * Export the current version.

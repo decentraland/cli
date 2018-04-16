@@ -109,7 +109,7 @@ export function init(vorpal: any) {
           await installDependencies()
         }
 
-        await Analytics.sceneCreated()
+        await Analytics.sceneCreated({ boilerplateType })
 
         vorpal.log(success(`\nSuccess! Run 'dcl preview' to see your scene`))
       })
