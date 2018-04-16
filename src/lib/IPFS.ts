@@ -1,4 +1,3 @@
-import { env } from 'decentraland-commons/dist/env'
 import axios from 'axios'
 import { EventEmitter } from 'events'
 import { isDev } from '../utils/env'
@@ -152,6 +151,6 @@ export class IPFS extends EventEmitter {
       // fallback to ENV
     }
 
-    return env.get('IPFS_GATEWAY', () => ipfsURL)
+    return process.env.IPFS_GATEWAY || ipfsURL
   }
 }

@@ -1,7 +1,6 @@
 import { isDev } from '../utils/env'
 import axios from 'axios'
 import { contracts, eth } from 'decentraland-eth'
-import { env } from 'decentraland-commons/dist/env'
 import { EventEmitter } from 'events'
 import { ErrorType, fail } from '../utils/errors'
 
@@ -20,7 +19,7 @@ export class Ethereum extends EventEmitter {
   static async connect() {
     const address = await Ethereum.getLandContractAddress()
     const land = new contracts.LANDRegistry(address)
-    const providerUrl = env.get('RPC_URL', () => (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/'))
+    const providerUrl = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
 
     if (!Ethereum.isConnected) {
       try {
@@ -42,7 +41,7 @@ export class Ethereum extends EventEmitter {
    * Otherwise, an external resources will be queried and the address will be resturned based on the DCL_ENV.
    */
   static async getLandContractAddress(): Promise<string> {
-    const envContract = env.get('LAND_REGISTRY_CONTRACT_ADDRESS')
+    const envContract = process.env.LAND_REGISTRY_CONTRACT_ADDRESS
 
     if (envContract) {
       return envContract
