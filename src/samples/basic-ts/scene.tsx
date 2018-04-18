@@ -1,9 +1,9 @@
-import { createElement, Component } from 'metaverse-api'
+import { createElement, ScriptableScene } from 'metaverse-api'
 
 const networkHz = 6
 const interval = 1000 / networkHz
 
-export default class RollerCoaster extends Component<any, { time: number }> {
+export default class RollerCoaster extends ScriptableScene<any, { time: number }> {
   state = { time: 0 }
 
   timeout = setInterval(() => {
@@ -12,7 +12,7 @@ export default class RollerCoaster extends Component<any, { time: number }> {
     })
   }, interval)
 
-  componentWillUnmount() {
+  sceneWillUnmount() {
     clearInterval(this.timeout)
   }
 
@@ -26,9 +26,9 @@ export default class RollerCoaster extends Component<any, { time: number }> {
     const z = Math.sin(time) * size
 
     return (
-      <a-scene>
-        <a-entity position={{ x: 5, y: 4, z: 5 }}>
-          <a-entity
+      <scene>
+        <entity position={{ x: 5, y: 4, z: 5 }}>
+          <entity
             id="train"
             position={{ x, y, z }}
             rotation={{ x: Math.cos(time) * 40, y: Math.sin(time) * 40, z: 0 }}
@@ -37,15 +37,15 @@ export default class RollerCoaster extends Component<any, { time: number }> {
               rotation: { duration: interval }
             }}
           >
-            <a-box position={{ x: 0, y: -1, z: 0 }} color="black" scale={{ x: 3, y: 0.4, z: 5 }} />
-            <a-box position={{ x: 1.5, y: 0, z: 0 }} color="red" scale={{ x: 0.2, y: 1, z: 5 }} />
-            <a-box position={{ x: -1.5, y: 0, z: 0 }} color="yellow" scale={{ x: 0.2, y: 1, z: 5 }} />
+            <box position={{ x: 0, y: -1, z: 0 }} color="black" scale={{ x: 3, y: 0.4, z: 5 }} />
+            <box position={{ x: 1.5, y: 0, z: 0 }} color="red" scale={{ x: 0.2, y: 1, z: 5 }} />
+            <box position={{ x: -1.5, y: 0, z: 0 }} color="yellow" scale={{ x: 0.2, y: 1, z: 5 }} />
 
-            <a-box position={{ x: 0, y: 0, z: 2.5 }} color="green" scale={{ x: 3, y: 1, z: 0.2 }} />
-            <a-box position={{ x: 0, y: 0, z: -2.5 }} color="blue" scale={{ x: 3, y: 1, z: 0.2 }} />
-          </a-entity>
-        </a-entity>
-      </a-scene>
+            <box position={{ x: 0, y: 0, z: 2.5 }} color="green" scale={{ x: 3, y: 1, z: 0.2 }} />
+            <box position={{ x: 0, y: 0, z: -2.5 }} color="blue" scale={{ x: 3, y: 1, z: 0.2 }} />
+          </entity>
+        </entity>
+      </scene>
     )
   }
 }
