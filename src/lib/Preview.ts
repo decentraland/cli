@@ -2,6 +2,8 @@ import * as path from 'path'
 import * as express from 'express'
 import { getRootPath } from '../utils/project'
 import { EventEmitter } from 'events'
+import * as fs from 'fs-extra'
+import { fail, ErrorType } from '../utils/errors'
 
 /**
  * Events emitted by this class:
@@ -29,7 +31,13 @@ export class Preview extends EventEmitter {
       `)
     })
 
-    this.app.use('/metaverse-api', express.static(path.dirname(path.resolve('node_modules', 'metaverse-api/artifacts/preview'))))
+    const artifactPath = path.dirname(path.resolve('node_modules', 'metaverse-api/artifacts/preview'))
+
+    if (!fs.pathExistsSync(artifactPath)) {
+      fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${artifactPath}, please run: npm install metaverse-api@latest`)
+    }
+
+    this.app.use('/metaverse-api', express.static(artifactPath))
     this.app.use(express.static(root))
     this.emit('preview:ready', `http://localhost:${port}`)
     this.app.listen(port, '0.0.0.0')
