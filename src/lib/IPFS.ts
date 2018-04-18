@@ -71,7 +71,7 @@ export class IPFS extends EventEmitter {
 
     try {
       await axios.post(`${ipfsURL}/pin/${peerId}/${x}/${y}`, {
-        timeout: 50000
+        timeout: process.env.PIN_TIMEOUT || 300000
       })
     } catch (e) {
       if (e.response) {
