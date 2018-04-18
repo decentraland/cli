@@ -105,7 +105,7 @@ const run = async () => {
   // Travis keeps the branch name in the tags' builds
   if (gitTag) {
     if (semver.valid(gitTag)) {
-      if (semver.coerce(gitTag) === gitTag) {
+      if (semver.coerce(gitTag).version === gitTag) {
         // Contains no prerelease data and should go to latest
         npmTag = 'latest'
         linkLatest = true
@@ -119,6 +119,7 @@ const run = async () => {
         newVersion = await getSnapshotVersion()
       }
     } else {
+      console.log(`invalid semver version: ${gitTag}`)
       npmTag = 'tag-' + gitTag
       newVersion = await getSnapshotVersion()
     }
