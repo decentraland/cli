@@ -4,17 +4,14 @@ CLI tool for parcel management.
 
 * [x] Quickly create new projects
 * [x] Uploading scenes to IPFS
-* [x] Hot reloading
 * [x] Linking Ethereum to the scene
 * [x] Pinning scene to Decentraland IPFS node
 * [x] Compiling scripts
-* [ ] Editor modifying local files and “uploading” to the directory
+* [x] Warnings and linting of scenes
+* [ ] Hot reloading
 * [ ] Optimizing objects, textures
-* [ ] Warnings and linting of scenes
 * [ ] Generating bundles of assets
-* [ ] Manage IPFS uploading/differential uploads
 * [ ] Test framework for scripting
-* [ ] Snapshots of the scene
 
 ## Requirements
 
@@ -26,7 +23,7 @@ CLI tool for parcel management.
 
 ### MacOS/Linux:
 
-You need to have NodeJS (version 8._._ and above) installed on your system to use the CLI. You can use official NodeJS installer, but on MacOS/Linux we recommend to use [NVM](https://github.com/creationix/nvm) for managing your NodeJS installation. Please follow the installation instructions.
+You need to have NodeJS (version 8 or greater) installed on your system to use the CLI. You can use official NodeJS installer, but on MacOS/Linux we recommend to use [NVM](https://github.com/creationix/nvm) for managing your NodeJS installation. Please follow the installation instructions.
 
 ```bash
 $ npm install -g decentraland
@@ -78,31 +75,19 @@ Thanks @HAZARDU5 for this guide
 $ dcl init
 ```
 
-* Start local development server and serve your static scene:
+* Start local development server and serve your scene:
 
 ```bash
-$ dcl start
+$ dcl preview
 ```
 
-* Upload scene to IPFS:
+* Deploy scene to IPFS and the Ethereum Blockchain:
 
 First, you need to have IPFS installed locally. Download it [here](https://ipfs.io/docs/install/).
 Note: You need to have IPFS daemon running for this to work!
 
 ```bash
-$ dcl upload
-```
-
-* Link Ethereum to the current scene and pin scene to Decentraland IPFS node:
-
-```bash
-$ dcl link
-```
-
-* Upload scene to IPFS, update IPNS and link Ethereum to the current scene in one go:
-
-```bash
-$ dcl push
+$ dcl deploy
 ```
 
 ## Updating
@@ -131,6 +116,4 @@ For CLI tool development, run `npm run watch` in your terminal and `npm link` in
 
 For the Decentraland IPFS node, we are getting the url from [here](decentraland.github.io/ipfs-node/url.json). If you want to set a different url set the `IPFS_GATEWAY` var in the `.env` file.
 
-You can run CLI commands in development mode like this: `npm start -- init`
-
-You can do incremental compilations by running `npm run watch`, but you will need to run `npm run build` at least once before to build the `linker-app`, and if you make changes to the linker you will need to re-run `npm run build`.
+You can do incremental compilations by running `npm run watch`, but you will need to run `npm run build` at least once before.
