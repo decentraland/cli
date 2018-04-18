@@ -70,7 +70,9 @@ export class IPFS extends EventEmitter {
     this.emit('ipfs:pin-request')
 
     try {
-      await axios.post(`${ipfsURL}/pin/${peerId}/${x}/${y}`)
+      await axios.post(`${ipfsURL}/pin/${peerId}/${x}/${y}`, {
+        timeout: 50000
+      })
     } catch (e) {
       if (e.response) {
         fail(ErrorType.IPFS_ERROR, 'Failed to pin files: ' + e.response.data.error || e.response.data)

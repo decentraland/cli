@@ -1,4 +1,3 @@
-import { static as serveStatic } from 'express'
 import { createServer } from 'http'
 import { Server as WebSocketServer } from 'ws'
 
@@ -12,7 +11,6 @@ const cors = require('cors')
 const app = express()
 
 app.use(cors())
-app.use(serveStatic('client'))
 
 const server = createServer(app)
 const wss = new WebSocketServer({ server })

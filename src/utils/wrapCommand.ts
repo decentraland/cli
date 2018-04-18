@@ -6,7 +6,7 @@ export function wrapCommand(fn: (args: any, callback: () => void) => Promise<any
   return function(args, cb) {
     isMetaverseApiOutdated().then(isOutdated => {
       if (isOutdated) {
-        this.log(highlight('WARNING: outdated metaverse-api version\nPlease run ') + 'npm update metaverse-api')
+        this.log(highlight('WARNING: outdated metaverse-api version\nPlease run ') + 'npm install metaverse-api@latest')
       }
     })
 

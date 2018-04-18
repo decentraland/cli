@@ -95,7 +95,7 @@ export function init(vorpal: any) {
               type: 'input',
               name: 'server',
               message: `${notice('Your websocket server')}`,
-              default: 'ws://localhost:3000'
+              default: 'ws://localhost:8087'
             })
 
             websocketServer = ws.server
