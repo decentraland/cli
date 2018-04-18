@@ -36,7 +36,7 @@ export class IPFS extends EventEmitter {
       const { id } = await this.ipfsApi.key.gen(projectId, { type: 'rsa', size: 2048 })
       return id
     } catch (e) {
-      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon: ${e.message}`)
+      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon. Make sure the ipfs daemon is running: ${e.message}`)
     }
   }
 
@@ -48,7 +48,7 @@ export class IPFS extends EventEmitter {
       const { id } = await this.ipfsApi.id()
       return id
     } catch (e) {
-      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon: ${e.message}`)
+      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon. Make sure the ipfs daemon is running: ${e.message}`)
     }
   }
 
@@ -97,12 +97,13 @@ export class IPFS extends EventEmitter {
     }
 
     try {
-      return this.ipfsApi.files.add(files, {
+      const res = await this.ipfsApi.files.add(files, {
         progress: callback,
         recursive: true
       })
+      return res
     } catch (e) {
-      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon: ${e.message}`)
+      fail(ErrorType.IPFS_ERROR, `Unable to connect to the IPFS daemon. Make sure the ipfs daemon is running: ${e.message}`)
     }
   }
 
