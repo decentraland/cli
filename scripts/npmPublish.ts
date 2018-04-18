@@ -100,6 +100,8 @@ const run = async () => {
   console.log(`  branch: ${branch}`)
   console.log(`  gitTag: ${gitTag}`)
 
+  const prerelease = semver.prerelease(gitTag)
+
   // Travis keeps the branch name in the tags' builds
   if (gitTag) {
     if (semver.valid(gitTag)) {
@@ -108,7 +110,7 @@ const run = async () => {
         npmTag = 'latest'
         linkLatest = true
         newVersion = gitTag
-      } else if (semver.prerelease(gitTag).includes('rc')) {
+      } else if (prerelease && prerelease.includes('rc')) {
         // It's a release candidate, publish it as such
         npmTag = 'rc'
         newVersion = gitTag
