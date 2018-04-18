@@ -78,7 +78,7 @@ Thanks @HAZARDU5 for this guide
 $ dcl init
 ```
 
-* Start local development server and serve your a-minus scene:
+* Start local development server and serve your static scene:
 
 ```bash
 $ dcl start
