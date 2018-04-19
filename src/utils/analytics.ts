@@ -90,6 +90,8 @@ async function track(eventName: string, properties: any = {}) {
         }
         resolve()
       })
+    } else {
+      resolve()
     }
   })
 }
