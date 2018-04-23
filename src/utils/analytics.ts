@@ -2,6 +2,7 @@ import * as uuidv4 from 'uuid/v4'
 import { isDev } from './env'
 import inquirer = require('inquirer')
 import { getDCLInfo, writeDCLInfo } from './dclinfo'
+import { isOnline } from './moduleHelpers'
 const AnalyticsNode = require('analytics-node')
 
 // Setup segment.io
@@ -46,7 +47,7 @@ export namespace Analytics {
  * @param properties Any object containing serializable data
  */
 async function track(eventName: string, properties: any = {}) {
-  if (isDev) {
+  if (isDev || !await isOnline()) {
     return
   }
 

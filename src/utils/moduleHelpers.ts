@@ -31,6 +31,9 @@ export function buildTypescript(): Promise<void> {
 }
 
 export async function latestVersion(name: string): Promise<string> {
+  if (!await isOnline()) {
+    return null
+  }
   const pkg = await packageJson(name.toLowerCase())
   return pkg.version
 }
@@ -46,7 +49,7 @@ export async function isMetaverseApiOutdated(): Promise<boolean> {
     return false
   }
 
-  if (semver.lt(metaverseApiPkg.version, metaverseApiVersionLatest)) {
+  if (metaverseApiVersionLatest && semver.lt(metaverseApiPkg.version, metaverseApiVersionLatest)) {
     return true
   }
 
@@ -58,9 +61,21 @@ export async function isCLIOutdated(): Promise<boolean> {
   const cliVersion = cliPkg.version
   const cliVersionLatest = await latestVersion('decentraland')
 
-  if (semver.lt(cliVersion, cliVersionLatest)) {
+  if (cliVersionLatest && semver.lt(cliVersion, cliVersionLatest)) {
     return true
+  } else {
+    return false
   }
+}
 
-  return false
+export function isOnline(): Promise<boolean> {
+  return new Promise(resolve => {
+    require('dns').resolve('www.google.com', err => {
+      if (err) {
+        resolve(false)
+      } else {
+        resolve(true)
+      }
+    })
+  })
 }
