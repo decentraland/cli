@@ -1,10 +1,11 @@
 import inquirer = require('inquirer')
 import { wrapCommand } from '../utils/wrapCommand'
-import { installDependencies } from '../utils/moduleHelpers'
+import { installDependencies, isOnline } from '../utils/moduleHelpers'
 import { BoilerplateType } from '../lib/Project'
 import { Analytics } from '../utils/analytics'
 import { success, notice, comment, highlight } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
+import { fail, ErrorType } from '../utils/errors'
 
 export function init(vorpal: any) {
   vorpal
@@ -105,8 +106,12 @@ export function init(vorpal: any) {
         await dcl.init(sceneMeta as DCL.SceneMetadata, boilerplateType, websocketServer)
 
         if (await dcl.project.needsDependencies()) {
-          vorpal.log('Installing dependencies...')
-          await installDependencies()
+          if (await isOnline()) {
+            vorpal.log('Installing dependencies...')
+            await installDependencies()
+          } else {
+            fail(ErrorType.PREVIEW_ERROR, 'Unable to install dependencies: no internet connection')
+          }
         }
 
         await Analytics.sceneCreated({ boilerplateType })
