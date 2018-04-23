@@ -6,8 +6,7 @@ import { Analytics } from '../utils/analytics'
 import { success, notice, comment, highlight } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
 import { fail, ErrorType } from '../utils/errors'
-import { validateCoordinates } from '../utils/validators'
-import { parseCoordinates } from '../utils/parsers'
+import { parseCoordinates, validateCoordinates } from '../utils/coordinateHelpers'
 
 export function init(vorpal: any) {
   vorpal
