@@ -7,10 +7,11 @@
  */
 export function parseCoordinates(coordinates: string): string[] {
   return coordinates.split(';').map((coord: string) => {
-    const [x, y] = coord.split(',').map($ => {
+    const [x = 0, y = 0] = coord.split(',').map($ => {
       return parseInt($, 10)
         .toString()
         .replace('-0', '0')
+        .replace(/undefined|NaN/g, '0')
     })
     return `${x},${y}`
   })
