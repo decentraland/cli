@@ -1,4 +1,4 @@
-import { expect, use } from 'chai'
+import { expect } from 'chai'
 import { sandbox } from 'sinon'
 
 import * as fs from 'fs-extra'
