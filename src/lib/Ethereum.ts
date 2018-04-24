@@ -19,13 +19,13 @@ export class Ethereum extends EventEmitter {
   static async connect() {
     const address = await Ethereum.getLandContractAddress()
     const land = new contracts.LANDRegistry(address)
-    const providerUrl = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
+    const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
 
     if (!Ethereum.isConnected) {
       try {
         Ethereum.isConnected = await eth.connect({
           contracts: [land],
-          providerUrl
+          provider
         })
       } catch (e) {
         fail(ErrorType.ETHEREUM_ERROR, 'Unable to connect to the Ethereum Blockchain')
