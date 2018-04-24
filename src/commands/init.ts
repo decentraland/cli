@@ -6,6 +6,7 @@ import { Analytics } from '../utils/analytics'
 import { success, notice, comment, highlight } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
 import { fail, ErrorType } from '../utils/errors'
+import { parseCoordinates, validateCoordinates } from '../utils/coordinateHelpers'
 
 export function init(vorpal: any) {
   vorpal
@@ -50,7 +51,8 @@ export function init(vorpal: any) {
             name: 'scene.parcels',
             message: `${notice('Parcels comprising the scene')}\n${comment(
               '(optional, recommended -- used to show the limts of your scene and upload to these coordinates)\nPlease use this format: `x,y; x,y; x,y ...`'
-            )}\n`
+            )}\n`,
+            validate: validateCoordinates as any
           }
         ])
 
@@ -66,9 +68,7 @@ export function init(vorpal: any) {
           teleportPosition: '0,0,0'
         }
 
-        sceneMeta.scene.parcels = sceneMeta.scene.parcels
-          ? sceneMeta.scene.parcels.split(';').map((coord: string) => coord.replace(/\s/g, ''))
-          : ['0,0']
+        sceneMeta.scene.parcels = sceneMeta.scene.parcels ? parseCoordinates(sceneMeta.scene.parcels) : ['0,0']
 
         sceneMeta.main = 'scene.xml' // replaced by chosen template
         sceneMeta.scene.base = sceneMeta.scene.parcels[0]
