@@ -10,6 +10,3 @@ tmp/
 
 .next/
 .decentraland/ipns
-
-# Until API is stable
-package-lock.json
