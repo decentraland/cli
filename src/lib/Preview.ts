@@ -24,6 +24,11 @@ export class Preview extends EventEmitter {
           <head>
             <title>Decentraland Preview</title>
             <script charset="utf-8" src="/metaverse-api/preview.js"></script>
+            <style>
+              body {
+                margin: 0px;
+              }
+            </style>
           </head>
           <body>
           </body>

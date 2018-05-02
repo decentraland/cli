@@ -3,7 +3,8 @@ export enum ErrorType {
   ETHEREUM_ERROR = 'EthereumError',
   IPFS_ERROR = 'IPFSError',
   PROJECT_ERROR = 'ProjectError',
-  PREVIEW_ERROR = 'PreviewError'
+  PREVIEW_ERROR = 'PreviewError',
+  UPGRADE_ERROR = 'UpgradeError'
 }
 
 export function fail(type: ErrorType, message: string) {
