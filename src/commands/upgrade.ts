@@ -1,4 +1,3 @@
-import { spawn } from 'child_process'
 import { install, uninstall, isOnline, latestVersion } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { fail, ErrorType } from '../utils/errors'
