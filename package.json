@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "CLI tool for parcel management.",
   "main": "./dist/index.js",
   "scripts": {
@@ -26,10 +26,7 @@
     "singleQuote": true,
     "printWidth": 140
   },
-  "keywords": [
-    "decentraland",
-    "cli"
-  ],
+  "keywords": ["decentraland", "cli"],
   "author": "Decentraland",
   "license": "Apache-2.0",
   "bugs": {

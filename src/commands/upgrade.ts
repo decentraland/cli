@@ -1,14 +1,23 @@
-import { spawn } from 'child_process'
-import { npm } from '../utils/moduleHelpers'
+import { install, uninstall, isOnline, latestVersion } from '../utils/moduleHelpers'
+import { wrapCommand } from '../utils/wrapCommand'
+import { fail, ErrorType } from '../utils/errors'
+import { success } from '../utils/logging'
 
 export function upgrade(vorpal: any) {
   vorpal
     .command('upgrade')
+    .alias('update')
     .description('Update the Decentraland CLI tools')
-    .action(function(args: any, callback: () => void) {
-      const child = spawn(npm, ['install', '-g', '--upgrade', 'decentraland'], { shell: true })
-      child.stdout.pipe(process.stdout)
-      child.stderr.pipe(process.stderr)
-      child.on('close', callback)
-    })
+    .action(
+      wrapCommand(async function(args: any, callback: () => void) {
+        if (!(await isOnline())) {
+          fail(ErrorType.UPGRADE_ERROR, 'Unable to upgrade: no internet connection')
+        }
+
+        vorpal.log('Updating to decentraland@' + (await latestVersion('decentraland')))
+        await uninstall()
+        await install()
+        vorpal.log(success('All packages updated successfully'))
+      })
+    )
 }
