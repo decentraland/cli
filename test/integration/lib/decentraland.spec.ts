@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import * as fs from 'fs-extra'
-import { tmpTest } from './sandbox'
-import { Decentraland } from '../../src/lib/Decentraland'
+import { tmpTest } from '../sandbox'
+import { Decentraland } from '../../../src/lib/Decentraland'
 import * as path from 'path'
 
 async function expectBaseFilesToExist(dirPath) {
@@ -39,7 +39,7 @@ describe('Decentraland.init()', () => {
       await expectBasicDCLIgnore(dirPath)
       done()
     })
-  }).timeout(5000)
+  }).timeout(50000)
 
   it('should successfully create a typescript project', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -63,7 +63,7 @@ describe('Decentraland.init()', () => {
       await expectBasicDCLIgnore(dirPath)
       done()
     })
-  }).timeout(5000)
+  }).timeout(50000)
 
   it('should successfully create a websocket project', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -91,5 +91,5 @@ describe('Decentraland.init()', () => {
       )
       done()
     })
-  }).timeout(5000)
+  }).timeout(50000)
 })

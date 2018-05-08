@@ -2,12 +2,8 @@ import axios from 'axios'
 import { EventEmitter } from 'events'
 import { isDev } from '../utils/env'
 import { fail, ErrorType } from '../utils/errors'
+import { IFile } from './Project'
 const ipfsAPI = require('ipfs-api')
-
-export interface IIPFSFile {
-  path: string
-  content: Buffer
-}
 
 /**
  * Events emitted by this class:
@@ -88,8 +84,10 @@ export class IPFS extends EventEmitter {
    * @param files An array of objects containing the path and content for the files.
    * @param onProgress A callback function to be called for each file uploaded (receives the total amount of bytes uploaded as an agument).
    */
-  async addFiles(files: IIPFSFile[]): Promise<{ path: string; hash: string; size: number }[]> {
-    if (files.length === 0) {
+  async addFiles(files: IFile[]): Promise<{ path: string; hash: string; size: number }[]> {
+    const ipfsFiles = files.map(file => ({ path: `/tmp/${file.path}`, content: file.content }))
+
+    if (ipfsFiles.length === 0) {
       fail(ErrorType.IPFS_ERROR, 'Unable to upload files: no files available (check your .dclignore rules)')
     }
 
@@ -97,15 +95,15 @@ export class IPFS extends EventEmitter {
     const callback = (progress: number) => {
       count++
       if (count === files.length) {
-        this.emit('ipfs:add-progress', progress, count, files.length)
+        this.emit('ipfs:add-progress', progress, count, ipfsFiles.length)
         this.emit('ipfs:add-success')
       } else {
-        this.emit('ipfs:add-progress', progress, count, files.length)
+        this.emit('ipfs:add-progress', progress, count, ipfsFiles.length)
       }
     }
 
     try {
-      const res = await this.ipfsApi.files.add(files, {
+      const res = await this.ipfsApi.files.add(ipfsFiles, {
         progress: callback,
         recursive: true
       })

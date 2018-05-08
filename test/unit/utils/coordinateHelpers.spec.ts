@@ -1,7 +1,7 @@
 import { expect, use } from 'chai'
 const chaiAsPromised = require('chai-as-promised')
 import * as fs from 'fs-extra'
-import * as coordinateHelpers from '../../src/utils/coordinateHelpers'
+import * as coordinateHelpers from '../../../src/utils/coordinateHelpers'
 
 use(chaiAsPromised)
 
