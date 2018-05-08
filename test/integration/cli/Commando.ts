@@ -3,20 +3,26 @@ import { EventEmitter } from 'events'
 
 export interface IOptions {
   silent: boolean
+  env?: { [key: string]: string }
 }
 
 export interface IMatcherOptions {
   matchMany: boolean
 }
 
+export enum Response {
+  YES = 'Yes\n',
+  NO = 'no\n'
+}
+
 class Commando extends EventEmitter {
   private proc: ChildProcess
   private matchers: { pattern: RegExp; response: (mag: string) => string; options: IMatcherOptions }[] = []
 
-  constructor(command: string, opts: IOptions = { silent: false }) {
+  constructor(command: string, opts: IOptions = { silent: false, env: {} }) {
     super()
     const parts = command.split(' ')
-    this.proc = spawn(parts[0], parts.slice(1))
+    this.proc = spawn(parts[0], parts.slice(1), { env: { ...process.env, ...opts.env } })
 
     if (!opts.silent) {
       this.proc.stdout.pipe(process.stdout)
@@ -29,6 +35,16 @@ class Commando extends EventEmitter {
 
   when(pattern: string | RegExp, response: (msg: string) => string, options: IMatcherOptions = { matchMany: false }) {
     this.matchers.push({ pattern: new RegExp(pattern), response, options })
+    return this
+  }
+
+  endWhen(pattern: string | RegExp, response: (msg: string) => string = () => null, options: IMatcherOptions = { matchMany: false }) {
+    const cb = msg => {
+      response(msg)
+      this.proc.kill()
+      return null
+    }
+    this.matchers.push({ pattern: new RegExp(pattern), response: cb, options })
     return this
   }
 

@@ -39,7 +39,7 @@ describe('Decentraland.init()', () => {
       await expectBasicDCLIgnore(dirPath)
       done()
     })
-  }).timeout(50000)
+  }).timeout(5000)
 
   it('should successfully create a typescript project', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -63,7 +63,7 @@ describe('Decentraland.init()', () => {
       await expectBasicDCLIgnore(dirPath)
       done()
     })
-  }).timeout(50000)
+  }).timeout(5000)
 
   it('should successfully create a websocket project', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -91,5 +91,5 @@ describe('Decentraland.init()', () => {
       )
       done()
     })
-  }).timeout(50000)
+  }).timeout(5000)
 })

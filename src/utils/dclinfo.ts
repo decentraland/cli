@@ -39,7 +39,7 @@ export async function getDCLInfo(): Promise<IDCLInfoFile> {
  * @param userId The individual identifier for the CLI user
  * @param trackStats Whether or not user data should be collected
  */
-export async function writeDCLInfo(userId: string, trackStats: boolean) {
+export function writeDCLInfo(userId: string, trackStats: boolean) {
   return writeJSON(getDCLInfoPath(), {
     userId,
     trackStats

@@ -16,6 +16,8 @@ export function init(vorpal: any) {
     .option('--boilerplate', 'static, singleplayer or multiplayer')
     .action(
       wrapCommand(async function(args: any, callback: () => void) {
+        await Analytics.requestPermission()
+
         const dcl = new Decentraland({
           workingDir: args.options.path
         })
@@ -91,7 +93,7 @@ export function init(vorpal: any) {
 
           boilerplateType = results.archetype
 
-          if (results.archetype === BoilerplateType.WEBSOCKETS) {
+          if (boilerplateType === BoilerplateType.WEBSOCKETS) {
             const ws = await inquirer.prompt({
               type: 'input',
               name: 'server',
@@ -102,9 +104,10 @@ export function init(vorpal: any) {
             websocketServer = ws.server
           }
         }
+        console.log('ooo', boilerplateType)
 
         await dcl.init(sceneMeta as DCL.SceneMetadata, boilerplateType, websocketServer)
-
+        console.log('eee')
         if (await dcl.project.needsDependencies()) {
           if (await isOnline()) {
             vorpal.log('Installing dependencies...')

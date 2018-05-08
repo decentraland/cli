@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { tmpTest } from '../sandbox'
 import { Project } from '../../../src/lib/Project'
 import * as path from 'path'
-import { setupFilesystem } from '../../helpers'
+import { setupFilesystem } from '../helpers'
 
 tmpTest(async (dirPath, done) => {
   await setupFilesystem(dirPath, [
@@ -61,7 +61,7 @@ tmpTest(async (dirPath, done) => {
         const result = await project.getFiles()
 
         expect(result.map(f => f.path)).to.deep.equal(['models/test.fbx', 'scene.json', 'scene.xml', 'test.js'])
-      }).timeout(50000)
+      }).timeout(5000)
     })
 
     describe('needsDependencies()', async () => {
@@ -69,13 +69,13 @@ tmpTest(async (dirPath, done) => {
         const project = new Project(dirPath)
         const result = await project.needsDependencies()
         expect(result).to.be.true
-      }).timeout(50000)
+      }).timeout(5000)
 
       it('should return false when a node_modules folder is present (and not empty)', async () => {
         const project = new Project(path.resolve(dirPath, 'src'))
         const result = await project.needsDependencies()
         expect(result).to.be.false
-      }).timeout(50000)
+      }).timeout(5000)
     })
 
     describe('isTypescriptProject()', async () => {
@@ -83,7 +83,7 @@ tmpTest(async (dirPath, done) => {
         const project = new Project(dirPath)
         const result = await project.isTypescriptProject()
         expect(result).to.be.true
-      }).timeout(50000)
+      }).timeout(5000)
     })
   })
 })

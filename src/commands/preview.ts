@@ -22,6 +22,8 @@ export function start(vorpal: any) {
     .action(
       wrapCommand(async function(args: IPreviewArguments, callback: () => void) {
         return new Promise(async (resolve, reject) => {
+          await Analytics.requestPermission()
+
           const dcl = new Decentraland({
             previewPort: args.options.port
           })

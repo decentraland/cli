@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { sandbox } from 'sinon'
 import { tmpTest } from '../sandbox'
 import * as Helpers from '../../../src/utils/moduleHelpers'
-import { setupFilesystem } from '../../helpers'
+import { setupFilesystem } from '../helpers'
 import * as proxyquire from 'proxyquire'
 import * as filesystem from '../../../src/utils/filesystem'
 
@@ -43,13 +43,13 @@ tmpTest(async (dirPath, done) => {
       it('should return false if the local and remote versions are equal', async () => {
         const isOutdated = await helpers.isMetaverseApiOutdated()
         expect(isOutdated).to.be.false
-      }).timeout(50000)
+      }).timeout(5000)
 
       it('should return false if the local version is lower than the remote version', async () => {
         packageJsonStub.callsFake(() => ({ version: '1.0.0' }))
         const isOutdated = await helpers.isMetaverseApiOutdated()
         expect(isOutdated).to.be.false
-      }).timeout(50000)
+      }).timeout(5000)
     })
 
     describe('isCLIOutdated()', async () => {
@@ -57,13 +57,13 @@ tmpTest(async (dirPath, done) => {
         const readJSONStub = ctx.stub(filesystem, 'readJSON').resolves({ version: '1.0.0' })
         const isOutdated = await helpers.isCLIOutdated()
         expect(isOutdated).to.be.false
-      }).timeout(50000)
+      }).timeout(5000)
 
       it('should return false if the local version is lower than the remote version', async () => {
         const readJSONStub = ctx.stub(filesystem, 'readJSON').resolves({ version: '0.0.5' })
         const isOutdated = await helpers.isCLIOutdated()
         expect(isOutdated).to.be.true
-      }).timeout(50000)
+      }).timeout(5000)
     })
   })
 })
