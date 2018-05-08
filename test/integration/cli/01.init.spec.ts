@@ -10,7 +10,7 @@ describe('init command', async () => {
       const oldDir = process.cwd()
       process.chdir(dirPath)
 
-      new Commando('../bin/dcl init', { silent: true, env: { DCL_ENV: 'dev' } })
+      new Commando('dcl init', { silent: true, cmdPath: path.resolve('..', 'bin'), env: { DCL_ENV: 'dev' } })
         .when(/Send anonymous usage stats to Decentraland?/, () => Response.YES)
         .when(/Scene title/, () => 'My test Scene\n')
         .when(/Your ethereum address/, () => '0x\n')

@@ -1,8 +1,10 @@
+import * as path from 'path'
 import { spawn, ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
 
 export interface IOptions {
   silent: boolean
+  cmdPath?: string
   env?: { [key: string]: string }
 }
 
@@ -19,10 +21,11 @@ class Commando extends EventEmitter {
   private proc: ChildProcess
   private matchers: { pattern: RegExp; response: (mag: string) => string; options: IMatcherOptions }[] = []
 
-  constructor(command: string, opts: IOptions = { silent: false, env: {} }) {
+  constructor(command: string, opts: IOptions = { silent: false, env: {}, cmdPath: '.' }) {
     super()
     const parts = command.split(' ')
-    this.proc = spawn(parts[0], parts.slice(1), { env: { ...process.env, ...opts.env } })
+    const cmd = path.resolve(opts.cmdPath, parts[0])
+    this.proc = spawn(cmd, parts.slice(1), { env: { ...process.env, ...opts.env } })
 
     if (!opts.silent) {
       this.proc.stdout.pipe(process.stdout)
