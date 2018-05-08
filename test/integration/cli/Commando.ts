@@ -25,6 +25,7 @@ class Commando extends EventEmitter {
     super()
     const parts = command.split(' ')
     const cmd = path.resolve(opts.cmdPath, parts[0])
+    console.log('Running command:', cmd, opts.cmdPath, parts)
     this.proc = spawn(cmd, parts.slice(1), { env: { ...process.env, ...opts.env } })
 
     if (!opts.silent) {
