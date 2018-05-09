@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { tmpTest } from '../sandbox'
+import { tmpTest } from '../../sandbox'
 import { Project } from '../../../src/lib/Project'
 import * as path from 'path'
 import { setupFilesystem } from '../helpers'

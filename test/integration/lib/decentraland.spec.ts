@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import * as fs from 'fs-extra'
-import { tmpTest } from '../sandbox'
+import { tmpTest } from '../../sandbox'
 import { Decentraland } from '../../../src/lib/Decentraland'
 import * as path from 'path'
 
