@@ -19,7 +19,9 @@ describe('deploy command', async () => {
         .when(/Parcels comprising the scene/, () => '0,0\n')
         .when(/Which type of project would you like to generate/, () => 'static\n')
         .endWhen(/Installing dependencies.../)
-        .on('end', () => {
+        .on('end', async () => {
+          console.log(await fs.readdir(dirPath), __dirname, dirPath)
+
           new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
             silent: false,
             workingDir: dirPath,

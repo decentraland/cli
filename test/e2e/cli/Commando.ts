@@ -27,7 +27,15 @@ class Commando extends EventEmitter {
     const parts = command.split(' ')
     const cmd = opts.cmdPath ? path.resolve(opts.cmdPath, parts[0]) : parts[0]
     console.log('Running command:', cmd, opts.cmdPath, parts)
-    this.proc = spawn(cmd, parts.slice(1), { env: { ...process.env, ...opts.env }, cwd: opts.workingDir || process.cwd() })
+    if (process.platform === 'win32') {
+      console.log('Windows spawn')
+      this.proc = spawn(process.env.comspec, ['/c', cmd, ...parts.slice(1)], {
+        env: { ...process.env, ...opts.env },
+        cwd: opts.workingDir || process.cwd()
+      })
+    } else {
+      this.proc = spawn(cmd, parts.slice(1), { env: { ...process.env, ...opts.env }, cwd: opts.workingDir || process.cwd() })
+    }
 
     this.proc.stdout.on('data', data => {
       if (!opts.silent) {
@@ -37,6 +45,7 @@ class Commando extends EventEmitter {
       }
       this.onData(data.toString())
     })
+
     this.proc.stderr.on('data', data => this.emit('err', data.toString()))
     this.proc.on('close', () => this.emit('end'))
   }
