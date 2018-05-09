@@ -21,6 +21,7 @@ describe('init command', async () => {
         .when(/Which type of project would you like to generate/, () => 'static\n')
         .endWhen(/Installing dependencies.../)
         .on('end', async () => {
+          console.log(await fs.readdir(dirPath), __dirname, dirPath)
           expect(await fs.pathExists(path.resolve(dirPath, 'scene.xml')), 'scene.xml should exist').to.be.true
           expect(await fs.pathExists(path.resolve(dirPath, 'scene.json')), 'scene.json should exist').to.be.true
           expect(await fs.pathExists(path.resolve(dirPath, '.decentraland')), '.decentraland should exist').to.be.true
