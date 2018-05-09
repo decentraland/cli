@@ -29,11 +29,14 @@ class Commando extends EventEmitter {
     console.log('Running command:', cmd, opts.cmdPath, parts)
     this.proc = spawn(cmd, parts.slice(1), { env: { ...process.env, ...opts.env }, cwd: opts.workingDir || process.cwd() })
 
-    if (!opts.silent) {
-      this.proc.stdout.pipe(process.stdout)
-    }
-
-    this.proc.stdout.on('data', data => this.onData(data.toString()))
+    this.proc.stdout.on('data', data => {
+      if (!opts.silent) {
+        console.log(data.toString())
+      } else {
+        console.log('silent mode')
+      }
+      this.onData(data.toString())
+    })
     this.proc.stderr.on('data', data => this.emit('err', data.toString()))
     this.proc.on('close', () => this.emit('end'))
   }
