@@ -1,6 +1,7 @@
 import * as path from 'path'
-import { spawn, ChildProcess } from 'child_process'
+import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
+const spawn = require('cross-spawn')
 
 export interface IOptions {
   silent: boolean
@@ -27,15 +28,8 @@ class Commando extends EventEmitter {
     const parts = command.split(' ')
     const cmd = opts.cmdPath ? path.resolve(opts.cmdPath, parts[0]) : parts[0]
     console.log('Running command:', cmd, opts.cmdPath, parts)
-    if (process.platform === 'win32') {
-      console.log('Windows spawn')
-      this.proc = spawn(process.env.comspec, ['/c', cmd, ...parts.slice(1)], {
-        env: { ...process.env, ...opts.env },
-        cwd: opts.workingDir || process.cwd()
-      })
-    } else {
-      this.proc = spawn(cmd, parts.slice(1), { env: { ...process.env, ...opts.env }, cwd: opts.workingDir || process.cwd() })
-    }
+
+    this.proc = spawn(cmd, parts.slice(1), { env: { ...process.env, ...opts.env }, cwd: opts.workingDir || process.cwd() })
 
     this.proc.stdout.on('data', data => {
       if (!opts.silent) {
