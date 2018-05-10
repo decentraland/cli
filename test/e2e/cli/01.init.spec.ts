@@ -20,6 +20,7 @@ describe('init command', async () => {
         .when(/Parcels comprising the scene/, () => '0,0\n')
         .when(/Which type of project would you like to generate/, () => 'static\n')
         .endWhen(/Installing dependencies.../)
+        .on('err', (e) => console.log(e))
         .on('end', async () => {
           console.log(await fs.readdir(dirPath), __dirname, dirPath)
           expect(await fs.pathExists(path.resolve(dirPath, 'scene.xml')), 'scene.xml should exist').to.be.true
