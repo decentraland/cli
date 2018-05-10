@@ -9,6 +9,9 @@ install:
   # install modules
   - npm install
 
+build_script:
+  - npm run build
+
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
@@ -16,6 +19,3 @@ test_script:
   - npm --version
   # run tests
   - npm test
-
-# Don't actually build.
-build: on
