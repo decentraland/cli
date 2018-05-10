@@ -104,10 +104,9 @@ export function init(vorpal: any) {
             websocketServer = ws.server
           }
         }
-        console.log('ooo', boilerplateType)
 
         await dcl.init(sceneMeta as DCL.SceneMetadata, boilerplateType, websocketServer)
-        console.log('eee')
+
         if (await dcl.project.needsDependencies()) {
           if (await isOnline()) {
             vorpal.log('Installing dependencies...')
