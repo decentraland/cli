@@ -371,16 +371,6 @@
         }
       }
     },
-    "@types/ws": {
-      "version": "5.1.1",
-      "resolved": "https://registry.npmjs.org/@types/ws/-/ws-5.1.1.tgz",
-      "integrity": "sha512-zf12eIggrJKYkOXood4EbQOsMFaVR8e5W8azkesRH1yFg4GhocS7j4sqE+FesLbvf1FLws4HenWUG6YZQ/LTJQ==",
-      "dev": true,
-      "requires": {
-        "@types/events": "1.2.0",
-        "@types/node": "8.10.10"
-      }
-    },
     "abstract-leveldown": {
       "version": "2.6.3",
       "resolved": "https://registry.npmjs.org/abstract-leveldown/-/abstract-leveldown-2.6.3.tgz",
