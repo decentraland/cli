@@ -56,7 +56,7 @@ export class Preview extends EventEmitter {
           <body>
               <script>
                 const host = window.location.hostname
-                const ws = new WebSocket(\`ws://\${host}:${port}\`, ['soap', 'xmpp'])
+                const ws = new WebSocket(\`ws://\${host}:${port}\`)
                 
                 ws.addEventListener('message', (msg) => {
                   if (msg.data === 'update') {
