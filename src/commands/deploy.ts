@@ -23,8 +23,6 @@ export function deploy(vorpal: any) {
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .action(
       wrapCommand(async function(args: IDeployArguments, callback: () => void) {
-        await Analytics.requestPermission()
-
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
           ipfsPort: args.options.port || 5001

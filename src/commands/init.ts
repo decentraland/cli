@@ -16,8 +16,6 @@ export function init(vorpal: any) {
     .option('--boilerplate', 'static, singleplayer or multiplayer')
     .action(
       wrapCommand(async function(args: any, callback: () => void) {
-        await Analytics.requestPermission()
-
         const dcl = new Decentraland({
           workingDir: args.options.path
         })

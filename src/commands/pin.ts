@@ -18,8 +18,6 @@ export function command(vorpal: any) {
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .action(
       wrapCommand(async function(args: IPinArguments, callback: () => void) {
-        await Analytics.requestPermission()
-
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
           ipfsPort: args.options.port || 5001

@@ -17,8 +17,6 @@ export function command(vorpal: any) {
     .option('-p, --port <number>', 'Linker app server port (default is 4044).')
     .action(
       wrapCommand(async function(args: ILinkArguments, callback: () => void) {
-        await Analytics.requestPermission()
-
         const dcl = new Decentraland({
           linkerPort: args.options.port
         })

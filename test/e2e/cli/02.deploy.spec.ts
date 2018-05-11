@@ -26,13 +26,17 @@ describe('deploy command', async () => {
             env: { DCL_ENV: 'dev' }
           })
             .when(/\(.* bytes\)\n/, msg => {
-              const files = msg.trim().match(/(\w*\.\w*)/g)
-              expect(files.includes('scene.json')).to.be.true
-              expect(files.includes('scene.xml')).to.be.true
+              const file = msg.trim().match(/(\w*\.\w*)/g)
+              expect(file.includes('scene.json'), 'expect scene.json to be listed').to.be.true
+              return null
+            })
+            .when(/\(.* bytes\)\n/, msg => {
+              const file = msg.trim().match(/(\w*\.\w*)/g)
+              expect(file.includes('scene.xml'), 'expect scene.xml to be listed').to.be.true
               return null
             })
             .when(/You are about to upload/, (msg: string) => {
-              expect(msg.includes('You are about to upload 2 files')).to.be.true
+              expect(msg.includes('You are about to upload 2 files'), 'expect file count to be correct').to.be.true
               return Response.NO
             })
             .on('end', async () => {
