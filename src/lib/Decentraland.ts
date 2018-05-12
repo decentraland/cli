@@ -103,7 +103,7 @@ export class Decentraland extends EventEmitter {
   async preview() {
     return new Promise(async (resolve, reject) => {
       await this.project.validateExistingProject()
-      const preview = new Preview()
+      const preview = new Preview(await this.project.getDCLIgnore())
 
       events(preview, '*', this.pipeEvents.bind(this))
 

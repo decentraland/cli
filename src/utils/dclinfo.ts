@@ -1,17 +1,9 @@
 import * as path from 'path'
-import { readJSON, writeJSON } from './filesystem'
+import { readJSON, writeJSON, getUserHome } from './filesystem'
 
 export interface IDCLInfoFile {
   userId: string
   trackStats: boolean
-}
-
-/**
- * Returns th name of the Home directory in a platform-independent way.
- * @returns `USERPROFILE` or `HOME`
- */
-export function getUserHome(): string {
-  return process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME']
 }
 
 /**

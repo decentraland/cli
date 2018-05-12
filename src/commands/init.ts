@@ -12,7 +12,7 @@ export function init(vorpal: any) {
   vorpal
     .command('init')
     .description('Generates new Decentraland scene.')
-    .option('-p, --path <path>', 'Output path (default is the current working directory).')
+    .option('--path <path>', 'output path (default is the current working directory).')
     .option('--boilerplate', 'static, singleplayer or multiplayer')
     .action(
       wrapCommand(async function(args: any, callback: () => void) {

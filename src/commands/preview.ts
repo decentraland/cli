@@ -6,7 +6,7 @@ import { success } from '../utils/logging'
 import opn = require('opn')
 import { ErrorType } from '../utils/errors'
 
-export interface IPreviewArguments {
+export interface IArguments {
   options: {
     port?: number
   }
@@ -17,10 +17,10 @@ export function start(vorpal: any) {
     .command('preview')
     .alias('start')
     .alias('serve')
-    .option('-p, --port <number>', 'Parcel previewer server port (default is 2044).')
+    .option('-p, --port <number>', 'parcel previewer server port (default is 2044).')
     .description('Starts local development server.')
     .action(
-      wrapCommand(async function(args: IPreviewArguments, callback: () => void) {
+      wrapCommand(async function(args: IArguments, callback: () => void) {
         return new Promise(async (resolve, reject) => {
           const dcl = new Decentraland({
             previewPort: args.options.port

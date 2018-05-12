@@ -4,11 +4,11 @@
 import Vorpal = require('vorpal')
 import { help } from './commands/help'
 import { init as initCommand } from './commands/init'
-import { command as link } from './commands/link'
+import { link } from './commands/link'
 import { start } from './commands/preview'
 import { upgrade } from './commands/upgrade'
 import { deploy } from './commands/deploy'
-import { command as pin } from './commands/pin'
+import { pin } from './commands/pin'
 
 const pkg = require('../package.json')
 
