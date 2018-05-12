@@ -1,12 +1,12 @@
 import { expect } from 'chai'
 import { sandbox } from 'sinon'
-import { Decentraland } from '../../src/lib/Decentraland'
+import { Decentraland } from '../../../src/lib/Decentraland'
 
-import { Ethereum } from '../../src/lib/Ethereum'
-import { Project } from '../../src/lib/Project'
-import { IPFS } from '../../src/lib/IPFS'
+import { Ethereum } from '../../../src/lib/Ethereum'
+import { Project } from '../../../src/lib/Project'
+import { IPFS } from '../../../src/lib/IPFS'
 
-import * as ProjectUtils from '../../src/utils/project'
+import * as ProjectUtils from '../../../src/utils/project'
 
 const ctx = sandbox.create()
 
@@ -23,7 +23,7 @@ const ctx = sandbox.create()
  * useful when used along black-box integration tests, so keep an eye on those!
  */
 
-describe('Decentraland class', () => {
+describe('Decentraland', () => {
   let connectStub
   let getIPNSStub
   let validateExistingProjectStub
@@ -67,10 +67,11 @@ describe('Decentraland class', () => {
     ctx.restore()
   })
 
-  describe('deploy', () => {
+  describe('deploy()', () => {
     it('should call all the necessary apis', async () => {
-      const decentraland = new Decentraland()
-      await decentraland.deploy()
+      const dcl = new Decentraland()
+      const files = await dcl.project.getFiles()
+      await dcl.deploy(files)
 
       expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true
@@ -95,8 +96,9 @@ describe('Decentraland class', () => {
         id: 'projectId',
         ipfsKey: 'QmExists'
       }))
-      const decentraland = new Decentraland()
-      await decentraland.deploy()
+      const dcl = new Decentraland()
+      const files = await dcl.project.getFiles()
+      await dcl.deploy(files)
 
       expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true
@@ -119,8 +121,9 @@ describe('Decentraland class', () => {
         id: 'projectId',
         ipfsKey: 'Qmwasd'
       }))
-      const decentraland = new Decentraland()
-      await decentraland.deploy()
+      const dcl = new Decentraland()
+      const files = await dcl.project.getFiles()
+      await dcl.deploy(files)
 
       expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true

@@ -57,7 +57,7 @@ export class Preview extends EventEmitter {
               <script>
                 const host = window.location.hostname
                 const ws = new WebSocket(\`ws://\${host}:${port}\`)
-                
+
                 ws.addEventListener('message', (msg) => {
                   if (msg.data === 'update') {
                     location.reload()

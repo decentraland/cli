@@ -91,7 +91,7 @@ export function init(vorpal: any) {
 
           boilerplateType = results.archetype
 
-          if (results.archetype === BoilerplateType.WEBSOCKETS) {
+          if (boilerplateType === BoilerplateType.WEBSOCKETS) {
             const ws = await inquirer.prompt({
               type: 'input',
               name: 'server',

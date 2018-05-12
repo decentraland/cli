@@ -3,17 +3,18 @@ import { sandbox } from 'sinon'
 const chaiAsPromised = require('chai-as-promised')
 
 import * as fs from 'fs-extra'
-import { Project } from '../../src/lib/Project'
+import { Project } from '../../../src/lib/Project'
 
 use(chaiAsPromised)
 const ctx = sandbox.create()
 
-describe('Project class', () => {
+describe('Project', () => {
   let getAllFilePathsStub
   let getDCLIgnoreStub
   let readFileStub
   let sceneFileExistsStub
   let decentralandFolderExistsStub
+  let statStub
 
   beforeEach(() => {
     getAllFilePathsStub = ctx
@@ -23,6 +24,7 @@ describe('Project class', () => {
     sceneFileExistsStub = ctx.stub(Project.prototype, 'sceneFileExists').callsFake(() => false)
     decentralandFolderExistsStub = ctx.stub(Project.prototype, 'decentralandFolderExists').callsFake(() => false)
     readFileStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
+    statStub = ctx.stub(fs, 'stat').callsFake(path => ({ size: 1000 }))
   })
 
   afterEach(() => {
@@ -30,15 +32,16 @@ describe('Project class', () => {
     ctx.restore()
   })
 
-  describe('getFiles', () => {
+  describe('getFiles()', () => {
     it('should return all files', async () => {
       const project = new Project('.')
       const files = await project.getFiles()
       const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
       files.forEach((file, i) => {
-        expect(file.path).to.eq('/tmp/' + expected[i])
+        expect(file.path).to.eq(expected[i])
         expect(file.content.compare(new Buffer('buffer'))).to.eq(0)
+        expect(file.size).to.eq(1000)
       })
     })
 
@@ -50,8 +53,9 @@ describe('Project class', () => {
       const expected = ['a.json', 'src/b.json', '.dclignore']
 
       files.forEach((file, i) => {
-        expect(file.path).to.eq('/tmp/' + expected[i])
+        expect(file.path).to.eq(expected[i])
         expect(file.content.compare(new Buffer('buffer'))).to.eq(0)
+        expect(file.size).to.eq(1000)
       })
 
       expect(files).to.satisfy((files: any[]) => {
@@ -67,8 +71,9 @@ describe('Project class', () => {
       const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js']
 
       files.forEach((file, i) => {
-        expect(file.path).to.eq('/tmp/' + expected[i])
+        expect(file.path).to.eq(expected[i])
         expect(file.content.compare(new Buffer('buffer'))).to.eq(0)
+        expect(file.size).to.eq(1000)
       })
 
       expect(files).to.satisfy((files: any[]) => {
@@ -84,8 +89,9 @@ describe('Project class', () => {
       const expected = ['src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
       files.forEach((file, i) => {
-        expect(file.path).to.eq('/tmp/' + expected[i])
+        expect(file.path).to.eq(expected[i])
         expect(file.content.compare(new Buffer('buffer'))).to.eq(0)
+        expect(file.size).to.eq(1000)
       })
 
       expect(files).to.satisfy((files: any[]) => {
@@ -101,8 +107,9 @@ describe('Project class', () => {
       const expected = ['node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
       files.forEach((file, i) => {
-        expect(file.path).to.eq('/tmp/' + expected[i])
+        expect(file.path).to.eq(expected[i])
         expect(file.content.compare(new Buffer('buffer'))).to.eq(0)
+        expect(file.size).to.eq(1000)
       })
 
       expect(files).to.satisfy((files: any[]) => {
@@ -111,7 +118,7 @@ describe('Project class', () => {
     })
   })
 
-  describe('validateNewProject', () => {
+  describe('validateNewProject()', () => {
     it('should pass if the working directory is not dirty', () => {
       const project = new Project('.')
       expect(project.validateNewProject(), 'expect validateNewProject not to fail').to.be['fulfilled']
@@ -132,7 +139,7 @@ describe('Project class', () => {
     })
   })
 
-  describe('needsDependencies', () => {
+  describe('needsDependencies()', () => {
     it('should return true if a package.json file is present', async () => {
       getAllFilePathsStub.callsFake(() => ['package.json', 'test.json'])
       const pathExistsStub = ctx.stub(fs, 'pathExists').callsFake(path => false)
@@ -148,7 +155,7 @@ describe('Project class', () => {
     })
   })
 
-  describe('isTypescriptProject', () => {
+  describe('isTypescriptProject()', () => {
     it('should return true if a tsconfig.json file is present', async () => {
       getAllFilePathsStub.callsFake(() => ['tsconfig.json', 'test.json'])
       const project = new Project('.')
@@ -159,6 +166,57 @@ describe('Project class', () => {
       getAllFilePathsStub.callsFake(() => ['package.json', 'test.json'])
       const project = new Project('.')
       expect(await project.isTypescriptProject()).to.be.false
+    })
+  })
+
+  describe('isValidMainFormat()', () => {
+    const project = new Project('.')
+
+    it('should return true for js', () => {
+      expect(project['isValidMainFormat']('js')).to.be.true
+    })
+
+    it('should return true for xml', () => {
+      expect(project['isValidMainFormat']('xml')).to.be.true
+    })
+
+    it('should return true for html', () => {
+      expect(project['isValidMainFormat']('html')).to.be.true
+    })
+
+    it('should return false for invalid formats', () => {
+      expect(project['isValidMainFormat']('dhtml')).to.be.false
+      expect(project['isValidMainFormat']('json')).to.be.false
+      expect(project['isValidMainFormat']('ts')).to.be.false
+      expect(project['isValidMainFormat']('')).to.be.false
+      expect(project['isValidMainFormat'](undefined)).to.be.false
+      expect(project['isValidMainFormat'](null)).to.be.false
+    })
+  })
+
+  describe('isWebSocket()', () => {
+    const project = new Project('.')
+
+    it('should return true for a valid websocket address', () => {
+      expect(project['isWebSocket']('ws://127.0.0.1')).to.be.true
+      expect(project['isWebSocket']('ws://mydomain.com:3131')).to.be.true
+      expect(project['isWebSocket']('ws://')).to.be.true
+    })
+
+    it('should return true for a valid secure websocket address', () => {
+      expect(project['isWebSocket']('wss://127.0.0.1')).to.be.true
+      expect(project['isWebSocket']('wss://mydomain.com:3131')).to.be.true
+      expect(project['isWebSocket']('wss://')).to.be.true
+    })
+
+    it('should return false for an invalid websocket address', () => {
+      expect(project['isWebSocket']('http://mydomain.com')).to.be.false
+      expect(project['isWebSocket']('http://mydomain.com:8080')).to.be.false
+      expect(project['isWebSocket']('https://127.0.0.1')).to.be.false
+      expect(project['isWebSocket']('w://')).to.be.false
+      expect(project['isWebSocket']('')).to.be.false
+      expect(project['isWebSocket'](null)).to.be.false
+      expect(project['isWebSocket'](undefined)).to.be.false
     })
   })
 })

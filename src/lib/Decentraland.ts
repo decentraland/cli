@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events'
 import { IPFS } from './IPFS'
-import { Project, BoilerplateType } from './Project'
+import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum } from './Ethereum'
 import * as events from 'wildcards'
 import { getRootPath } from '../utils/project'
@@ -41,11 +41,10 @@ export class Decentraland extends EventEmitter {
     await this.project.scaffoldProject(boilerplateType, websocketServer)
   }
 
-  async deploy() {
+  async deploy(files: IFile[]) {
     await this.project.validateExistingProject()
     await Ethereum.connect()
 
-    const files = await this.project.getFiles()
     const coords = await this.project.getParcelCoordinates()
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)

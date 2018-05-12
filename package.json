@@ -6,10 +6,8 @@
   "scripts": {
     "start": "npm run watch",
     "watch": "tsc --watch & metaverse-compiler build.json --watch",
-    "build": "npm run clean && tsc && npm run linker:build && npm run copy:samples",
+    "build": "tsc && npm run linker:build && npm run copy:samples",
     "copy:samples": "cp -r src/samples dist/samples",
-    "clean": "rimraf dist && rimraf tmp",
-    "linker:dev": "next",
     "linker:build": "metaverse-compiler build.json",
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "tsc": "tsc",
@@ -18,7 +16,11 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.ts": ["npm run lint", "prettier --write 'src/**/*.ts'", "git add"]
+    "*.ts": [
+      "npm run lint",
+      "prettier --write 'src/**/*.ts'",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
@@ -81,6 +83,7 @@
     "@types/uuid": "^3.4.3",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
+    "cross-spawn": "^6.0.5",
     "dcl-tslint-config-standard": "^1.0.1",
     "git-rev-sync": "^1.11.1",
     "husky": "^0.14.3",

@@ -1,6 +1,6 @@
 import { expect } from 'chai'
-import { tmpTest } from './sandbox'
-import { Project } from '../../src/lib/Project'
+import { tmpTest } from '../../sandbox'
+import { Project } from '../../../src/lib/Project'
 import * as path from 'path'
 import { setupFilesystem } from '../helpers'
 
@@ -60,7 +60,7 @@ tmpTest(async (dirPath, done) => {
         const project = new Project(dirPath)
         const result = await project.getFiles()
 
-        expect(result.map(f => f.path)).to.deep.equal(['/tmp/models/test.fbx', '/tmp/scene.json', '/tmp/scene.xml', '/tmp/test.js'])
+        expect(result.map(f => f.path)).to.deep.equal(['models/test.fbx', 'scene.json', 'scene.xml', 'test.js'])
       }).timeout(5000)
     })
 

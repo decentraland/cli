@@ -39,7 +39,34 @@ export namespace Analytics {
       stackTrace
     })
   }
+
+  export async function requestPermission() {
+    const dclinfo = await getDCLInfo()
+
+    if (!dclinfo) {
+      const results = await inquirer.prompt({
+        type: 'confirm',
+        name: 'continue',
+        default: true,
+        message: 'Send anonymous usage stats to Decentraland?'
+      })
+
+      const devId = uuidv4()
+      await writeDCLInfo(devId, results.continue)
+      await Analytics.identify(devId)
+    }
+  }
 }
+
+/**
+ * holis
+ * lo que esta pasando es que salta el confirm de analytics en medio de los tests
+ * por eso no falla local
+ * fuera de eso, el confirm sale desordenado en medio de cualquier proceso
+ * por lo que puede ocurrir en medio de un install de dependencias, lo cual es bastante choto
+ * hay que asegurarnos de que se haga al principio
+ * hay que asegurarnos de que los tests sepan handlearlo
+ */
 
 /**
  * Tracks an specific event using the Segment API
@@ -55,24 +82,6 @@ async function track(eventName: string, properties: any = {}) {
     const dclinfo = await getDCLInfo()
     let devId = dclinfo ? dclinfo.userId : null
     let shouldTrack = dclinfo ? dclinfo.trackStats : true
-
-    if (!dclinfo) {
-      const results = await inquirer.prompt({
-        type: 'confirm',
-        name: 'continue',
-        default: true,
-        message: 'Send anonymous usage stats to Decentraland?'
-      })
-
-      devId = uuidv4()
-      await writeDCLInfo(devId, results.continue)
-      await Analytics.identify(devId)
-      shouldTrack = results.continue
-
-      if (!results.continue) {
-        resolve()
-      }
-    }
 
     const event = {
       userId: SINGLEUSER,

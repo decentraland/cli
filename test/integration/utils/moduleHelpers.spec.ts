@@ -1,11 +1,11 @@
 import * as path from 'path'
 import { expect } from 'chai'
 import { sandbox } from 'sinon'
-import { tmpTest } from './sandbox'
-import * as Helpers from '../../src/utils/moduleHelpers'
+import { tmpTest } from '../../sandbox'
+import * as Helpers from '../../../src/utils/moduleHelpers'
 import { setupFilesystem } from '../helpers'
 import * as proxyquire from 'proxyquire'
-import * as filesystem from '../../src/utils/filesystem'
+import * as filesystem from '../../../src/utils/filesystem'
 
 const ctx = sandbox.create()
 let packageJsonStub
@@ -31,10 +31,10 @@ tmpTest(async (dirPath, done) => {
       /**
        * Due to the way that node modules work we can't create a stub for a function (that belongs to a module)
        * and then call another function (within the same module) that calls our stubbed function.
-       * We can't create a standard stub for this module either because it exports a function directly (module.exports = fn)
+       * We can't create a standard stub for this module neither because it exports a function directly (module.exports = fn)
        * proxyrequire is a helper that proxies nodejs's require allowing us to override dependencies using stubs.
        */
-      helpers = proxyquire('../../src/utils/moduleHelpers', {
+      helpers = proxyquire('../../../src/utils/moduleHelpers', {
         'package-json': packageJsonStub
       })
     })

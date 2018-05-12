@@ -13,13 +13,18 @@ import {
   getDecentralandFolderPath
 } from '../utils/project'
 import ignore = require('ignore')
-import { IIPFSFile } from './IPFS'
 import { fail, ErrorType } from '../utils/errors'
 
 export enum BoilerplateType {
   STATIC = 'static',
   TYPESCRIPT = 'singleplayer',
   WEBSOCKETS = 'multiplayer'
+}
+
+export interface IFile {
+  path: string
+  content: Buffer
+  size: number
 }
 
 export class Project {
@@ -291,7 +296,7 @@ export class Project {
    * Returns a promise of an array of objects containing the path and the content for all the files in the project.
    * All the paths added to the `.dclignore` file will be excluded from the results.
    */
-  async getFiles(): Promise<IIPFSFile[]> {
+  async getFiles(): Promise<IFile[]> {
     const files = await this.getAllFilePaths()
     const filteredFiles = ignore()
       .add(await this.getDCLIgnore())
@@ -300,9 +305,14 @@ export class Project {
 
     for (let i = 0; i < filteredFiles.length; i++) {
       const file = filteredFiles[i]
+      const filePath = path.resolve(this.workingDir, file)
+      const content = await fs.readFile(filePath)
+      const stat = await fs.stat(filePath)
+
       data.push({
-        path: `/tmp/${file.replace(/\\/g, '/')}`,
-        content: new Buffer(await fs.readFile(path.resolve(this.workingDir, file)))
+        path: file.replace(/\\/g, '/'),
+        content: new Buffer(content),
+        size: stat.size
       })
     }
 
@@ -322,9 +332,8 @@ export class Project {
    */
   private isValidMainFormat(path: string): boolean {
     const supportedExtensions = ['js', 'html', 'xml']
-    const mainExt = path.split('.').pop()
-    const isValid = supportedExtensions.find(ext => ext === mainExt)
-    return !!isValid
+    const mainExt = path ? path.split('.').pop() : null
+    return supportedExtensions.some(ext => ext === mainExt)
   }
 
   /**
