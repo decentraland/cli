@@ -4,19 +4,19 @@ import { Analytics } from '../utils/analytics'
 import { success, notice } from '../utils/logging'
 import opn = require('opn')
 
-export interface ILinkArguments {
+export interface IArguments {
   options: {
     port?: number
   }
 }
 
-export function command(vorpal: any) {
+export function link(vorpal: any) {
   vorpal
     .command('link')
     .description('Link scene to Ethereum.')
-    .option('-p, --port <number>', 'Linker app server port (default is 4044).')
+    .option('-p, --port <number>', 'linker app server port (default is 4044).')
     .action(
-      wrapCommand(async function(args: ILinkArguments, callback: () => void) {
+      wrapCommand(async function(args: IArguments, callback: () => void) {
         const dcl = new Decentraland({
           linkerPort: args.options.port
         })

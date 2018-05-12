@@ -3,21 +3,21 @@ import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import { success } from '../utils/logging'
 
-export interface IPinArguments {
+export interface IArguments {
   options: {
     host?: string
     port?: number
   }
 }
 
-export function command(vorpal: any) {
+export function pin(vorpal: any) {
   vorpal
     .command('pin')
     .description('Notifies an external IPFS node to pin local files.')
     .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .action(
-      wrapCommand(async function(args: IPinArguments, callback: () => void) {
+      wrapCommand(async function(args: IArguments, callback: () => void) {
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
           ipfsPort: args.options.port || 5001

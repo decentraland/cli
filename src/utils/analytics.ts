@@ -47,7 +47,7 @@ export namespace Analytics {
  * @param properties Any object containing serializable data
  */
 async function track(eventName: string, properties: any = {}) {
-  if (isDev || !await isOnline()) {
+  if (isDev || !(await isOnline())) {
     return
   }
 
