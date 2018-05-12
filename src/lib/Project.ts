@@ -312,7 +312,7 @@ export class Project {
   /**
    * Returns the the contents of the `.dclignore` file
    */
-  private getDCLIgnore(): Promise<string> {
+  getDCLIgnore(): Promise<string> {
     return fs.readFile(getIgnoreFilePath(this.workingDir), 'utf8')
   }
 
