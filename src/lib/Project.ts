@@ -252,7 +252,7 @@ export class Project {
         fail(ErrorType.PROJECT_ERROR, `Main scene format file (${sceneFile.main}) is not a supported format`)
       }
 
-      if (!await this.fileExists(sceneFile.main)) {
+      if (!(await this.fileExists(sceneFile.main))) {
         fail(ErrorType.PROJECT_ERROR, `Main scene file ${sceneFile.main} is missing`)
       }
     }
@@ -312,7 +312,7 @@ export class Project {
   /**
    * Returns the the contents of the `.dclignore` file
    */
-  private getDCLIgnore(): Promise<string> {
+  getDCLIgnore(): Promise<string> {
     return fs.readFile(getIgnoreFilePath(this.workingDir), 'utf8')
   }
 
