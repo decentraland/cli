@@ -12,15 +12,12 @@
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "tsc": "tsc",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
-    "release": "node ./scripts/unlockDevDeps.js && node ./scripts/npmPublish.js",
+    "unlock:dev": "node ./scripts/unlockDevDeps.js",
+    "release": "node ./scripts/npmPublish.js",
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.ts": [
-      "npm run lint",
-      "prettier --write 'src/**/*.ts'",
-      "git add"
-    ]
+    "*.ts": ["npm run lint", "prettier --write 'src/**/*.ts'", "git add"]
   },
   "repository": {
     "type": "git",
@@ -31,10 +28,7 @@
     "singleQuote": true,
     "printWidth": 140
   },
-  "keywords": [
-    "decentraland",
-    "cli"
-  ],
+  "keywords": ["decentraland", "cli"],
   "author": "Decentraland",
   "license": "Apache-2.0",
   "bugs": {
