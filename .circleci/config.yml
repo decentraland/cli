@@ -35,8 +35,7 @@ jobs:
       
       - run: npm run build
       - run: npm test
-      - run: npm prune --production
-      - run: npm shrinkwrap --production
+      - run: npm shrinkwrap
       - run: npm run release
 
 workflows:

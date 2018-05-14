@@ -12,7 +12,7 @@
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "tsc": "tsc",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
-    "release": "node ./scripts/npmPublish.js",
+    "release": "node ./scripts/unlockDevDeps.js && node ./scripts/npmPublish.js",
     "precommit": "lint-staged"
   },
   "lint-staged": {
