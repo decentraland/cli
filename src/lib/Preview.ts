@@ -41,32 +41,91 @@ export class Preview extends EventEmitter {
 
     this.app.get('/', (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/html' })
-      res.end(`
-        <!DOCTYPE html>
+      res.end(`<!DOCTYPE html>
         <html>
           <head>
             <title>Decentraland Preview</title>
-            <script charset="utf-8" src="/metaverse-api/preview.js"></script>
             <style>
+              html,
               body {
-                margin: 0px;
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden;
+                touch-action: none;
               }
+
+              * {
+                box-sizing: border-box;
+              }
+
+              .babylonVRicon {
+                z-index: 9999;
+                margin-top: -28px;
+              }
+
+              body {
+                background: #e3e3e3;
+                color: #333;
+                font-family: 'open sans', roboto, 'helvetica neue', sans-serif;
+                font-size: 0.8em;
+              }
+
+              .chatHistory {
+                position: absolute;
+                bottom: 21px;
+                left: 0;
+                right: 0;
+                z-index: 999999;
+                pointer-events: none;
+                font-family: monospace;
+                padding: 10px;
+                font-size: 12pt;
+                text-shadow: 0px 0px 1px white;
+                color: #000;
+              }
+
+              .chatInput {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                font-family: monospace;
+                z-index: 999999;
+                display: block;
+                width: 100%;
+                padding: 4px 10px;
+                font-size: 12pt;
+                border-width: 1px 0 0 0;
+                background: transparent;
+                outline: none;
+              }
+
+              .chatInput:focus {
+                outline: inherit;
+                background: white;
+              }
+
+              canvas {
+                position: relative;
+                z-index: 1000;
+              }
+
             </style>
           </head>
           <body>
+              <script charset="utf-8" src="/metaverse-api/preview.js"></script>
               <script>
                 const host = window.location.hostname
                 const ws = new WebSocket(\`ws://\${host}:${port}\`)
-
-                ws.addEventListener('message', (msg) => {
+                ws.addEventListener('message', msg => {
                   if (msg.data === 'update') {
-                    location.reload()
+                    handleServerMessage({type: 'update'})
                   }
                 })
               </script>
           </body>
-        </html>
-      `)
+        </html>`)
     })
 
     const artifactPath = path.dirname(path.resolve('node_modules', 'metaverse-api/artifacts/preview'))
