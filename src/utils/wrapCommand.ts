@@ -17,10 +17,10 @@ async function wrapper(fn: TargetFunction, ctx: any, args: any[]): Promise<void>
   await Analytics.requestPermission()
 
   try {
-    await fn.call(this, args)
+    await fn.call(ctx, args)
   } catch (e) {
     await Analytics.reportError(e.name, e.message, e.stack)
-    exit(e.message, this)
+    exit(e.message, ctx)
   }
 
   if (await isCLIOutdated()) {
