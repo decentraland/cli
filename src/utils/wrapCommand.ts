@@ -24,10 +24,10 @@ async function wrapper(fn: TargetFunction, ctx: any, args: any[]): Promise<void>
   }
 
   if (await isCLIOutdated()) {
-    this.log(highlight('\nWARNING: outdated decentraland version\nPlease run ') + 'npm update -g decentraland\n')
+    ctx.log(highlight('\nWARNING: outdated decentraland version\nPlease run ') + 'npm update -g decentraland\n')
   }
 
   if (await isMetaverseApiOutdated()) {
-    this.log(highlight('\nWARNING: outdated metaverse-api version\nPlease run ') + 'npm install metaverse-api@latest\n')
+    ctx.log(highlight('\nWARNING: outdated metaverse-api version\nPlease run ') + 'npm install metaverse-api@latest\n')
   }
 }

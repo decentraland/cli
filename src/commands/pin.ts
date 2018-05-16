@@ -17,7 +17,7 @@ export function pin(vorpal: any) {
     .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .action(
-      wrapCommand(async function(args: IArguments, callback: () => void) {
+      wrapCommand(async function(args: IArguments) {
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
           ipfsPort: args.options.port || 5001
@@ -34,8 +34,6 @@ export function pin(vorpal: any) {
         })
 
         await dcl.pin()
-
-        callback()
       })
     )
 }

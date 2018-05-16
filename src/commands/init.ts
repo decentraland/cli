@@ -15,7 +15,7 @@ export function init(vorpal: any) {
     .option('--path <path>', 'output path (default is the current working directory).')
     .option('--boilerplate', 'static, singleplayer or multiplayer')
     .action(
-      wrapCommand(async function(args: any, callback: () => void) {
+      wrapCommand(async function(args: any) {
         const dcl = new Decentraland({
           workingDir: args.options.path
         })

@@ -9,7 +9,7 @@ export function upgrade(vorpal: any) {
     .alias('update')
     .description('Update the Decentraland CLI tools')
     .action(
-      wrapCommand(async function(args: any, callback: () => void) {
+      wrapCommand(async function(args: any) {
         if (!(await isOnline())) {
           fail(ErrorType.UPGRADE_ERROR, 'Unable to upgrade: no internet connection')
         }

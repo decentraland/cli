@@ -22,7 +22,7 @@ export function deploy(vorpal: any) {
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .action(
-      wrapCommand(async function(args: IDeployArguments, callback: () => void) {
+      wrapCommand(async function(args: IDeployArguments) {
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
           ipfsPort: args.options.port || 5001
@@ -98,7 +98,7 @@ export function deploy(vorpal: any) {
 
           if (!results.continue) {
             vorpal.log('Aborting...')
-            callback()
+            process.exit(1)
           }
         }
 
@@ -106,7 +106,6 @@ export function deploy(vorpal: any) {
         await dcl.deploy(files)
         await Analytics.sceneDeploySuccess()
         vorpal.log(success(`Successfully uploaded project to IPFS`))
-        callback()
       })
     )
 }

@@ -16,7 +16,7 @@ export function link(vorpal: any) {
     .description('Link scene to Ethereum.')
     .option('-p, --port <number>', 'linker app server port (default is 4044).')
     .action(
-      wrapCommand(async function(args: IArguments, callback: () => void) {
+      wrapCommand(async function(args: IArguments) {
         const dcl = new Decentraland({
           linkerPort: args.options.port
         })

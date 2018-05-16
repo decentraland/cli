@@ -4,7 +4,7 @@ export function help(vorpal: any) {
   vorpal
     .command('help [command...]')
     .description('Provides help for a given command.')
-    .action(function(args: any, callback: () => void) {
+    .action(function(args: any) {
       if (args.command) {
         showHelp(vorpal, args.command.join(' '))
       } else {
@@ -22,8 +22,6 @@ export function help(vorpal: any) {
 
         vorpal.commands = oldCommands
       }
-
-      callback()
     })
 }
 
