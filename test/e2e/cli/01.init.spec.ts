@@ -19,7 +19,7 @@ describe('init command', async () => {
         .when(/Your email/, () => 'john.titor@example.com\n')
         .when(/Parcels comprising the scene/, () => '0,0\n')
         .when(/Which type of project would you like to generate/, () => 'static\n')
-        .endWhen(/Installing dependencies.../)
+        .endWhen(/Installing dependencies/)
         .on('err', e => console.log(e))
         .on('end', async () => {
           expect(await fs.pathExists(path.resolve(dirPath, 'scene.xml')), 'scene.xml should exist').to.be.true

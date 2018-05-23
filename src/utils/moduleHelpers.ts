@@ -7,11 +7,13 @@ import { getRootPath, getNodeModulesPath } from '../utils/project'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 
-export function installDependencies(): Promise<void> {
+export function installDependencies(silent: boolean = false): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn(npm, ['install'], { shell: true })
-    child.stdout.pipe(process.stdout)
-    child.stderr.pipe(process.stderr)
+    if (!silent) {
+      child.stdout.pipe(process.stdout)
+      child.stderr.pipe(process.stderr)
+    }
     child.on('close', () => resolve())
   })
 }

@@ -28,6 +28,7 @@ export interface IFile {
 }
 
 export class Project {
+  private static MAX_FILE_SIZE = 5243000000
   private workingDir: string
 
   constructor(workingDir: string) {
@@ -295,6 +296,7 @@ export class Project {
   /**
    * Returns a promise of an array of objects containing the path and the content for all the files in the project.
    * All the paths added to the `.dclignore` file will be excluded from the results.
+   * Windows directory separators are replaced for POSIX separators.
    */
   async getFiles(): Promise<IFile[]> {
     const files = await this.getAllFilePaths()
@@ -306,8 +308,15 @@ export class Project {
     for (let i = 0; i < filteredFiles.length; i++) {
       const file = filteredFiles[i]
       const filePath = path.resolve(this.workingDir, file)
-      const content = await fs.readFile(filePath)
       const stat = await fs.stat(filePath)
+
+      if (stat.size > Project.MAX_FILE_SIZE) {
+        // MAX_FILE_SIZE is an arbitrary file size, V8 will probably fail to read files larger than 2147483647 bytes,
+        // while ChakraCore has other limits. For more info see: https://github.com/nodejs/node/issues/9489
+        fail(ErrorType.IPFS_ERROR, `Maximum file size exceeded: '${file}' is larger than ${Project.MAX_FILE_SIZE} bytes`)
+      }
+
+      const content = await fs.readFile(filePath)
 
       data.push({
         path: file.replace(/\\/g, '/'),

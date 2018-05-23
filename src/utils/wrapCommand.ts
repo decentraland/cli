@@ -20,7 +20,7 @@ async function wrapper(fn: TargetFunction, ctx: any, args: any[]): Promise<void>
     await fn.call(ctx, args)
   } catch (e) {
     await Analytics.reportError(e.name, e.message, e.stack)
-    exit(e.message, ctx)
+    exit(e, ctx)
   }
 
   if (await isCLIOutdated()) {

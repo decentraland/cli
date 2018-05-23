@@ -3,7 +3,7 @@ import { wrapCommand } from '../utils/wrapCommand'
 import { installDependencies, isOnline } from '../utils/moduleHelpers'
 import { BoilerplateType } from '../lib/Project'
 import { Analytics } from '../utils/analytics'
-import { success, notice, comment, highlight } from '../utils/logging'
+import { notice, comment, highlight, loading, positive } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
 import { fail, ErrorType } from '../utils/errors'
 import { parseCoordinates, validateCoordinates } from '../utils/coordinateHelpers'
@@ -107,8 +107,9 @@ export function init(vorpal: any) {
 
         if (await dcl.project.needsDependencies()) {
           if (await isOnline()) {
-            vorpal.log('Installing dependencies...')
-            await installDependencies()
+            const spinner = loading('Installing dependencies')
+            await installDependencies(true)
+            spinner.succeed()
           } else {
             fail(ErrorType.PREVIEW_ERROR, 'Unable to install dependencies: no internet connection')
           }
@@ -116,7 +117,7 @@ export function init(vorpal: any) {
 
         await Analytics.sceneCreated({ boilerplateType })
 
-        vorpal.log(success(`\nSuccess! Run 'dcl preview' to see your scene`))
+        vorpal.log(positive(`\nSuccess! Run 'dcl preview' to see your scene`))
       })
     )
 }

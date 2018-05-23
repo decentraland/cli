@@ -18,7 +18,7 @@ describe('deploy command', async () => {
         .when(/Your email/, () => 'john.titor@example.com\n')
         .when(/Parcels comprising the scene/, () => '0,0\n')
         .when(/Which type of project would you like to generate/, () => 'static\n')
-        .endWhen(/Installing dependencies.../)
+        .endWhen(/Installing dependencies/)
         .on('end', async () => {
           new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
             silent: true,
