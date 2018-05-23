@@ -17,7 +17,7 @@ export function upgrade(vorpal: any) {
         vorpal.log('Updating to decentraland@' + (await latestVersion('decentraland')))
         await uninstall()
         await install()
-        vorpal.log(success('All packages updated successfully'))
+        success('All packages updated successfully')
       })
     )
 }

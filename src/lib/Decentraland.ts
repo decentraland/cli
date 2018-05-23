@@ -6,6 +6,7 @@ import * as events from 'wildcards'
 import { getRootPath } from '../utils/project'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
+import { ErrorType, fail } from '../utils/errors'
 
 export interface IDecentralandArguments {
   workingDir?: string
@@ -63,7 +64,11 @@ export class Decentraland extends EventEmitter {
     await this.localIPFS.publish(projectFile.id, `/ipfs/${rootFolder.hash}`)
 
     if (ipfsKey !== ipns) {
-      await this.link()
+      try {
+        await this.link()
+      } catch (e) {
+        fail(ErrorType.LINKER_ERROR, e.message)
+      }
     }
 
     await this.pin()

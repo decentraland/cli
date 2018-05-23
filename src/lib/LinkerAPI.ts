@@ -34,7 +34,13 @@ export class LinkerAPI extends EventEmitter {
         reject(err)
       })
 
-      return this.app.listen(port, () => this.emit('link:ready', url))
+      this.app.listen(port, () => this.emit('link:ready', url)).on('error', (e: any) => {
+        if (e.errno === 'EADDRINUSE') {
+          reject(new Error(`Port ${port} is already in use by another process`))
+        } else {
+          reject(new Error(`Failed to start Linker App: ${e.message}`))
+        }
+      })
     })
   }
 

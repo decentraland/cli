@@ -7,7 +7,8 @@ import { ErrorType, fail } from '../utils/errors'
 /**
  * Events emitted by this class:
  *
- * ethereum:get-ipns-request - An attempt to load landData from the ethereum blockchain
+ * ethereum:get-ipns         - An attempt to load landData from the ethereum blockchain
+ * ethereum:get-ipns-empty   - No IPNS was found on the blockchain
  * ethereum:get-ipns-success - Successfully fetched and parsed landData
  */
 export class Ethereum extends EventEmitter {
@@ -68,7 +69,7 @@ export class Ethereum extends EventEmitter {
     const contract = (await this.getContractInstance()) as any
     let landData
 
-    this.emit('ethereum:get-ipns-request', coordinates)
+    this.emit('ethereum:get-ipns', coordinates)
 
     try {
       landData = await contract.landData(coordinates.x, coordinates.y)
@@ -77,6 +78,7 @@ export class Ethereum extends EventEmitter {
     }
 
     if (landData.trim() === '') {
+      this.emit('ethereum:get-ipns-empty')
       return null
     }
 

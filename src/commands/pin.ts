@@ -1,7 +1,7 @@
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
-import { success } from '../utils/logging'
+import { loading } from '../utils/logging'
 
 export interface IArguments {
   options: {
@@ -23,14 +23,14 @@ export function pin(vorpal: any) {
           ipfsPort: args.options.port || 5001
         })
 
-        dcl.on('ipfs:pin-request', async () => {
+        dcl.on('ipfs:pin', async () => {
           await Analytics.pinRequest()
-          vorpal.log(`Pinning files...`)
-        })
+          const spinner = loading(`Pinning files to IPFS gateway`)
 
-        dcl.on('ipfs:pin-success', async () => {
-          await Analytics.pinSuccess()
-          vorpal.log(success('Files pinned successfully.'))
+          dcl.on('ipfs:pin-success', async () => {
+            await Analytics.pinSuccess()
+            spinner.succeed()
+          })
         })
 
         await dcl.pin()

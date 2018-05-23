@@ -1,26 +1,41 @@
 import chalk from 'chalk'
-
-export function notice(message: string): string {
-  return chalk.blue(message)
-}
+import { isDev } from './env'
+import ora = require('ora')
 
 export function error(message: string): string {
   return chalk.red(message)
-}
-
-export function success(message: string): string {
-  return chalk.green(message)
 }
 
 export function comment(message: string): string {
   return chalk.grey(message)
 }
 
+export function notice(message: string): string {
+  return chalk.blue(message)
+}
+
 export function highlight(message: string): string {
   return chalk.yellow(message)
 }
 
-export function exit(message: string, logger: any) {
-  logger.log(error(message))
+export function info(message: string) {
+  return ora(message).info()
+}
+
+export function success(message: string) {
+  return ora(message).succeed()
+}
+
+export function warn(message: string) {
+  return ora(message).warn()
+}
+
+export function loading(message: string) {
+  return ora(message).start()
+}
+
+export function exit(err: Error, logger: any) {
+  logger.log(error(err.message))
+  if (isDev) logger.log(error(err.stack))
   process.exit(1)
 }

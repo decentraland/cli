@@ -1,5 +1,5 @@
 import { wrapCommand } from '../utils/wrapCommand'
-import { success, notice } from '../utils/logging'
+import { success, loading, info } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import opn = require('opn')
@@ -28,51 +28,53 @@ export function deploy(vorpal: any) {
           ipfsPort: args.options.port || 5001
         })
 
-        dcl.on('ipfs:add-progress', (bytes, files, total) => {
-          vorpal.log(`Uploading ${files}/${total} files to IPFS (${bytes} bytes uploaded)`)
+        dcl.on('ipfs:add', () => {
+          const spinner = loading('Uploading files to local IPFS node')
+          dcl.on('ipfs:add-success', () => {
+            spinner.succeed()
+          })
         })
 
-        dcl.on('ipfs:add-success', () => {
-          vorpal.log('Successfully added files to local IPFS node')
+        dcl.on('ethereum:get-ipns', ({ x, y }) => {
+          const spinner = loading(`Checking IPNS for coordinates ${x}, ${y}`)
+
+          dcl.on('ethereum:get-ipns-empty', () => {
+            spinner.info(`No IPNS found for coordinates ${x}, ${y}`)
+          })
+
+          dcl.on('ethereum:get-ipns-success', () => {
+            spinner.succeed()
+          })
         })
 
-        dcl.on('ethereum:get-ipns-request', ({ x, y }) => {
-          vorpal.log(`Checking IPNS for coordinates ${x}, ${y}`)
-        })
+        dcl.on('ipfs:publish', (ipfsHash: string) => {
+          const spinner = loading(`Publishing IPNS for ${ipfsHash}`)
 
-        dcl.on('ethereum:get-ipns-success', () => {
-          vorpal.log(`Successfully queried blockchain IPNS`)
-        })
-
-        dcl.on('ipfs:publish-request', () => {
-          vorpal.log(`Publishing to IPFS, this may take a while...`)
-        })
-
-        dcl.on('ipfs:publish-success', (ipnsHash: string) => {
-          vorpal.log(`IPNS hash: ${ipnsHash}`)
-          vorpal.log(`Successfully published to IPFS`)
+          dcl.on('ipfs:publish-success', (ipnsHash: string) => {
+            spinner.succeed()
+            info(`IPNS hash: ${ipnsHash}`)
+          })
         })
 
         dcl.on('link:ready', async url => {
           await Analytics.sceneLink()
-          vorpal.log('Linking app ready.')
-          vorpal.log(`Please proceed to ${url}`)
+          info(`Linking app ready at ${url}`)
           opn(url)
         })
 
         dcl.on('link:success', async () => {
           await Analytics.sceneLinkSuccess()
-          vorpal.log('Project successfully linked to the blockchain')
+          success('Project successfully linked to the blockchain')
         })
 
-        dcl.on('ipfs:pin-request', async () => {
+        dcl.on('ipfs:pin', async () => {
           await Analytics.pinRequest()
-          vorpal.log(`Pinning to IPFS-GTW, this may take a while...`)
-        })
+          const spinner = loading(`Pinning files to IPFS gateway`)
 
-        dcl.on('ipfs:pin-success', async () => {
-          await Analytics.pinSuccess()
-          vorpal.log(`Successfully pinned files`)
+          dcl.on('ipfs:pin-success', async () => {
+            await Analytics.pinSuccess()
+            spinner.succeed()
+          })
         })
 
         await Analytics.sceneDeploy()
@@ -102,10 +104,9 @@ export function deploy(vorpal: any) {
           }
         }
 
-        vorpal.log(notice(`Uploading project to IPFS:\n`))
         await dcl.deploy(files)
         await Analytics.sceneDeploySuccess()
-        vorpal.log(success(`Successfully uploaded project to IPFS`))
+        success(`Successfully uploaded project to IPFS`)
       })
     )
 }

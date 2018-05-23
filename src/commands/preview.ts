@@ -2,7 +2,7 @@ import { buildTypescript, installDependencies, isOnline } from '../utils/moduleH
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
-import { success } from '../utils/logging'
+import { info, comment } from '../utils/logging'
 import opn = require('opn')
 import { ErrorType } from '../utils/errors'
 
@@ -29,7 +29,8 @@ export function start(vorpal: any) {
           await Analytics.preview()
 
           dcl.on('preview:ready', url => {
-            vorpal.log(success(`Development server running at ${url}`))
+            info(`Development server running at ${url}`)
+            vorpal.log(comment('Press CTRL-C to exit'))
             opn(url)
           })
 

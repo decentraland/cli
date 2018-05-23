@@ -1,8 +1,9 @@
 import { wrapCommand } from '../utils/wrapCommand'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
-import { success, notice } from '../utils/logging'
+import { success, info } from '../utils/logging'
 import opn = require('opn')
+import { ErrorType, fail } from '../utils/errors'
 
 export interface IArguments {
   options: {
@@ -23,18 +24,21 @@ export function link(vorpal: any) {
 
         dcl.on('link:ready', async url => {
           await Analytics.sceneLink()
-          vorpal.log(notice('Linking app ready.'))
-          vorpal.log(`Please proceed to ${url}`)
+          info(`Linking app ready at ${url}`)
           opn(url)
         })
 
         dcl.on('link:success', async () => {
           await Analytics.sceneLinkSuccess()
-          vorpal.log(success('Project successfully linked to the blockchain'))
+          success('Project successfully linked to the blockchain')
           process.exit(1)
         })
 
-        await dcl.link()
+        try {
+          await dcl.link()
+        } catch (e) {
+          fail(ErrorType.LINKER_ERROR, e.message)
+        }
       })
     )
 }
