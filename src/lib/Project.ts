@@ -311,8 +311,8 @@ export class Project {
       const stat = await fs.stat(filePath)
 
       if (stat.size > Project.MAX_FILE_SIZE) {
-        // 524300000 bytes is an arbitrary file size, V8 will probably fail to read files larger than 2147483647 bytes, while ChakraCore has other limits
-        // see: https://github.com/nodejs/node/issues/9489
+        // MAX_FILE_SIZE is an arbitrary file size, V8 will probably fail to read files larger than 2147483647 bytes,
+        // while ChakraCore has other limits. For more info see: https://github.com/nodejs/node/issues/9489
         fail(ErrorType.IPFS_ERROR, `Maximum file size exceeded: '${file}' is larger than ${Project.MAX_FILE_SIZE} bytes`)
       }
 

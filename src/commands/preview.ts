@@ -2,7 +2,7 @@ import { buildTypescript, installDependencies, isOnline } from '../utils/moduleH
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
-import { info, comment } from '../utils/logging'
+import { info, comment, loading } from '../utils/logging'
 import opn = require('opn')
 import { ErrorType } from '../utils/errors'
 
@@ -30,14 +30,15 @@ export function start(vorpal: any) {
 
           dcl.on('preview:ready', url => {
             info(`Development server running at ${url}`)
-            vorpal.log(comment('Press CTRL-C to exit'))
+            vorpal.log(comment('Press CTRL+C to exit'))
             opn(url)
           })
 
           if (await dcl.project.needsDependencies()) {
             if (await isOnline()) {
-              vorpal.log('Installing dependencies...')
-              await installDependencies()
+              const spinner = loading('Installing dependencies')
+              await installDependencies(true)
+              spinner.succeed()
             } else {
               const e = new Error('Unable to install dependencies: no internet connection')
               e.name = ErrorType.PREVIEW_ERROR

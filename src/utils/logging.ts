@@ -18,6 +18,10 @@ export function highlight(message: string): string {
   return chalk.yellow(message)
 }
 
+export function positive(message: string): string {
+  return chalk.green(message)
+}
+
 export function info(message: string) {
   return ora(message).info()
 }
@@ -31,7 +35,12 @@ export function warn(message: string) {
 }
 
 export function loading(message: string) {
-  return ora(message).start()
+  const spinner = ora(message).start()
+  if (!spinner['isSpinning']) {
+    // fallback to show message even when Ora is not supported
+    console['log'](message)
+  }
+  return spinner
 }
 
 export function exit(err: Error, logger: any) {
