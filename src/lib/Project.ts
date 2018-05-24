@@ -320,7 +320,7 @@ export class Project {
 
       data.push({
         path: file.replace(/\\/g, '/'),
-        content: new Buffer(content),
+        content: Buffer.from(content),
         size: stat.size
       })
     }

@@ -1,5 +1,5 @@
 import { wrapCommand } from '../utils/wrapCommand'
-import { success, loading, info } from '../utils/logging'
+import { loading, info, positive } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import opn = require('opn')
@@ -36,10 +36,10 @@ export function deploy(vorpal: any) {
         })
 
         dcl.on('ethereum:get-ipns', ({ x, y }) => {
-          const spinner = loading(`Checking IPNS for coordinates ${x}, ${y}`)
+          const spinner = loading(`Checking IPNS for coordinates ${x},${y}`)
 
           dcl.on('ethereum:get-ipns-empty', () => {
-            spinner.info(`No IPNS found for coordinates ${x}, ${y}`)
+            spinner.info(`No IPNS found for coordinates ${x},${y}`)
           })
 
           dcl.on('ethereum:get-ipns-success', () => {
@@ -58,13 +58,13 @@ export function deploy(vorpal: any) {
 
         dcl.on('link:ready', async url => {
           await Analytics.sceneLink()
-          info(`Linking app ready at ${url}`)
+          const linkerMsg = loading(`Linking app ready at ${url}`)
           opn(url)
-        })
 
-        dcl.on('link:success', async () => {
-          await Analytics.sceneLinkSuccess()
-          success('Project successfully linked to the blockchain')
+          dcl.on('link:success', async () => {
+            await Analytics.sceneLinkSuccess()
+            linkerMsg.succeed('Project successfully updated in LAND Registry')
+          })
         })
 
         dcl.on('ipfs:pin', async () => {
@@ -106,7 +106,7 @@ export function deploy(vorpal: any) {
 
         await dcl.deploy(files)
         await Analytics.sceneDeploySuccess()
-        success(`Successfully uploaded project to IPFS`)
+        vorpal.log(positive(`\nDeployment complete!`))
       })
     )
 }

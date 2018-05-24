@@ -44,7 +44,6 @@ export class Decentraland extends EventEmitter {
 
   async deploy(files: IFile[]) {
     await this.project.validateExistingProject()
-    await Ethereum.connect()
 
     const coords = await this.project.getParcelCoordinates()
     const projectFile = await this.project.getProjectFile()
@@ -76,7 +75,6 @@ export class Decentraland extends EventEmitter {
 
   async link() {
     await this.project.validateExistingProject()
-    await Ethereum.connect()
 
     return new Promise(async (resolve, reject) => {
       const projectFile = await this.project.getProjectFile()

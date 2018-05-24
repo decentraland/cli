@@ -3,6 +3,7 @@
 .idea
 bower_components/
 node_modules/
+linker-app/node_modules
 tmp/
 *.log
 .env

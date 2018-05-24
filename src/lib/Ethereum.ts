@@ -1,8 +1,17 @@
 import { isDev } from '../utils/env'
 import axios from 'axios'
-import { contracts, eth } from 'decentraland-eth'
 import { EventEmitter } from 'events'
 import { ErrorType, fail } from '../utils/errors'
+const { abi } = require('../../abi/LANDRegistry.json')
+const Web3 = require('web3')
+
+const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
+const web3 = new Web3(new Web3.providers.HttpProvider(provider))
+
+export const landContract = new web3.eth.Contract(
+  abi,
+  isDev ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b' : '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d'
+)
 
 /**
  * Events emitted by this class:
@@ -12,30 +21,6 @@ import { ErrorType, fail } from '../utils/errors'
  * ethereum:get-ipns-success - Successfully fetched and parsed landData
  */
 export class Ethereum extends EventEmitter {
-  static isConnected: boolean = false
-
-  /**
-   * Connects to an external Ethereum node based on the DCL_ENV.
-   */
-  static async connect() {
-    const address = await Ethereum.getLandContractAddress()
-    const land = new contracts.LANDRegistry(address)
-    const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
-
-    if (!Ethereum.isConnected) {
-      try {
-        Ethereum.isConnected = await eth.connect({
-          contracts: [land],
-          provider
-        })
-      } catch (e) {
-        fail(ErrorType.ETHEREUM_ERROR, 'Unable to connect to the Ethereum Blockchain')
-      }
-
-      return land
-    }
-  }
-
   /**
    * Returns the LandProxy contract address.
    * If the LAND_REGISTRY_CONTRACT_ADDRESS is specified, that value will be returned.
@@ -66,13 +51,12 @@ export class Ethereum extends EventEmitter {
    * @param coordinates An object containing the base X and Y coordinates for the parcel.
    */
   async getIPNS(coordinates: { x: number; y: number }) {
-    const contract = (await this.getContractInstance()) as any
     let landData
 
     this.emit('ethereum:get-ipns', coordinates)
 
     try {
-      landData = await contract.landData(coordinates.x, coordinates.y)
+      landData = await landContract.methods.landData(coordinates.x, coordinates.y).call()
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch land data: ${e.message}`)
     }
@@ -84,15 +68,27 @@ export class Ethereum extends EventEmitter {
 
     this.emit('ethereum:get-ipns-success')
 
-    const { ipns } = contracts.LANDRegistry.decodeLandData(landData)
+    const { ipns } = this.decodeLandData(landData)
     return ipns.replace('ipns:', '')
   }
 
-  private getContractInstance(): contracts.LANDRegistry {
-    try {
-      return eth.getContract('LANDRegistry')
-    } catch (e) {
-      fail(ErrorType.ETHEREUM_ERROR, `Unable to get LANDRegistry contract instance`)
+  private decodeLandData(data: string = ''): { version: number; name: string; description: string; ipns: string } {
+    // this logic can also be found in decentraland-eth, but we can't rely on node-hid
+    const version = data.charAt(0)
+    switch (version) {
+      case '0': {
+        const [version, name, description, ipns] = data.split(',')
+
+        return {
+          version: 0,
+          name: name ? JSON.parse(name) : '',
+          description: description ? JSON.parse(description) : '',
+          ipns: ipns ? JSON.parse(ipns) : ''
+        }
+      }
+      default:
+        fail(ErrorType.ETHEREUM_ERROR, `Unknown version '${version}' when trying to decode land data`)
+        break
     }
   }
 }
