@@ -80,7 +80,7 @@ export class Ethereum extends EventEmitter {
         const [version, name, description, ipns] = data.split(',')
 
         return {
-          version: 0,
+          version: JSON.parse(version),
           name: name ? JSON.parse(name) : '',
           description: description ? JSON.parse(description) : '',
           ipns: ipns ? JSON.parse(ipns) : ''
