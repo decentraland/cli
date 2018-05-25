@@ -24,7 +24,6 @@ const ctx = sandbox.create()
  */
 
 describe('Decentraland', () => {
-  let connectStub
   let getIPNSStub
   let validateExistingProjectStub
   let getParcelCoordinatesStub
@@ -39,7 +38,6 @@ describe('Decentraland', () => {
 
   const addFilesResult = beforeEach(() => {
     // Ethereum stubs
-    connectStub = ctx.stub(Ethereum, 'connect').callsFake(() => undefined)
     getIPNSStub = ctx.stub(Ethereum.prototype, 'getIPNS').callsFake(() => 'Qmwasd')
 
     // Project stubs
@@ -68,12 +66,11 @@ describe('Decentraland', () => {
   })
 
   describe('deploy()', () => {
-    it('should call all the necessary apis', async () => {
+    it('should call all the necessary APIs', async () => {
       const dcl = new Decentraland()
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true
       expect(getIPNSStub.withArgs({ x: 0, y: 0 }).called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
@@ -100,7 +97,6 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true
       expect(getIPNSStub.withArgs({ x: 0, y: 0 }).called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
@@ -125,7 +121,6 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(connectStub.called, 'expect Ethereum.connect() to be called').to.be.true
       expect(validateExistingProjectStub.called, 'expect Project.validateExistingProject() to be called').to.be.true
       expect(getIPNSStub.called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true

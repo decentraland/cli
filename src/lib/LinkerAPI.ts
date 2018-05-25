@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events'
 import * as express from 'express'
 import { IProjectFile } from '../utils/project'
-import * as path from 'path'
 import * as urlParse from 'url'
 
 /**
@@ -45,7 +44,9 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes() {
-    this.app.use('/assets', express.static(path.resolve(__dirname, '..', 'pages')))
+    this.app.get('/linker.js', function(req, res) {
+      res.sendFile(require.resolve('linker-app'))
+    })
 
     this.app.get('/linker', (req, res) => {
       res.writeHead(200, 'OK', {
@@ -57,7 +58,7 @@ export class LinkerAPI extends EventEmitter {
         <meta charset="utf-8">
         <body>
           <div id="main">
-            <script src="assets/linker.js"></script>
+            <script src="linker.js"></script>
           </div>
         </body>
       `)

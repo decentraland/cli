@@ -1,0 +1,19 @@
+{
+  "name": "linker-app",
+  "version": "0.0.0",
+  "description": "Linker app for the CLI",
+  "main": "build/src/index.js",
+  "typings": "build/index.d.ts",
+  "scripts": {
+    "start": "npm run build",
+    "build": "echo \"Run `npm run build` in the parent CLI folder\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": { "node": "8.x" },
+  "author": "Decentraland",
+  "license": "DCL-LICENSE",
+  "devDependencies": {
+    "decentraland-eth": "1.3.3"
+  },
+  "files": ["lib", "artifacts"]
+}

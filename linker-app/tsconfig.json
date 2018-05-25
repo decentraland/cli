@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "es2015",
     "diagnostics": true,
-    "outDir": "dist",
+    "outDir": "build",
     "baseUrl": ".",
     "moduleResolution": "node",
     "stripInternal": true,
@@ -14,6 +14,6 @@
     "plugins": [{ "name": "tslint-language-service" }],
     "jsx": "react"
   },
-  "exclude": ["dist", "node_modules", "**/*.spec.ts", "src/samples/*"],
-  "include": ["src/**/*", "abi/**/*"]
+  "exclude": ["build", "node_modules"],
+  "include": ["src/**/*"]
 }

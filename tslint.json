@@ -6,6 +6,6 @@
     "ban-types": [true, "Number", "Boolean", "String", "Object"]
   },
   "linterOptions": {
-    "exclude": ["test/**/*.ts"]
+    "exclude": ["test/**/*.ts", "linker-app/build/**/*.ts"]
   }
 }
