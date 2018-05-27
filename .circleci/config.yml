@@ -33,9 +33,12 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
           when: on_success
       
+      - run: cd linker-app
+      - run: npm i
+      - run: cd ..
       - run: npm run build
       - run: npm test
-      - run: npm run unlock:dev      
+      - run: npm run unlock:dev
       - run: npm shrinkwrap
       - run: npm run release
 
