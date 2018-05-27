@@ -9,7 +9,6 @@ tmp/
 linker-app/src/
 test/
 typings/
-abi/
 scripts/
 src/
 .circleci/

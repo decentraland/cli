@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Compile linker",
+    "kind": "Webpack",
+    "file": "./linker-app/src/index.tsx",
+    "target": "web"
+  }
+]
