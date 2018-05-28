@@ -3,15 +3,12 @@ import * as fetch from 'isomorphic-fetch'
 import { EventEmitter } from 'events'
 import { ErrorType, fail } from '../utils/errors'
 const { abi } = require('../../abi/LANDRegistry.json')
-const Web3 = require('web3')
+import { RequestManager, ContractFactory, providers } from 'web3-ts'
 
 const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
-const web3 = new Web3(new Web3.providers.HttpProvider(provider))
-
-export const landContract = new web3.eth.Contract(
-  abi,
-  isDev ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b' : '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d'
-)
+const requestManager = new RequestManager(new providers.HTTPProvider(provider))
+const factory = new ContractFactory(requestManager, abi)
+export const landContract = factory.at(isDev ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b' : '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d')
 
 /**
  * Events emitted by this class:
@@ -57,7 +54,8 @@ export class Ethereum extends EventEmitter {
     this.emit('ethereum:get-ipns', coordinates)
 
     try {
-      landData = await landContract.methods.landData(coordinates.x, coordinates.y).call()
+      const contract = await landContract
+      landData = await contract['landData'](coordinates.x, coordinates.y)
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch land data: ${e.message}`)
     }
