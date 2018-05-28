@@ -1,5 +1,5 @@
 import { isDev } from '../utils/env'
-import axios from 'axios'
+import * as fetch from 'isomorphic-fetch'
 import { EventEmitter } from 'events'
 import { ErrorType, fail } from '../utils/errors'
 const { abi } = require('../../abi/LANDRegistry.json')
@@ -34,7 +34,8 @@ export class Ethereum extends EventEmitter {
     }
 
     try {
-      const { data } = await axios.get('https://contracts.decentraland.org/addresses.json')
+      const raw = await fetch('https://contracts.decentraland.org/addresses.json')
+      const data = await raw.json()
 
       if (isDev) {
         return data.ropsten.LANDProxy

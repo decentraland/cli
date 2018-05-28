@@ -17,7 +17,11 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.ts": ["npm run lint", "prettier --write 'src/**/*.ts'", "git add"]
+    "*.ts": [
+      "npm run lint",
+      "prettier --write 'src/**/*.ts'",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
@@ -28,7 +32,10 @@
     "singleQuote": true,
     "printWidth": 140
   },
-  "keywords": ["decentraland", "cli"],
+  "keywords": [
+    "decentraland",
+    "cli"
+  ],
   "author": "Decentraland",
   "license": "Apache-2.0",
   "bugs": {
@@ -44,7 +51,6 @@
   },
   "dependencies": {
     "analytics-node": "^3.2.0",
-    "axios": "^0.17.1",
     "chalk": "^2.3.1",
     "chokidar": "^2.0.3",
     "docker-names": "^1.0.3",
@@ -53,7 +59,7 @@
     "ignore": "^3.3.7",
     "inquirer": "^5.1.0",
     "ipfs-api": "^17.5.0",
-    "linker-app": "file:linker-app",
+    "isomorphic-fetch": "^2.2.1",
     "metaverse-rpc": "^2.6.0",
     "opn": "^5.2.0",
     "ora": "^2.1.0",
@@ -72,6 +78,7 @@
     "@types/express": "^4.11.1",
     "@types/fs-extra": "^5.0.0",
     "@types/inquirer": "0.0.36",
+    "@types/isomorphic-fetch": "0.0.34",
     "@types/mocha": "^2.2.48",
     "@types/node": "^8.5.2",
     "@types/opn": "^5.1.0",

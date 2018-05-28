@@ -1,4 +1,4 @@
-import axios from 'axios'
+import * as fetch from 'isomorphic-fetch'
 import { EventEmitter } from 'events'
 import { isDev } from '../utils/env'
 import { fail, ErrorType } from '../utils/errors'
@@ -66,8 +66,8 @@ export class IPFS extends EventEmitter {
     this.emit('ipfs:pin')
 
     try {
-      await axios.post(`${ipfsURL}/pin/${peerId}/${x}/${y}`, {
-        timeout: process.env.PIN_TIMEOUT || 300000
+      await fetch(`${ipfsURL}/pin/${peerId}/${x}/${y}`, {
+        method: 'post'
       })
     } catch (e) {
       if (e.response) {
@@ -145,7 +145,8 @@ export class IPFS extends EventEmitter {
     let ipfsURL: string = null
 
     try {
-      const { data } = await axios.get('https://decentraland.github.io/ipfs-node/url.json')
+      const raw = await fetch('https://decentraland.github.io/ipfs-node/url.json')
+      const data = (await raw.json()) as { staging: string; production: string }
       if (isDev) {
         ipfsURL = data.staging
       } else {

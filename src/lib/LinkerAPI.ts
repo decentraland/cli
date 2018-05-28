@@ -1,3 +1,4 @@
+import * as path from 'path'
 import { EventEmitter } from 'events'
 import * as express from 'express'
 import { IProjectFile } from '../utils/project'
@@ -45,7 +46,7 @@ export class LinkerAPI extends EventEmitter {
 
   private setRoutes() {
     this.app.get('/linker.js', function(req, res) {
-      res.sendFile(require.resolve('linker-app'))
+      res.sendFile(path.resolve(__dirname, '../../linker-app/build/src/index.js'))
     })
 
     this.app.get('/linker', (req, res) => {
