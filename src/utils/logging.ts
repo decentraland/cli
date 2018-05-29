@@ -23,15 +23,27 @@ export function positive(message: string): string {
 }
 
 export function info(message: string) {
-  return ora(message).info()
+  const instance = ora(message).info()
+  if (!instance['enabled']) {
+    // fallback to show message even when Ora is not supported
+    console['log'](message)
+  }
 }
 
 export function success(message: string) {
-  return ora(message).succeed()
+  const instance = ora(message).succeed()
+  if (!instance['enabled']) {
+    // fallback to show message even when Ora is not supported
+    console['log'](message)
+  }
 }
 
 export function warn(message: string) {
-  return ora(message).warn()
+  const instance = ora(message).warn()
+  if (!instance['enabled']) {
+    // fallback to show message even when Ora is not supported
+    console['log'](message)
+  }
 }
 
 export function loading(message: string) {
