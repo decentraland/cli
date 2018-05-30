@@ -32,24 +32,6 @@ export function buildTypescript(): Promise<void> {
   })
 }
 
-export function install(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['install', '-g', 'decentraland'], { shell: true })
-    child.stdout.pipe(process.stdout)
-    child.stderr.pipe(process.stderr)
-    child.on('close', () => resolve())
-  })
-}
-
-export function uninstall(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['rm', '-g', 'decentraland'], { shell: true })
-    child.stdout.pipe(process.stdout)
-    child.stderr.pipe(process.stderr)
-    child.on('close', () => resolve())
-  })
-}
-
 export async function latestVersion(name: string): Promise<string> {
   if (!(await isOnline())) {
     return null

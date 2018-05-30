@@ -6,7 +6,6 @@ import { help } from './commands/help'
 import { init as initCommand } from './commands/init'
 import { link } from './commands/link'
 import { start } from './commands/preview'
-import { upgrade } from './commands/upgrade'
 import { deploy } from './commands/deploy'
 import { pin } from './commands/pin'
 
@@ -33,7 +32,6 @@ export function init(options = {}) {
   vorpal.use(deploy)
   vorpal.use(pin)
   vorpal.use(link)
-  vorpal.use(upgrade)
   vorpal.use(help)
 
   vorpal
