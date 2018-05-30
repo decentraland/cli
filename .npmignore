@@ -13,6 +13,6 @@ scripts/
 src/
 .circleci/
 appveyor.yml
-build.json
-tsconfig.json
-tslint.json
+/build.json
+/tsconfig.json
+/tslint.json
