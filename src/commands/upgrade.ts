@@ -15,8 +15,21 @@ export function upgrade(vorpal: any) {
         }
 
         vorpal.log('Updating to decentraland@' + (await latestVersion('decentraland')))
-        await uninstall()
-        await install()
+        try {
+          await uninstall()
+        } catch (e) {
+          fail(ErrorType.UPGRADE_ERROR, `Failed to uninstall current version: ${e.message}`)
+        }
+
+        try {
+          await install()
+        } catch (e) {
+          if (e.errno === 'EPERM') {
+            fail(ErrorType.UPGRADE_ERROR, 'Failed to install new version: please try running this command again as root/Administrator')
+          } else {
+            fail(ErrorType.UPGRADE_ERROR, `Failed to install new version: ${e.message}`)
+          }
+        }
         success('All packages updated successfully')
       })
     )
