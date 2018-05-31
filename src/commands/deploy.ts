@@ -58,8 +58,12 @@ export function deploy(vorpal: any) {
 
         dcl.on('link:ready', async url => {
           await Analytics.sceneLink()
+          info('This is the first time you deploy using this IPNS, please link your project to the LAND Registry:')
           const linkerMsg = loading(`Linking app ready at ${url}`)
-          opn(url)
+
+          setTimeout(() => {
+            opn(url)
+          }, 5000)
 
           dcl.on('link:success', async () => {
             await Analytics.sceneLinkSuccess()

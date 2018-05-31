@@ -7,7 +7,7 @@
     "start": "npm run watch",
     "watch": "metaverse-compiler build.json --watch",
     "build": "metaverse-compiler build.json && npm run linker:build && npm run copy:samples",
-    "copy:samples": "cp -r src/samples dist/samples",
+    "copy:samples": "cp -r src/samples dist",
     "linker:build": "metaverse-compiler build.linker.json",
     "linker:watch": "metaverse-compiler build.linker.json --watch",
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
@@ -17,11 +17,7 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.ts": [
-      "npm run lint",
-      "prettier --write 'src/**/*.ts'",
-      "git add"
-    ]
+    "*.ts": ["npm run lint", "prettier --write 'src/**/*.ts'", "git add"]
   },
   "repository": {
     "type": "git",
@@ -32,10 +28,7 @@
     "singleQuote": true,
     "printWidth": 140
   },
-  "keywords": [
-    "decentraland",
-    "cli"
-  ],
+  "keywords": ["decentraland", "cli"],
   "author": "Decentraland",
   "license": "Apache-2.0",
   "bugs": {

@@ -29,8 +29,10 @@ export function start(vorpal: any) {
           await Analytics.preview()
 
           dcl.on('preview:ready', url => {
+            vorpal.log('') // padding
             info(`Development server running at ${url}`)
             vorpal.log(comment('Press CTRL+C to exit'))
+            vorpal.log('') // padding
             opn(url)
           })
 
