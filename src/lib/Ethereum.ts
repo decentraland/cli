@@ -2,6 +2,7 @@ import { isDev } from '../utils/env'
 import * as fetch from 'isomorphic-fetch'
 import { EventEmitter } from 'events'
 import { ErrorType, fail } from '../utils/errors'
+import * as CSV from 'comma-separated-values'
 const { abi } = require('../../abi/LANDRegistry.json')
 import { RequestManager, ContractFactory, providers } from 'web3-ts'
 
@@ -65,9 +66,9 @@ export class Ethereum extends EventEmitter {
       return null
     }
 
-    this.emit('ethereum:get-ipns-success')
-
     const { ipns } = this.decodeLandData(landData)
+
+    this.emit('ethereum:get-ipns-success')
     return ipns.replace('ipns:', '')
   }
 
@@ -76,13 +77,13 @@ export class Ethereum extends EventEmitter {
     const version = data.charAt(0)
     switch (version) {
       case '0': {
-        const [version, name, description, ipns] = data.split(',')
+        const [, name, description, ipns] = CSV.parse(data)[0]
 
         return {
-          version: JSON.parse(version),
-          name: name ? JSON.parse(name) : '',
-          description: description ? JSON.parse(description) : '',
-          ipns: ipns ? JSON.parse(ipns) : ''
+          version: 0,
+          name: name || '',
+          description: description || '',
+          ipns: ipns || ''
         }
       }
       default:
