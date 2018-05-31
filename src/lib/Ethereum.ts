@@ -4,7 +4,7 @@ import { EventEmitter } from 'events'
 import { ErrorType, fail } from '../utils/errors'
 import * as CSV from 'comma-separated-values'
 const { abi } = require('../../abi/LANDRegistry.json')
-import { RequestManager, ContractFactory, providers } from 'web3-ts'
+import { RequestManager, ContractFactory, providers } from 'eth-connect'
 
 const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
 const requestManager = new RequestManager(new providers.HTTPProvider(provider))
