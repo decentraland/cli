@@ -2,28 +2,15 @@
 /// <reference path="../typings/docker-names.d.ts" />
 
 import Vorpal = require('vorpal')
-import { help } from './commands/help'
 import { init as initCommand } from './commands/init'
 import { link } from './commands/link'
 import { start } from './commands/preview'
 import { deploy } from './commands/deploy'
 import { pin } from './commands/pin'
-
 const pkg = require('../package.json')
 
-/**
- * Export the current version.
- */
 export const VERSION = pkg.version
-
-/**
- * CLI delimiter.
- */
 export const DELIMITER = 'dcl $'
-
-/**
- * CLI instance.
- */
 export const vorpal = new Vorpal()
 
 export function init(options = {}) {
@@ -32,21 +19,25 @@ export function init(options = {}) {
   vorpal.use(deploy)
   vorpal.use(pin)
   vorpal.use(link)
-  vorpal.use(help)
 
   vorpal
     .delimiter(DELIMITER)
-    .catch('[words...]', 'Catches incorrect commands')
-    .action(() => {
-      vorpal.execSync('help')
+    .catch('[words...]')
+    .option('-v, --version', 'Prints the version of the CLI')
+    .action(args => {
+      if (args.options.version) {
+        vorpal.log(`v${VERSION}`)
+      }
     })
 
   if (process.argv.length > 2) {
-    // If one or more command, execute and close
-    vorpal.parse(process.argv)
-  } else {
-    // Show help if no commands are supplied
-    vorpal.log(`Decentraland CLI v${VERSION}\n`)
-    vorpal.exec('help')
+    const exists = vorpal.commands.some((command: any) => command._name === process.argv[2])
+
+    if (exists) {
+      vorpal.parse(process.argv)
+    } else {
+      vorpal.log(`\n  Decentraland CLI v${VERSION}`)
+      vorpal.execSync('help')
+    }
   }
 }

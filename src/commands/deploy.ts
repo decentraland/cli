@@ -82,7 +82,7 @@ export function deploy(vorpal: any) {
         })
 
         await Analytics.sceneDeploy()
-
+        await dcl.project.validateExistingProject()
         const files = await dcl.project.getFiles()
 
         vorpal.log('Tracked files:\n')

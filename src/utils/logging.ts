@@ -56,7 +56,7 @@ export function loading(message: string) {
 }
 
 export function exit(err: Error, logger: any) {
-  logger.log(error('\n' + err.message))
+  logger.log(error('\n' + err.message + '\n'))
   if (isDev) logger.log(error(err.stack))
   process.exit(1)
 }

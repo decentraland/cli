@@ -43,8 +43,6 @@ export class Decentraland extends EventEmitter {
   }
 
   async deploy(files: IFile[]) {
-    await this.project.validateExistingProject()
-
     const coords = await this.project.getParcelCoordinates()
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)
