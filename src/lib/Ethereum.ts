@@ -11,6 +11,13 @@ const requestManager = new RequestManager(new providers.HTTPProvider(provider))
 const factory = new ContractFactory(requestManager, abi)
 export const landContract = factory.at(isDev ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b' : '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d')
 
+export interface ILandData {
+  version: number
+  name: string
+  description: string
+  ipns: string
+}
+
 /**
  * Events emitted by this class:
  *
@@ -45,34 +52,50 @@ export class Ethereum extends EventEmitter {
     }
   }
 
+  async getLandOf(address: string) {
+    let res
+    try {
+      const contract = await landContract
+      const [x, y] = await contract['landOf'](address.toUpperCase())
+      res = x.map(($, i) => ({ x: $.toNumber(), y: y[i].toNumber() }))
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LANDs: ${e.message}`)
+    }
+    return res
+  }
+
+  async getLandData(x: number, y: number): Promise<ILandData> {
+    let landData
+
+    try {
+      const contract = await landContract
+      landData = await contract['landData'](x, y)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND data: ${e.message}`)
+    }
+
+    return this.decodeLandData(landData)
+  }
+
   /**
    * Queries the Blockchain and returns the IPNS return by `landData`
    * @param coordinates An object containing the base X and Y coordinates for the parcel.
    */
-  async getIPNS(coordinates: { x: number; y: number }) {
-    let landData
+  async getIPNS(x: number, y: number): Promise<string> {
+    this.emit('ethereum:get-ipns', x, y)
 
-    this.emit('ethereum:get-ipns', coordinates)
+    const landData = await this.getLandData(x, y)
 
-    try {
-      const contract = await landContract
-      landData = await contract['landData'](coordinates.x, coordinates.y)
-    } catch (e) {
-      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch land data: ${e.message}`)
-    }
-
-    if (landData.trim() === '') {
+    if (landData.ipns === '') {
       this.emit('ethereum:get-ipns-empty')
       return null
     }
 
-    const { ipns } = this.decodeLandData(landData)
-
     this.emit('ethereum:get-ipns-success')
-    return ipns.replace('ipns:', '')
+    return landData.ipns.replace('ipns:', '')
   }
 
-  private decodeLandData(data: string = ''): { version: number; name: string; description: string; ipns: string } {
+  private decodeLandData(data: string = ''): ILandData {
     // this logic can also be found in decentraland-eth, but we can't rely on node-hid
     const version = data.charAt(0)
     switch (version) {
@@ -81,14 +104,18 @@ export class Ethereum extends EventEmitter {
 
         return {
           version: 0,
-          name: name || '',
-          description: description || '',
-          ipns: ipns || ''
+          name: name,
+          description: description,
+          ipns: ipns
         }
       }
       default:
-        fail(ErrorType.ETHEREUM_ERROR, `Unknown version '${version}' when trying to decode land data`)
-        break
+        return {
+          version: 0,
+          name: '',
+          description: '',
+          ipns: ''
+        }
     }
   }
 }

@@ -5,11 +5,11 @@
  * - `-0` is converted to `0`
  * @param coordinates An string containing coordinates in the `x,y; x,y; ...` format
  */
-export function parseCoordinates(coordinates: string): string[] {
+export function parse(coordinates: string): string[] {
   return coordinates.split(';').map((coord: string) => {
     const [x = 0, y = 0] = coord.split(',').map($ => {
       return parseInt($, 10)
-        .toString()
+        .toString() // removes spaces :)
         .replace('-0', '0')
         .replace(/undefined|NaN/g, '0')
     })
@@ -25,17 +25,30 @@ export function parseCoordinates(coordinates: string): string[] {
  * Empty inputs will resolve `true`
  * @param answers An string containing coordinates in the `x,y; x,y; ...` format
  */
-export function validateCoordinates(answers: string) {
+export function validate(answers: string) {
   return new Promise((resolve, reject) => {
     if (answers.trim().length === 0) {
       resolve(true)
     } else {
       answers.split(/;\s/g).forEach(answer => {
-        if (!answer.match(/^(-?\d)+\,(-?\d)+$/g)) {
+        if (!isValid(answer)) {
           reject(new Error(`Invalid coordinate ${answer}`))
         }
       })
       resolve(true)
     }
   })
+}
+
+export function isValid(val: string): boolean {
+  if (!val.match(/^(-?\d)+\,(-?\d)+$/g)) {
+    return false
+  }
+  return true
+}
+
+export function getObject(coords: string): { x: number; y: number } {
+  const parsed = parse(coords)[0]
+  const parts = parsed.split(',')
+  return { x: parseInt(parts[0], 10), y: parseInt(parts[1], 10) }
 }

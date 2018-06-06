@@ -6,7 +6,7 @@ import { Analytics } from '../utils/analytics'
 import { notice, comment, highlight, loading, positive } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
 import { fail, ErrorType } from '../utils/errors'
-import { parseCoordinates, validateCoordinates } from '../utils/coordinateHelpers'
+import * as Coordinates from '../utils/coordinateHelpers'
 
 export function init(vorpal: any) {
   vorpal
@@ -15,7 +15,7 @@ export function init(vorpal: any) {
     .option('--path <path>', 'output path (default is the current working directory).')
     .option('--boilerplate', 'static, singleplayer or multiplayer')
     .action(
-      wrapCommand(async function(args: any) {
+      wrapCommand(async (args: any) => {
         const dcl = new Decentraland({
           workingDir: args.options.path
         })
@@ -52,7 +52,7 @@ export function init(vorpal: any) {
             message: `${notice('Parcels comprising the scene')}\n${comment(
               '(optional, recommended -- used to show the limts of your scene and upload to these coordinates)\nPlease use this format: `x,y; x,y; x,y ...`'
             )}\n`,
-            validate: validateCoordinates as any
+            validate: Coordinates.validate as any
           }
         ])
 
@@ -68,7 +68,7 @@ export function init(vorpal: any) {
           teleportPosition: '0,0,0'
         }
 
-        sceneMeta.scene.parcels = sceneMeta.scene.parcels ? parseCoordinates(sceneMeta.scene.parcels) : ['0,0']
+        sceneMeta.scene.parcels = sceneMeta.scene.parcels ? Coordinates.parse(sceneMeta.scene.parcels) : ['0,0']
 
         sceneMeta.main = 'scene.xml' // replaced by chosen template
         sceneMeta.scene.base = sceneMeta.scene.parcels[0]

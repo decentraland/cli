@@ -60,3 +60,57 @@ export function exit(err: Error, logger: any) {
   if (isDev) logger.log(error(err.stack))
   process.exit(1)
 }
+
+export function tabulate(spaces: number = 0) {
+  return spaces > 0 ? ' '.repeat(spaces) : ''
+}
+
+export function isEmpty(obj) {
+  const keys = Object.keys(obj)
+  if (!keys.length) {
+    return true
+  }
+  return keys.every($ => !obj[$])
+}
+
+export function formatDictionary(obj: Object, spaceCount: number = 0, hideEmpty: boolean = false): string {
+  let buf = '\n'
+  const keys = Object.keys(obj)
+  const spaces = tabulate(spaceCount)
+
+  if (!keys.length) {
+    if (hideEmpty) return '\n'
+    return ' {}\n'
+  }
+
+  keys.forEach((key, i) => {
+    const item = obj[key]
+    if (Array.isArray(item)) {
+      buf = buf.concat(spaces, `${chalk.bold(key)}: `, formatList(item, spaceCount), '\n')
+    } else if (typeof item === 'object') {
+      const empty = isEmpty(item)
+      buf = buf.concat(spaces, `${chalk.bold(key)}`, empty && hideEmpty ? '' : ':', formatDictionary(item, spaceCount + 2))
+    } else if (item) {
+      buf = buf.concat(spaces, `${chalk.bold(key)}: `, JSON.stringify(item), '\n')
+    }
+  })
+
+  return buf
+}
+
+export function formatList(list: Array<any>, spaceCount: number): string {
+  const spaces = tabulate(spaceCount)
+  if (list.length) {
+    return list.reduce((buf, item, i) => {
+      if (Array.isArray(item)) {
+        return buf + `\n${spaces}- ${formatList(item, spaceCount)}`
+      } else if (typeof item === 'object') {
+        return buf + formatDictionary(item, spaceCount, false)
+      } else if (item) {
+        return buf + `\n${spaces}- ${JSON.stringify(item)}`
+      }
+    }, '')
+  } else {
+    return '[]'
+  }
+}

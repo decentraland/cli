@@ -20,7 +20,7 @@ export function start(vorpal: any) {
     .option('-p, --port <number>', 'parcel previewer server port (default is 2044).')
     .description('Starts local development server.')
     .action(
-      wrapCommand(async function(args: IArguments) {
+      wrapCommand(async (args: IArguments) => {
         return new Promise(async (resolve, reject) => {
           const dcl = new Decentraland({
             previewPort: args.options.port

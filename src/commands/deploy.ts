@@ -22,7 +22,7 @@ export function deploy(vorpal: any) {
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .action(
-      wrapCommand(async function(args: IDeployArguments) {
+      wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
           ipfsPort: args.options.port || 5001
@@ -35,7 +35,7 @@ export function deploy(vorpal: any) {
           })
         })
 
-        dcl.on('ethereum:get-ipns', ({ x, y }) => {
+        dcl.on('ethereum:get-ipns', (x, y) => {
           const spinner = loading(`Checking IPNS for coordinates ${x},${y}`)
 
           dcl.on('ethereum:get-ipns-empty', () => {
@@ -85,10 +85,10 @@ export function deploy(vorpal: any) {
         await dcl.project.validateExistingProject()
         const files = await dcl.project.getFiles()
 
-        vorpal.log('Tracked files:\n')
+        vorpal.log('\n  Tracked files:\n')
 
         const totalSize = files.reduce((size, file) => {
-          vorpal.log(`\t${file.path} (${file.size} bytes)`)
+          vorpal.log(`    ${file.path} (${file.size} bytes)`)
           return size + file.size
         }, 0)
 

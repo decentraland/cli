@@ -7,6 +7,7 @@ import { getRootPath } from '../utils/project'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
 import { ErrorType, fail } from '../utils/errors'
+import * as Coordinates from '../utils/coordinateHelpers'
 
 export interface IDecentralandArguments {
   workingDir?: string
@@ -14,6 +15,14 @@ export interface IDecentralandArguments {
   ipfsPort?: number
   linkerPort?: number
   previewPort?: number
+}
+
+export interface IAddressInfo {
+  x: number
+  y: number
+  name: string
+  description: string
+  ipns: string
 }
 
 export class Decentraland extends EventEmitter {
@@ -47,7 +56,7 @@ export class Decentraland extends EventEmitter {
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)
     const rootFolder = filesAdded[filesAdded.length - 1]
-    const ipns = await this.ethereum.getIPNS(coords)
+    const ipns = await this.ethereum.getIPNS(coords.x, coords.y)
     let ipfsKey = projectFile.ipfsKey
 
     if (!ipfsKey) {
@@ -110,6 +119,44 @@ export class Decentraland extends EventEmitter {
 
       preview.startServer(this.options.previewPort)
     })
+  }
+
+  async getAddressInfo(address: string): Promise<IAddressInfo[]> {
+    const coords = await this.ethereum.getLandOf(address)
+    const info = coords.map(async coord => {
+      const data = await this.ethereum.getLandData(coord.x, coord.y)
+      return {
+        x: coord.x,
+        y: coord.y,
+        name: data.name,
+        description: data.description,
+        ipns: data.ipns
+      }
+    }) as Promise<IAddressInfo>[]
+    return Promise.all(info)
+  }
+
+  async getProjectInfo() {
+    return this.project.getSceneFile()
+  }
+
+  async getParcelInfo(x: number, y: number) {
+    return {
+      scene: await this.localIPFS.getRemoteSceneMetadata(x, y),
+      land: await this.ethereum.getLandData(x, y)
+    }
+  }
+
+  async getParcelStatus(x: number, y: number) {
+    return this.localIPFS.getDeployedFiles(x, y)
+  }
+
+  async getProjectStatus() {
+    const scene = await this.project.getSceneFile()
+    const coords = Coordinates.getObject(scene.scene.base)
+    const files = await this.localIPFS.getDeployedFiles(coords.x, coords.y)
+    if (!files) fail(ErrorType.STATUS_ERROR, 'No files found')
+    return files
   }
 
   private pipeEvents(event: string, ...args: any[]) {

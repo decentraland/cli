@@ -5,6 +5,21 @@ import { fail, ErrorType } from '../utils/errors'
 import { IFile } from './Project'
 const ipfsAPI = require('ipfs-api')
 
+export interface IResolveDependency {
+  src: string
+  ipfs: string
+  name: string
+}
+
+export interface IResolveResponse {
+  ok: boolean
+  url: {
+    ipns: string
+    ipfs: string
+    dependencies: IResolveDependency[]
+  }
+}
+
 /**
  * Events emitted by this class:
  *
@@ -17,10 +32,14 @@ const ipfsAPI = require('ipfs-api')
  */
 export class IPFS extends EventEmitter {
   private ipfsApi: any
+  private gateway: string
 
   constructor(host: string = 'localhost', port: number = 5001) {
     super()
     this.ipfsApi = ipfsAPI(host, port.toString())
+    if (process.env.IPFS_GATEWAY) {
+      this.gateway = process.env.IPFS_GATEWAY
+    }
   }
 
   /**
@@ -138,11 +157,34 @@ export class IPFS extends EventEmitter {
     this.emit('ipfs:key-success')
   }
 
+  async getDeployedFiles(x: number, y: number): Promise<IResolveDependency[]> {
+    const url = await this.getExternalURL()
+    const raw = await fetch(url + `/resolve/${x}/${y}`)
+    const res = (await raw.json()) as IResolveResponse
+    return res && res.url ? res.url.dependencies : null
+  }
+
+  async getRemoteSceneMetadata(x: number, y: number): Promise<DCL.SceneMetadata> {
+    const url = await this.getExternalURL()
+    const remoteFiles = await this.getDeployedFiles(x, y)
+    if (remoteFiles) {
+      const reference = remoteFiles.find(dep => dep.name === 'scene.json')
+      const raw = await fetch(url + `/get/${reference.ipfs}`)
+      const res = (await raw.json()) as DCL.SceneMetadata
+      return res
+    }
+    return null
+  }
+
   /**
    * Fetches Decentraland's IPFS node URL.
    */
-  private async getExternalURL() {
-    let ipfsURL: string = null
+  private async getExternalURL(): Promise<string> {
+    let ipfsURL: string = this.gateway
+
+    if (ipfsURL) {
+      return ipfsURL
+    }
 
     try {
       const raw = await fetch('https://decentraland.github.io/ipfs-node/url.json')
@@ -156,6 +198,8 @@ export class IPFS extends EventEmitter {
       // fallback to ENV
     }
 
-    return process.env.IPFS_GATEWAY || ipfsURL
+    this.gateway = ipfsURL
+
+    return ipfsURL
   }
 }

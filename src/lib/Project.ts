@@ -204,7 +204,7 @@ export class Project {
    * Returns a random project name
    */
   getRandomName(): string {
-    return dockerNames.getRandomName()
+    return dockerNames.getRandomName() as string
   }
 
   /**

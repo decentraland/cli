@@ -1,5 +1,4 @@
 /// <reference path="../typings/dcl.d.ts" />
-/// <reference path="../typings/docker-names.d.ts" />
 
 import Vorpal = require('vorpal')
 import { init as initCommand } from './commands/init'
@@ -7,6 +6,9 @@ import { link } from './commands/link'
 import { start } from './commands/preview'
 import { deploy } from './commands/deploy'
 import { pin } from './commands/pin'
+import { info } from './commands/info'
+import { status } from './commands/status'
+
 const pkg = require('../package.json')
 
 export const VERSION = pkg.version
@@ -19,6 +21,8 @@ export function init(options = {}) {
   vorpal.use(deploy)
   vorpal.use(pin)
   vorpal.use(link)
+  vorpal.use(info)
+  vorpal.use(status)
 
   vorpal
     .delimiter(DELIMITER)
