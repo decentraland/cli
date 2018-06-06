@@ -9,6 +9,14 @@ import { fail, ErrorType } from '../utils/errors'
 import * as chokidar from 'chokidar'
 import ignore = require('ignore')
 
+function nocache(req, res, next) {
+  res.setHeader('Surrogate-Control', 'no-store')
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
+  next()
+}
+
 /**
  * Events emitted by this class:
  *
@@ -134,9 +142,10 @@ export class Preview extends EventEmitter {
       fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${artifactPath}, please run: npm install metaverse-api@latest`)
     }
 
+    this.app.use(nocache)
     this.app.use('/metaverse-api', express.static(artifactPath))
     this.app.use(express.static(root))
-    this.emit('preview:ready', `http://localhost:${port}?${+Date.now()}`)
+    this.emit('preview:ready', `http://localhost:${port}`)
     this.server.listen(port)
     return this.app
   }

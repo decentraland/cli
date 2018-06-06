@@ -85,10 +85,10 @@ export function deploy(vorpal: any) {
         await dcl.project.validateExistingProject()
         const files = await dcl.project.getFiles()
 
-        vorpal.log('Tracked files:\n')
+        vorpal.log('\n  Tracked files:\n')
 
         const totalSize = files.reduce((size, file) => {
-          vorpal.log(`\t${file.path} (${file.size} bytes)`)
+          vorpal.log(`    ${file.path} (${file.size} bytes)`)
           return size + file.size
         }, 0)
 
