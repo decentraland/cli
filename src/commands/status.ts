@@ -13,7 +13,7 @@ const description = 'Displays the deployment status of the project or a given LA
 const example = `
   Example usage:
 
-    dcl status        - Returns the deployment status of the current project
+    dcl status      - Returns the deployment status of the current project
     dcl status 1,1  - Returns the deployment status of the LAND located at the given coordinates
 `
 
@@ -39,11 +39,13 @@ export function status(vorpal: any) {
         const dcl = new Decentraland()
 
         if (!args.target) {
-          vorpal.log(formatList(await dcl.getProjectStatus(), 4))
-        } else if (args.target.startsWith('coord:')) {
+          vorpal.log(formatList(await dcl.getProjectStatus(), { spacing: 2, padding: 2 }))
+        } else if (typeof args.target === 'string' && args.target.startsWith('coord:')) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
-          vorpal.log(formatList(await dcl.getParcelStatus(coords.x, coords.y), 4))
+          const serializedList = formatList(await dcl.getParcelStatus(coords.x, coords.y), { spacing: 2, padding: 2 })
+          vorpal.log(`\n  Deployment status for ${raw}:`)
+          vorpal.log(serializedList)
         } else {
           fail(ErrorType.INFO_ERROR, `Invalid value: ${args.target}`)
         }

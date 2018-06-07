@@ -125,26 +125,30 @@ export class Decentraland extends EventEmitter {
     const coords = await this.ethereum.getLandOf(address)
     const info = coords.map(async coord => {
       const data = await this.ethereum.getLandData(coord.x, coord.y)
+
       return {
         x: coord.x,
         y: coord.y,
-        name: data.name,
-        description: data.description,
-        ipns: data.ipns
+        name: data ? data.name : '',
+        description: data ? data.description : '',
+        ipns: data ? data.ipns : ''
       }
     }) as Promise<IAddressInfo>[]
     return Promise.all(info)
   }
 
   async getProjectInfo() {
+    await this.project.validateExistingProject()
     return this.project.getSceneFile()
   }
 
   async getParcelInfo(x: number, y: number) {
-    return {
-      scene: await this.localIPFS.getRemoteSceneMetadata(x, y),
-      land: await this.ethereum.getLandData(x, y)
+    const scene = await this.localIPFS.getRemoteSceneMetadata(x, y)
+    const land = await this.ethereum.getLandData(x, y)
+    if (!scene && !land) {
+      fail(ErrorType.INFO_ERROR, 'No remote parcel information found')
     }
+    return { scene, land }
   }
 
   async getParcelStatus(x: number, y: number) {
@@ -152,10 +156,12 @@ export class Decentraland extends EventEmitter {
   }
 
   async getProjectStatus() {
+    await this.project.validateExistingProject()
+
     const scene = await this.project.getSceneFile()
     const coords = Coordinates.getObject(scene.scene.base)
     const files = await this.localIPFS.getDeployedFiles(coords.x, coords.y)
-    if (!files) fail(ErrorType.STATUS_ERROR, 'No files found')
+    if (!files) fail(ErrorType.STATUS_ERROR, 'No remote files found')
     return files
   }
 

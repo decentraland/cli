@@ -1,5 +1,4 @@
 import chalk from 'chalk'
-import { isDev } from './env'
 import ora = require('ora')
 
 export function error(message: string): string {
@@ -57,7 +56,7 @@ export function loading(message: string) {
 
 export function exit(err: Error, logger: any) {
   logger.log(error('\n' + err.message + '\n'))
-  if (isDev) logger.log(error(err.stack))
+  if (process.env.DEBUG) logger.log(error(err.stack))
   process.exit(1)
 }
 
@@ -66,51 +65,65 @@ export function tabulate(spaces: number = 0) {
 }
 
 export function isEmpty(obj) {
+  if (!obj) return true
   const keys = Object.keys(obj)
   if (!keys.length) {
     return true
   }
-  return keys.every($ => !obj[$])
+  return keys.every($ => obj[$] === undefined || obj[$] === [] || obj[$] === {} || obj[$] === '')
 }
 
-export function formatDictionary(obj: Object, spaceCount: number = 0, hideEmpty: boolean = false): string {
-  let buf = '\n'
-  const keys = Object.keys(obj)
-  const spaces = tabulate(spaceCount)
-
-  if (!keys.length) {
-    if (hideEmpty) return '\n'
-    return ' {}\n'
-  }
+export function formatDictionary(
+  obj: Object,
+  options: { spacing: number; padding: number },
+  level: number = 1,
+  context?: 'array' | 'object'
+): string {
+  let buf = ''
+  const keys = obj ? Object.keys(obj) : []
 
   keys.forEach((key, i) => {
     const item = obj[key]
+
+    const separator = context === 'array' && i === 0 ? '' : tabulate(options.spacing * level + options.padding)
+
     if (Array.isArray(item)) {
-      buf = buf.concat(spaces, `${chalk.bold(key)}: `, formatList(item, spaceCount), '\n')
+      buf = buf.concat(separator, `${chalk.bold(key)}: `, formatList(item, options, level + 1, 'object'), '\n')
     } else if (typeof item === 'object') {
-      const empty = isEmpty(item)
-      buf = buf.concat(spaces, `${chalk.bold(key)}`, empty && hideEmpty ? '' : ':', formatDictionary(item, spaceCount + 2))
+      const isHidden = isEmpty(item)
+      const content = isHidden
+        ? `: ${chalk.italic('No information available')}\n`
+        : `:\n${formatDictionary(item, options, level + 1, 'object')}`
+      buf = buf.concat(separator, `${chalk.bold(key)}`, content)
     } else if (item) {
-      buf = buf.concat(spaces, `${chalk.bold(key)}: `, JSON.stringify(item), '\n')
+      buf = buf.concat(separator, `${chalk.bold(key)}: `, JSON.stringify(item), '\n')
     }
   })
 
   return buf
 }
 
-export function formatList(list: Array<any>, spaceCount: number): string {
-  const spaces = tabulate(spaceCount)
+export function formatList(
+  list: Array<any>,
+  options: { spacing: number; padding: number },
+  level: number = 1,
+  context?: 'array' | 'object'
+): string {
+  let buf = ''
+  const separator = '\n' + tabulate(options.spacing * level + options.padding) + '- '
   if (list.length) {
-    return list.reduce((buf, item, i) => {
+    buf = list.reduce((buf, item, i) => {
       if (Array.isArray(item)) {
-        return buf + `\n${spaces}- ${formatList(item, spaceCount)}`
+        return buf.concat(separator, formatList(list, options, level + 1, 'array'))
       } else if (typeof item === 'object') {
-        return buf + formatDictionary(item, spaceCount, false)
+        return buf.concat(separator, formatDictionary(item, options, level + 1, 'array'))
       } else if (item) {
-        return buf + `\n${spaces}- ${JSON.stringify(item)}`
+        return buf.concat(separator, JSON.stringify(item))
       }
     }, '')
   } else {
-    return '[]'
+    buf = chalk.italic('No information available')
   }
+
+  return buf
 }

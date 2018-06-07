@@ -42,20 +42,28 @@ export function info(vorpal: any) {
 
         if (!args.target) {
           const scene = await dcl.getProjectInfo()
-          vorpal.log(formatDictionary({ 'Scene metadata': scene }, 4))
+          vorpal.log('\n  Scene Metadata:\n')
+          vorpal.log(formatDictionary(scene, { spacing: 2, padding: 2 }))
         } else if (args.target.startsWith('address:')) {
           const address = args.target.replace('address:', '')
           const parcels = await dcl.getAddressInfo(address)
           const formatted = parcels.reduce((acc, parcel) => {
             return { ...acc, [`${parcel.x},${parcel.y}`]: { name: parcel.name, description: parcel.description, ipns: parcel.ipns } }
           }, {})
-          vorpal.log(formatDictionary({ [`LAND owned by ${address}`]: formatted }, 4, true))
+          vorpal.log(`\n  LAND owned by ${address}:\n`)
+          vorpal.log(formatDictionary(formatted, { spacing: 2, padding: 2 }))
         } else if (args.target.startsWith('coord:')) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
           const scene = await dcl.getParcelInfo(coords.x, coords.y)
-          vorpal.log(formatDictionary({ 'Scene Metadata': scene.scene }, 4))
-          vorpal.log(formatDictionary({ 'LAND Metadata': scene.land }, 4))
+          if (scene.scene) {
+            vorpal.log('\n  Scene Metadata:\n')
+            vorpal.log(formatDictionary(scene.scene, { spacing: 2, padding: 2 }))
+          }
+          if (scene.land) {
+            vorpal.log('  LAND Metadata:\n')
+            vorpal.log(formatDictionary(scene.land, { spacing: 2, padding: 2 }))
+          }
         } else {
           fail(ErrorType.INFO_ERROR, `Invalid value: ${args.target}`)
         }

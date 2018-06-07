@@ -40,8 +40,14 @@ export function init(options = {}) {
     if (exists) {
       vorpal.parse(process.argv)
     } else {
-      vorpal.log(`\n  Decentraland CLI v${VERSION}`)
-      vorpal.execSync('help')
+      showHelp()
     }
+  } else {
+    showHelp()
   }
+}
+
+function showHelp() {
+  vorpal.log(`\n  Decentraland CLI v${VERSION}`)
+  vorpal.execSync('help')
 }
