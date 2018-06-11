@@ -121,7 +121,7 @@ describe('coordinateHelpers', () => {
       expect(result).to.be.true
     })
     it('should return false for a single invalid coordinate', () => {
-      const result = coordinateHelpers.getObject('asd,asd')
+      const result = coordinateHelpers.isValid('asd,asd')
       expect(result).to.deep.equal(false)
     })
   })
