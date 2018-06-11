@@ -20,12 +20,12 @@ export function parse(coordinates: string): string[] {
 /**
  * Returns a promise that resolves `true` if the given set of coordinates is valid.
  * For invalid coordinates, the promise will reject with an error message.
- * This is meant to be used as an inquirer validator.
+ * *This is meant to be used as an inquirer validator.*
  *
  * Empty inputs will resolve `true`
  * @param answers An string containing coordinates in the `x,y; x,y; ...` format
  */
-export function validate(answers: string) {
+export function validate(answers: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     if (answers.trim().length === 0) {
       resolve(true)
@@ -40,6 +40,15 @@ export function validate(answers: string) {
   })
 }
 
+/**
+ * Returns true if the given coordinate's format is valid
+ *
+ * ```
+ * isValid('0,0') // returns true
+ * isValid(', 0') // returns false
+ * ```
+ * @param val The coodinate string
+ */
 export function isValid(val: string): boolean {
   if (!val.match(/^(-?\d)+\,(-?\d)+$/g)) {
     return false
@@ -47,6 +56,10 @@ export function isValid(val: string): boolean {
   return true
 }
 
+/**
+ * Converts a string-based set of coordinates to an object
+ * @param coords A string containing a set of coordinates
+ */
 export function getObject(coords: string): { x: number; y: number } {
   const parsed = parse(coords)[0]
   const parts = parsed.split(',')

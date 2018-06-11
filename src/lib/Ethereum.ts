@@ -104,9 +104,9 @@ export class Ethereum extends EventEmitter {
 
         return {
           version: 0,
-          name: name,
-          description: description,
-          ipns: ipns
+          name: name || null,
+          description: description || null,
+          ipns: ipns || null
         }
       }
       default:

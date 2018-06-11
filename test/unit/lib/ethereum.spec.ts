@@ -24,28 +24,26 @@ describe('Ethereum', () => {
       ipns: 'QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE'
     })
 
-    expect(() => eth['decodeLandData']('"0","myLand","my description","QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.throw(
-      "Unknown version '\"' when trying to decode land data"
-    )
+    expect(eth['decodeLandData']('"asd","myLand","my description","QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.be.null
 
     expect(eth['decodeLandData']('0,"myLand","my description",')).to.deep.equal({
       version: 0,
       name: 'myLand',
       description: 'my description',
-      ipns: ''
+      ipns: null
     })
 
     expect(eth['decodeLandData']('0,,,')).to.deep.equal({
       version: 0,
-      name: '',
-      description: '',
-      ipns: ''
+      name: null,
+      description: null,
+      ipns: null
     })
 
     expect(eth['decodeLandData']('0,"",,"QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.deep.equal({
       version: 0,
-      name: '',
-      description: '',
+      name: null,
+      description: null,
       ipns: 'QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE'
     })
   })
