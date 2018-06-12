@@ -17,8 +17,6 @@ export interface IArguments {
 export function start(vorpal: any) {
   vorpal
     .command('preview')
-    .alias('start')
-    .alias('serve')
     .option('-p, --port <number>', 'parcel previewer server port (default is 2044).')
     .option('--no-browser', 'prevents the CLI from opening a new browser window.')
     .description('Starts local development server.')
@@ -42,11 +40,11 @@ export function start(vorpal: any) {
             Object.keys(ifaces).forEach(dev => {
               ifaces[dev].forEach((details, i) => {
                 if (details.family === 'IPv4') {
-                  const addr = `    http://${details.address}:${port}`
+                  const addr = `http://${details.address}:${port}`
                   if (i === 0) {
                     url = addr
                   }
-                  vorpal.log(addr)
+                  vorpal.log(`    ${addr}`)
                 }
               })
             })
@@ -57,7 +55,7 @@ export function start(vorpal: any) {
 
             vorpal.log(comment('\nPress CTRL+C to exit\n'))
 
-            if (args.options.browser) {
+            if (!args.options.browser) {
               opn(url)
             }
           })

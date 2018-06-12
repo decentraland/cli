@@ -16,7 +16,6 @@ export interface IDeployArguments {
 export function deploy(vorpal: any) {
   vorpal
     .command('deploy')
-    .alias('upload')
     .description('Uploads scene to IPFS and updates IPNS.')
     .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')

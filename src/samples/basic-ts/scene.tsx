@@ -37,12 +37,12 @@ export default class RollerCoaster extends ScriptableScene<any, { time: number }
               rotation: { duration: interval }
             }}
           >
-            <box position={{ x: 0, y: -1, z: 0 }} color="black" scale={{ x: 3, y: 0.4, z: 5 }} />
-            <box position={{ x: 1.5, y: 0, z: 0 }} color="red" scale={{ x: 0.2, y: 1, z: 5 }} />
-            <box position={{ x: -1.5, y: 0, z: 0 }} color="yellow" scale={{ x: 0.2, y: 1, z: 5 }} />
+            <box position={{ x: 0, y: -1, z: 0 }} color="#000000" scale={{ x: 3, y: 0.4, z: 5 }} />
+            <box position={{ x: 1.5, y: 0, z: 0 }} color="#FF0000" scale={{ x: 0.2, y: 1, z: 5 }} />
+            <box position={{ x: -1.5, y: 0, z: 0 }} color="#FFFF00" scale={{ x: 0.2, y: 1, z: 5 }} />
 
-            <box position={{ x: 0, y: 0, z: 2.5 }} color="green" scale={{ x: 3, y: 1, z: 0.2 }} />
-            <box position={{ x: 0, y: 0, z: -2.5 }} color="blue" scale={{ x: 3, y: 1, z: 0.2 }} />
+            <box position={{ x: 0, y: 0, z: 2.5 }} color="#00FF00" scale={{ x: 3, y: 1, z: 0.2 }} />
+            <box position={{ x: 0, y: 0, z: -2.5 }} color="#0000FF" scale={{ x: 3, y: 1, z: 0.2 }} />
           </entity>
         </entity>
       </scene>
