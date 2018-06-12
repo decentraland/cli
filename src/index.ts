@@ -1,12 +1,11 @@
 /// <reference path="../typings/dcl.d.ts" />
-/// <reference path="../typings/docker-names.d.ts" />
-
 import Vorpal = require('vorpal')
 import { init as initCommand } from './commands/init'
 import { link } from './commands/link'
 import { start } from './commands/preview'
 import { deploy } from './commands/deploy'
 import { pin } from './commands/pin'
+
 const pkg = require('../package.json')
 
 export const VERSION = pkg.version
@@ -36,8 +35,14 @@ export function init(options = {}) {
     if (exists) {
       vorpal.parse(process.argv)
     } else {
-      vorpal.log(`\n  Decentraland CLI v${VERSION}`)
-      vorpal.execSync('help')
+      showHelp()
     }
+  } else {
+    showHelp()
   }
+}
+
+function showHelp() {
+  vorpal.log(`\n  Decentraland CLI v${VERSION}`)
+  vorpal.execSync('help')
 }
