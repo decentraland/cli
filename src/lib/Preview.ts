@@ -8,6 +8,7 @@ import * as fs from 'fs-extra'
 import { fail, ErrorType } from '../utils/errors'
 import * as chokidar from 'chokidar'
 import ignore = require('ignore')
+import * as portfinder from 'portfinder'
 
 function nocache(req, res, next) {
   res.setHeader('Surrogate-Control', 'no-store')
@@ -33,9 +34,18 @@ export class Preview extends EventEmitter {
     this.ignoredPaths = ignoredPaths
   }
 
-  startServer(port: number = 2044) {
+  async startServer(port: number) {
     const root = getRootPath()
     const ig = ignore().add(this.ignoredPaths)
+    let resolvedPort = port
+
+    if (!resolvedPort) {
+      try {
+        resolvedPort = await portfinder.getPortPromise()
+      } catch (e) {
+        resolvedPort = 2044
+      }
+    }
 
     chokidar.watch(root).on('all', (event, path) => {
       if (!ig.ignores(path)) {
@@ -125,7 +135,7 @@ export class Preview extends EventEmitter {
               <script charset="utf-8" src="/metaverse-api/preview.js"></script>
               <script>
                 const host = window.location.hostname
-                const ws = new WebSocket(\`ws://\${host}:${port}\`)
+                const ws = new WebSocket(\`ws://\${host}:${resolvedPort}\`)
                 ws.addEventListener('message', msg => {
                   if (msg.data === 'update') {
                     handleServerMessage({type: 'update'})
@@ -145,8 +155,15 @@ export class Preview extends EventEmitter {
     this.app.use(nocache)
     this.app.use('/metaverse-api', express.static(artifactPath))
     this.app.use(express.static(root))
-    this.emit('preview:ready', `http://localhost:${port}`)
-    this.server.listen(port)
+    this.emit('preview:ready', resolvedPort)
+
+    this.server.listen(resolvedPort).on('error', (e: any) => {
+      if (e.errno === 'EADDRINUSE') {
+        fail(ErrorType.PREVIEW_ERROR, `Port ${resolvedPort} is already in use by anotxher process`)
+        fail(ErrorType.PREVIEW_ERROR, `Failed to start Linker App: ${e.message}`)
+      }
+    })
+
     return this.app
   }
 }

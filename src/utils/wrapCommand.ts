@@ -1,4 +1,4 @@
-import { exit, highlight } from './logging'
+import { exit, warning } from './logging'
 import { Analytics } from './analytics'
 import { isMetaverseApiOutdated, isCLIOutdated } from './moduleHelpers'
 
@@ -24,10 +24,10 @@ async function wrapper(fn: TargetFunction, ctx: any, args: any[]): Promise<void>
   }
 
   if (await isCLIOutdated()) {
-    ctx.log(highlight('\nWARNING: outdated decentraland version\nPlease run ') + 'npm update -g decentraland\n')
+    ctx.log(warning('\nWARNING: outdated decentraland version\nPlease run ') + 'npm update -g decentraland\n')
   }
 
   if (await isMetaverseApiOutdated()) {
-    ctx.log(highlight('\nWARNING: outdated metaverse-api version\nPlease run ') + 'npm install metaverse-api@latest\n')
+    ctx.log(warning('\nWARNING: outdated metaverse-api version\nPlease run ') + 'npm install metaverse-api@latest\n')
   }
 }

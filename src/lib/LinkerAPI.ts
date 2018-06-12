@@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
 import * as express from 'express'
 import { IProjectFile } from '../utils/project'
 import * as urlParse from 'url'
+import * as portfinder from 'portfinder'
 
 /**
  * Events emitted by this class:
@@ -24,9 +25,18 @@ export class LinkerAPI extends EventEmitter {
     this.landContract = landRegistryContract
   }
 
-  link(port: number = 4044) {
+  link(port: number) {
     return new Promise(async (resolve, reject) => {
       const url = `http://localhost:${port}/linker`
+      let resolvedPort = port
+
+      if (!resolvedPort) {
+        try {
+          resolvedPort = await portfinder.getPortPromise()
+        } catch (e) {
+          resolvedPort = 4044
+        }
+      }
 
       this.setRoutes()
 
@@ -34,9 +44,9 @@ export class LinkerAPI extends EventEmitter {
         reject(err)
       })
 
-      this.app.listen(port, () => this.emit('link:ready', url)).on('error', (e: any) => {
+      this.app.listen(resolvedPort, () => this.emit('link:ready', url)).on('error', (e: any) => {
         if (e.errno === 'EADDRINUSE') {
-          reject(new Error(`Port ${port} is already in use by another process`))
+          reject(new Error(`Port ${resolvedPort} is already in use by another process`))
         } else {
           reject(new Error(`Failed to start Linker App: ${e.message}`))
         }

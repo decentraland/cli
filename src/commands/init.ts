@@ -3,7 +3,7 @@ import { wrapCommand } from '../utils/wrapCommand'
 import { installDependencies, isOnline } from '../utils/moduleHelpers'
 import { BoilerplateType } from '../lib/Project'
 import { Analytics } from '../utils/analytics'
-import { notice, comment, highlight, loading, positive } from '../utils/logging'
+import { comment, warning, loading, positive } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
 import { fail, ErrorType } from '../utils/errors'
 import { parseCoordinates, validateCoordinates } from '../utils/coordinateHelpers'
@@ -26,30 +26,30 @@ export function init(vorpal: any) {
           {
             type: 'input',
             name: 'display.title',
-            message: notice('Scene title: \n'),
+            message: 'Scene title: \n',
             default: dcl.project.getRandomName()
           },
           {
             type: 'input',
             name: 'owner',
-            message: `${notice('Your ethereum address: ')}\n${comment(
+            message: `${'Your ethereum address: '}\n${comment(
               '(optional, recommended -- used to check ownership of parcels when deploying your scene)'
             )}\n`
           },
           {
             type: 'input',
             name: 'contact.name',
-            message: `${notice('Your name: ')}\n${comment('(optional -- shown to other users so that they can contact you)')}\n`
+            message: `${'Your name: '}\n${comment('(optional -- shown to other users so that they can contact you)')}\n`
           },
           {
             type: 'input',
             name: 'contact.email',
-            message: `${notice('Your email: ')}\n${comment('(optional -- shown to other users so that they can contact you)')}\n`
+            message: `${'Your email: '}\n${comment('(optional -- shown to other users so that they can contact you)')}\n`
           },
           {
             type: 'input',
             name: 'scene.parcels',
-            message: `${notice('Parcels comprising the scene')}\n${comment(
+            message: `${'Parcels comprising the scene'}\n${comment(
               '(optional, recommended -- used to show the limts of your scene and upload to these coordinates)\nPlease use this format: `x,y; x,y; x,y ...`'
             )}\n`,
             validate: validateCoordinates as any
@@ -80,7 +80,7 @@ export function init(vorpal: any) {
           const results = await inquirer.prompt({
             type: 'list',
             name: 'archetype',
-            message: highlight('Which type of project would you like to generate?'),
+            message: warning('Which type of project would you like to generate?'),
             choices: [
               { name: 'Static scene project', value: BoilerplateType.STATIC },
               { name: 'Dynamic scene (single player)', value: BoilerplateType.TYPESCRIPT },
@@ -95,7 +95,7 @@ export function init(vorpal: any) {
             const ws = await inquirer.prompt({
               type: 'input',
               name: 'server',
-              message: `${notice('Your websocket server')}`,
+              message: `Your websocket server`,
               default: 'ws://localhost:8087'
             })
 

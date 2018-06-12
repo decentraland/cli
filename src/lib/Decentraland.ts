@@ -108,7 +108,7 @@ export class Decentraland extends EventEmitter {
 
       events(preview, '*', this.pipeEvents.bind(this))
 
-      preview.startServer(this.options.previewPort)
+      await preview.startServer(this.options.previewPort)
     })
   }
 
