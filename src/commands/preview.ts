@@ -32,14 +32,15 @@ export function start(vorpal: any) {
           dcl.on('preview:ready', async port => {
             const ifaces = os.networkInterfaces()
             const sdkOutdated = await isMetaverseApiOutdated()
+            const openBrowser = args.options.browser !== undefined ? args.options.browser : true
             let url = null
 
             info(`\nPreview server is now running`)
 
             vorpal.log(bold('\n  Available on:\n'))
 
-            Object.keys(ifaces).forEach(dev => {
-              ifaces[dev].forEach((details, i) => {
+            Object.keys(ifaces).forEach((dev, i) => {
+              ifaces[dev].forEach(details => {
                 if (details.family === 'IPv4') {
                   const addr = `http://${details.address}:${port}`
                   if (i === 0) {
@@ -56,7 +57,7 @@ export function start(vorpal: any) {
 
             vorpal.log(comment('\nPress CTRL+C to exit\n'))
 
-            if (!args.options.browser) {
+            if (openBrowser) {
               opn(url)
             }
           })
