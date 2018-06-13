@@ -89,6 +89,7 @@ async function track(eventName: string, properties: any = {}) {
       properties: {
         ...properties,
         os: process.platform,
+        ci: process.env.CI,
         devId
       }
     }
