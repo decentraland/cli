@@ -32,8 +32,9 @@ export function start(vorpal: any) {
           dcl.on('preview:ready', async port => {
             const ifaces = os.networkInterfaces()
             const sdkOutdated = await isMetaverseApiOutdated()
-            let url = vorpal.log('') // padding
-            info(`Preview server is now running`)
+            let url = null
+
+            info(`\nPreview server is now running`)
 
             vorpal.log(bold('\n  Available on:\n'))
 
