@@ -68,7 +68,7 @@ export class Decentraland extends EventEmitter {
       }
     }
 
-    await this.pin()
+    await this.pin(rootFolder.hash)
   }
 
   async link() {
@@ -94,11 +94,11 @@ export class Decentraland extends EventEmitter {
     })
   }
 
-  async pin() {
+  async pin(ipfsHash?: string) {
     await this.project.validateExistingProject()
     const coords = await this.project.getParcelCoordinates()
     const peerId = await this.localIPFS.getPeerId()
-    await this.localIPFS.pinFiles(peerId, coords)
+    await this.localIPFS.pinFiles(peerId, coords, ipfsHash)
   }
 
   async preview() {

@@ -59,20 +59,29 @@ export class IPFS extends EventEmitter {
    * @param peerId The peerId of the local IPFS node.
    * @param coords An object containing the base X and Y coordinates for the parcel.
    */
-  async pinFiles(peerId: string, coords: { x: number; y: number }) {
+  async pinFiles(peerId: string, coords: { x: number; y: number }, ipfsHash?: string) {
     const { x, y } = coords
     const ipfsURL: string = await this.getExternalURL()
 
     this.emit('ipfs:pin')
 
     try {
-      await fetch(`${ipfsURL}/pin/${peerId}/${x}/${y}`, {
-        method: 'post'
+      const res = await fetch(`${ipfsURL}/pin/${x}/${y}`, {
+        method: 'post',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          peerId,
+          ipfs: ipfsHash
+        })
       })
-    } catch (e) {
-      if (e.response) {
-        fail(ErrorType.IPFS_ERROR, 'Failed to pin files: ' + e.response.data.error || e.response.data)
+      if (res.status >= 400 && res.status < 600) {
+        const data = res.json ? await res.json() : null
+        throw new Error(data ? data.error : JSON.stringify(res))
       }
+    } catch (e) {
       fail(ErrorType.IPFS_ERROR, 'Failed to pin files: ' + e.message)
     }
 
@@ -99,6 +108,7 @@ export class IPFS extends EventEmitter {
       const res = await this.ipfsApi.files.add(ipfsFiles, {
         recursive: true
       })
+
       this.emit('ipfs:add-success')
 
       return res
