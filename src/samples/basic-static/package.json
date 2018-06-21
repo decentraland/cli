@@ -5,6 +5,6 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "metaverse-api": "rc"
+    "metaverse-api": "^4.0.0"
   }
 }
