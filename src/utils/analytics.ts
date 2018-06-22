@@ -53,7 +53,9 @@ export namespace Analytics {
 
       const devId = uuidv4()
       await writeDCLInfo(devId, results.continue)
-      await Analytics.identify(devId)
+      if (results.continue) {
+        await Analytics.identify(devId)
+      }
     }
   }
 }
