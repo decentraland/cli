@@ -4,7 +4,8 @@ export enum ErrorType {
   IPFS_ERROR = 'IPFSError',
   PROJECT_ERROR = 'ProjectError',
   PREVIEW_ERROR = 'PreviewError',
-  UPGRADE_ERROR = 'UpgradeError'
+  UPGRADE_ERROR = 'UpgradeError',
+  DEPLOY_ERROR = 'DeployError'
 }
 
 export function fail(type: ErrorType, message: string) {

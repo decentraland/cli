@@ -10,7 +10,6 @@ const ctx = sandbox.create()
 
 describe('Project', () => {
   let getAllFilePathsStub
-  let getDCLIgnoreStub
   let readFileStub
   let sceneFileExistsStub
   let decentralandFolderExistsStub
@@ -20,7 +19,6 @@ describe('Project', () => {
     getAllFilePathsStub = ctx
       .stub(Project.prototype, 'getAllFilePaths')
       .callsFake(() => ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore'])
-    getDCLIgnoreStub = ctx.stub(Project.prototype, 'getDCLIgnore' as any).callsFake(() => '')
     sceneFileExistsStub = ctx.stub(Project.prototype, 'sceneFileExists').callsFake(() => false)
     decentralandFolderExistsStub = ctx.stub(Project.prototype, 'decentralandFolderExists').callsFake(() => false)
     readFileStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
@@ -35,7 +33,7 @@ describe('Project', () => {
   describe('getFiles()', () => {
     it('should return all files', async () => {
       const project = new Project('.')
-      const files = await project.getFiles()
+      const files = await project.getFiles('')
       const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
       files.forEach((file, i) => {
@@ -46,10 +44,8 @@ describe('Project', () => {
     })
 
     it('should ignore node_modules', async () => {
-      getDCLIgnoreStub.callsFake(() => `node_modules`)
-
       const project = new Project('.')
-      const files = await project.getFiles()
+      const files = await project.getFiles('node_modules')
       const expected = ['a.json', 'src/b.json', '.dclignore']
 
       files.forEach((file, i) => {
@@ -64,10 +60,8 @@ describe('Project', () => {
     })
 
     it('should ignore . files', async () => {
-      getDCLIgnoreStub.callsFake(() => `.*`)
-
       const project = new Project('.')
-      const files = await project.getFiles()
+      const files = await project.getFiles('.*')
       const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js']
 
       files.forEach((file, i) => {
@@ -82,10 +76,8 @@ describe('Project', () => {
     })
 
     it('should ignore specific file', async () => {
-      getDCLIgnoreStub.callsFake(() => `a.json`)
-
       const project = new Project('.')
-      const files = await project.getFiles()
+      const files = await project.getFiles('a.json')
       const expected = ['src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
       files.forEach((file, i) => {
@@ -100,10 +92,8 @@ describe('Project', () => {
     })
 
     it('should ignore several files', async () => {
-      getDCLIgnoreStub.callsFake(() => `a.json\nsrc/b.json`)
-
       const project = new Project('.')
-      const files = await project.getFiles()
+      const files = await project.getFiles('a.json\nsrc/b.json')
       const expected = ['node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
       files.forEach((file, i) => {

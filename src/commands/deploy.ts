@@ -1,9 +1,12 @@
 import { wrapCommand } from '../utils/wrapCommand'
-import { loading, info, positive } from '../utils/logging'
+import { loading, info, positive, warning } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import opn = require('opn')
 import inquirer = require('inquirer')
+import { ErrorType, fail } from '../utils/errors'
+
+const MAX_FILE_COUNT = 100
 
 export interface IDeployArguments {
   options: {
@@ -26,6 +29,8 @@ export function deploy(vorpal: any) {
           ipfsHost: args.options.host || 'localhost',
           ipfsPort: args.options.port || 5001
         })
+
+        let ignoreFile = await dcl.project.getDCLIgnore()
 
         dcl.on('ipfs:add', () => {
           const spinner = loading('Uploading files to local IPFS node')
@@ -80,9 +85,17 @@ export function deploy(vorpal: any) {
           })
         })
 
+        if (ignoreFile === null) {
+          vorpal.log(
+            warning(`WARNING: As of version 1.1.0 of the CLI, all deployments require a .dclignore file. To learn more, see: [[URL]]`)
+          )
+          info(`Generating .dclignore file with default values`)
+          ignoreFile = await dcl.project.writeDclIgnore()
+        }
+
         await Analytics.sceneDeploy()
         await dcl.project.validateExistingProject()
-        const files = await dcl.project.getFiles()
+        const files = await dcl.project.getFiles(ignoreFile)
 
         vorpal.log('\n  Tracked files:\n')
 
@@ -90,6 +103,10 @@ export function deploy(vorpal: any) {
           vorpal.log(`    ${file.path} (${file.size} bytes)`)
           return size + file.size
         }, 0)
+
+        if (files.length > MAX_FILE_COUNT) {
+          fail(ErrorType.DEPLOY_ERROR, `You cannot upload more than ${MAX_FILE_COUNT} files per scene.`)
+        }
 
         vorpal.log('') // new line to keep things clean
 
