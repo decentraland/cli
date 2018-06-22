@@ -32,7 +32,7 @@ export function buildTypescript(): Promise<void> {
   })
 }
 
-export async function latestVersion(name: string): Promise<string> {
+export async function getLatestVersion(name: string): Promise<string> {
   if (!(await isOnline())) {
     return null
   }
@@ -40,18 +40,22 @@ export async function latestVersion(name: string): Promise<string> {
   return pkg.version
 }
 
-export async function isMetaverseApiOutdated(): Promise<boolean> {
-  const metaverseApiVersionLatest = await latestVersion('metaverse-api')
-  let metaverseApiPkg: { version: number }
+export async function getInstalledVersion(name: string): Promise<string> {
+  let metaverseApiPkg: { version: string }
 
   try {
-    metaverseApiPkg = await readJSON<{ version: number }>(path.resolve(getNodeModulesPath(getRootPath()), 'metaverse-api', 'package.json'))
+    metaverseApiPkg = await readJSON<{ version: string }>(path.resolve(getNodeModulesPath(getRootPath()), name, 'package.json'))
   } catch (e) {
-    // metaverse-api is not installed, thus it can't be outdated
-    return false
+    return null
   }
 
-  if (metaverseApiVersionLatest && semver.lt(metaverseApiPkg.version, metaverseApiVersionLatest)) {
+  return metaverseApiPkg.version
+}
+
+export async function isMetaverseApiOutdated(): Promise<boolean> {
+  const metaverseApiVersionLatest = await getLatestVersion('metaverse-api')
+  const metaverseApiVersion = await getInstalledVersion('metaverse-api')
+  if (metaverseApiVersionLatest && semver.lt(metaverseApiVersion, metaverseApiVersionLatest)) {
     return true
   }
 
@@ -61,7 +65,7 @@ export async function isMetaverseApiOutdated(): Promise<boolean> {
 export async function isCLIOutdated(): Promise<boolean> {
   const cliPkg = await readJSON<{ version: number }>(path.resolve(__dirname, '../../package.json'))
   const cliVersion = cliPkg.version
-  const cliVersionLatest = await latestVersion('decentraland')
+  const cliVersionLatest = await getLatestVersion('decentraland')
 
   if (cliVersionLatest && semver.lt(cliVersion, cliVersionLatest)) {
     return true

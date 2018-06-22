@@ -9,12 +9,12 @@ export function comment(message: string): string {
   return chalk.grey(message)
 }
 
-export function notice(message: string): string {
-  return chalk.blue(message)
+export function warning(message: string): string {
+  return chalk.yellow(message)
 }
 
-export function highlight(message: string): string {
-  return chalk.yellow(message)
+export function bold(message: string): string {
+  return chalk.bold(message)
 }
 
 export function positive(message: string): string {
@@ -31,14 +31,6 @@ export function info(message: string) {
 
 export function success(message: string) {
   const instance = ora(message).succeed()
-  if (!instance['enabled']) {
-    // fallback to show message even when Ora is not supported
-    console['log'](message)
-  }
-}
-
-export function warn(message: string) {
-  const instance = ora(message).warn()
   if (!instance['enabled']) {
     // fallback to show message even when Ora is not supported
     console['log'](message)
