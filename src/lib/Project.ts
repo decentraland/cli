@@ -211,23 +211,22 @@ export class Project {
    * Writes the `.dclignore` file to the provided directory path.
    * @param dir The target path where the file will be
    */
-  writeDclIgnore(): Promise<void> {
-    return fs.outputFile(
-      path.join(this.workingDir, DCLIGNORE_FILE),
-      [
-        '.*',
-        'package.json',
-        'package-lock.json',
-        'yarn-lock.json',
-        'build.json',
-        'tsconfig.json',
-        'tslint.json',
-        'node_modules/',
-        '*.ts',
-        '*.tsx',
-        'dist/'
-      ].join('\n')
-    )
+  async writeDclIgnore(): Promise<string> {
+    const content = [
+      '.*',
+      'package.json',
+      'package-lock.json',
+      'yarn-lock.json',
+      'build.json',
+      'tsconfig.json',
+      'tslint.json',
+      'node_modules/',
+      '*.ts',
+      '*.tsx',
+      'dist/'
+    ].join('\n')
+    await fs.outputFile(path.join(this.workingDir, DCLIGNORE_FILE), content)
+    return content
   }
 
   /**
@@ -297,11 +296,12 @@ export class Project {
    * Returns a promise of an array of objects containing the path and the content for all the files in the project.
    * All the paths added to the `.dclignore` file will be excluded from the results.
    * Windows directory separators are replaced for POSIX separators.
+   * @param ignoreFile The contents of the .dclignore file
    */
-  async getFiles(): Promise<IFile[]> {
+  async getFiles(ignoreFile: string): Promise<IFile[]> {
     const files = await this.getAllFilePaths()
     const filteredFiles = ignore()
-      .add(await this.getDCLIgnore())
+      .add(ignoreFile)
       .filter(files) as any
     let data = []
 
@@ -330,8 +330,16 @@ export class Project {
   /**
    * Returns the the contents of the `.dclignore` file
    */
-  getDCLIgnore(): Promise<string> {
-    return fs.readFile(getIgnoreFilePath(this.workingDir), 'utf8')
+  async getDCLIgnore(): Promise<string | null> {
+    let ignoreFile
+
+    try {
+      ignoreFile = await fs.readFile(getIgnoreFilePath(this.workingDir), 'utf8')
+    } catch (e) {
+      ignoreFile = null
+    }
+
+    return ignoreFile
   }
 
   /**

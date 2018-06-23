@@ -6,7 +6,8 @@ export enum ErrorType {
   PREVIEW_ERROR = 'PreviewError',
   UPGRADE_ERROR = 'UpgradeError',
   INFO_ERROR = 'InfoError',
-  STATUS_ERROR = 'StatusError'
+  STATUS_ERROR = 'StatusError',
+  DEPLOY_ERROR = 'DeployError'
 }
 
 export function fail(type: ErrorType, message: string) {

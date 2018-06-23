@@ -58,8 +58,9 @@ tmpTest(async (dirPath, done) => {
     describe('getFiles()', async () => {
       it('should return all the files qualified to be uploaded', async () => {
         const project = new Project(dirPath)
-        const result = await project.getFiles()
-
+        const result = await project.getFiles(
+          `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
+        )
         expect(result.map(f => f.path)).to.deep.equal(['models/test.fbx', 'scene.json', 'scene.xml', 'test.js'])
       }).timeout(5000)
     })
