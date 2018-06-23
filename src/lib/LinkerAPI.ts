@@ -27,7 +27,6 @@ export class LinkerAPI extends EventEmitter {
 
   link(port: number) {
     return new Promise(async (resolve, reject) => {
-      const url = `http://localhost:${port}/linker`
       let resolvedPort = port
 
       if (!resolvedPort) {
@@ -37,6 +36,8 @@ export class LinkerAPI extends EventEmitter {
           resolvedPort = 4044
         }
       }
+      
+      const url = `http://localhost:${resolvedPort}/linker`
 
       this.setRoutes()
 
