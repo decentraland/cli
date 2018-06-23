@@ -77,6 +77,19 @@ export class Ethereum extends EventEmitter {
     return this.decodeLandData(landData)
   }
 
+  async getLandOwner(x: number, y: number): Promise<string> {
+    let owner
+
+    try {
+      const contract = await landContract
+      owner = await contract['ownerOfLand'](x, y)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND owner: ${e.message}`)
+    }
+
+    return owner
+  }
+
   /**
    * Queries the Blockchain and returns the IPNS return by `landData`
    * @param coordinates An object containing the base X and Y coordinates for the parcel.
@@ -86,7 +99,7 @@ export class Ethereum extends EventEmitter {
 
     const landData = await this.getLandData(x, y)
 
-    if (landData.ipns === '') {
+    if (!landData || landData.ipns === '') {
       this.emit('ethereum:get-ipns-empty')
       return null
     }

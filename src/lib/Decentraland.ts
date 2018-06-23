@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { IPFS } from './IPFS'
+import { IPFS, IResolveDependency } from './IPFS'
 import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum } from './Ethereum'
 import * as events from 'wildcards'
@@ -7,7 +7,6 @@ import { getRootPath } from '../utils/project'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
 import { ErrorType, fail } from '../utils/errors'
-import * as Coordinates from '../utils/coordinateHelpers'
 
 export interface IDecentralandArguments {
   workingDir?: string
@@ -137,32 +136,35 @@ export class Decentraland extends EventEmitter {
     return Promise.all(info)
   }
 
-  async getProjectInfo() {
-    await this.project.validateExistingProject()
-    return this.project.getSceneFile()
+  async getProjectInfo(x: number, y: number) {
+    const scene = await this.project.getSceneFile()
+    const land = await this.ethereum.getLandData(x, y)
+    const owner = await this.ethereum.getLandOwner(x, y)
+    return { scene, land: { ...land, owner } }
   }
 
   async getParcelInfo(x: number, y: number) {
     const scene = await this.localIPFS.getRemoteSceneMetadata(x, y)
     const land = await this.ethereum.getLandData(x, y)
-    if (!scene && !land) {
-      fail(ErrorType.INFO_ERROR, 'No remote parcel information found')
+    const owner = await this.ethereum.getLandOwner(x, y)
+    return { scene, land: { ...land, owner } }
+  }
+
+  async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: IResolveDependency[] }> {
+    const { url } = await this.localIPFS.resolveParcel(x, y)
+
+    if (!url) return { files: [] }
+
+    const result: { lastModified?: string; files: IResolveDependency[] } = {
+      files: url.dependencies
     }
-    return { scene, land }
-  }
 
-  async getParcelStatus(x: number, y: number) {
-    return this.localIPFS.getDeployedFiles(x, y)
-  }
+    if (url.lastModified) {
+      // only available in redis metadata >= 2
+      result.lastModified = url.lastModified
+    }
 
-  async getProjectStatus() {
-    await this.project.validateExistingProject()
-
-    const scene = await this.project.getSceneFile()
-    const coords = Coordinates.getObject(scene.scene.base)
-    const files = await this.localIPFS.getDeployedFiles(coords.x, coords.y)
-    if (!files) fail(ErrorType.STATUS_ERROR, 'No remote files found')
-    return files
+    return result
   }
 
   private pipeEvents(event: string, ...args: any[]) {

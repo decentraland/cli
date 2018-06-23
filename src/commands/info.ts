@@ -1,8 +1,7 @@
 import { wrapCommand } from '../utils/wrapCommand'
-import { formatDictionary } from '../utils/logging'
+import { formatDictionary, italic } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
 import * as Coordinates from '../utils/coordinateHelpers'
-import { ErrorType, fail } from '../utils/errors'
 
 export interface IArguments {
   target: string
@@ -41,32 +40,50 @@ export function info(vorpal: any) {
         const dcl = new Decentraland()
 
         if (!args.target) {
-          const scene = await dcl.getProjectInfo()
-          vorpal.log('\n  Scene Metadata:\n')
-          vorpal.log(formatDictionary(scene, { spacing: 2, padding: 2 }))
+          await dcl.project.validateExistingProject()
+          const coords = await dcl.project.getParcelCoordinates()
+          const scene = await dcl.getProjectInfo(coords.x, coords.y)
+          logInfo(vorpal, scene)
         } else if (args.target.startsWith('address:')) {
           const address = args.target.replace('address:', '')
           const parcels = await dcl.getAddressInfo(address)
           const formatted = parcels.reduce((acc, parcel) => {
             return { ...acc, [`${parcel.x},${parcel.y}`]: { name: parcel.name, description: parcel.description, ipns: parcel.ipns } }
           }, {})
-          vorpal.log(`\n  LAND owned by ${address}:\n`)
-          vorpal.log(formatDictionary(formatted, { spacing: 2, padding: 2 }))
+
+          if (parcels.length === 0) {
+            vorpal.log(italic('\n  No information available'))
+          } else {
+            vorpal.log(`\n  LAND owned by ${address}:\n`)
+            vorpal.log(formatDictionary(formatted, { spacing: 2, padding: 2 }))
+          }
         } else if (args.target.startsWith('coord:')) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
           const scene = await dcl.getParcelInfo(coords.x, coords.y)
-          if (scene.scene) {
-            vorpal.log('\n  Scene Metadata:\n')
-            vorpal.log(formatDictionary(scene.scene, { spacing: 2, padding: 2 }))
-          }
-          if (scene.land) {
-            vorpal.log('  LAND Metadata:\n')
-            vorpal.log(formatDictionary(scene.land, { spacing: 2, padding: 2 }))
-          }
+          logInfo(vorpal, scene)
         } else {
-          fail(ErrorType.INFO_ERROR, `Invalid value: ${args.target}`)
+          vorpal.log(`\n  Invalid argument: ${args.target}`)
+          vorpal.log(example)
         }
       })
     )
+}
+
+export function logInfo(vorpal, scene) {
+  vorpal.log('\n  Scene Metadata:\n')
+
+  if (scene.scene) {
+    vorpal.log(formatDictionary(scene.scene, { spacing: 2, padding: 2 }))
+  } else {
+    vorpal.log(italic('    No information available\n'))
+  }
+
+  vorpal.log('  LAND Metadata:\n')
+
+  if (scene.land) {
+    vorpal.log(formatDictionary(scene.land, { spacing: 2, padding: 2 }))
+  } else {
+    vorpal.log(italic('    No information available\n'))
+  }
 }

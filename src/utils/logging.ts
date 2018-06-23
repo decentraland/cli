@@ -17,6 +17,10 @@ export function bold(message: string): string {
   return chalk.bold(message)
 }
 
+export function italic(message: string): string {
+  return chalk.italic(message)
+}
+
 export function positive(message: string): string {
   return chalk.green(message)
 }
@@ -83,9 +87,7 @@ export function formatDictionary(
       buf = buf.concat(separator, `${chalk.bold(key)}: `, formatList(item, options, level + 1, 'object'), '\n')
     } else if (typeof item === 'object') {
       const isHidden = isEmpty(item)
-      const content = isHidden
-        ? `: ${chalk.italic('No information available')}\n`
-        : `:\n${formatDictionary(item, options, level + 1, 'object')}`
+      const content = isHidden ? `: ${italic('No information available')}\n` : `:\n${formatDictionary(item, options, level + 1, 'object')}`
       buf = buf.concat(separator, `${chalk.bold(key)}`, content)
     } else if (item) {
       buf = buf.concat(separator, `${chalk.bold(key)}: `, JSON.stringify(item), '\n')
@@ -114,7 +116,7 @@ export function formatList(
       }
     }, '')
   } else {
-    buf = chalk.italic('No information available')
+    buf = italic('No information available')
   }
 
   return buf

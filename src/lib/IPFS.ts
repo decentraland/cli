@@ -9,6 +9,9 @@ export interface IResolveDependency {
   src: string
   ipfs: string
   name: string
+  size?: number
+  contentType?: string
+  path: string
 }
 
 export interface IResolveResponse {
@@ -16,6 +19,7 @@ export interface IResolveResponse {
   url: {
     ipns: string
     ipfs: string
+    lastModified: string
     dependencies: IResolveDependency[]
   }
 }
@@ -23,7 +27,7 @@ export interface IResolveResponse {
 /**
  * Events emitted by this class:
  *
- * ipfs:pin     - A request for another IPFS node to pin the local files
+ * ipfs:pin             - A request for another IPFS node to pin the local files
  * ipfs:pin-success     - The project was successfully pinned by an external node
  * ipfs:add             - Began uploading files to local IPFS node
  * ipfs:add-success     - The files were successfully added to the local IPFS node
@@ -156,6 +160,9 @@ export class IPFS extends EventEmitter {
       this.emit('ipfs:publish-success', name)
       return name
     } catch (e) {
+      if (e.message.contains('failed to find any peer in table')) {
+        fail(ErrorType.IPFS_ERROR, `Failed to publish: ${e.message} (try restarting your IPFS daemon)`)
+      }
       fail(ErrorType.IPFS_ERROR, `Failed to publish: ${e.message}`)
     }
   }
@@ -167,19 +174,28 @@ export class IPFS extends EventEmitter {
     this.emit('ipfs:key-success')
   }
 
-  async getDeployedFiles(x: number, y: number): Promise<IResolveDependency[]> {
+  async resolveParcel(x: number, y: number): Promise<IResolveResponse> {
     const url = await this.getExternalURL()
     const raw = await fetch(url + `/resolve/${x}/${y}`)
-    const res = (await raw.json()) as IResolveResponse
-    return res && res.url ? res.url.dependencies : null
+    let response
+    try {
+      response = (await raw.json()) as IResolveResponse
+    } catch (e) {
+      response = null
+    }
+    return response
+  }
+
+  async getDeployedFiles(x: number, y: number): Promise<IResolveDependency[]> {
+    const res = await this.resolveParcel(x, y)
+    return res && res.url && res.url.dependencies.length ? res.url.dependencies : []
   }
 
   async getRemoteSceneMetadata(x: number, y: number): Promise<DCL.SceneMetadata> {
     const url = await this.getExternalURL()
-    const remoteFiles = await this.getDeployedFiles(x, y)
-    if (remoteFiles) {
-      const reference = remoteFiles.find(dep => dep.name === 'scene.json')
-      const raw = await fetch(url + `/get/${reference.ipfs}`)
+    const resolvedParcel = await this.resolveParcel(x, y)
+    if (resolvedParcel && resolvedParcel.url) {
+      const raw = await fetch(url + `/get/${resolvedParcel.url.ipfs}/scene.json`)
       const res = (await raw.json()) as DCL.SceneMetadata
       return res
     }
