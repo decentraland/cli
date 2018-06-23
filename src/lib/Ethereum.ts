@@ -3,13 +3,18 @@ import * as fetch from 'isomorphic-fetch'
 import { EventEmitter } from 'events'
 import { ErrorType, fail } from '../utils/errors'
 import * as CSV from 'comma-separated-values'
-const { abi } = require('../../abi/LANDRegistry.json')
+const { landRegistryABI } = require('../../abi/LANDRegistry.json')
 import { RequestManager, ContractFactory, providers } from 'eth-connect'
 
 const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
 const requestManager = new RequestManager(new providers.HTTPProvider(provider))
-const factory = new ContractFactory(requestManager, abi)
-export const landContract = factory.at(isDev ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b' : '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d')
+const landRegistryFactory = new ContractFactory(requestManager, landRegistryABI)
+
+// TODO: Warning, the `at` method might have side-effects and this line might lead to race conditions
+export const landContract = landRegistryFactory.at(isDev
+  ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b'
+  : '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d'
+)
 
 /**
  * Events emitted by this class:

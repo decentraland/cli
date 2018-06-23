@@ -41,10 +41,6 @@ export class LinkerAPI extends EventEmitter {
 
       this.setRoutes()
 
-      this.on('link:error', err => {
-        reject(err)
-      })
-
       this.app.listen(resolvedPort, () => this.emit('link:ready', url)).on('error', (e: any) => {
         if (e.errno === 'EADDRINUSE') {
           reject(new Error(`Port ${resolvedPort} is already in use by another process`))

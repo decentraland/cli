@@ -34,7 +34,7 @@ async function getIPFSKey() {
 }
 
 async function closeServer(ok, message) {
-  console.log('closing server:', message)
+  console.log('sending error to server:', message)
   await fetch(`/api/close?ok=${ok}&reason=${message}`)
 }
 
@@ -184,7 +184,6 @@ export default class Page extends React.Component<
       this.setState({ transactionLoading: false })
       await closeServer(true, 'success')
       window.removeEventListener('beforeunload', this.onUnload)
-      window.close()
     }
   }
 
