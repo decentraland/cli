@@ -25,12 +25,21 @@ export function link(vorpal: any) {
         dcl.on('link:ready', async url => {
           await Analytics.sceneLink()
           const linkerMsg = loading(`Linking app ready at ${url}`)
-          opn(url)
+          try {
+            opn(url)
+          } catch (error) {
+            linkerMsg.info('Could not open browser automatically.')
+          }
 
           dcl.on('link:success', async () => {
             await Analytics.sceneLinkSuccess()
             linkerMsg.succeed('Project successfully updated in LAND Registry')
             process.exit(1)
+          })
+
+          dcl.on('link:error', async (error) => {
+            linkerMsg.info('Linker app error: ' + error.message)
+            linkerMsg.info(`Press Ctrl+C to exit, or try to link again from ${url}`)
           })
         })
 
