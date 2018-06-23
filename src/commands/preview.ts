@@ -21,7 +21,7 @@ export function start(vorpal: any) {
     .option('--no-browser', 'prevents the CLI from opening a new browser window.')
     .description('Starts local development server.')
     .action(
-      wrapCommand(async function(args: IArguments) {
+      wrapCommand(async (args: IArguments) => {
         return new Promise(async (resolve, reject) => {
           const dcl = new Decentraland({
             previewPort: args.options.port

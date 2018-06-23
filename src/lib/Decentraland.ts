@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { IPFS } from './IPFS'
+import { IPFS, IResolveDependency } from './IPFS'
 import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum } from './Ethereum'
 import * as events from 'wildcards'
@@ -14,6 +14,14 @@ export interface IDecentralandArguments {
   ipfsPort?: number
   linkerPort?: number
   previewPort?: number
+}
+
+export interface IAddressInfo {
+  x: number
+  y: number
+  name: string
+  description: string
+  ipns: string
 }
 
 export class Decentraland extends EventEmitter {
@@ -47,7 +55,7 @@ export class Decentraland extends EventEmitter {
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)
     const rootFolder = filesAdded[filesAdded.length - 1]
-    const ipns = await this.ethereum.getIPNS(coords)
+    const ipns = await this.ethereum.getIPNS(coords.x, coords.y)
     let ipfsKey = projectFile.ipfsKey
 
     if (!ipfsKey) {
@@ -110,6 +118,53 @@ export class Decentraland extends EventEmitter {
 
       await preview.startServer(this.options.previewPort)
     })
+  }
+
+  async getAddressInfo(address: string): Promise<IAddressInfo[]> {
+    const coords = await this.ethereum.getLandOf(address)
+    const info = coords.map(async coord => {
+      const data = await this.ethereum.getLandData(coord.x, coord.y)
+
+      return {
+        x: coord.x,
+        y: coord.y,
+        name: data ? data.name : '',
+        description: data ? data.description : '',
+        ipns: data ? data.ipns : ''
+      }
+    }) as Promise<IAddressInfo>[]
+    return Promise.all(info)
+  }
+
+  async getProjectInfo(x: number, y: number) {
+    const scene = await this.project.getSceneFile()
+    const land = await this.ethereum.getLandData(x, y)
+    const owner = await this.ethereum.getLandOwner(x, y)
+    return { scene, land: { ...land, owner } }
+  }
+
+  async getParcelInfo(x: number, y: number) {
+    const scene = await this.localIPFS.getRemoteSceneMetadata(x, y)
+    const land = await this.ethereum.getLandData(x, y)
+    const owner = await this.ethereum.getLandOwner(x, y)
+    return { scene, land: { ...land, owner } }
+  }
+
+  async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: IResolveDependency[] }> {
+    const { url } = await this.localIPFS.resolveParcel(x, y)
+
+    if (!url) return { files: [] }
+
+    const result: { lastModified?: string; files: IResolveDependency[] } = {
+      files: url.dependencies
+    }
+
+    if (url.lastModified) {
+      // only available in redis metadata >= 2
+      result.lastModified = url.lastModified
+    }
+
+    return result
   }
 
   private pipeEvents(event: string, ...args: any[]) {

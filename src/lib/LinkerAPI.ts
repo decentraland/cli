@@ -36,7 +36,7 @@ export class LinkerAPI extends EventEmitter {
           resolvedPort = 4044
         }
       }
-      
+
       const url = `http://localhost:${resolvedPort}/linker`
 
       this.setRoutes()

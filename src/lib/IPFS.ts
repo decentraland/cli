@@ -5,10 +5,29 @@ import { fail, ErrorType } from '../utils/errors'
 import { IFile } from './Project'
 const ipfsAPI = require('ipfs-api')
 
+export interface IResolveDependency {
+  src: string
+  ipfs: string
+  name: string
+  size?: number
+  contentType?: string
+  path: string
+}
+
+export interface IResolveResponse {
+  ok: boolean
+  url: {
+    ipns: string
+    ipfs: string
+    lastModified: string
+    dependencies: IResolveDependency[]
+  }
+}
+
 /**
  * Events emitted by this class:
  *
- * ipfs:pin     - A request for another IPFS node to pin the local files
+ * ipfs:pin             - A request for another IPFS node to pin the local files
  * ipfs:pin-success     - The project was successfully pinned by an external node
  * ipfs:add             - Began uploading files to local IPFS node
  * ipfs:add-success     - The files were successfully added to the local IPFS node
@@ -17,10 +36,14 @@ const ipfsAPI = require('ipfs-api')
  */
 export class IPFS extends EventEmitter {
   private ipfsApi: any
+  private gateway: string
 
   constructor(host: string = 'localhost', port: number = 5001) {
     super()
     this.ipfsApi = ipfsAPI(host, port.toString())
+    if (process.env.IPFS_GATEWAY) {
+      this.gateway = process.env.IPFS_GATEWAY
+    }
   }
 
   /**
@@ -137,6 +160,9 @@ export class IPFS extends EventEmitter {
       this.emit('ipfs:publish-success', name)
       return name
     } catch (e) {
+      if (e.message.contains('failed to find any peer in table')) {
+        fail(ErrorType.IPFS_ERROR, `Failed to publish: ${e.message} (try restarting your IPFS daemon)`)
+      }
       fail(ErrorType.IPFS_ERROR, `Failed to publish: ${e.message}`)
     }
   }
@@ -148,11 +174,43 @@ export class IPFS extends EventEmitter {
     this.emit('ipfs:key-success')
   }
 
+  async resolveParcel(x: number, y: number): Promise<IResolveResponse> {
+    const url = await this.getExternalURL()
+    const raw = await fetch(url + `/resolve/${x}/${y}`)
+    let response
+    try {
+      response = (await raw.json()) as IResolveResponse
+    } catch (e) {
+      response = null
+    }
+    return response
+  }
+
+  async getDeployedFiles(x: number, y: number): Promise<IResolveDependency[]> {
+    const res = await this.resolveParcel(x, y)
+    return res && res.url && res.url.dependencies.length ? res.url.dependencies : []
+  }
+
+  async getRemoteSceneMetadata(x: number, y: number): Promise<DCL.SceneMetadata> {
+    const url = await this.getExternalURL()
+    const resolvedParcel = await this.resolveParcel(x, y)
+    if (resolvedParcel && resolvedParcel.url) {
+      const raw = await fetch(url + `/get/${resolvedParcel.url.ipfs}/scene.json`)
+      const res = (await raw.json()) as DCL.SceneMetadata
+      return res
+    }
+    return null
+  }
+
   /**
    * Fetches Decentraland's IPFS node URL.
    */
-  private async getExternalURL() {
-    let ipfsURL: string = null
+  private async getExternalURL(): Promise<string> {
+    let ipfsURL: string = this.gateway
+
+    if (ipfsURL) {
+      return ipfsURL
+    }
 
     try {
       const raw = await fetch('https://decentraland.github.io/ipfs-node/url.json')
@@ -166,6 +224,8 @@ export class IPFS extends EventEmitter {
       // fallback to ENV
     }
 
-    return process.env.IPFS_GATEWAY || ipfsURL
+    this.gateway = ipfsURL
+
+    return ipfsURL
   }
 }
