@@ -71,7 +71,7 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(getIPNSStub.withArgs({ x: 0, y: 0 }).called, 'expect Ethereum.getIPNS() to be called').to.be.true
+      expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
@@ -96,7 +96,7 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(getIPNSStub.withArgs({ x: 0, y: 0 }).called, 'expect Ethereum.getIPNS() to be called').to.be.true
+      expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true

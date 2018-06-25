@@ -5,6 +5,8 @@ export enum ErrorType {
   PROJECT_ERROR = 'ProjectError',
   PREVIEW_ERROR = 'PreviewError',
   UPGRADE_ERROR = 'UpgradeError',
+  INFO_ERROR = 'InfoError',
+  STATUS_ERROR = 'StatusError',
   DEPLOY_ERROR = 'DeployError'
 }
 
