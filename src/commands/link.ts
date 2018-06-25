@@ -1,7 +1,7 @@
 import { wrapCommand } from '../utils/wrapCommand'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
-import { loading } from '../utils/logging'
+import { loading, warning } from '../utils/logging'
 import opn = require('opn')
 import { ErrorType, fail } from '../utils/errors'
 
@@ -25,7 +25,12 @@ export function link(vorpal: any) {
         dcl.on('link:ready', async url => {
           await Analytics.sceneLink()
           const linkerMsg = loading(`Linking app ready at ${url}`)
-          opn(url)
+
+          try {
+            opn(url)
+          } catch (e) {
+            vorpal.log(warning(`WARNING: Unable to open browser automatically`))
+          }
 
           dcl.on('link:success', async () => {
             await Analytics.sceneLinkSuccess()

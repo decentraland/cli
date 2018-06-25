@@ -66,7 +66,11 @@ export function deploy(vorpal: any) {
           const linkerMsg = loading(`Linking app ready at ${url}`)
 
           setTimeout(() => {
-            opn(url)
+            try {
+              opn(url)
+            } catch (e) {
+              vorpal.log(warning(`WARNING: Unable to open browser automatically`))
+            }
           }, 5000)
 
           dcl.on('link:success', async () => {
@@ -86,9 +90,7 @@ export function deploy(vorpal: any) {
         })
 
         if (ignoreFile === null) {
-          vorpal.log(
-            warning(`WARNING: As of version 1.1.0 of the CLI, all deployments require a .dclignore file. To learn more, see: [[URL]]`)
-          )
+          vorpal.log(warning(`WARNING: As of version 1.1.0 all deployments require a .dclignore file`))
           info(`Generating .dclignore file with default values`)
           ignoreFile = await dcl.project.writeDclIgnore()
         }
