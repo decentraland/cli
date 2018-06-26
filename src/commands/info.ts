@@ -52,7 +52,7 @@ export function info(vorpal: any) {
           }, {})
 
           if (parcels.length === 0) {
-            vorpal.log(italic('\n  No information available'))
+            vorpal.log(italic('\n  No information available\n'))
           } else {
             vorpal.log(`\n  LAND owned by ${address}:\n`)
             vorpal.log(formatDictionary(formatted, { spacing: 2, padding: 2 }))
