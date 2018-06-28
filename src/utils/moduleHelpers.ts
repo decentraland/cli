@@ -4,6 +4,7 @@ import { spawn } from 'child_process'
 import * as packageJson from 'package-json'
 import { readJSON } from '../utils/filesystem'
 import { getRootPath, getNodeModulesPath } from '../utils/project'
+import * as fetch from 'isomorphic-fetch'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 
@@ -95,12 +96,11 @@ export async function isCLIOutdated(): Promise<boolean> {
 
 export function isOnline(): Promise<boolean> {
   return new Promise(resolve => {
-    require('dns').resolve('www.google.com', err => {
-      if (err) {
-        resolve(false)
-      } else {
-        resolve(true)
-      }
-    })
+    fetch('https://decentraland.org/')
+      .then(() => resolve(true))
+      .catch(() => resolve(false))
+    setTimeout(() => {
+      resolve(false)
+    }, 4000)
   })
 }

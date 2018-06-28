@@ -35,7 +35,9 @@ export function start(vorpal: any) {
             const openBrowser = args.options.browser !== undefined ? args.options.browser : true
             let url = null
 
-            info(`\nPreview server is now running`)
+            vorpal.log('') // line break
+
+            info(`Preview server is now running`)
 
             vorpal.log(bold('\n  Available on:\n'))
 
