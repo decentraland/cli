@@ -9,6 +9,8 @@ CLI tool for parcel management.
 - [x] Compiling scripts
 - [x] Warnings and linting of scenes
 - [x] Hot reloading
+- [x] Query parcel info
+= [x] Query deployment status
 - [ ] Optimizing objects, textures
 - [ ] Generating bundles of assets
 - [ ] Test framework for scripting
@@ -19,7 +21,7 @@ CLI tool for parcel management.
 - [Python 2.7](https://www.python.org/downloads/)
 - [IPFS](https://dist.ipfs.io/#go-ipfs)
 
-## Documentationn
+## Documentation
 
 Installation details for each platform can be found on the [Documentation](https://docs.decentraland.org/documentation/installation-guide/)
 
