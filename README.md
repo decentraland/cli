@@ -25,13 +25,13 @@ Installation details for each platform can be found on the [Documentation](https
 
 ## Usage
 
-- Initialize new Decentraland project **from working directory**:
+### Initialize new Decentraland project **from working directory**:
 
 ```bash
 $ dcl init
 ```
 
-- Start local development server and serve your scene:
+### Start local development server and serve your scene:
 
 ```bash
 $ dcl preview
@@ -39,7 +39,7 @@ $ dcl preview
 
 You can prevent the browser from opening by using the `--no-browser` flag.
 
-- Deploy scene to IPFS and the Ethereum Blockchain:
+### Deploy scene to IPFS and the Ethereum Blockchain:
 
 You need to have IPFS daemon running for this to work!
 
@@ -47,25 +47,25 @@ You need to have IPFS daemon running for this to work!
 $ dcl deploy
 ```
 
-- Check installed CLI version:
+### Check installed CLI version:
 
 ```bash
 dcl -v
 ```
 
-- Check parcel information:
+### Check parcel information:
 
 ```bash
 dcl info 0,0
 ```
 
-- Check owner information:
+### Check owner information:
 
 ```bash
 dcl info 0x...
 ```
 
-- Check parcel deployment status:
+### Check parcel deployment status:
 
 ```bash
 dcl status 0,0
