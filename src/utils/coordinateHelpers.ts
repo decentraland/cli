@@ -81,8 +81,8 @@ export function isValid(val: string): boolean {
  */
 export function getObject(coords: string): { x: number; y: number } {
   const parsed = parse(coords)[0]
-  const parts = parsed.split(',')
-  return { x: parseInt(parts[0], 10), y: parseInt(parts[1], 10) }
+  const [x, y] = parsed.split(',')
+  return { x: parseInt(x, 10), y: parseInt(y, 10) }
 }
 
 /**

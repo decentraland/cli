@@ -14,6 +14,7 @@ import {
 } from '../utils/project'
 import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
+import { inBounds, getBounds, getObject } from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
   STATIC = 'static',
@@ -196,8 +197,29 @@ export class Project {
    */
   async getParcelCoordinates(): Promise<{ x: number; y: number }> {
     const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
-    const [x, y] = sceneFile.scene.base.split(',')
-    return { x: parseInt(x, 10), y: parseInt(y, 10) }
+    const { base, parcels } = sceneFile.scene
+
+    if (!base) {
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene base attribute at scene.json')
+    }
+
+    if (!parcels) {
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene parcels attribute at scene.json')
+    }
+
+    if (!parcels.includes(base)) {
+      fail(ErrorType.PROJECT_ERROR, `Your base parcel ${base} should be included on parcels attribute at scene.json`)
+    }
+
+    parcels.map(getObject).forEach(({ x, y }) => {
+      if (inBounds(x, y)) {
+        return
+      }
+      const { minX, maxX } = getBounds()
+      fail(ErrorType.DEPLOY_ERROR, `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`)
+    })
+
+    return getObject(base)
   }
 
   /**
@@ -347,9 +369,9 @@ export class Project {
    * @param path The path to the main file.
    */
   private isValidMainFormat(path: string): boolean {
-    const supportedExtensions = ['js', 'html', 'xml']
+    const supportedExtensions = new Set(['js', 'html', 'xml'])
     const mainExt = path ? path.split('.').pop() : null
-    return supportedExtensions.some(ext => ext === mainExt)
+    return supportedExtensions.has(mainExt)
   }
 
   /**
