@@ -7,6 +7,7 @@ import { getRootPath } from '../utils/project'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
 import { ErrorType, fail } from '../utils/errors'
+import { log } from 'util'
 
 export interface IDecentralandArguments {
   workingDir?: string
@@ -52,6 +53,11 @@ export class Decentraland extends EventEmitter {
 
   async deploy(files: IFile[]) {
     const { x, y } = await this.project.getParcelCoordinates()
+    const owner = await this.project.getOwner()
+    const parcels = await this.project.getParcels()
+
+    await this.ethereum.checkIsOwnerOf(owner, parcels)
+
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)
     const rootFolder = filesAdded[filesAdded.length - 1]
@@ -112,6 +118,7 @@ export class Decentraland extends EventEmitter {
   async preview() {
     return new Promise(async (resolve, reject) => {
       await this.project.validateExistingProject()
+      await this.project.validateParcelOptions()
       const preview = new Preview(await this.project.getDCLIgnore())
 
       events(preview, '*', this.pipeEvents.bind(this))

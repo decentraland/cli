@@ -1,10 +1,12 @@
-import { isDev } from '../utils/env'
-import * as fetch from 'isomorphic-fetch'
 import { EventEmitter } from 'events'
-import { ErrorType, fail } from '../utils/errors'
+import * as fetch from 'isomorphic-fetch'
 import * as CSV from 'comma-separated-values'
-const { abi } = require('../../abi/LANDRegistry.json')
 import { RequestManager, ContractFactory, providers } from 'eth-connect'
+
+import { isDev } from '../utils/env'
+import { ErrorType, fail } from '../utils/errors'
+import { ICoords } from '../utils/coordinateHelpers'
+const { abi } = require('../../abi/LANDRegistry.json')
 
 const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
 const requestManager = new RequestManager(new providers.HTTPProvider(provider))
@@ -88,6 +90,22 @@ export class Ethereum extends EventEmitter {
     }
 
     return owner
+  }
+
+  async checkIsOwnerOf(owner: string, parcels: ICoords[]) {
+    const pOwners = parcels.map(async ({ x, y }) => {
+      return this.getLandOwner(x, y)
+    })
+
+    const owners = await Promise.all(pOwners)
+    const canDeploy = !owners.some(parcelOwner => parcelOwner !== owner.toLowerCase())
+
+    if (!canDeploy) {
+      fail(
+        ErrorType.DEPLOY_ERROR,
+        `Failed to deploy: The owner (etherum address: ${owner}) of the project are not the same of all the described parcels`
+      )
+    }
   }
 
   /**

@@ -15,7 +15,6 @@ import {
 import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, ICoords } from '../utils/coordinateHelpers'
-import { Ethereum } from './Ethereum'
 
 export enum BoilerplateType {
   STATIC = 'static',
@@ -32,6 +31,7 @@ export interface IFile {
 export class Project {
   private static MAX_FILE_SIZE = 524300000
   private workingDir: string
+  private sceneFile: DCL.SceneMetadata
 
   constructor(workingDir: string) {
     this.workingDir = workingDir
@@ -75,7 +75,12 @@ export class Project {
    * Returns an object containing the contents of the `scene.json` file.
    */
   async getSceneFile(): Promise<DCL.SceneMetadata> {
-    return readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    if (this.sceneFile) {
+      return this.sceneFile
+    }
+
+    this.sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    return this.sceneFile
   }
 
   /**
@@ -191,12 +196,30 @@ export class Project {
   /**
    * Returns a promise of an object containing the base X and Y coordinates for a parcel.
    */
-  async getParcelCoordinates(): Promise<{ x: number; y: number }> {
-    const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
-    const { base, parcels } = sceneFile.scene
+  async getParcelCoordinates(): Promise<ICoords> {
+    const sceneFile = await this.getSceneFile()
+    const { base } = sceneFile.scene
     this.validateParcelData(sceneFile)
-    await this.checkParcelsOwnership(sceneFile.owner, parcels)
     return getObject(base)
+  }
+
+  /**
+   * Returns a promise of an array of the parcels of the scene
+   */
+  async getParcels(): Promise<ICoords[]> {
+    const sceneFile = await this.getSceneFile()
+    return sceneFile.scene.parcels.map(getObject)
+  }
+
+  /**
+   * Returns a promise of the owner address
+   */
+  async getOwner(): Promise<string> {
+    const { owner } = await this.getSceneFile()
+    if (!owner) {
+      fail(ErrorType.DEPLOY_ERROR, `Failed to deploy: Missing owner attribute at scene.json. Owner attribute is required for deploying`)
+    }
+    return owner
   }
 
   /**
@@ -204,7 +227,7 @@ export class Project {
    */
   async validateParcelOptions(): Promise<void> {
     const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
-    this.validateParcelData(sceneFile)
+    return this.validateParcelData(sceneFile)
   }
 
   /**
@@ -400,35 +423,11 @@ export class Project {
         return
       }
       const { minX, maxX } = getBounds()
-      fail(ErrorType.DEPLOY_ERROR, `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`)
+      fail(ErrorType.PROJECT_ERROR, `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`)
     })
 
     if (!areConnected(objParcels)) {
-      fail(ErrorType.DEPLOY_ERROR, 'Parcels described on scene.json are not connected. They should be one next to each other')
+      fail(ErrorType.PROJECT_ERROR, 'Parcels described on scene.json are not connected. They should be one next to each other')
     }
-  }
-
-  private async checkParcelsOwnership(owner: string, parcels: string[]): Promise<void> {
-    if (!owner) {
-      fail(ErrorType.DEPLOY_ERROR, `Failed to deploy: Missing owner attribute at scene.json. Owner attribute is required for deploying`)
-    }
-
-    const etherum = new Ethereum()
-    const pOwners = parcels.map(async parcel => {
-      const { x, y } = getObject(parcel)
-      return etherum.getLandOwner(x, y)
-    })
-
-    const owners = await Promise.all(pOwners)
-    owners.forEach(parcelOwner => {
-      if (parcelOwner === owner.toLowerCase()) {
-        return
-      }
-
-      fail(
-        ErrorType.DEPLOY_ERROR,
-        `Failed to deploy: The owner (etherum address: ${owner}) of the project are not the same of all the described parcels`
-      )
-    })
   }
 }
