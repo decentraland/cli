@@ -328,7 +328,7 @@ export class Project {
    * Windows directory separators are replaced for POSIX separators.
    * @param ignoreFile The contents of the .dclignore file
    */
-  async getFiles(ignoreFile: string): Promise<IFile[]> {
+  async getFiles(ignoreFile?: string): Promise<IFile[]> {
     const files = await this.getAllFilePaths()
     const filteredFiles = ignore()
       .add(ignoreFile)
