@@ -125,4 +125,15 @@ describe('coordinateHelpers', () => {
       expect(result).to.deep.equal(false)
     })
   })
+
+  describe('inBounds', () => {
+    it('should return true for in bounds coordinates', () => {
+      const result = coordinateHelpers.inBounds(-34, 57)
+      expect(result).to.deep.equal(true)
+    })
+    it('should return false for out bounds coordinates', () => {
+      const result = coordinateHelpers.inBounds(-1000, 300)
+      expect(result).to.deep.equal(false)
+    })
+  })
 })

@@ -1,3 +1,22 @@
+export interface IBounds {
+  minX: number
+  minY: number
+  maxX: number
+  maxY: number
+}
+
+/**
+ * Returns metaverse coordinates bounds.
+ */
+export function getBounds(): IBounds {
+  return {
+    minX: -150,
+    minY: -150,
+    maxX: 150,
+    maxY: 150
+  }
+}
+
 /**
  * Parses a string-based set of coordinates.
  * - All spaces are removed
@@ -64,4 +83,12 @@ export function getObject(coords: string): { x: number; y: number } {
   const parsed = parse(coords)[0]
   const parts = parsed.split(',')
   return { x: parseInt(parts[0], 10), y: parseInt(parts[1], 10) }
+}
+
+/**
+ * Returns true if the given coordinates are in metaverse bounds
+ */
+export function inBounds(x: number, y: number): boolean {
+  const { minX, minY, maxX, maxY } = this.getBounds()
+  return x >= minX && x <= maxX && y >= minY && y <= maxY
 }

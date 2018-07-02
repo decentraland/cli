@@ -7,6 +7,7 @@ import { getRootPath } from '../utils/project'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
 import { ErrorType, fail } from '../utils/errors'
+import { inBounds, getBounds } from '../utils/coordinateHelpers'
 
 export interface IDecentralandArguments {
   workingDir?: string
@@ -51,11 +52,16 @@ export class Decentraland extends EventEmitter {
   }
 
   async deploy(files: IFile[]) {
-    const coords = await this.project.getParcelCoordinates()
+    const { x, y } = await this.project.getParcelCoordinates()
+    if (!inBounds(x, y)) {
+      const { minX, maxX } = getBounds()
+      fail(ErrorType.DEPLOY_ERROR, `Failed to deploy: coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`)
+    }
+
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)
     const rootFolder = filesAdded[filesAdded.length - 1]
-    const ipns = await this.ethereum.getIPNS(coords.x, coords.y)
+    const ipns = await this.ethereum.getIPNS(x, y)
     let ipfsKey = projectFile.ipfsKey
 
     if (!ipfsKey) {
