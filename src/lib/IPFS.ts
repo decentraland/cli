@@ -160,10 +160,10 @@ export class IPFS extends EventEmitter {
       this.emit('ipfs:publish-success', name)
       return name
     } catch (e) {
-      if (e.message && e.message.contains('failed to find any peer in table')) {
+      if (e.message && typeof e.message === 'string') {
         fail(ErrorType.IPFS_ERROR, `Failed to publish: ${e.message} (try restarting your IPFS daemon)`)
       }
-      fail(ErrorType.IPFS_ERROR, `Failed to publish: ${e.message}`)
+      fail(ErrorType.IPFS_ERROR, `Failed to publish: ${e}`)
     }
   }
 
