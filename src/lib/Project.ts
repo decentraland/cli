@@ -14,7 +14,7 @@ import {
 } from '../utils/project'
 import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
-import { inBounds, getBounds, getObject } from '../utils/coordinateHelpers'
+import { inBounds, getBounds, getObject, areConnected } from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
   STATIC = 'static',
@@ -211,13 +211,18 @@ export class Project {
       fail(ErrorType.PROJECT_ERROR, `Your base parcel ${base} should be included on parcels attribute at scene.json`)
     }
 
-    parcels.map(getObject).forEach(({ x, y }) => {
+    const objParcels = parcels.map(getObject)
+    objParcels.forEach(({ x, y }) => {
       if (inBounds(x, y)) {
         return
       }
       const { minX, maxX } = getBounds()
       fail(ErrorType.DEPLOY_ERROR, `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`)
     })
+
+    if (!areConnected(objParcels)) {
+      fail(ErrorType.DEPLOY_ERROR, 'Parcels described on scene.json are not connected. They should be one next to each other')
+    }
 
     return getObject(base)
   }
