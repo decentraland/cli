@@ -404,6 +404,7 @@ export class Project {
    */
   private validateParcelData(sceneFile: DCL.SceneMetadata): void {
     const { base, parcels } = sceneFile.scene
+    const parcelSet = new Set(parcels)
 
     if (!base) {
       fail(ErrorType.PROJECT_ERROR, 'Missing scene base attribute at scene.json')
@@ -413,7 +414,11 @@ export class Project {
       fail(ErrorType.PROJECT_ERROR, 'Missing scene parcels attribute at scene.json')
     }
 
-    if (!parcels.includes(base)) {
+    if ([...parcelSet].length < parcels.length) {
+      fail(ErrorType.PROJECT_ERROR, 'There are duplicated parcels at scene.json')
+    }
+
+    if (!parcelSet.has(base)) {
       fail(ErrorType.PROJECT_ERROR, `Your base parcel ${base} should be included on parcels attribute at scene.json`)
     }
 
