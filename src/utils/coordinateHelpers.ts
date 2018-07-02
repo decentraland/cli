@@ -102,6 +102,10 @@ export function inBounds(x: number, y: number): boolean {
  * Returns true if the given parcels array are connected
  */
 export function areConnected(parcels: ICoords[]): boolean {
+  if (parcels.length === 1) {
+    return true
+  }
+
   return areConnectedRecursive(parcels)
 }
 

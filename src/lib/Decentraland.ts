@@ -7,7 +7,6 @@ import { getRootPath } from '../utils/project'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
 import { ErrorType, fail } from '../utils/errors'
-import { log } from 'util'
 
 export interface IDecentralandArguments {
   workingDir?: string

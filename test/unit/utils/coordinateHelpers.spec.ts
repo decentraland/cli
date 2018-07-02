@@ -136,4 +136,30 @@ describe('coordinateHelpers', () => {
       expect(result).to.deep.equal(false)
     })
   })
+
+  describe('isEqual', () => {
+    it('should return true for equal coordinates', () => {
+      const result = coordinateHelpers.isEqual({ x: 1, y: 2 }, { x: 1, y: 2 })
+      expect(result).to.deep.equal(true)
+    })
+    it('should return false for not equal coordinates', () => {
+      const result = coordinateHelpers.isEqual({ x: 1, y: 2 }, { x: 1, y: 5 })
+      expect(result).to.deep.equal(false)
+    })
+  })
+
+  describe('areConnected', () => {
+    it('should return true for connected parcels', () => {
+      const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }, { x: 1, y: 3 }])
+      expect(result).to.deep.equal(true)
+    })
+    it('should return false for not connected parcels', () => {
+      const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }, { x: 1, y: 5 }])
+      expect(result).to.deep.equal(false)
+    })
+    it('should return true for one parcel.', () => {
+      const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }])
+      expect(result).to.deep.equal(true)
+    })
+  })
 })
