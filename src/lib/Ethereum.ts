@@ -102,6 +102,9 @@ export class Ethereum extends EventEmitter {
     }
   }
 
+  /**
+   * It fails if the owner address isn't able to update given parcels (as an owner or operator)
+   */
   async validateAuthorization(owner: string, parcels: ICoords[]): Promise<void> {
     const sParcels = parcels.map(getString)
     const ownerParcels = new Set((await this.getLandOf(owner)).map(getString))
