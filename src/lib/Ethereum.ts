@@ -1,10 +1,12 @@
-import { isDev } from '../utils/env'
-import * as fetch from 'isomorphic-fetch'
 import { EventEmitter } from 'events'
-import { ErrorType, fail } from '../utils/errors'
+import * as fetch from 'isomorphic-fetch'
 import * as CSV from 'comma-separated-values'
-const { abi } = require('../../abi/LANDRegistry.json')
 import { RequestManager, ContractFactory, providers } from 'eth-connect'
+
+import { isDev } from '../utils/env'
+import { ErrorType, fail } from '../utils/errors'
+import { ICoords, getString, getObject } from '../utils/coordinateHelpers'
+const { abi } = require('../../abi/LANDRegistry.json')
 
 const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
 const requestManager = new RequestManager(new providers.HTTPProvider(provider))
@@ -52,7 +54,7 @@ export class Ethereum extends EventEmitter {
     }
   }
 
-  async getLandOf(address: string) {
+  async getLandOf(address: string): Promise<ICoords[]> {
     let res
     try {
       const contract = await landContract
@@ -90,6 +92,37 @@ export class Ethereum extends EventEmitter {
     return owner
   }
 
+  async getLandOperator(x: number, y: number): Promise<string> {
+    try {
+      const contract = await landContract
+      const assetId = await contract['encodeTokenId'](x, y)
+      return await contract['updateOperator'](assetId)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND operator: ${e.message}`)
+    }
+  }
+
+  /**
+   * It fails if the owner address isn't able to update given parcels (as an owner or operator)
+   */
+  async validateAuthorization(owner: string, parcels: ICoords[]): Promise<void> {
+    const sParcels = parcels.map(getString)
+    const ownerParcels = new Set((await this.getLandOf(owner)).map(getString))
+    const invalidParcels = sParcels.filter(parcel => !ownerParcels.has(parcel))
+
+    const pParcels = invalidParcels.map(async sParcel => {
+      const { x, y } = getObject(sParcel)
+      return { x, y, operator: await this.getLandOperator(x, y) }
+    })
+
+    const operatorParcels = await Promise.all(pParcels)
+    operatorParcels.forEach(({ x, y, operator }) => {
+      if (operator !== owner.toLowerCase()) {
+        fail(ErrorType.ETHEREUM_ERROR, `Provided address ${owner.toLowerCase()} is not authorized to update LAND ${x},${y}`)
+      }
+    })
+  }
+
   /**
    * Queries the Blockchain and returns the IPNS return by `landData`
    * @param coordinates An object containing the base X and Y coordinates for the parcel.
@@ -115,12 +148,7 @@ export class Ethereum extends EventEmitter {
       case '0': {
         const [, name, description, ipns] = CSV.parse(data)[0]
 
-        return {
-          version: 0,
-          name: name || null,
-          description: description || null,
-          ipns: ipns || null
-        }
+        return { version: 0, name: name || null, description: description || null, ipns: ipns || null }
       }
       default:
         return null

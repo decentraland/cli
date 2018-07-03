@@ -14,6 +14,7 @@ import {
 } from '../utils/project'
 import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
+import { inBounds, getBounds, getObject, areConnected, ICoords } from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
   STATIC = 'static',
@@ -30,6 +31,7 @@ export interface IFile {
 export class Project {
   private static MAX_FILE_SIZE = 524300000
   private workingDir: string
+  private sceneFile: DCL.SceneMetadata
 
   constructor(workingDir: string) {
     this.workingDir = workingDir
@@ -73,7 +75,12 @@ export class Project {
    * Returns an object containing the contents of the `scene.json` file.
    */
   async getSceneFile(): Promise<DCL.SceneMetadata> {
-    return readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    if (this.sceneFile) {
+      return this.sceneFile
+    }
+
+    this.sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    return this.sceneFile
   }
 
   /**
@@ -81,10 +88,7 @@ export class Project {
    * @param dirName The directory where the project file will be created.
    */
   async initProject() {
-    await this.writeProjectFile({
-      id: uuid.v4(),
-      ipfsKey: null
-    })
+    await this.writeProjectFile({ id: uuid.v4(), ipfsKey: null })
   }
 
   /**
@@ -149,9 +153,7 @@ export class Project {
     await this.copySample('websockets')
 
     if (server) {
-      await this.writeSceneFile({
-        main: server
-      })
+      await this.writeSceneFile({ main: server })
     }
   }
 
@@ -194,10 +196,38 @@ export class Project {
   /**
    * Returns a promise of an object containing the base X and Y coordinates for a parcel.
    */
-  async getParcelCoordinates(): Promise<{ x: number; y: number }> {
+  async getParcelCoordinates(): Promise<ICoords> {
+    const sceneFile = await this.getSceneFile()
+    const { base } = sceneFile.scene
+    this.validateParcelData(sceneFile)
+    return getObject(base)
+  }
+
+  /**
+   * Returns a promise of an array of the parcels of the scene
+   */
+  async getParcels(): Promise<ICoords[]> {
+    const sceneFile = await this.getSceneFile()
+    return sceneFile.scene.parcels.map(getObject)
+  }
+
+  /**
+   * Returns a promise of the owner address
+   */
+  async getOwner(): Promise<string> {
+    const { owner } = await this.getSceneFile()
+    if (!owner) {
+      fail(ErrorType.PROJECT_ERROR, `Missing owner attribute at scene.json. Owner attribute is required for deploying`)
+    }
+    return owner
+  }
+
+  /**
+   * Fails the execution if one of the parcel data is invalid
+   */
+  async validateParcelOptions(): Promise<void> {
     const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
-    const [x, y] = sceneFile.scene.base.split(',')
-    return { x: parseInt(x, 10), y: parseInt(y, 10) }
+    return this.validateParcelData(sceneFile)
   }
 
   /**
@@ -298,7 +328,7 @@ export class Project {
    * Windows directory separators are replaced for POSIX separators.
    * @param ignoreFile The contents of the .dclignore file
    */
-  async getFiles(ignoreFile: string): Promise<IFile[]> {
+  async getFiles(ignoreFile?: string): Promise<IFile[]> {
     const files = await this.getAllFilePaths()
     const filteredFiles = ignore()
       .add(ignoreFile)
@@ -317,11 +347,7 @@ export class Project {
 
       const content = await fs.readFile(filePath)
 
-      data.push({
-        path: file.replace(/\\/g, '/'),
-        content: Buffer.from(content),
-        size: stat.size
-      })
+      data.push({ path: file.replace(/\\/g, '/'), content: Buffer.from(content), size: stat.size })
     }
 
     return data
@@ -347,9 +373,9 @@ export class Project {
    * @param path The path to the main file.
    */
   private isValidMainFormat(path: string): boolean {
-    const supportedExtensions = ['js', 'html', 'xml']
+    const supportedExtensions = new Set(['js', 'html', 'xml'])
     const mainExt = path ? path.split('.').pop() : null
-    return supportedExtensions.some(ext => ext === mainExt)
+    return supportedExtensions.has(mainExt)
   }
 
   /**
@@ -370,5 +396,43 @@ export class Project {
     }
 
     return fs.pathExists(path.join(this.workingDir, filePath))
+  }
+
+  /**
+   * Fails the execution if one of the parcel data is invalid
+   * @param sceneFile The JSON parsed file of scene.json
+   */
+  private validateParcelData(sceneFile: DCL.SceneMetadata): void {
+    const { base, parcels } = sceneFile.scene
+    const parcelSet = new Set(parcels)
+
+    if (!base) {
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene base attribute at scene.json')
+    }
+
+    if (!parcels) {
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene parcels attribute at scene.json')
+    }
+
+    if ([...parcelSet].length < parcels.length) {
+      fail(ErrorType.PROJECT_ERROR, 'There are duplicated parcels at scene.json')
+    }
+
+    if (!parcelSet.has(base)) {
+      fail(ErrorType.PROJECT_ERROR, `Your base parcel ${base} should be included on parcels attribute at scene.json`)
+    }
+
+    const objParcels = parcels.map(getObject)
+    objParcels.forEach(({ x, y }) => {
+      if (inBounds(x, y)) {
+        return
+      }
+      const { minX, maxX } = getBounds()
+      fail(ErrorType.PROJECT_ERROR, `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`)
+    })
+
+    if (!areConnected(objParcels)) {
+      fail(ErrorType.PROJECT_ERROR, 'Parcels described on scene.json are not connected. They should be one next to each other')
+    }
   }
 }

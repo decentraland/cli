@@ -51,11 +51,16 @@ export class Decentraland extends EventEmitter {
   }
 
   async deploy(files: IFile[]) {
-    const coords = await this.project.getParcelCoordinates()
+    const { x, y } = await this.project.getParcelCoordinates()
+    const owner = await this.project.getOwner()
+    const parcels = await this.project.getParcels()
+
+    await this.ethereum.validateAuthorization(owner, parcels)
+
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)
     const rootFolder = filesAdded[filesAdded.length - 1]
-    const ipns = await this.ethereum.getIPNS(coords.x, coords.y)
+    const ipns = await this.ethereum.getIPNS(x, y)
     let ipfsKey = projectFile.ipfsKey
 
     if (!ipfsKey) {
@@ -112,6 +117,7 @@ export class Decentraland extends EventEmitter {
   async preview() {
     return new Promise(async (resolve, reject) => {
       await this.project.validateExistingProject()
+      await this.project.validateParcelOptions()
       const preview = new Preview(await this.project.getDCLIgnore())
 
       events(preview, '*', this.pipeEvents.bind(this))

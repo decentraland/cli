@@ -125,4 +125,41 @@ describe('coordinateHelpers', () => {
       expect(result).to.deep.equal(false)
     })
   })
+
+  describe('inBounds', () => {
+    it('should return true for in bounds coordinates', () => {
+      const result = coordinateHelpers.inBounds(-34, 57)
+      expect(result).to.deep.equal(true)
+    })
+    it('should return false for out bounds coordinates', () => {
+      const result = coordinateHelpers.inBounds(-1000, 300)
+      expect(result).to.deep.equal(false)
+    })
+  })
+
+  describe('isEqual', () => {
+    it('should return true for equal coordinates', () => {
+      const result = coordinateHelpers.isEqual({ x: 1, y: 2 }, { x: 1, y: 2 })
+      expect(result).to.deep.equal(true)
+    })
+    it('should return false for not equal coordinates', () => {
+      const result = coordinateHelpers.isEqual({ x: 1, y: 2 }, { x: 1, y: 5 })
+      expect(result).to.deep.equal(false)
+    })
+  })
+
+  describe('areConnected', () => {
+    it('should return true for connected parcels', () => {
+      const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }, { x: 1, y: 3 }])
+      expect(result).to.deep.equal(true)
+    })
+    it('should return false for not connected parcels', () => {
+      const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }, { x: 1, y: 5 }])
+      expect(result).to.deep.equal(false)
+    })
+    it('should return true for one parcel.', () => {
+      const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }])
+      expect(result).to.deep.equal(true)
+    })
+  })
 })
