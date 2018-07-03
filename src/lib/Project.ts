@@ -217,7 +217,7 @@ export class Project {
   async getOwner(): Promise<string> {
     const { owner } = await this.getSceneFile()
     if (!owner) {
-      fail(ErrorType.DEPLOY_ERROR, `Failed to deploy: Missing owner attribute at scene.json. Owner attribute is required for deploying`)
+      fail(ErrorType.PROJECT_ERROR, `Missing owner attribute at scene.json. Owner attribute is required for deploying`)
     }
     return owner
   }
