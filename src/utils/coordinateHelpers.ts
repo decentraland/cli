@@ -91,6 +91,13 @@ export function getObject(coords: string): { x: number; y: number } {
 }
 
 /**
+ * Converts a ICoords object to a string-based set of coordinates
+ */
+export function getString({ x, y }: ICoords): string {
+  return `${x},${y}`
+}
+
+/**
  * Returns true if the given coordinates are in metaverse bounds
  */
 export function inBounds(x: number, y: number): boolean {

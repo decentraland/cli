@@ -55,7 +55,7 @@ export class Decentraland extends EventEmitter {
     const owner = await this.project.getOwner()
     const parcels = await this.project.getParcels()
 
-    await this.ethereum.checkIsOwnerOf(owner, parcels)
+    await this.ethereum.validateAuthorization(owner, parcels)
 
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)

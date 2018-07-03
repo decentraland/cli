@@ -5,7 +5,7 @@ import { RequestManager, ContractFactory, providers } from 'eth-connect'
 
 import { isDev } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
-import { ICoords } from '../utils/coordinateHelpers'
+import { ICoords, getString, getObject } from '../utils/coordinateHelpers'
 const { abi } = require('../../abi/LANDRegistry.json')
 
 const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
@@ -54,7 +54,7 @@ export class Ethereum extends EventEmitter {
     }
   }
 
-  async getLandOf(address: string) {
+  async getLandOf(address: string): Promise<ICoords[]> {
     let res
     try {
       const contract = await landContract
@@ -92,20 +92,32 @@ export class Ethereum extends EventEmitter {
     return owner
   }
 
-  async checkIsOwnerOf(owner: string, parcels: ICoords[]) {
-    const pOwners = parcels.map(async ({ x, y }) => {
-      return this.getLandOwner(x, y)
+  async getLandOperator(x: number, y: number): Promise<string> {
+    try {
+      const contract = await landContract
+      const assetId = await contract['encodeTokenId'](x, y)
+      return await contract['updateOperator'](assetId)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND operator: ${e.message}`)
+    }
+  }
+
+  async validateAuthorization(owner: string, parcels: ICoords[]): Promise<void> {
+    const sParcels = parcels.map(getString)
+    const ownerParcels = new Set((await this.getLandOf(owner)).map(getString))
+    const invalidParcels = sParcels.filter(parcel => !ownerParcels.has(parcel))
+
+    const pParcels = invalidParcels.map(async sParcel => {
+      const { x, y } = getObject(sParcel)
+      return { x, y, operator: await this.getLandOperator(x, y) }
     })
 
-    const owners = await Promise.all(pOwners)
-    const canDeploy = !owners.some(parcelOwner => parcelOwner !== owner.toLowerCase())
-
-    if (!canDeploy) {
-      fail(
-        ErrorType.DEPLOY_ERROR,
-        `Failed to deploy: The owner (etherum address: ${owner}) of the project are not the same of all the described parcels`
-      )
-    }
+    const operatorParcels = await Promise.all(pParcels)
+    operatorParcels.forEach(({ x, y, operator }) => {
+      if (operator !== owner.toLowerCase()) {
+        fail(ErrorType.ETHEREUM_ERROR, `Provided address ${owner.toLowerCase()} is not authorized to update LAND ${x},${y}`)
+      }
+    })
   }
 
   /**
@@ -133,12 +145,7 @@ export class Ethereum extends EventEmitter {
       case '0': {
         const [, name, description, ipns] = CSV.parse(data)[0]
 
-        return {
-          version: 0,
-          name: name || null,
-          description: description || null,
-          ipns: ipns || null
-        }
+        return { version: 0, name: name || null, description: description || null, ipns: ipns || null }
       }
       default:
         return null
