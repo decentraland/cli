@@ -9,11 +9,6 @@ declare namespace DCL {
     email: string
   }
 
-  interface ContactSettings {
-    name: string
-    email: string
-  }
-
   interface SceneSettings {
     base: string
     parcels: Array<string>
