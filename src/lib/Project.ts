@@ -199,7 +199,6 @@ export class Project {
   async getParcelCoordinates(): Promise<ICoords> {
     const sceneFile = await this.getSceneFile()
     const { base } = sceneFile.scene
-    this.validateParcelData(sceneFile)
     return getObject(base)
   }
 

@@ -51,11 +51,9 @@ export class Decentraland extends EventEmitter {
   }
 
   async deploy(files: IFile[]) {
+    await this.project.validateParcelOptions()
+    await this.validateOwnership()
     const { x, y } = await this.project.getParcelCoordinates()
-    const owner = await this.project.getOwner()
-    const parcels = await this.project.getParcels()
-
-    await this.ethereum.validateAuthorization(owner, parcels)
 
     const projectFile = await this.project.getProjectFile()
     const filesAdded = await this.localIPFS.addFiles(files)
@@ -86,6 +84,8 @@ export class Decentraland extends EventEmitter {
 
   async link() {
     await this.project.validateExistingProject()
+    await this.project.validateParcelOptions()
+    await this.validateOwnership()
 
     return new Promise(async (resolve, reject) => {
       const projectFile = await this.project.getProjectFile()
@@ -175,5 +175,11 @@ export class Decentraland extends EventEmitter {
 
   private pipeEvents(event: string, ...args: any[]) {
     this.emit(event, ...args)
+  }
+
+  private async validateOwnership() {
+    const owner = await this.project.getOwner()
+    const parcels = await this.project.getParcels()
+    await this.ethereum.validateAuthorization(owner, parcels)
   }
 }
