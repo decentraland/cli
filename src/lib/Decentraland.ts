@@ -88,10 +88,8 @@ export class Decentraland extends EventEmitter {
     await this.project.validateExistingProject()
 
     return new Promise(async (resolve, reject) => {
-      const projectFile = await this.project.getProjectFile()
-      const sceneFile = await this.project.getSceneFile()
       const landContract = await Ethereum.getLandContractAddress()
-      const linker = new LinkerAPI(sceneFile, projectFile, landContract)
+      const linker = new LinkerAPI(this.project, landContract)
 
       events(linker, '*', this.pipeEvents.bind(this))
 
