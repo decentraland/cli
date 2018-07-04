@@ -98,12 +98,13 @@ async function track(eventName: string, properties: any = {}) {
     }
 
     if (shouldTrack) {
-      analytics.track(event, (err, batch) => {
-        if (err) {
-          reject()
-        }
+      try {
+        analytics.track(event, () => {
+          resolve()
+        })
+      } catch (e) {
         resolve()
-      })
+      }
     } else {
       resolve()
     }
