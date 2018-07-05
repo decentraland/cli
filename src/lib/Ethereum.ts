@@ -117,8 +117,8 @@ export class Ethereum extends EventEmitter {
 
     const operatorParcels = await Promise.all(pParcels)
     operatorParcels.forEach(({ x, y, operator }) => {
-      if (operator !== owner.toLowerCase()) {
-        fail(ErrorType.ETHEREUM_ERROR, `Provided address ${owner.toLowerCase()} is not authorized to update LAND ${x},${y}`)
+      if (operator !== owner) {
+        fail(ErrorType.ETHEREUM_ERROR, `Provided address ${owner} is not authorized to update LAND ${x},${y}`)
       }
     })
   }

@@ -26,7 +26,7 @@ export class Server {
 
   static async getOwner(): Promise<string> {
     try {
-      const res = await fetch('/api/base-parcel')
+      const res = await fetch('/api/owner')
       const { address } = await res.json()
       return address
     } catch (err) {

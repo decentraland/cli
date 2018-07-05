@@ -62,11 +62,8 @@ export default class Page extends React.Component<any, IState> {
 
   async loadEtherum(): Promise<void> {
     const ethereum = new Ethereum()
-    await ethereum.init()
-    this.setState({
-      loading: false,
-      ethereum
-    })
+    await ethereum.init(this.state.owner)
+    this.setState({ loading: false, ethereum, owner: ethereum.getAddress() })
   }
 
   async loadSceneData(): Promise<void> {
@@ -104,7 +101,7 @@ export default class Page extends React.Component<any, IState> {
           {loading ? 'loading...' : owner}
         </p>
         {tx ? <Transaction value={tx} /> : null}
-        {error ? <Error>{error}</Error> : <TransactionStatus loading={transactionLoading} />}
+        {error ? <Error>{error}</Error> : tx ? <TransactionStatus loading={transactionLoading} /> : null}
         <style>{`
           .dcl-icon {
             width: 52px;
