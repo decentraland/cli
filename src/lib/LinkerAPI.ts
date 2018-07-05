@@ -1,9 +1,10 @@
 import * as path from 'path'
 import { EventEmitter } from 'events'
 import * as express from 'express'
-import { IProjectFile } from '../utils/project'
 import * as urlParse from 'url'
+
 import * as portfinder from 'portfinder'
+import { Project } from './Project'
 
 /**
  * Events emitted by this class:
@@ -13,15 +14,13 @@ import * as portfinder from 'portfinder'
  * link:error   - The transaction failed and the server was closed
  */
 export class LinkerAPI extends EventEmitter {
-  private sceneMetadata: DCL.SceneMetadata
-  private projectMetadata: IProjectFile
+  private project: Project
   private app = express()
   private landContract: string
 
-  constructor(sceneMetadata: DCL.SceneMetadata, projectMetadata: IProjectFile, landRegistryContract: string) {
+  constructor(project: Project, landRegistryContract: string) {
     super()
-    this.sceneMetadata = sceneMetadata
-    this.projectMetadata = projectMetadata
+    this.project = project
     this.landContract = landRegistryContract
   }
 
@@ -78,26 +77,40 @@ export class LinkerAPI extends EventEmitter {
       res.end()
     })
 
-    this.app.get('/api/get-scene-data', (req, res) => {
-      res.json(this.sceneMetadata)
+    this.app.get('/api/base-parcel', async (req, res) => {
+      res.json(await this.project.getParcelCoordinates())
       res.end()
     })
 
-    this.app.get('/api/get-ipfs-key', (req, res) => {
-      res.json(this.projectMetadata.ipfsKey)
+    this.app.get('/api/parcels', async (req, res) => {
+      res.json(await this.project.getParcels())
+      res.end()
+    })
+
+    this.app.get('/api/owner', async (req, res) => {
+      const address = await this.project.getOwner()
+      res.json({ address })
+      res.end()
+    })
+
+    this.app.get('/api/ipfs-key', async (req, res) => {
+      const projectData = await this.project.getProjectFile()
+      res.json(projectData.ipfsKey)
       res.end()
     })
 
     this.app.get('/api/contract-address', (req, res) => {
-      res.json({
-        address: this.landContract
-      })
+      res.json({ address: this.landContract })
       res.end()
     })
 
     this.app.get('/api/close', (req, res) => {
       res.writeHead(200)
       res.end()
+
+      if (process.env.DEBUG) {
+        return
+      }
 
       const { ok, reason } = urlParse.parse(req.url, true).query
 
