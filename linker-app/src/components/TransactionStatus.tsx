@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-export default class TransactionStatus extends React.PureComponent<any, { loading: boolean }> {
+export default class TransactionStatus extends React.PureComponent<{ loading: boolean }, any> {
   render() {
     return this.props.loading ? (
       <div>

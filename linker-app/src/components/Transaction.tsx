@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-export default class Transaction extends React.PureComponent<any, { value: string }> {
+export default class Transaction extends React.PureComponent<{ value: string }, any> {
   render() {
     const { value } = this.props
     return (

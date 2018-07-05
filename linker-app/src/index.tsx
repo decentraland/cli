@@ -9,20 +9,19 @@ import Error from './components/Error'
 import Transaction from './components/Transaction'
 import TransactionStatus from './components/TransactionStatus'
 
-export default class Page extends React.Component<
-  any,
-  {
-    loading: boolean
-    transactionLoading: boolean
-    error: boolean | string
-    ethereum: Ethereum
-    base: ICoords
-    parcels: ICoords[]
-    owner: string
-    ipfsKey?: string
-    tx: string
-  }
-> {
+interface IState {
+  loading: boolean
+  transactionLoading: boolean
+  error: boolean | string
+  ethereum: Ethereum
+  base: ICoords
+  parcels: ICoords[]
+  owner: string
+  ipfsKey?: string
+  tx: string
+}
+
+export default class Page extends React.Component<any, IState> {
   constructor(props) {
     super(props)
     this.onUnload = this.onUnload.bind(this)
