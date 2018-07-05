@@ -1,13 +1,22 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+
 import { txUtils } from 'decentraland-eth'
+import { Address, Blockie, Header, Navbar, Menu, Button, Radio, Loader } from 'decentraland-ui'
 
 import { Ethereum } from './modules/Ethereum'
 import { Server } from './modules/Server'
-import { ICoords } from './utils/coordinateHelpers'
+import { ICoords, getString, isEqual } from './utils/coordinateHelpers'
 import Error from './components/Error'
 import Transaction from './components/Transaction'
 import TransactionStatus from './components/TransactionStatus'
+
+interface IOptions {
+  id: string
+  value: ICoords
+  checked: boolean
+  base: boolean
+}
 
 interface IState {
   loading: boolean
@@ -15,7 +24,7 @@ interface IState {
   error: string
   ethereum: Ethereum
   base: ICoords
-  parcels: ICoords[]
+  options: IOptions[]
   owner: string
   address: string
   ipfsKey?: string
@@ -32,7 +41,7 @@ export default class Page extends React.Component<any, IState> {
       error: null,
       ethereum: null,
       base: null,
-      parcels: null,
+      options: null,
       owner: null,
       address: null,
       tx: null
@@ -44,10 +53,6 @@ export default class Page extends React.Component<any, IState> {
     try {
       await this.loadSceneData()
       await this.loadEtherum()
-      // Make update transaction
-      const tx = await this.makeTransaction()
-      this.watchTransactions(tx)
-      this.setState({ tx, transactionLoading: true })
     } catch ({ message }) {
       this.setState({ loading: false, error: message })
       Server.closeServer(false, message)
@@ -71,13 +76,35 @@ export default class Page extends React.Component<any, IState> {
   async loadSceneData(): Promise<void> {
     const base = await Server.getBaseParcel()
     const parcels = await Server.getParcels()
+    const options = parcels.map(parcel => ({ id: getString(parcel), checked: true, value: parcel, base: isEqual(base, parcel) }))
     const owner = await Server.getOwner()
-    this.setState({ base, parcels, owner })
+    this.setState({ base, options, owner })
   }
 
-  async makeTransaction() {
-    const { ethereum, base, parcels } = this.state
-    return ethereum.updateLand(base, parcels)
+  handleRadioChange = e => {
+    const parcelId = e.target.value
+    const options = this.state.options.map(option => {
+      if (parcelId === option.id) {
+        return { ...option, checked: !option.checked }
+      }
+
+      return option
+    })
+    this.setState({ options })
+  }
+
+  handleDeploy = async e => {
+    e.preventDefault()
+    try {
+      const { ethereum, base, options } = this.state
+      const parcels = options.filter(option => option.checked).map(option => option.value)
+      const tx = await ethereum.updateLand(base, parcels)
+      this.watchTransactions(tx)
+      this.setState({ tx, transactionLoading: true })
+    } catch (err) {
+      this.setState({ loading: false, error: err.message || 'Unexpected error' })
+      Server.closeServer(false, err)
+    }
   }
 
   async watchTransactions(txId: string) {
@@ -92,19 +119,40 @@ export default class Page extends React.Component<any, IState> {
   }
 
   render() {
-    const { loading, transactionLoading, error, address, tx } = this.state
+    const { loading, transactionLoading, error, address, tx, options } = this.state
     return (
-      <div className="dcl-linker-main">
-        <div className="dcl-icon" />
-        <h3>UPDATE LAND DATA</h3>
-        {error ? (
+      <React.Fragment>
+        <Navbar isConnected={!loading} isConnecting={loading} connectingMenuItem={<Menu.Item>Connecting...</Menu.Item>} address={address} />
+        {loading ? (
+          <Loader active size="massive" />
+        ) : error ? (
           <Error>{error}</Error>
         ) : (
           <React.Fragment>
+            <Header>Update LAND data</Header>
             <p>
-              MetaMask address:<br />
-              {loading ? 'loading...' : address}
+              MetaMask address: &nbsp;
+              <Blockie scale={3} seed={address}>
+                <Address tooltip strong value={address} />
+              </Blockie>
             </p>
+
+            <form>
+              <div>
+                <Button primary onClick={this.handleDeploy}>
+                  Deploy
+                </Button>
+                <Button>Cancel</Button>
+              </div>
+              <div className="options">
+                {options.map(({ id, checked, base }) => (
+                  <div key={id}>
+                    <input type="checkbox" value={id} checked={checked} disabled={base} onChange={this.handleRadioChange} /> {id}
+                  </div>
+                ))}
+              </div>
+            </form>
+
             {tx ? (
               <React.Fragment>
                 <Transaction value={tx} />
@@ -114,24 +162,14 @@ export default class Page extends React.Component<any, IState> {
           </React.Fragment>
         )}
         <style>{`
-          .dcl-icon {
-            width: 52px;
-            height: 52px;
-            margin: 30px auto 0;
-            background-image: url('https://decentraland.org/images/icons.svg');
-          }
           body {
-            font-family: 'Arial';
-            width: 700px;
             text-align: center;
-            margin: 30px auto 0;
           }
-          a {
-            font-size: 12px;
-            color: #00a55b;
+          .options div {
+            4px
           }
         `}</style>
-      </div>
+      </React.Fragment>
     )
   }
 }
