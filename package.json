@@ -54,6 +54,7 @@
     "chalk": "^2.3.1",
     "chokidar": "^2.0.3",
     "comma-separated-values": "^3.6.4",
+    "decentraland-ui": "^1.5.5",
     "docker-names": "^1.0.3",
     "eth-connect": "^0.3.0",
     "express": "^4.16.2",
