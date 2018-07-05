@@ -12,11 +12,12 @@ import TransactionStatus from './components/TransactionStatus'
 interface IState {
   loading: boolean
   transactionLoading: boolean
-  error: boolean | string
+  error: string
   ethereum: Ethereum
   base: ICoords
   parcels: ICoords[]
   owner: string
+  address: string
   ipfsKey?: string
   tx: string
 }
@@ -28,11 +29,12 @@ export default class Page extends React.Component<any, IState> {
     this.state = {
       loading: true,
       transactionLoading: false,
-      error: false,
+      error: null,
       ethereum: null,
       base: null,
       parcels: null,
       owner: null,
+      address: null,
       tx: null
     }
   }
@@ -63,7 +65,7 @@ export default class Page extends React.Component<any, IState> {
   async loadEtherum(): Promise<void> {
     const ethereum = new Ethereum()
     await ethereum.init(this.state.owner)
-    this.setState({ loading: false, ethereum, owner: ethereum.getAddress() })
+    this.setState({ loading: false, ethereum, address: ethereum.getAddress() })
   }
 
   async loadSceneData(): Promise<void> {
@@ -91,17 +93,27 @@ export default class Page extends React.Component<any, IState> {
   }
 
   render() {
-    const { loading, transactionLoading, error, owner, tx } = this.state
+    const { loading, transactionLoading, error, address, tx } = this.state
     return (
       <div className="dcl-linker-main">
         <div className="dcl-icon" />
         <h3>UPDATE LAND DATA</h3>
-        <p>
-          MetaMask address:<br />
-          {loading ? 'loading...' : owner}
-        </p>
-        {tx ? <Transaction value={tx} /> : null}
-        {error ? <Error>{error}</Error> : tx ? <TransactionStatus loading={transactionLoading} /> : null}
+        {error ? (
+          <Error>{error}</Error>
+        ) : (
+          <React.Fragment>
+            <p>
+              MetaMask address:<br />
+              {loading ? 'loading...' : address}
+            </p>
+            {tx ? (
+              <React.Fragment>
+                <Transaction value={tx} />
+                <TransactionStatus loading={transactionLoading} />
+              </React.Fragment>
+            ) : null}
+          </React.Fragment>
+        )}
         <style>{`
           .dcl-icon {
             width: 52px;
