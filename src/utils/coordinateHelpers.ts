@@ -84,7 +84,7 @@ export function isValid(val: string): boolean {
  * Converts a string-based set of coordinates to an object
  * @param coords A string containing a set of coordinates
  */
-export function getObject(coords: string): { x: number; y: number } {
+export function getObject(coords: string): ICoords {
   const parsed = parse(coords)[0]
   const [x, y] = parsed.split(',')
   return { x: parseInt(x, 10), y: parseInt(y, 10) }
