@@ -62,7 +62,7 @@ export default class Page extends React.Component<any, IState> {
 
   async loadEtherum(): Promise<void> {
     const ethereum = new Ethereum()
-    await ethereum.init()
+    await ethereum.init(this.state.owner)
     this.setState({
       loading: false,
       ethereum

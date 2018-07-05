@@ -4,6 +4,7 @@ import { Server } from './Server'
 
 const ERRORS_MESSAGES = {
   unlock: 'Please unlock your wallet to continue',
+  notSameOwner: "Project owner isn't the same as Metamask address",
   noConnection: 'Could not connect to Ethereum'
 }
 
@@ -11,13 +12,21 @@ export class Ethereum {
   private land
   private address
 
-  async init() {
+  async init(owner: string) {
     try {
       this.address = await Server.getContractAddress()
       this.land = new contracts.LANDRegistry(this.address)
       await eth.connect({ contracts: [this.land] })
+
+      if (typeof eth.wallet.getAccount() !== 'string') {
+        throw new Error(ERRORS_MESSAGES.unlock)
+      }
+
+      if (this.address !== owner) {
+        throw new Error(ERRORS_MESSAGES.notSameOwner)
+      }
     } catch ({ message }) {
-      throw new Error(typeof eth.wallet.getAccount() !== 'string' ? ERRORS_MESSAGES.unlock : message || ERRORS_MESSAGES.noConnection)
+      throw new Error(message || ERRORS_MESSAGES.noConnection)
     }
   }
 
