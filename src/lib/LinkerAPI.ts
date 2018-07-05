@@ -108,18 +108,17 @@ export class LinkerAPI extends EventEmitter {
       res.writeHead(200)
       res.end()
 
-      if (process.env.DEBUG) {
-        return
-      }
-
       const { ok, reason } = urlParse.parse(req.url, true).query
 
       if (ok === 'true') {
         this.emit('link:success')
-      } else {
-        // we can't throw an error for this one, koa will handle and log it
-        this.emit('link:error', new Error(`Failed to link: ${reason}`))
       }
+
+      if (process.env.DEBUG) {
+        return
+      }
+      // we can't throw an error for this one, koa will handle and log it
+      this.emit('link:error', new Error(`Failed to link: ${reason}`))
     })
   }
 }

@@ -219,7 +219,7 @@ export class Project {
     if (!owner) {
       fail(ErrorType.PROJECT_ERROR, `Missing owner attribute at scene.json. Owner attribute is required for deploying`)
     }
-    return owner
+    return owner.toLowerCase()
   }
 
   /**
