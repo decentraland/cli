@@ -26,6 +26,7 @@ const ctx = sandbox.create()
 describe('Decentraland', () => {
   let getIPNSStub
   let validateExistingProjectStub
+  let validateParcelOptionsStub
   let getParcelCoordinatesStub
   let getOwnerStub
   let getParcelsStub
@@ -46,6 +47,7 @@ describe('Decentraland', () => {
 
     // Project stubs
     validateExistingProjectStub = ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
+    validateParcelOptionsStub = ctx.stub(Project.prototype, 'validateParcelOptions').callsFake(() => undefined)
     getParcelCoordinatesStub = ctx.stub(Project.prototype, 'getParcelCoordinates').callsFake(() => ({ x: 0, y: 0 }))
     getOwnerStub = ctx.stub(Project.prototype, 'getOwner').callsFake(() => '0x8Bed95D830475691C10281f1FeA2c0a0fE51304B')
     getParcelsStub = ctx.stub(Project.prototype, 'getParcels').callsFake(() => ({ x: 0, y: 0 }))
@@ -80,6 +82,7 @@ describe('Decentraland', () => {
       expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(validateAuthorizationStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
+      expect(validateParcelOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
       expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.true
@@ -107,7 +110,9 @@ describe('Decentraland', () => {
 
       expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(validateAuthorizationStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
+      expect(validateParcelOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
+      expect(validateParcelOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
@@ -133,6 +138,7 @@ describe('Decentraland', () => {
       expect(getIPNSStub.called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(validateAuthorizationStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
+      expect(validateParcelOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
