@@ -88,7 +88,6 @@ export default class Page extends React.Component<any, IState> {
       this.setState({ transactionLoading: false })
       await Server.closeServer(true, 'success')
       window.removeEventListener('beforeunload', this.onUnload)
-      window.close()
     }
   }
 
