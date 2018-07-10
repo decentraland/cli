@@ -132,7 +132,7 @@ export class Ethereum extends EventEmitter {
 
     const landData = await this.getLandData(x, y)
 
-    if (!landData || landData.ipns === '') {
+    if (!landData || !landData.ipns) {
       this.emit('ethereum:get-ipns-empty')
       return null
     }
