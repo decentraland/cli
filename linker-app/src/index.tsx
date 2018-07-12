@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
 import { txUtils } from 'decentraland-eth'
-import { Address, Blockie, Header, Navbar, Menu, Button, Radio, Loader } from 'decentraland-ui'
+import { Address, Blockie, Header, Navbar, Menu, Button, Loader } from 'decentraland-ui'
 
 import { Ethereum } from './modules/Ethereum'
 import { Server } from './modules/Server'
@@ -18,7 +18,7 @@ interface IOptions {
   base: boolean
 }
 
-interface IState {
+interface State {
   loading: boolean
   transactionLoading: boolean
   error: string
@@ -29,9 +29,10 @@ interface IState {
   address: string
   ipfsKey?: string
   tx: string
+  isDev: boolean
 }
 
-export default class Page extends React.Component<any, IState> {
+export default class LinkScenePage extends React.Component<any, State> {
   constructor(props) {
     super(props)
     this.onUnload = this.onUnload.bind(this)
@@ -44,13 +45,15 @@ export default class Page extends React.Component<any, IState> {
       options: null,
       owner: null,
       address: null,
-      tx: null
+      tx: null,
+      isDev: false
     }
   }
 
   async componentDidMount() {
     window.addEventListener('beforeunload', this.onUnload)
     try {
+      await this.loadEnv()
       await this.loadSceneData()
       await this.loadEtherum()
     } catch ({ message }) {
@@ -67,18 +70,29 @@ export default class Page extends React.Component<any, IState> {
     event.returnValue = 'Please, wait until the transaction is completed'
   }
 
-  async loadEtherum(): Promise<void> {
-    const ethereum = new Ethereum()
-    await ethereum.init(this.state.owner)
-    this.setState({ loading: false, ethereum, address: ethereum.getAddress() })
+  async loadEnv(): Promise<void> {
+    const env = await Server.getEnvironment()
+    const isDev = env === 'dev'
+    this.setState({ isDev })
   }
 
   async loadSceneData(): Promise<void> {
     const base = await Server.getBaseParcel()
     const parcels = await Server.getParcels()
-    const options = parcels.map(parcel => ({ id: getString(parcel), checked: true, value: parcel, base: isEqual(base, parcel) }))
+    const options = parcels.map(parcel => ({
+      id: getString(parcel),
+      checked: true,
+      value: parcel,
+      base: isEqual(base, parcel)
+    }))
     const owner = await Server.getOwner()
     this.setState({ base, options, owner })
+  }
+
+  async loadEtherum(): Promise<void> {
+    const ethereum = new Ethereum()
+    await ethereum.init(this.state.owner)
+    this.setState({ loading: false, ethereum, address: ethereum.getAddress() })
   }
 
   handleRadioChange = e => {
@@ -119,9 +133,9 @@ export default class Page extends React.Component<any, IState> {
   }
 
   render() {
-    const { loading, transactionLoading, error, address, tx, options } = this.state
+    const { loading, transactionLoading, error, address, tx, options, isDev } = this.state
     return (
-      <React.Fragment>
+      <div className="LinkScenePage">
         <Navbar isConnected={!loading} isConnecting={loading} connectingMenuItem={<Menu.Item>Connecting...</Menu.Item>} address={address} />
         {loading ? (
           <Loader active size="massive" />
@@ -162,16 +176,34 @@ export default class Page extends React.Component<any, IState> {
           </React.Fragment>
         )}
         <style>{`
-          body {
+          .LinkScenePage {
             text-align: center;
           }
           .options div {
             4px
           }
         `}</style>
-      </React.Fragment>
+        {isDev ? (
+          <style>{`
+            body:before {
+              content: 'Development mode on: you are operating on Ropsten';
+              background: var(--primary);
+              color: white;
+              text-align: center;
+              text-transform: uppercase;
+              height: 24px;
+              width: 100%;
+              position: fixed;
+              padding-top: 2px;
+            }
+            #root {
+              padding-top: 24px;
+            }
+          `}</style>
+        ) : null}
+      </div>
     )
   }
 }
 
-ReactDOM.render(<Page />, document.getElementById('main'))
+ReactDOM.render(<LinkScenePage />, document.getElementById('main'))
