@@ -2,7 +2,7 @@ import * as fs from 'fs-extra'
 import * as uuid from 'uuid'
 import dockerNames = require('docker-names')
 import * as path from 'path'
-import { writeJSON, readJSON } from '../utils/filesystem'
+import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import {
   getSceneFilePath,
   getProjectFilePath,
@@ -49,6 +49,13 @@ export class Project {
    */
   decentralandFolderExists(): Promise<boolean> {
     return fs.pathExists(getDecentralandFolderPath(this.workingDir))
+  }
+
+  /**
+   * Returns `true` if the project working directory is empty of files
+   */
+  async isProjectDirEmpty(): Promise<boolean> {
+    return isEmptyDirectory(this.workingDir)
   }
 
   /**

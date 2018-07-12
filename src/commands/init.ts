@@ -21,6 +21,19 @@ export function init(vorpal: any) {
         })
 
         await dcl.project.validateNewProject()
+        const isEmpty = await dcl.project.isProjectDirEmpty()
+
+        if (!isEmpty) {
+          const results = await inquirer.prompt({
+            type: 'confirm',
+            name: 'continue',
+            message: warning(`Project directory isn't empty. Do you want to continue?`)
+          })
+
+          if (!results.continue) {
+            process.exit(0)
+          }
+        }
 
         const sceneMeta = await inquirer.prompt([
           {
