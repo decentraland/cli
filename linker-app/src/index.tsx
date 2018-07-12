@@ -18,7 +18,7 @@ interface IOptions {
   base: boolean
 }
 
-interface State {
+interface IState {
   loading: boolean
   transactionLoading: boolean
   error: string
@@ -32,7 +32,7 @@ interface State {
   isDev: boolean
 }
 
-export default class LinkScenePage extends React.Component<any, State> {
+export default class LinkScenePage extends React.Component<any, IState> {
   constructor(props) {
     super(props)
     this.onUnload = this.onUnload.bind(this)
