@@ -220,7 +220,7 @@ function setUpRendezvous(app: express.Express) {
 
   app.use(bodyParser.json())
 
-  app.post('/announce', (req, res) => {
+  app.post('/signaling/announce', (req, res) => {
     const uuid = req.body.uuid
 
     const packet = {
@@ -238,7 +238,7 @@ function setUpRendezvous(app: express.Express) {
     res.sendStatus(200)
   })
 
-  app.post('/:uuid/signal', (req, res) => {
+  app.post('/signaling/:uuid/signal', (req, res) => {
     const uuid = req.params.uuid
 
     const packet = {
@@ -260,7 +260,7 @@ function setUpRendezvous(app: express.Express) {
     res.sendStatus(result ? 200 : 404)
   })
 
-  app.get('/:uuid/listen', sse, (_, res) => {
+  app.get('/signaling/:uuid/listen', sse, (_, res) => {
     // tslint:disable-next-line:semicolon
     ;(res as any).sseSend({
       type: 'accept'
