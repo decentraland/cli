@@ -9,6 +9,8 @@ import { fail, ErrorType } from '../utils/errors'
 import * as chokidar from 'chokidar'
 import ignore = require('ignore')
 import * as portfinder from 'portfinder'
+import bodyParser = require('body-parser')
+import cors = require('cors')
 
 function nocache(req, res, next) {
   res.setHeader('Surrogate-Control', 'no-store')
@@ -56,6 +58,8 @@ export class Preview extends EventEmitter {
         })
       }
     })
+
+    this.app.use(cors())
 
     this.app.get('/', (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/html' })
@@ -155,6 +159,7 @@ export class Preview extends EventEmitter {
     this.app.use(nocache)
     this.app.use('/metaverse-api', express.static(artifactPath))
     this.app.use(express.static(root))
+    setUpRendezvous(this.app)
     this.emit('preview:ready', resolvedPort)
 
     this.server.listen(resolvedPort).on('error', (e: any) => {
@@ -166,4 +171,99 @@ export class Preview extends EventEmitter {
 
     return this.app
   }
+}
+
+function setUpRendezvous(app: express.Express) {
+  /**
+   * Store all connections in place
+   */
+  const connections = []
+
+  /**
+   * This middleware sets up Server-Sent Events.
+   */
+  const sse = (req, res, next) => {
+    const connection = {
+      uuid: req.params.uuid,
+      res: res
+    }
+
+    // SSE protocol works by setting the `content-type` to `event-stream`
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive'
+    })
+
+    // Enrich the response object with the ability to send packets
+    res.sseSend = data => {
+      try {
+        res.write('data: ' + JSON.stringify(data) + '\n\n')
+      } catch (e) {
+        connections.splice(connections.indexOf(connection), 1)
+        clearInterval(res.interval)
+      }
+    }
+
+    // Setup an interval to keep the connection alive
+    res.interval = setInterval(() => {
+      res.sseSend({
+        type: 'ping'
+      })
+    }, 5000)
+
+    // Store the connection
+    connections.push(connection)
+
+    next()
+  }
+
+  app.use(bodyParser.json())
+
+  app.post('/announce', (req, res) => {
+    const uuid = req.body.uuid
+
+    const packet = {
+      type: 'announce',
+      uuid: uuid
+    }
+
+    connections.forEach(c => {
+      // Don't announce to self
+      if (c.uuid !== uuid) {
+        c.res.sseSend(packet)
+      }
+    })
+
+    res.sendStatus(200)
+  })
+
+  app.post('/:uuid/signal', (req, res) => {
+    const uuid = req.params.uuid
+
+    const packet = {
+      type: 'signal',
+      initiator: req.body.initiator,
+      data: req.body.data,
+      uuid: req.body.uuid
+    }
+
+    let result = false
+
+    connections.forEach(c => {
+      if (c.uuid === uuid) {
+        c.res.sseSend(packet)
+        result = true
+      }
+    })
+
+    res.sendStatus(result ? 200 : 404)
+  })
+
+  app.get('/:uuid/listen', sse, (_, res) => {
+    // tslint:disable-next-line:semicolon
+    ;(res as any).sseSend({
+      type: 'accept'
+    })
+  })
 }

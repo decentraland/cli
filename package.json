@@ -51,9 +51,11 @@
   },
   "dependencies": {
     "analytics-node": "^3.2.0",
+    "body-parser": "^1.18.3",
     "chalk": "^2.3.1",
     "chokidar": "^2.0.3",
     "comma-separated-values": "^3.6.4",
+    "cors": "^2.8.4",
     "decentraland-ui": "^1.5.5",
     "docker-names": "^1.0.3",
     "eth-connect": "^0.3.0",
