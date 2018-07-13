@@ -18,7 +18,7 @@ describe('init command', async () => {
         .when(/Your name/, () => 'John Titor\n')
         .when(/Your email/, () => 'john.titor@example.com\n')
         .when(/Parcels comprising the scene/, () => '0,0\n')
-        .when(/Which type of project would you like to generate/, () => 'static\n')
+        .when(/Which type of project would you like to generate/, () => '3\n')
         .endWhen(/Installing dependencies/)
         .on('err', e => console.log(e))
         .on('end', async () => {
