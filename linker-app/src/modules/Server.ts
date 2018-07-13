@@ -6,6 +6,12 @@ const ERRORS_MESSAGES = {
 }
 
 export class Server {
+  static async getEnvironment(): Promise<string> {
+    const res = await fetch('/api/environment')
+    const { env } = await res.json()
+    return env
+  }
+
   static async getBaseParcel(): Promise<ICoords> {
     try {
       const res = await fetch('/api/base-parcel')

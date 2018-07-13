@@ -80,6 +80,11 @@ export class LinkerAPI extends EventEmitter {
       res.end()
     })
 
+    this.app.get('/api/environment', (req, res) => {
+      res.json({ env: process.env.DCL_ENV })
+      res.end()
+    })
+
     this.app.get('/api/base-parcel', async (req, res) => {
       res.json(await this.project.getParcelCoordinates())
       res.end()
