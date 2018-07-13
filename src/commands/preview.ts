@@ -17,6 +17,7 @@ export interface IArguments {
 export function start(vorpal: any) {
   vorpal
     .command('preview')
+    .alias('start')
     .option('-p, --port <number>', 'parcel previewer server port (default is 2044).')
     .option('--no-browser', 'prevents the CLI from opening a new browser window.')
     .description('Starts local development server.')
