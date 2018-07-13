@@ -17,7 +17,6 @@
     "express": "^4.16.2",
     "metaverse-api": "rc",
     "traceur": "0.0.111",
-    "typescript": "^2.7.2",
     "ws": "^4.0.0"
   }
 }

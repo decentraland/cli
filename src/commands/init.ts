@@ -95,8 +95,8 @@ export function init(vorpal: any) {
             name: 'archetype',
             message: warning('Which type of project would you like to generate?'),
             choices: [
-              { name: 'Dynamic scene (single player)', value: BoilerplateType.TYPESCRIPT },
-              { name: 'Dynamic multiplayer scene (EXPERIMENTAL)', value: BoilerplateType.WEBSOCKETS },
+              { name: 'Local scene (WebWorker)', value: BoilerplateType.TYPESCRIPT },
+              { name: 'Remote scene (WebSocket)', value: BoilerplateType.WEBSOCKETS },
               { name: 'Static scene project', value: BoilerplateType.STATIC }
             ],
             default: BoilerplateType.TYPESCRIPT
