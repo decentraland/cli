@@ -17,9 +17,10 @@ import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, ICoords } from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
-  STATIC = 'static',
-  TYPESCRIPT = 'singleplayer',
-  WEBSOCKETS = 'multiplayer'
+  TYPESCRIPT_STATIC = 'ts-static',
+  TYPESCRIPT_DYNAMIC = 'ts-dynamic',
+  WEBSOCKETS = 'multiplayer',
+  STATIC = 'static'
 }
 
 export interface IFile {
@@ -112,8 +113,12 @@ export class Project {
     }
 
     switch (boilerplateType) {
-      case BoilerplateType.TYPESCRIPT: {
-        await this.copySample('basic-ts')
+      case BoilerplateType.TYPESCRIPT_STATIC: {
+        await this.copySample('ts-static')
+        break
+      }
+      case BoilerplateType.TYPESCRIPT_DYNAMIC: {
+        await this.copySample('ts-dynamic')
         break
       }
       case BoilerplateType.WEBSOCKETS:

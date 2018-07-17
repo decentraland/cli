@@ -95,11 +95,12 @@ export function init(vorpal: any) {
             name: 'archetype',
             message: warning('Which type of project would you like to generate?'),
             choices: [
-              { name: 'Local scene (WebWorker)', value: BoilerplateType.TYPESCRIPT },
+              { name: 'Static local scene (WebWorker)', value: BoilerplateType.TYPESCRIPT_STATIC },
+              { name: 'Local scene (WebWorker)', value: BoilerplateType.TYPESCRIPT_DYNAMIC },
               { name: 'Remote scene (WebSocket)', value: BoilerplateType.WEBSOCKETS },
               { name: 'Static scene project', value: BoilerplateType.STATIC }
             ],
-            default: BoilerplateType.TYPESCRIPT
+            default: BoilerplateType.TYPESCRIPT_STATIC
           })
 
           boilerplateType = results.archetype
