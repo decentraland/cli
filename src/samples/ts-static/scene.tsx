@@ -1,6 +1,6 @@
 import { createElement, ScriptableScene } from 'metaverse-api'
 
-export default class RollerCoaster extends ScriptableScene<any, { time: number }> {
+export default class RollerCoaster extends ScriptableScene<any, any> {
   async render() {
     return (
       <scene>
