@@ -7,6 +7,7 @@ const AnalyticsNode = require('analytics-node')
 
 // Setup segment.io
 const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
+const SINGLEUSER = 'cli-user'
 export const analytics = new AnalyticsNode(WRITE_KEY)
 
 export namespace Analytics {
@@ -24,10 +25,11 @@ export namespace Analytics {
 
   export async function identify(devId: string) {
     analytics.identify({
-      userId: devId,
+      userId: SINGLEUSER,
       traits: {
         os: process.platform,
-        createdAt: new Date().getTime()
+        createdAt: new Date().getTime(),
+        devId
       }
     })
   }
@@ -80,12 +82,13 @@ async function track(eventName: string, properties: any = {}) {
     let shouldTrack = dclinfo ? dclinfo.trackStats : true
 
     const event = {
-      userId: devId,
+      userId: SINGLEUSER,
       event: eventName,
       properties: {
         ...properties,
         os: process.platform,
-        ci: process.env.CI
+        ci: process.env.CI,
+        devId
       }
     }
 
