@@ -1,0 +1,15 @@
+{
+  "name": "dcl-project",
+  "version": "1.0.0",
+  "description": "My new Decentraland project",
+  "scripts": {
+    "build": "metaverse-compiler build.json",
+    "watch": "metaverse-compiler build.json --watch"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "metaverse-api": "^4.0.0",
+    "typescript": "^2.7.2"
+  }
+}
