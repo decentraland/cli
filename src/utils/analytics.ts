@@ -20,6 +20,8 @@ export namespace Analytics {
   export const deploy = (properties?: any) => track('Scene deploy requested', properties)
   export const pinRequest = (properties?: any) => track('Pin requested', properties)
   export const pinSuccess = (properties?: any) => track('Pin success', properties)
+  export const sendData = (properties?: any) => track('Send Anonymous data', properties)
+
 
   export async function identify(devId: string) {
     analytics.identify({
@@ -56,20 +58,13 @@ export namespace Analytics {
 
       if (results.continue) {
         await Analytics.identify(devId)
+        await Analytics.sendData(true)
+      } else {
+        await Analytics.sendData(false)
       }
     }
   }
 }
-
-/**
- * holis
- * lo que esta pasando es que salta el confirm de analytics en medio de los tests
- * por eso no falla local
- * fuera de eso, el confirm sale desordenado en medio de cualquier proceso
- * por lo que puede ocurrir en medio de un install de dependencias, lo cual es bastante choto
- * hay que asegurarnos de que se haga al principio
- * hay que asegurarnos de que los tests sepan handlearlo
- */
 
 /**
  * Tracks an specific event using the Segment API
