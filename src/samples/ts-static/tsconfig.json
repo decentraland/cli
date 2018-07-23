@@ -15,14 +15,15 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "newLine": "LF",
-    "outDir": "build",
     "stripInternal": true,
+    "baseUrl": ".",
     "strict": true,
     "jsx": "react",
     "jsxFactory": "DCL.createElement",
     "removeComments": true,
+    "outDir": ".",
     "pretty": true,
-    "lib": ["es2017"]
+    "lib": ["es2017", "dom"]
   },
   "exclude": ["node_modules"]
 }

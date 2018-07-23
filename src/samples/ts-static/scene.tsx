@@ -1,6 +1,6 @@
-import { createElement, ScriptableScene } from 'metaverse-api'
+import * as DCL from 'metaverse-api'
 
-export default class RollerCoaster extends ScriptableScene<any, any> {
+export default class SampleScene extends DCL.ScriptableScene {
   async render() {
     return (
       <scene>
