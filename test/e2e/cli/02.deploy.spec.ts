@@ -8,7 +8,7 @@ describe('deploy command', async () => {
   it('should display files before upload', async () => {
     await tmpTest(async (dirPath, done) => {
       new Commando(`node ${path.resolve('bin', 'dcl')} init`, {
-        silent: true,
+        silent: false,
         workingDir: dirPath,
         env: { DCL_ENV: 'dev' }
       })
@@ -17,11 +17,11 @@ describe('deploy command', async () => {
         .when(/Your name/, () => 'John Titor\n')
         .when(/Your email/, () => 'john.titor@example.com\n')
         .when(/Parcels comprising the scene/, () => '0,0\n')
-        .when(/Which type of project would you like to generate/, () => 'static\n')
+        .when(/Which scene template would you like to generate/, () => '4\n')
         .endWhen(/Installing dependencies/)
         .on('end', async () => {
           new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
-            silent: true,
+            silent: false,
             workingDir: dirPath,
             env: { DCL_ENV: 'dev' }
           })

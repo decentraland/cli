@@ -41,7 +41,7 @@ describe('Decentraland.init()', () => {
     })
   }).timeout(5000)
 
-  it('should successfully create a typescript project', async () => {
+  it('should successfully create a static typescript project', async () => {
     await tmpTest(async (dirPath, done) => {
       const dcl = new Decentraland({
         workingDir: dirPath
@@ -53,7 +53,31 @@ describe('Decentraland.init()', () => {
         {
           main: 'scene.xml'
         },
-        'singleplayer' as any
+        'ts-static' as any
+      )
+
+      const sceneFile = await fs.readJson(scenePath)
+
+      expect(sceneFile.main).to.equal('scene.js')
+      await expectBaseFilesToExist(dirPath)
+      await expectBasicDCLIgnore(dirPath)
+      done()
+    })
+  }).timeout(5000)
+
+  it('should successfully create a dynamic typescript project', async () => {
+    await tmpTest(async (dirPath, done) => {
+      const dcl = new Decentraland({
+        workingDir: dirPath
+      })
+
+      const scenePath = path.resolve(dirPath, 'scene.json')
+
+      await dcl.init(
+        {
+          main: 'scene.xml'
+        },
+        'ts-dynamic' as any
       )
 
       const sceneFile = await fs.readJson(scenePath)

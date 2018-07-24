@@ -22,7 +22,6 @@ export namespace Analytics {
   export const pinSuccess = (properties?: any) => track('Pin success', properties)
   export const sendData = (properties?: any) => track('Send Anonymous data', properties)
 
-
   export async function identify(devId: string) {
     analytics.identify({
       userId: SINGLEUSER,

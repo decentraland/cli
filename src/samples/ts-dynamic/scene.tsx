@@ -1,11 +1,11 @@
-import { createElement, ScriptableScene } from 'metaverse-api'
+import * as DCL from 'metaverse-api'
 
 // This is an interface, you can use it to enforce the types of your state
 export interface IState {
   isDoorClosed: boolean
 }
 
-export default class HouseScene extends ScriptableScene<any, IState> {
+export default class HouseScene extends DCL.ScriptableScene<any, IState> {
   // This is your initial state and it respects the given IState interface
   state = {
     isDoorClosed: false

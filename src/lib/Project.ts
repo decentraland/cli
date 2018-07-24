@@ -10,16 +10,19 @@ import {
   getIgnoreFilePath,
   IProjectFile,
   DCLIGNORE_FILE,
-  getDecentralandFolderPath
+  getDecentralandFolderPath,
+  PACKAGE_FILE,
+  getPackageFilePath
 } from '../utils/project'
 import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, ICoords } from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
-  STATIC = 'static',
-  TYPESCRIPT = 'singleplayer',
-  WEBSOCKETS = 'multiplayer'
+  TYPESCRIPT_STATIC = 'ts-static',
+  TYPESCRIPT_DYNAMIC = 'ts-dynamic',
+  WEBSOCKETS = 'multiplayer',
+  STATIC = 'static'
 }
 
 export interface IFile {
@@ -112,8 +115,12 @@ export class Project {
     }
 
     switch (boilerplateType) {
-      case BoilerplateType.TYPESCRIPT: {
-        await this.copySample('basic-ts')
+      case BoilerplateType.TYPESCRIPT_STATIC: {
+        await this.copySample('ts-static')
+        break
+      }
+      case BoilerplateType.TYPESCRIPT_DYNAMIC: {
+        await this.copySample('ts-dynamic')
         break
       }
       case BoilerplateType.WEBSOCKETS:
@@ -182,8 +189,9 @@ export class Project {
 
   /**
    * Copies the contents of a specific sample into the project (for scaffolding purposes).
+   * Merges `scene.json` and `package.json` files
    * @param project The name of the sample folder (used as an indentifier).
-   * @param destination The path to the project root. By default the current working directory.
+   * @param destination The path to the project root. By default the current woxsrking directory.
    */
   async copySample(project: string) {
     const src = path.resolve(__dirname, '..', 'samples', project)
@@ -194,6 +202,9 @@ export class Project {
       if (file === SCENE_FILE) {
         const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
         await this.writeSceneFile(sceneFile)
+      } else if (file === PACKAGE_FILE) {
+        const pkgFile = await readJSON<any>(getPackageFilePath(src))
+        await writeJSON(getPackageFilePath(this.workingDir), pkgFile)
       } else {
         await fs.copy(path.join(src, file), path.join(this.workingDir, file))
       }

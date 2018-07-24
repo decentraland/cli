@@ -93,13 +93,14 @@ export function init(vorpal: any) {
           const results = await inquirer.prompt({
             type: 'list',
             name: 'archetype',
-            message: warning('Which type of project would you like to generate?'),
+            message: warning('Which scene template would you like to generate?'),
             choices: [
-              { name: 'Local scene (WebWorker)', value: BoilerplateType.TYPESCRIPT },
-              { name: 'Remote scene (WebSocket)', value: BoilerplateType.WEBSOCKETS },
-              { name: 'Static scene project', value: BoilerplateType.STATIC }
+              { name: 'Basic', value: BoilerplateType.TYPESCRIPT_STATIC },
+              { name: 'Interactive', value: BoilerplateType.TYPESCRIPT_DYNAMIC },
+              { name: 'Remote', value: BoilerplateType.WEBSOCKETS },
+              { name: 'Static', value: BoilerplateType.STATIC }
             ],
-            default: BoilerplateType.TYPESCRIPT
+            default: BoilerplateType.TYPESCRIPT_STATIC
           })
 
           boilerplateType = results.archetype
@@ -130,7 +131,7 @@ export function init(vorpal: any) {
 
         await Analytics.sceneCreated({ boilerplateType })
 
-        vorpal.log(positive(`\nSuccess! Run 'dcl preview' to see your scene`))
+        vorpal.log(positive(`\nSuccess! Run 'dcl start' to see your scene`))
       })
     )
 }

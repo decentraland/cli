@@ -19,7 +19,7 @@
     "baseUrl": ".",
     "strict": true,
     "jsx": "react",
-    "jsxFactory": "createElement",
+    "jsxFactory": "DCL.createElement",
     "removeComments": true,
     "outDir": ".",
     "pretty": true,

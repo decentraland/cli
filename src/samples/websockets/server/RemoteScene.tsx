@@ -1,7 +1,7 @@
-import { createElement, ScriptableScene } from 'metaverse-api'
+import * as DCL from 'metaverse-api'
 import { setState, getState } from './State'
 
-export default class HouseScene extends ScriptableScene {
+export default class HouseScene extends DCL.ScriptableScene {
   sceneDidMount() {
     this.eventSubscriber.on('door_click', () => {
       setState({ isDoorClosed: !getState().isDoorClosed })
