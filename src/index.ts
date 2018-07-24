@@ -35,7 +35,7 @@ export function init(options = {}) {
     })
 
   if (process.argv.length > 2) {
-    const exists = vorpal.commands.some((command: any) => command._name === process.argv[2])
+    const exists = vorpal.commands.some((command: any) => command._name === process.argv[2] || command._aliases.includes(process.argv[2]))
 
     if (exists) {
       vorpal.parse(process.argv)
