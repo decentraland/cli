@@ -10,7 +10,7 @@ CLI tool for parcel management.
 - [x] Warnings and linting of scenes
 - [x] Hot reloading
 - [x] Query parcel info
-= [x] Query deployment status
+      = [x] Query deployment status
 - [ ] Optimizing objects, textures
 - [ ] Generating bundles of assets
 - [ ] Test framework for scripting
@@ -36,7 +36,7 @@ $ dcl init
 ### Start local development server and serve your scene:
 
 ```bash
-$ dcl preview
+$ dcl start
 ```
 
 You can prevent the browser from opening by using the `--no-browser` flag.
