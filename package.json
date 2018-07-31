@@ -19,13 +19,13 @@
   "lint-staged": {
     "linters": {
       "*.ts": [
-        "npm run lint",
-        "prettier --write 'src/**/*.ts'",
+        "tslint -c tslint.json",
+        "prettier --write",
         "git add"
       ]
     },
     "ignore": [
-      "src/samples/*ts"
+      "src/samples/**/*.ts"
     ]
   },
   "repository": {
@@ -66,6 +66,7 @@
     "eth-connect": "^0.3.0",
     "express": "^4.16.2",
     "fs-extra": "^6.0.0",
+    "ignore": "^4.0.3",
     "inquirer": "^5.1.0",
     "ipfs-api": "^17.5.0",
     "isomorphic-fetch": "^2.2.1",
@@ -101,7 +102,6 @@
     "decentraland-ui": "^1.10.0",
     "git-rev-sync": "^1.11.1",
     "husky": "^0.14.3",
-    "ignore": "^4.0.3",
     "lint-staged": "^7.2.0",
     "mkdirp": "^0.5.1",
     "mocha": "^4.1.0",

@@ -7,7 +7,7 @@ import { EventEmitter } from 'events'
 import * as fs from 'fs-extra'
 import { fail, ErrorType } from '../utils/errors'
 import * as chokidar from 'chokidar'
-import ignore from 'ignore'
+import ignore = require('ignore')
 import * as portfinder from 'portfinder'
 import bodyParser = require('body-parser')
 import cors = require('cors')
@@ -38,7 +38,8 @@ export class Preview extends EventEmitter {
 
   async startServer(port: number) {
     const root = getRootPath()
-    const ig = ignore().add(this.ignoredPaths)
+    const ig = (ignore as any)().add(this.ignoredPaths)
+
     let resolvedPort = port
 
     if (!resolvedPort) {
@@ -61,30 +62,35 @@ export class Preview extends EventEmitter {
 
     this.app.use(cors())
 
-    const artifactPath = path.dirname(path.resolve('node_modules', 'decentraland-api'))
+    const artifactPath = path.resolve('node_modules', 'decentraland-api')
 
     if (!fs.pathExistsSync(artifactPath)) {
       fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${artifactPath}, please run: npm install decentraland-api@latest`)
     }
 
-    this.app.get('/', express.static(path.resolve(artifactPath, 'artifacts/preview.html')))
+    this.app.get('/', (req, res) => {
+      res.setHeader('Content-Type', 'text/html')
+      res.sendFile(path.resolve(artifactPath, 'artifacts/preview.html'))
+    })
+
+    this.app.use('/@', express.static(artifactPath))
+
+    this.app.use(express.static(root))
 
     this.app.use(nocache)
-    this.app.use('/@', express.static(artifactPath))
-    this.app.use(express.static(root))
 
     setUpRendezvous(this.app)
 
     this.emit('preview:ready', resolvedPort)
 
-    this.server.listen(resolvedPort).on('error', (e: any) => {
-      if (e.errno === 'EADDRINUSE') {
-        fail(ErrorType.PREVIEW_ERROR, `Port ${resolvedPort} is already in use by another process`)
-        fail(ErrorType.PREVIEW_ERROR, `Failed to start Linker App: ${e.message}`)
-      }
+    return new Promise((resolve, reject) => {
+      this.server
+        .listen(resolvedPort)
+        .on('close', () => resolve())
+        .on('error', (e: any) => {
+          reject(e)
+        })
     })
-
-    return this.app
   }
 }
 
