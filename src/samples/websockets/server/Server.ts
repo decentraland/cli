@@ -2,7 +2,7 @@ import { createServer } from 'http'
 import { Server as WebSocketServer } from 'ws'
 
 import { connectedClients } from './ConnectedClients'
-import { WebSocketTransport } from 'metaverse-api'
+import { WebSocketTransport } from 'decentraland-api'
 import RemoteScene from './RemoteScene'
 
 const express = require('express')

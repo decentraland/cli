@@ -56,7 +56,7 @@ export function start(vorpal: any) {
 
             vorpal.log(bold('\n  Details:\n'))
 
-            vorpal.log(`    metaverse-api version: ${await getInstalledVersion('metaverse-api')}`, sdkOutdated ? '(OUTDATED)' : '')
+            vorpal.log(`    decentraland-api version: ${await getInstalledVersion('decentraland-api')}`, sdkOutdated ? '(OUTDATED)' : '')
 
             vorpal.log(comment('\nPress CTRL+C to exit\n'))
 

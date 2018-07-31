@@ -5,6 +5,6 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "metaverse-api": "latest"
+    "decentraland-api": "latest"
   }
 }

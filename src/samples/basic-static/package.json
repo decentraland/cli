@@ -8,6 +8,6 @@
     "start": "dcl start"
   },
   "devDependencies": {
-    "metaverse-api": "latest"
+    "decentraland-api": "latest"
   }
 }
