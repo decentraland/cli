@@ -4,12 +4,12 @@
   "description": "My new Decentraland project",
   "scripts": {
     "start": "dcl start",
-    "build": "metaverse-compiler build.json",
-    "watch": "metaverse-compiler build.json --watch"
+    "build": "decentraland-compiler build.json",
+    "watch": "decentraland-compiler build.json --watch"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "metaverse-api": "latest"
+    "decentraland-api": "latest"
   }
 }

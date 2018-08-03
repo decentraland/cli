@@ -113,15 +113,13 @@ export class Decentraland extends EventEmitter {
   }
 
   async preview() {
-    return new Promise(async (resolve, reject) => {
-      await this.project.validateExistingProject()
-      await this.project.validateParcelOptions()
-      const preview = new Preview(await this.project.getDCLIgnore())
+    await this.project.validateExistingProject()
+    await this.project.validateParcelOptions()
+    const preview = new Preview(await this.project.getDCLIgnore())
 
-      events(preview, '*', this.pipeEvents.bind(this))
+    events(preview, '*', this.pipeEvents.bind(this))
 
-      await preview.startServer(this.options.previewPort)
-    })
+    await preview.startServer(this.options.previewPort)
   }
 
   async getAddressInfo(address: string): Promise<IAddressInfo[]> {

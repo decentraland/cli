@@ -1,4 +1,4 @@
-import * as DCL from 'metaverse-api'
+import * as DCL from 'decentraland-api'
 
 export default class SampleScene extends DCL.ScriptableScene {
   async render() {

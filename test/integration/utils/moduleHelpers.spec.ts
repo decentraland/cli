@@ -15,7 +15,7 @@ let helpers
 tmpTest(async (dirPath, done) => {
   await setupFilesystem(dirPath, [
     {
-      path: 'node_modules/metaverse-api/package.json',
+      path: 'node_modules/decentraland-api/package.json',
       content: '{ version: "1.0.0" }'
     }
   ])

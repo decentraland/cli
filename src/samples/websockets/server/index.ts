@@ -1,4 +1,4 @@
-// We use esnext in metaverse-api, webpack and rollup handle it natively but not Node.js
+// We use esnext in decentraland-api, webpack and rollup handle it natively but not Node.js
 const traceur = require('traceur')
 
 // replace node.js require by traceur's
