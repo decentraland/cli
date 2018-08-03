@@ -58,7 +58,6 @@ export default class LinkScenePage extends React.Component<any, IState> {
       await this.loadEtherum()
     } catch ({ message }) {
       this.setState({ loading: false, error: message })
-      Server.closeServer(false, message)
     }
   }
 
@@ -117,7 +116,6 @@ export default class LinkScenePage extends React.Component<any, IState> {
       this.setState({ tx, transactionLoading: true })
     } catch (err) {
       this.setState({ loading: false, error: err.message || 'Unexpected error' })
-      Server.closeServer(false, err)
     }
   }
 
