@@ -23,12 +23,12 @@ export function pin(vorpal: any) {
           ipfsPort: args.options.port || 5001
         })
 
-        dcl.on('ipfs:pin', async () => {
-          await Analytics.pinRequest()
+        dcl.on('ipfs:pin', () => {
+          Analytics.pinRequest()
           const spinner = loading(`Pinning files to IPFS gateway`)
 
-          dcl.on('ipfs:pin-success', async () => {
-            await Analytics.pinSuccess()
+          dcl.on('ipfs:pin-success', () => {
+            Analytics.pinSuccess()
             spinner.succeed()
           })
         })

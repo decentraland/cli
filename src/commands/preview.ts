@@ -27,7 +27,7 @@ export function start(vorpal: any) {
           previewPort: args.options.port
         })
 
-        await Analytics.preview()
+        Analytics.preview()
 
         const sdkOutdated = await isMetaverseApiOutdated()
         const installedVersion = await getInstalledVersion('decentraland-api')

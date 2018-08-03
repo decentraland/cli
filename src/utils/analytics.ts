@@ -11,16 +11,16 @@ const SINGLEUSER = 'cli-user'
 export const analytics = new AnalyticsNode(WRITE_KEY)
 
 export namespace Analytics {
-  export const sceneCreated = (properties?: any) => track('Scene created', properties)
-  export const preview = (properties?: any) => track('Preview started', properties)
-  export const sceneDeploy = (properties?: any) => track('Scene deploy started', properties)
-  export const sceneDeploySuccess = (properties?: any) => track('Scene deploy success', properties)
-  export const sceneLink = (properties?: any) => track('Scene ethereum link started', properties)
-  export const sceneLinkSuccess = (properties?: any) => track('Scene ethereum link succeeded', properties)
-  export const deploy = (properties?: any) => track('Scene deploy requested', properties)
-  export const pinRequest = (properties?: any) => track('Pin requested', properties)
-  export const pinSuccess = (properties?: any) => track('Pin success', properties)
-  export const sendData = (properties?: any) => track('Send Anonymous data', properties)
+  export const sceneCreated = (properties?: any) => trackAsync('Scene created', properties)
+  export const preview = (properties?: any) => trackAsync('Preview started', properties)
+  export const sceneDeploy = (properties?: any) => trackAsync('Scene deploy started', properties)
+  export const sceneDeploySuccess = (properties?: any) => trackAsync('Scene deploy success', properties)
+  export const sceneLink = (properties?: any) => trackAsync('Scene ethereum link started', properties)
+  export const sceneLinkSuccess = (properties?: any) => trackAsync('Scene ethereum link succeeded', properties)
+  export const deploy = (properties?: any) => trackAsync('Scene deploy requested', properties)
+  export const pinRequest = (properties?: any) => trackAsync('Pin requested', properties)
+  export const pinSuccess = (properties?: any) => trackAsync('Pin success', properties)
+  export const sendData = (properties?: any) => trackAsync('Send Anonymous data', properties)
 
   export async function identify(devId: string) {
     analytics.identify({
@@ -103,4 +103,13 @@ async function track(eventName: string, properties: any = {}) {
       resolve()
     }
   })
+}
+
+function trackAsync(eventName: string, properties: any = {}) {
+  track(eventName, properties)
+    .then()
+    .catch(e => {
+      // tslint:disable-next-line:no-console
+      if (process.env.DEBUG) console.log(e)
+    })
 }

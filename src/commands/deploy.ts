@@ -60,8 +60,8 @@ export function deploy(vorpal: any) {
           })
         })
 
-        dcl.on('link:ready', async url => {
-          await Analytics.sceneLink()
+        dcl.on('link:ready', url => {
+          Analytics.sceneLink()
           info('This is the first time you deploy using this IPNS, please link your project to the LAND Registry:')
           const linkerMsg = loading(`Linking app ready at ${url}`)
 
@@ -73,18 +73,18 @@ export function deploy(vorpal: any) {
             }
           }, 5000)
 
-          dcl.on('link:success', async () => {
-            await Analytics.sceneLinkSuccess()
+          dcl.on('link:success', () => {
+            Analytics.sceneLinkSuccess()
             linkerMsg.succeed('Project successfully updated in LAND Registry')
           })
         })
 
-        dcl.on('ipfs:pin', async () => {
-          await Analytics.pinRequest()
+        dcl.on('ipfs:pin', () => {
+          Analytics.pinRequest()
           const spinner = loading(`Pinning files to IPFS gateway`)
 
           dcl.on('ipfs:pin-success', async () => {
-            await Analytics.pinSuccess()
+            Analytics.pinSuccess()
             spinner.succeed()
           })
         })
@@ -95,7 +95,7 @@ export function deploy(vorpal: any) {
           ignoreFile = await dcl.project.writeDclIgnore()
         }
 
-        await Analytics.sceneDeploy()
+        Analytics.sceneDeploy()
         await dcl.project.validateExistingProject()
         const files = await dcl.project.getFiles(ignoreFile)
 
@@ -127,7 +127,7 @@ export function deploy(vorpal: any) {
         }
 
         await dcl.deploy(files)
-        await Analytics.sceneDeploySuccess()
+        Analytics.sceneDeploySuccess()
         vorpal.log(positive(`\nDeployment complete!`))
       })
     )

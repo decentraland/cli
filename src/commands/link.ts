@@ -22,8 +22,8 @@ export function link(vorpal: any) {
           linkerPort: args.options.port
         })
 
-        dcl.on('link:ready', async url => {
-          await Analytics.sceneLink()
+        dcl.on('link:ready', url => {
+          Analytics.sceneLink()
           const linkerMsg = loading(`Linking app ready at ${url}`)
 
           try {
@@ -33,7 +33,7 @@ export function link(vorpal: any) {
           }
 
           dcl.on('link:success', async () => {
-            await Analytics.sceneLinkSuccess()
+            Analytics.sceneLinkSuccess()
             linkerMsg.succeed('Project successfully updated in LAND Registry')
             process.exit(1)
           })
