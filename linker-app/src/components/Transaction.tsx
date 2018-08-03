@@ -1,13 +1,19 @@
 import * as React from 'react'
 
-export default class Transaction extends React.PureComponent<{ value: string }, any> {
+interface IProps {
+  isDev: boolean
+  value: string
+}
+
+export default class Transaction extends React.PureComponent<IProps, any> {
   render() {
-    const { value } = this.props
+    const { value, isDev } = this.props
+    const link = isDev ? `https://ropsten.etherscan.io/tx/${value}` : `https://etherscan.io/tx/${value}`
     return (
       <p>
         Transaction:<br />
-        <a href={`https://etherscan.io/tx/${value}`} target="_blank">
-          {`https://etherscan.io/tx/${value}`}
+        <a href={link} target="_blank">
+          {link}
         </a>
       </p>
     )

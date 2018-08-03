@@ -167,7 +167,7 @@ export default class LinkScenePage extends React.Component<any, IState> {
 
             {tx ? (
               <React.Fragment>
-                <Transaction value={tx} />
+                <Transaction isDev={isDev} value={tx} />
                 <TransactionStatus loading={transactionLoading} />
               </React.Fragment>
             ) : null}
