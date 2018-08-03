@@ -347,7 +347,7 @@ export class Project {
    */
   async getFiles(ignoreFile?: string): Promise<IFile[]> {
     const files = await this.getAllFilePaths()
-    const filteredFiles = ignore()
+    const filteredFiles = (ignore as any)()
       .add(ignoreFile)
       .filter(files) as any
     let data = []

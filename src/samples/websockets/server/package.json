@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "My new Decentraland project",
   "scripts": {
-    "build": "metaverse-compiler build.json",
+    "build": "decentraland-compiler build.json",
     "start": "node build/index.js"
   },
   "author": "",
@@ -15,7 +15,7 @@
     "@types/ws": "^4.0.1",
     "cors": "^2.8.4",
     "express": "^4.16.2",
-    "metaverse-api": "rc",
+    "decentraland-api": "latest",
     "traceur": "0.0.111",
     "ws": "^4.0.0"
   }

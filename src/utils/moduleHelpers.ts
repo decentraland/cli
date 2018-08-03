@@ -62,8 +62,8 @@ export async function getInstalledVersion(name: string): Promise<string> {
 }
 
 export async function isMetaverseApiOutdated(): Promise<boolean> {
-  const metaverseApiVersionLatest = await getLatestVersion('metaverse-api')
-  const metaverseApiVersion = await getInstalledVersion('metaverse-api')
+  const metaverseApiVersionLatest = await getLatestVersion('decentraland-api')
+  const metaverseApiVersion = await getInstalledVersion('decentraland-api')
   if (metaverseApiVersionLatest && metaverseApiVersion && semver.lt(metaverseApiVersion, metaverseApiVersionLatest)) {
     return true
   }

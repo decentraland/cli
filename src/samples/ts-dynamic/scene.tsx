@@ -1,4 +1,4 @@
-import * as DCL from 'metaverse-api'
+import * as DCL from 'decentraland-api'
 
 // This is an interface, you can use it to enforce the types of your state
 export interface IState {
