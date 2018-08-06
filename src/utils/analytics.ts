@@ -22,7 +22,7 @@ export namespace Analytics {
   export const deploy = (properties?: any) => trackAsync('Scene deploy requested', properties)
   export const pinRequest = (properties?: any) => trackAsync('Pin requested', properties)
   export const pinSuccess = (properties?: any) => trackAsync('Pin success', properties)
-  export const sendData = (properties?: any) => trackAsync(ANONYMOUS_DATA_QUESTION, properties)
+  export const sendData = (shareData: boolean) => trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
 
   export async function identify(devId: string) {
     analytics.identify({
