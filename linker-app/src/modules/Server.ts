@@ -48,7 +48,8 @@ export class Server {
 
   static async getIPFSKey(): Promise<any> {
     try {
-      return await fetch('/api/ipfs-key')
+      const response = await fetch('/api/ipfs-key')
+      return await response.json()
     } catch (err) {
       throw new Error(ERRORS_MESSAGES.ipns)
     }
