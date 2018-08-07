@@ -10,6 +10,8 @@ const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
 const SINGLEUSER = 'cli-user'
 export const analytics = new AnalyticsNode(WRITE_KEY)
 
+const ANONYMOUS_DATA_QUESTION = 'Send Anonymous data'
+
 export namespace Analytics {
   export const sceneCreated = (properties?: any) => trackAsync('Scene created', properties)
   export const preview = (properties?: any) => trackAsync('Preview started', properties)
@@ -20,7 +22,7 @@ export namespace Analytics {
   export const deploy = (properties?: any) => trackAsync('Scene deploy requested', properties)
   export const pinRequest = (properties?: any) => trackAsync('Pin requested', properties)
   export const pinSuccess = (properties?: any) => trackAsync('Pin success', properties)
-  export const sendData = (properties?: any) => trackAsync('Send Anonymous data', properties)
+  export const sendData = (shareData: boolean) => trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
 
   export async function identify(devId: string) {
     analytics.identify({
@@ -79,6 +81,11 @@ async function track(eventName: string, properties: any = {}) {
     const dclinfo = await getDCLInfo()
     let devId = dclinfo ? dclinfo.userId : null
     let shouldTrack = dclinfo ? dclinfo.trackStats : true
+    shouldTrack = shouldTrack || eventName === ANONYMOUS_DATA_QUESTION
+
+    if (!shouldTrack) {
+      resolve()
+    }
 
     const event = {
       userId: SINGLEUSER,
@@ -91,15 +98,11 @@ async function track(eventName: string, properties: any = {}) {
       }
     }
 
-    if (shouldTrack) {
-      try {
-        analytics.track(event, () => {
-          resolve()
-        })
-      } catch (e) {
+    try {
+      analytics.track(event, () => {
         resolve()
-      }
-    } else {
+      })
+    } catch (e) {
       resolve()
     }
   })
