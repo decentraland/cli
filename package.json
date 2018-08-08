@@ -109,10 +109,15 @@
     "proxyquire": "^2.0.1",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
+    "react-redux": "^5.0.7",
+    "redux": "^4.0.0",
+    "redux-logger": "^3.0.6",
+    "redux-saga": "^0.16.0",
     "rimraf": "^2.6.2",
     "sinon": "^4.5.0",
     "ts-node": "^4.1.0",
     "tslint": "^5.11.0",
+    "typesafe-actions": "^2.0.4",
     "uuid": "^3.3.2",
     "ws": "^6.0.0"
   }
