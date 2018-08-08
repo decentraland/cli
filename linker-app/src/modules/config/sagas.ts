@@ -1,6 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects'
-import { FETCH_CONFIG_REQUEST } from './types'
-import { fetchConfigSuccess, fetchConfigFailure } from './actions'
+import { fetchConfigSuccess, fetchConfigFailure, FETCH_CONFIG_REQUEST } from './actions'
 import { Server } from '../Server'
 
 export function* configSaga() {

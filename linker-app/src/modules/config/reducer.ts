@@ -1,14 +1,28 @@
 import { Reducer } from 'redux'
 
-import { ConfigState, FETCH_CONFIG_REQUEST, FETCH_CONFIG_SUCCESS, FETCH_CONFIG_FAILURE } from './types'
-import { ConfigAction } from './actions'
+import { Config } from './types'
+import {
+  FetchConfigRequestAction,
+  FetchConfigSuccessAction,
+  FetchConfigFailureAction,
+  FETCH_CONFIG_REQUEST,
+  FETCH_CONFIG_SUCCESS,
+  FETCH_CONFIG_FAILURE
+} from './actions'
+
+export type ConfigState = {
+  data: Config
+  error: string
+}
 
 const INITIAL_STATE: ConfigState = {
   data: { isDev: false },
   error: null
 }
 
-export const configReducer: Reducer<ConfigState> = (state = INITIAL_STATE, action: ConfigAction): ConfigState => {
+export type ConfigReducerAction = FetchConfigRequestAction | FetchConfigSuccessAction | FetchConfigFailureAction
+
+export const configReducer: Reducer<ConfigState> = (state = INITIAL_STATE, action: ConfigReducerAction): ConfigState => {
   switch (action.type) {
     case FETCH_CONFIG_REQUEST: {
       return state

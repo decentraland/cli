@@ -69,6 +69,7 @@ export class LinkerAPI extends EventEmitter {
           <title>Link scene</title>
           <meta charset="utf-8">
           <link href="https://ui.decentraland.org/styles.css" rel="stylesheet" />
+          <link href="https://ui.decentraland.org/dark-theme.css" rel="stylesheet" />
         </head>
         <body>
           <div id="main">

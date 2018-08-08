@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { txUtils } from 'decentraland-eth'
-import { Address, Blockie, Header, Navbar, Menu, Button, Loader } from 'decentraland-ui'
+import { Address, Blockie, Header, Button, Loader } from 'decentraland-ui'
+import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
 import { Ethereum } from '../../modules/Ethereum'
 import { Server } from '../../modules/Server'
@@ -28,21 +29,12 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   async componentDidMount() {
-    window.addEventListener('beforeunload', this.onUnload)
     try {
       await this.loadSceneData()
       await this.loadEtherum()
     } catch ({ message }) {
       this.setState({ loading: false, error: message })
     }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.onUnload)
-  }
-
-  onUnload(event) {
-    event.returnValue = 'Please, wait until the transaction is completed'
   }
 
   async loadSceneData(): Promise<void> {
@@ -96,7 +88,6 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     } else {
       this.setState({ transactionLoading: false })
       await Server.closeServer(true, 'success')
-      window.removeEventListener('beforeunload', this.onUnload)
     }
   }
 
@@ -105,7 +96,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     const { loading, transactionLoading, error, address, tx, options } = this.state
     return (
       <div className="LinkScenePage">
-        <Navbar isConnected={!loading} isConnecting={loading} connectingMenuItem={<Menu.Item>Connecting...</Menu.Item>} address={address} />
+        <Navbar />
         {loading ? (
           <Loader active size="massive" />
         ) : error ? (
