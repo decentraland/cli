@@ -11,9 +11,7 @@ const INITIAL_STATE: ConfigState = {
 export const configReducer: Reducer<ConfigState> = (state = INITIAL_STATE, action: ConfigAction): ConfigState => {
   switch (action.type) {
     case FETCH_CONFIG_REQUEST: {
-      return {
-        ...state
-      }
+      return state
     }
     case FETCH_CONFIG_SUCCESS: {
       return {
