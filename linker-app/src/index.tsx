@@ -1,9 +1,10 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-
+import { Provider } from 'react-redux'
 import { txUtils } from 'decentraland-eth'
 import { Address, Blockie, Header, Navbar, Menu, Button, Loader } from 'decentraland-ui'
 
+import { store } from './store'
 import { Ethereum } from './modules/Ethereum'
 import { Server } from './modules/Server'
 import { ICoords, getString, isEqual } from './utils/coordinateHelpers'
@@ -204,4 +205,9 @@ export default class LinkScenePage extends React.Component<any, IState> {
   }
 }
 
-ReactDOM.render(<LinkScenePage />, document.getElementById('main'))
+ReactDOM.render(
+  <Provider store={store}>
+    <LinkScenePage />
+  </Provider>,
+  document.getElementById('main')
+)
