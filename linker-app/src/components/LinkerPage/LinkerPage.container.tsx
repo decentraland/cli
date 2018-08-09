@@ -4,14 +4,15 @@ import { RootState, RootDispatch } from '../../types'
 import { getData as getConfig } from '../../modules/config/selectors'
 import LinkerPage from './LinkerPage'
 import { LinkerPageProps } from './types'
-import { ConfigAction, fetchConfigRequest } from '../../modules/config/actions'
+import { fetchConfigRequest } from '../../modules/config/actions'
+import { ConfigReducerAction } from '../../modules/config/reducer'
 
 const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps => {
   const { isDev } = getConfig(state)
   return { ...ownProps, isDev }
 }
 
-const mapDispatch = (dispatch: RootDispatch<ConfigAction>) => ({
+const mapDispatch = (dispatch: RootDispatch<ConfigReducerAction>) => ({
   onFetchConfig: () => dispatch(fetchConfigRequest())
 })
 
