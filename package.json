@@ -6,8 +6,9 @@
   "scripts": {
     "start": "npm run watch",
     "watch": "decentraland-compiler build.json --watch",
-    "build": "decentraland-compiler build.json && npm run linker:build && npm run copy:samples",
+    "build": "decentraland-compiler build.json && npm run linker:build && npm run copy:samples && npm run copy:certs",
     "copy:samples": "cp -r src/samples dist",
+    "copy:certs": "cp -r src/certs dist",
     "linker:build": "decentraland-compiler build.linker.json",
     "linker:watch": "decentraland-compiler build.linker.json --watch",
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",

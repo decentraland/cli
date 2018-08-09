@@ -13,6 +13,7 @@ export interface IDeployArguments {
     host?: string
     port?: number
     skip?: boolean
+    https?: boolean
   }
 }
 
@@ -23,11 +24,13 @@ export function deploy(vorpal: any) {
     .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
+    .option('-hs, --https', 'Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)')
     .action(
       wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
           ipfsHost: args.options.host || 'localhost',
-          ipfsPort: args.options.port || 5001
+          ipfsPort: args.options.port || 5001,
+          isHttps: !!args.options.https
         })
 
         let ignoreFile = await dcl.project.getDCLIgnore()
@@ -88,6 +91,10 @@ export function deploy(vorpal: any) {
             spinner.succeed()
           })
         })
+
+        if (args.options.https) {
+          vorpal.log(warning(`WARNING: Using self signed certificate to support ledger wallet`))
+        }
 
         if (ignoreFile === null) {
           vorpal.log(warning(`WARNING: As of version 1.1.0 all deployments require a .dclignore file`))

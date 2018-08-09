@@ -6,7 +6,7 @@ import { MANAToken } from './contracts'
 import { configSaga } from './modules/config/sagas'
 
 const walletSaga = createWalletSaga({
-  provider: '',
+  provider: 'https://ropsten.infura.io',
   contracts: [MANAToken],
   eth
 })

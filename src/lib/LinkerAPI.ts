@@ -1,9 +1,11 @@
 import * as path from 'path'
+import * as fs from 'fs-extra'
+import * as https from 'https'
 import { EventEmitter } from 'events'
-import * as express from 'express'
 import * as urlParse from 'url'
-
+import * as express from 'express'
 import * as portfinder from 'portfinder'
+
 import { Project } from './Project'
 
 /**
@@ -24,7 +26,7 @@ export class LinkerAPI extends EventEmitter {
     this.landContract = landRegistryContract
   }
 
-  link(port: number) {
+  link(port: number, isHttps: boolean) {
     return new Promise(async (resolve, reject) => {
       let resolvedPort = port
 
@@ -36,7 +38,7 @@ export class LinkerAPI extends EventEmitter {
         }
       }
 
-      const url = `http://localhost:${resolvedPort}/linker`
+      const url = `${isHttps ? 'https' : 'http'}://localhost:${resolvedPort}/linker`
 
       this.setRoutes()
 
@@ -44,13 +46,25 @@ export class LinkerAPI extends EventEmitter {
         reject(err)
       })
 
-      this.app.listen(resolvedPort, () => this.emit('link:ready', url)).on('error', (e: any) => {
+      const serverHandler = () => this.emit('link:ready', url)
+      const eventHandler = () => (e: any) => {
         if (e.errno === 'EADDRINUSE') {
           reject(new Error(`Port ${resolvedPort} is already in use by another process`))
         } else {
           reject(new Error(`Failed to start Linker App: ${e.message}`))
         }
-      })
+      }
+
+      if (isHttps) {
+        const privateKey = await fs.readFile(path.resolve(__dirname, '../certs/localhost.key'), 'utf-8')
+        const certificate = await fs.readFile(path.resolve(__dirname, '../certs/localhost.crt'), 'utf-8')
+        const credentials = { key: privateKey, cert: certificate }
+
+        const httpsServer = https.createServer(credentials, this.app)
+        httpsServer.listen(resolvedPort, serverHandler).on('error', eventHandler)
+      } else {
+        this.app.listen(resolvedPort, serverHandler).on('error', eventHandler)
+      }
     })
   }
 

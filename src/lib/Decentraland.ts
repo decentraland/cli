@@ -14,6 +14,7 @@ export interface IDecentralandArguments {
   ipfsPort?: number
   linkerPort?: number
   previewPort?: number
+  isHttps?: boolean
 }
 
 export interface IAddressInfo {
@@ -98,7 +99,7 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(this.options.linkerPort)
+        await linker.link(this.options.linkerPort, this.options.isHttps)
       } catch (e) {
         reject(e)
       }

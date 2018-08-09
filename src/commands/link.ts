@@ -8,6 +8,7 @@ import { ErrorType, fail } from '../utils/errors'
 export interface IArguments {
   options: {
     port?: number
+    https: boolean
   }
 }
 
@@ -16,10 +17,12 @@ export function link(vorpal: any) {
     .command('link')
     .description('Link scene to Ethereum.')
     .option('-p, --port <number>', 'linker app server port (default is 4044).')
+    .option('-hs, --https', 'Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)')
     .action(
       wrapCommand(async (args: IArguments) => {
         const dcl = new Decentraland({
-          linkerPort: args.options.port
+          linkerPort: args.options.port,
+          isHttps: !!args.options.https
         })
 
         dcl.on('link:ready', url => {
