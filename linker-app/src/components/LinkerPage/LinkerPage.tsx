@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { txUtils } from 'decentraland-eth'
 import { Address, Blockie, Header, Button, Loader } from 'decentraland-ui'
+import WalletProvider from 'decentraland-dapps/dist/providers/WalletProvider'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
 import { Ethereum } from '../../modules/Ethereum'
@@ -29,21 +30,12 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   async componentDidMount() {
-    window.addEventListener('beforeunload', this.onUnload)
     try {
       await this.loadSceneData()
       await this.loadEtherum()
     } catch ({ message }) {
       this.setState({ loading: false, error: message })
     }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('beforeunload', this.onUnload)
-  }
-
-  onUnload(event) {
-    event.returnValue = 'Please, wait until the transaction is completed'
   }
 
   async loadSceneData(): Promise<void> {
@@ -97,7 +89,6 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     } else {
       this.setState({ transactionLoading: false })
       await Server.closeServer(true, 'success')
-      window.removeEventListener('beforeunload', this.onUnload)
     }
   }
 
@@ -105,47 +96,48 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     const { isDev } = this.props
     const { loading, transactionLoading, error, address, tx, options } = this.state
     return (
-      <div className="LinkScenePage">
-        <Navbar />
-    {loading ? (
-          <Loader active size="massive" />
-        ) : error ? (
-          <Error>{error}</Error>
-        ) : (
-          <React.Fragment>
-            <Header>Update LAND data</Header>
-            <p>
-              MetaMask address: &nbsp;
-              <Blockie scale={3} seed={address}>
-                <Address tooltip strong value={address} />
-              </Blockie>
-            </p>
+      <WalletProvider>
+        <div className="LinkScenePage">
+          <Navbar />
+          {loading ? (
+            <Loader active size="massive" />
+          ) : error ? (
+            <Error>{error}</Error>
+          ) : (
+            <React.Fragment>
+              <Header>Update LAND data</Header>
+              <p>
+                MetaMask address: &nbsp;
+                <Blockie scale={3} seed={address}>
+                  <Address tooltip strong value={address} />
+                </Blockie>
+              </p>
 
-            <form>
-              <div>
-                <Button primary onClick={this.handleDeploy}>
-                  Deploy
-                </Button>
-                <Button>Cancel</Button>
-              </div>
-              <div className="options">
-                {options.map(({ id, checked, base }) => (
-                  <div key={id}>
-                    <input type="checkbox" value={id} checked={checked} disabled={base} onChange={this.handleRadioChange} /> {id}
-                  </div>
-                ))}
-              </div>
-            </form>
+              <form>
+                <div>
+                  <Button primary onClick={this.handleDeploy}>
+                    Deploy
+                  </Button>
+                  <Button>Cancel</Button>
+                </div>
+                <div className="options">
+                  {options.map(({ id, checked, base }) => (
+                    <div key={id}>
+                      <input type="checkbox" value={id} checked={checked} disabled={base} onChange={this.handleRadioChange} /> {id}
+                    </div>
+                  ))}
+                </div>
+              </form>
 
-            {tx ? (
-              <React.Fragment>
-                <Transaction isDev={isDev} value={tx} />
-                <TransactionStatus loading={transactionLoading} />
-              </React.Fragment>
-            ) : null}
-          </React.Fragment>
-        )}
-    <style>{`
+              {tx ? (
+                <React.Fragment>
+                  <Transaction isDev={isDev} value={tx} />
+                  <TransactionStatus loading={transactionLoading} />
+                </React.Fragment>
+              ) : null}
+            </React.Fragment>
+          )}
+          <style>{`
           .LinkScenePage {
             text-align: center;
           }
@@ -153,8 +145,8 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             4px
           }
         `}</style>
-    {isDev ? (
-          <style>{`
+          {isDev ? (
+            <style>{`
             body:before {
               content: 'Development mode on: you are operating on Ropsten';
               background: var(--primary);
@@ -170,8 +162,9 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               padding-top: 24px;
             }
           `}</style>
-        ) : null}
-      </div >
+          ) : null}
+        </div>
+      </WalletProvider>
     )
   }
 }
