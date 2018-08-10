@@ -76,7 +76,8 @@
     "portfinder": "^1.0.13",
     "semver": "^5.5.0",
     "vorpal": "^1.12.0",
-    "wildcards": "^1.0.2"
+    "wildcards": "^1.0.2",
+    "ws": "^6.0.0"
   },
   "devDependencies": {
     "@types/analytics-node": "0.0.31",
@@ -118,7 +119,6 @@
     "ts-node": "^4.1.0",
     "tslint": "^5.11.0",
     "typesafe-actions": "^2.0.4",
-    "uuid": "^3.3.2",
-    "ws": "^6.0.0"
+    "uuid": "^3.3.2"
   }
 }
