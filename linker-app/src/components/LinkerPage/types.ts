@@ -8,8 +8,7 @@ export interface LinkerPageProps {
   sceneOwner: string
   base: LANDMeta
   wallet: Partial<BaseWallet>
-  pendingTransactions: Transaction[]
-  transactionHistory: Transaction[]
+  transaction: Transaction
   isLoading: boolean
   error: string
   onUpdateLand: (manyLand: ManyLAND) => UpdateLandRequestAction

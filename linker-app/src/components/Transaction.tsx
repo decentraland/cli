@@ -1,22 +1,25 @@
 import * as React from 'react'
+import EtherscanLink from 'decentraland-dapps/dist/containers/EtherscanLink'
+import { Transaction as TransactionType } from 'decentraland-dapps/dist/modules/transaction/types'
+
+import TransactionStatus from './TransactionStatus'
 
 interface IProps {
-  isRopsten: boolean
-  value: string
+  value: TransactionType
 }
 
 export default class Transaction extends React.PureComponent<IProps, any> {
   render() {
-    const { value, isRopsten } = this.props
-    const link = isRopsten ? `https://ropsten.etherscan.io/tx/${value}` : `https://etherscan.io/tx/${value}`
+    const { value } = this.props
     return (
-      <p>
-        Transaction:
-        <br />
-        <a href={link} target="_blank">
-          {link}
-        </a>
-      </p>
+      <React.Fragment>
+        <p>
+          Transaction:
+          <br />
+          <EtherscanLink txHash={value.hash} />
+        </p>
+        <TransactionStatus loading={value.status === 'pending'} />
+      </React.Fragment>
     )
   }
 }

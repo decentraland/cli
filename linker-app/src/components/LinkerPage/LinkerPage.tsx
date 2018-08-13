@@ -6,6 +6,7 @@ import Error from '../Error'
 import { LinkerPageProps, LinkerPageState } from './types'
 import { baseParcel, parcels, isDevelopment } from '../../modules/config'
 import { getString, isEqual } from '../../modules/land/utils'
+import Transaction from '../Transaction'
 
 export default class LinkScenePage extends React.PureComponent<LinkerPageProps, LinkerPageState> {
   constructor(props) {
@@ -20,7 +21,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     }
   }
 
-  handleRadioChange(e) {
+  handleRadioChange = e => {
     const parcelId = e.target.value
     const options = this.state.options.map(option => {
       if (parcelId === option.id) {
@@ -32,7 +33,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     this.setState({ options })
   }
 
-  async handleDeploy(e) {
+  handleDeploy = e => {
     e.preventDefault()
     const { options } = this.state
     const parcels = options.filter(option => option.checked).map(option => option.value)
@@ -40,7 +41,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { wallet, isLoading, error } = this.props
+    const { wallet, transaction, isLoading, error } = this.props
     const { options } = this.state
     return (
       <div className="LinkScenePage">
@@ -77,12 +78,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               ) : null}
             </form>
 
-            {/* {transaction ? (
-              <React.Fragment>
-                <Transaction isRopsten={isDev} value={transaction} />
-                <TransactionStatus loading={transactionLoading} />
-              </React.Fragment>
-            ) : null} */}
+            {transaction ? <Transaction value={transaction} /> : null}
           </React.Fragment>
         )}
         <style>{`
