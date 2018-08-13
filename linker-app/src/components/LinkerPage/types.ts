@@ -1,27 +1,27 @@
-import { Ethereum } from '../../modules/Ethereum'
-import { ICoords } from '../../utils/coordinateHelpers'
+import { BaseWallet } from 'decentraland-dapps/dist/modules/wallet/types'
+import { Transaction } from 'decentraland-dapps/dist/modules/transaction/types'
+
+import { LANDMeta, Coords, ManyLAND } from '../../modules/land/types'
+import { UpdateLandRequestAction } from '../../modules/land/actions'
 
 export interface LinkerPageProps {
-  isDev: boolean
-  onFetchConfig: Function
+  sceneOwner: string
+  base: LANDMeta
+  wallet: Partial<BaseWallet>
+  pendingTransactions: Transaction[]
+  transactionHistory: Transaction[]
+  isLoading: boolean
+  error: string
+  onUpdateLand: (manyLand: ManyLAND) => UpdateLandRequestAction
 }
 
 export interface IOptions {
   id: string
-  value: ICoords
+  value: Coords
   checked: boolean
   base: boolean
 }
 
 export interface LinkerPageState {
-  loading: boolean
-  transactionLoading: boolean
-  error: string
-  ethereum: Ethereum
-  base: ICoords
   options: IOptions[]
-  owner: string
-  address: string
-  ipfsKey?: string
-  tx: string
 }

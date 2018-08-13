@@ -1,18 +1,18 @@
 import { MiddlewareAPI, AnyAction, Reducer, Store } from 'redux'
-import { WalletState, WalletReducerAction } from 'decentraland-dapps/dist/modules/wallet/reducer'
+import { WalletState } from 'decentraland-dapps/dist/modules/wallet/reducer'
+import { TransactionState } from 'decentraland-dapps/dist/modules/transaction/reducer'
 
-import { ConfigState, ConfigReducerAction } from './modules/config/reducer'
+import { LandState } from './modules/land/reducer'
 
 export type RootState = {
-  config: ConfigState
   wallet: WalletState
+  transaction: TransactionState
+  land: LandState
 }
-
-export type RootAction = ConfigReducerAction | WalletReducerAction
 
 export type RootStore = Store<RootState>
 
-export interface RootDispatch<A = RootAction> {
+export interface RootDispatch<A = AnyAction> {
   (action: A): A
 }
 

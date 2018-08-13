@@ -1,21 +1,25 @@
 import { call, put, takeLatest, takeEvery } from 'redux-saga/effects'
 import { contracts } from 'decentraland-eth'
+import { CONNECT_WALLET_SUCCESS, ConnectWalletSuccessAction } from 'decentraland-dapps/dist/modules/wallet/actions'
 
 import {
   FETCH_LAND_REQUEST,
   FetchLandRequestAction,
-  FetchLandSuccess,
-  FetchLandFailure,
+  fetchLandSuccess,
+  fetchLandFailure,
   UPDATE_LAND_REQUEST,
   UpdateLandRequestAction,
   updateLandSuccess,
-  updateLandFailure
+  updateLandFailure,
+  fetchLandRequest
 } from './actions'
-import { ipfsKey } from '../config'
+import { ipfsKey, baseParcel } from '../config'
 import { LANDRegistry } from '../../contracts'
+import { getEmptyLandData } from './utils'
 
 export function* landSaga() {
   yield takeEvery(FETCH_LAND_REQUEST, handleFetchLandRequest)
+  yield takeEvery(CONNECT_WALLET_SUCCESS, handleConnectWalletSuccess)
   yield takeLatest(UPDATE_LAND_REQUEST, handleUpdateLandRequest)
 }
 
@@ -23,11 +27,16 @@ function* handleFetchLandRequest(action: FetchLandRequestAction) {
   try {
     const { x, y } = action.payload
     const data = yield call(() => LANDRegistry['landData'](x, y))
-    const land = contracts.LANDRegistry.decodeLandData(data)
-    yield put(FetchLandSuccess(land))
+    const land = data ? contracts.LANDRegistry.decodeLandData(data) : getEmptyLandData()
+    yield put(fetchLandSuccess(land))
   } catch (error) {
-    yield put(FetchLandFailure(error.message))
+    yield put(fetchLandFailure(error.message))
   }
+}
+
+function* handleConnectWalletSuccess(action: ConnectWalletSuccessAction) {
+  const { x, y } = baseParcel
+  yield put(fetchLandRequest({ x, y }))
 }
 
 function* handleUpdateLandRequest(action: UpdateLandRequestAction) {

@@ -19,11 +19,13 @@ export class LinkerAPI extends EventEmitter {
   private project: Project
   private app = express()
   private landContract: string
+  private manaContract: string
 
-  constructor(project: Project, landRegistryContract: string) {
+  constructor(project: Project, landRegistryContract: string, manaTokenContract: string) {
     super()
     this.project = project
     this.landContract = landRegistryContract
+    this.manaContract = manaTokenContract
   }
 
   link(port: number, isHttps: boolean) {
@@ -69,14 +71,17 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes() {
-    this.app.get('/linker.js', function(req, res) {
+    this.app.get('/linker.js', (req, res) => {
       res.sendFile(path.resolve(__dirname, '../../linker-app/build/src/index.js'))
     })
 
-    this.app.get('/linker', (req, res) => {
-      res.writeHead(200, 'OK', {
-        'Content-Type': 'text/html'
-      })
+    this.app.get('/linker', async (req, res) => {
+      res.writeHead(200, 'OK', { 'Content-Type': 'text/html' })
+
+      const baseParcel = await this.project.getParcelCoordinates()
+      const parcels = await this.project.getParcels()
+      const owner = await this.project.getOwner()
+      const { ipfsKey } = await this.project.getProjectFile()
 
       res.write(`
         <head>
@@ -87,43 +92,13 @@ export class LinkerAPI extends EventEmitter {
         </head>
         <body>
           <div id="main">
-            <script src="linker.js"></script>
+            <script src="linker.js" env=${process.env.DCL_ENV} mana-contract=${this.manaContract} land-contract=${
+        this.landContract
+      } base-parcel="${JSON.stringify(baseParcel)}" parcels="${JSON.stringify(parcels)}" owner=${owner} ipfs-key=${ipfsKey}></script>
           </div>
         </body>
       `)
 
-      res.end()
-    })
-
-    this.app.get('/api/environment', (req, res) => {
-      res.json({ env: process.env.DCL_ENV })
-      res.end()
-    })
-
-    this.app.get('/api/base-parcel', async (req, res) => {
-      res.json(await this.project.getParcelCoordinates())
-      res.end()
-    })
-
-    this.app.get('/api/parcels', async (req, res) => {
-      res.json(await this.project.getParcels())
-      res.end()
-    })
-
-    this.app.get('/api/owner', async (req, res) => {
-      const address = await this.project.getOwner()
-      res.json({ address })
-      res.end()
-    })
-
-    this.app.get('/api/ipfs-key', async (req, res) => {
-      const projectData = await this.project.getProjectFile()
-      res.json(projectData.ipfsKey)
-      res.end()
-    })
-
-    this.app.get('/api/contract-address', (req, res) => {
-      res.json({ address: this.landContract })
       res.end()
     })
 

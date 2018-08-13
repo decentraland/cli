@@ -1,16 +1,18 @@
 import { all } from 'redux-saga/effects'
 import { eth } from 'decentraland-eth'
 import { createWalletSaga } from 'decentraland-dapps/dist/modules/wallet/sagas'
+import { transactionSaga } from 'decentraland-dapps/dist/modules/transaction/sagas'
 
-import { MANAToken } from './contracts'
-import { configSaga } from './modules/config/sagas'
+import { MANAToken, LANDRegistry } from './contracts'
+import { isDevelopment } from './modules/config'
+import { landSaga } from './modules/land/sagas'
 
 const walletSaga = createWalletSaga({
-  provider: 'https://ropsten.infura.io',
-  contracts: [MANAToken],
+  provider: isDevelopment() ? 'https://ropsten.infura.io' : 'https://mainnet.infura.io',
+  contracts: [MANAToken, LANDRegistry],
   eth
 })
 
 export function* rootSaga() {
-  yield all([configSaga(), walletSaga()])
+  yield all([walletSaga(), transactionSaga(), landSaga()])
 }

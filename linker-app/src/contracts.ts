@@ -1,5 +1,7 @@
 import { contracts } from 'decentraland-eth'
+import { manaContract, landContract } from './modules/config'
 
-const MANAToken = new contracts.MANAToken('0x2a8fd99c19271f4f04b1b7b9c4f7cf264b626edb')
+const MANAToken = new contracts.MANAToken(manaContract)
+const LANDRegistry = new contracts.LANDRegistry(landContract)
 
-export { MANAToken }
+export { MANAToken, LANDRegistry }
