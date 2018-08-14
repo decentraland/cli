@@ -1,5 +1,6 @@
 import { Coords } from './land/types'
 
+// TODO configuration properties should be initialized via a saga and exposed on state
 export const env = document.currentScript.getAttribute('env')
 export const landContract = document.currentScript.getAttribute('land-contract')
 export const manaContract = document.currentScript.getAttribute('mana-contract')
