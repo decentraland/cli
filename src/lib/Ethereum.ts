@@ -33,6 +33,18 @@ export class Ethereum extends EventEmitter {
    * If the LAND_REGISTRY_CONTRACT_ADDRESS is specified, that value will be returned.
    * Otherwise, an external resources will be queried and the address will be resturned based on the DCL_ENV.
    */
+  static dclContracts
+
+  static async getDclContracts(): Promise<any> {
+    if (this.dclContracts) {
+      return this.dclContracts
+    }
+
+    const raw = await fetch('https://contracts.decentraland.org/addresses.json')
+    this.dclContracts = await raw.json()
+    return this.dclContracts
+  }
+
   static async getLandContractAddress(): Promise<string> {
     const envContract = process.env.LAND_REGISTRY_CONTRACT_ADDRESS
 
@@ -41,8 +53,7 @@ export class Ethereum extends EventEmitter {
     }
 
     try {
-      const raw = await fetch('https://contracts.decentraland.org/addresses.json')
-      const data = await raw.json()
+      const data = await this.getDclContracts()
 
       if (isDev) {
         return data.ropsten.LANDProxy
@@ -51,6 +62,26 @@ export class Ethereum extends EventEmitter {
       }
     } catch (error) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch land contract: ${error.message}`)
+    }
+  }
+
+  static async getManaContractAddress(): Promise<string> {
+    const envContract = process.env.MANA_TOKEN_CONTRACT_ADDRESS
+
+    if (envContract) {
+      return envContract
+    }
+
+    try {
+      const data = await this.getDclContracts()
+
+      if (isDev) {
+        return data.ropsten.MANAToken
+      } else {
+        return data.mainnet.MANAToken
+      }
+    } catch (error) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch mana contract: ${error.message}`)
     }
   }
 

@@ -14,6 +14,7 @@ export interface IDecentralandArguments {
   ipfsPort?: number
   linkerPort?: number
   previewPort?: number
+  isHttps?: boolean
 }
 
 export interface IAddressInfo {
@@ -89,7 +90,8 @@ export class Decentraland extends EventEmitter {
 
     return new Promise(async (resolve, reject) => {
       const landContract = await Ethereum.getLandContractAddress()
-      const linker = new LinkerAPI(this.project, landContract)
+      const manaContract = await Ethereum.getManaContractAddress()
+      const linker = new LinkerAPI(this.project, landContract, manaContract)
 
       events(linker, '*', this.pipeEvents.bind(this))
 
@@ -98,7 +100,7 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(this.options.linkerPort)
+        await linker.link(this.options.linkerPort, this.options.isHttps)
       } catch (e) {
         reject(e)
       }
