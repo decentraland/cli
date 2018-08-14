@@ -30,13 +30,13 @@ Installation details for each platform can be found on the [Documentation](https
 ### Initialize new Decentraland project **from working directory**:
 
 ```bash
-$ dcl init
+dcl init
 ```
 
 ### Start local development server and serve your scene:
 
 ```bash
-$ dcl start
+dcl start
 ```
 
 You can prevent the browser from opening by using the `--no-browser` flag.
@@ -46,7 +46,13 @@ You can prevent the browser from opening by using the `--no-browser` flag.
 You need to have IPFS daemon running for this to work!
 
 ```bash
-$ dcl deploy
+dcl deploy
+```
+
+If you're a ledger user you must use HTTPs flag to support the hardware wallet connection:
+
+```bash
+dcl deploy --https
 ```
 
 ### Check installed CLI version:
