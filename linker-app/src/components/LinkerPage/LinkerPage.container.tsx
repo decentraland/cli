@@ -7,9 +7,9 @@ import { RootState } from '../../types'
 import { LinkerPageProps } from './types'
 import { isLoading as isLandLoading, getData as getLand, getError } from '../../modules/land/selectors'
 import { ManyLAND } from '../../modules/land/types'
+import { updateLandRequest } from '../../modules/land/actions'
 
 import LinkerPage from './LinkerPage'
-import { updateLandRequest } from '../../modules/land/actions'
 
 const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps => {
   const wallet = getWallet(state)

@@ -42,6 +42,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
 
   render() {
     const { wallet, transaction, isLoading, error } = this.props
+    const { x, y } = baseParcel
     const { options } = this.state
     return (
       <div className="LinkScenePage">
@@ -60,6 +61,8 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
                 <Address tooltip strong value={wallet.address} />
               </Blockie>
             </p>
+
+            <img className="map" src={`https://api.decentraland.org/parcels/${x}/${y}/map.png`} alt={`Base parcel ${x},${y}`} />
 
             <form>
               <div>
@@ -84,6 +87,9 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
         <style>{`
           .LinkScenePage {
             text-align: center;
+          }
+          .map {
+            padding: 15px;
           }
           .options div input {
             color: white;
