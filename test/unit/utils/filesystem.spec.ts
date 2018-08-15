@@ -1,7 +1,7 @@
+import * as fs from 'fs-extra'
 import { expect } from 'chai'
 import { sandbox } from 'sinon'
 
-import * as fs from 'fs-extra'
 import * as filesystem from '../../../src/utils/filesystem'
 
 const ctx = sandbox.create()

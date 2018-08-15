@@ -1,8 +1,8 @@
+import * as fs from 'fs-extra'
 import { expect, use } from 'chai'
 import { sandbox } from 'sinon'
 const chaiAsPromised = require('chai-as-promised')
 
-import * as fs from 'fs-extra'
 import { Project } from '../../../src/lib/Project'
 
 use(chaiAsPromised)

@@ -1,8 +1,9 @@
 import { expect } from 'chai'
 import * as fs from 'fs-extra'
+import * as path from 'path'
+
 import { tmpTest } from '../../sandbox'
 import { Decentraland } from '../../../src/lib/Decentraland'
-import * as path from 'path'
 
 async function expectBaseFilesToExist(dirPath) {
   expect(await fs.pathExists(path.resolve(dirPath, '.decentraland')), 'expect .decentraland folder to exist').to.be.true
