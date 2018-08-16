@@ -9,16 +9,27 @@ import Commando, { Response } from './Commando'
 
 describe('init command (with mocked analytics)', async () => {
   it('should successfully create a static project', async () => {
-    let analyticsExecuted = false
+    let sceneCreatedExecuted = false
+    let sendDataExecuted = false
+
     const analyticsSceneCreatedStub = new Promise(resolve =>
       setTimeout(() => {
-        analyticsExecuted = true
+        sceneCreatedExecuted = true
         resolve()
       }, 200)
     )
-    sinon.stub(Analytics, 'sceneCreated').returns(analyticsSceneCreatedStub)
+    const analyticsSendDataStub = new Promise(resolve =>
+      setTimeout(() => {
+        sendDataExecuted = true
+        resolve()
+      }, 200)
+    )
 
-    expect(analyticsExecuted).to.be.false
+    sinon.stub(Analytics, 'sceneCreated').returns(analyticsSceneCreatedStub)
+    sinon.stub(Analytics, 'sendData').returns(analyticsSendDataStub)
+
+    expect(sceneCreatedExecuted).to.be.false
+    expect(sendDataExecuted).to.be.false
     await tmpTest(async (dirPath, done) => {
       new Commando(`node ${path.resolve('bin', 'dcl')} init`, {
         silent: true,
@@ -36,8 +47,10 @@ describe('init command (with mocked analytics)', async () => {
         .on('err', e => console.log(e))
         .on('end', async () => {
           // Test that analytics where sent
-          expect(analyticsExecuted).to.be.true
-          Analytics.sceneCreated.restore()
+          expect(sceneCreatedExecuted).to.be.true
+          expect(sendDataExecuted).to.be.true
+          Analytics.sceneCreated['restore']()
+          Analytics.sendData['restore']()
           done()
         })
     })
