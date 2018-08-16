@@ -1,5 +1,6 @@
 import { expect, use } from 'chai'
-const chaiAsPromised = require('chai-as-promised')
+import chaiAsPromised = require('chai-as-promised')
+
 import * as coordinateHelpers from '../../../src/utils/coordinateHelpers'
 
 use(chaiAsPromised)

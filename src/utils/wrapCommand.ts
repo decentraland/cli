@@ -1,5 +1,5 @@
 import { exit, warning } from './logging'
-import { Analytics } from './analytics'
+import { Analytics, finishPendingTracking } from './analytics'
 import { isMetaverseApiOutdated, isCLIOutdated } from './moduleHelpers'
 
 type TargetFunction = (args: any, callback: () => void) => Promise<any>
@@ -18,6 +18,7 @@ async function wrapper(fn: TargetFunction, ctx: any, args: any[]): Promise<void>
 
   try {
     await fn.call(ctx, args)
+    await finishPendingTracking()
   } catch (e) {
     await Analytics.reportError(e.name, e.message, e.stack)
     exit(e, ctx)

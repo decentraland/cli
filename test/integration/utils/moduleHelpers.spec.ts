@@ -1,8 +1,7 @@
-import * as path from 'path'
 import { expect } from 'chai'
 import { sandbox } from 'sinon'
+
 import { tmpTest } from '../../sandbox'
-import * as Helpers from '../../../src/utils/moduleHelpers'
 import { setupFilesystem } from '../helpers'
 import * as proxyquire from 'proxyquire'
 import * as filesystem from '../../../src/utils/filesystem'

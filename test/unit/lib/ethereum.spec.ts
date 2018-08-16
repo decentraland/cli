@@ -1,5 +1,6 @@
 import { expect, use } from 'chai'
 import { sandbox } from 'sinon'
+
 import { Ethereum } from '../../../src/lib/Ethereum'
 
 const ctx = sandbox.create()

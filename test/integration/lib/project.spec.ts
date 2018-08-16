@@ -1,8 +1,9 @@
 import { expect } from 'chai'
+import * as path from 'path'
+
+import { setupFilesystem } from '../helpers'
 import { tmpTest } from '../../sandbox'
 import { Project } from '../../../src/lib/Project'
-import * as path from 'path'
-import { setupFilesystem } from '../helpers'
 
 tmpTest(async (dirPath, done) => {
   await setupFilesystem(dirPath, [

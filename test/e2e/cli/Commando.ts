@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
-const spawn = require('cross-spawn')
+import spawn = require('cross-spawn')
 
 export interface IOptions {
   silent: boolean

@@ -1,11 +1,10 @@
 import { expect } from 'chai'
 import { sandbox } from 'sinon'
-import { Decentraland } from '../../../src/lib/Decentraland'
 
+import { Decentraland } from '../../../src/lib/Decentraland'
 import { Ethereum } from '../../../src/lib/Ethereum'
 import { Project } from '../../../src/lib/Project'
 import { IPFS } from '../../../src/lib/IPFS'
-
 import * as ProjectUtils from '../../../src/utils/project'
 
 const ctx = sandbox.create()
