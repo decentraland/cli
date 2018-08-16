@@ -30,10 +30,12 @@ export class Preview extends EventEmitter {
   private server = createServer(this.app)
   private wss = new WebSocket.Server({ server: this.server })
   private ignoredPaths: string
+  private isCi: boolean
 
-  constructor(ignoredPaths: string) {
+  constructor(ignoredPaths: string, isCi: boolean) {
     super()
     this.ignoredPaths = ignoredPaths
+    this.isCi = isCi
   }
 
   async startServer(port: number) {
@@ -48,6 +50,10 @@ export class Preview extends EventEmitter {
       } catch (e) {
         resolvedPort = 2044
       }
+    }
+
+    if (this.isCi) {
+      return
     }
 
     chokidar.watch(root).on('all', (event, path) => {

@@ -15,6 +15,7 @@ export interface IDecentralandArguments {
   linkerPort?: number
   previewPort?: number
   isHttps?: boolean
+  isCi?: boolean
 }
 
 export interface IAddressInfo {
@@ -117,7 +118,7 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateParcelOptions()
-    const preview = new Preview(await this.project.getDCLIgnore())
+    const preview = new Preview(await this.project.getDCLIgnore(), this.options.isCi)
 
     events(preview, '*', this.pipeEvents.bind(this))
 
