@@ -129,7 +129,13 @@ export function init(vorpal: any) {
           }
         }
 
-        Analytics.sceneCreated({ boilerplateType })
+        let trackData = {
+          boilerplateType: boilerplateType,
+          contactName: sceneMeta.contact.name,
+          contactEmail: sceneMeta.contact.email
+        }
+
+        Analytics.sceneCreated({ trackData })
 
         vorpal.log(positive(`\nSuccess! Run 'dcl start' to see your scene`))
       })
