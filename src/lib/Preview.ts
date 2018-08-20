@@ -30,10 +30,12 @@ export class Preview extends EventEmitter {
   private server = createServer(this.app)
   private wss = new WebSocket.Server({ server: this.server })
   private ignoredPaths: string
+  private watch: boolean
 
-  constructor(ignoredPaths: string) {
+  constructor(ignoredPaths: string, watch: boolean) {
     super()
     this.ignoredPaths = ignoredPaths
+    this.watch = watch
   }
 
   async startServer(port: number) {
@@ -50,15 +52,17 @@ export class Preview extends EventEmitter {
       }
     }
 
-    chokidar.watch(root).on('all', (event, path) => {
-      if (!ig.ignores(path)) {
-        this.wss.clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send('update')
-          }
-        })
-      }
-    })
+    if (this.watch) {
+      chokidar.watch(root).on('all', (event, path) => {
+        if (!ig.ignores(path)) {
+          this.wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send('update')
+            }
+          })
+        }
+      })
+    }
 
     this.app.use(cors())
 

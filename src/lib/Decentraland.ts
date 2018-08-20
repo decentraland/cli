@@ -15,6 +15,7 @@ export interface IDecentralandArguments {
   linkerPort?: number
   previewPort?: number
   isHttps?: boolean
+  watch?: boolean
 }
 
 export interface IAddressInfo {
@@ -117,7 +118,7 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateParcelOptions()
-    const preview = new Preview(await this.project.getDCLIgnore())
+    const preview = new Preview(await this.project.getDCLIgnore(), this.getWatch())
 
     events(preview, '*', this.pipeEvents.bind(this))
 
@@ -138,6 +139,10 @@ export class Decentraland extends EventEmitter {
       }
     }) as Promise<IAddressInfo>[]
     return Promise.all(info)
+  }
+
+  getWatch(): boolean {
+    return !!this.options.watch
   }
 
   async getProjectInfo(x: number, y: number) {
