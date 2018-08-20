@@ -17,8 +17,8 @@ CLI tool for parcel management.
 
 ## Requirements
 
-- [NodeJS v8 and above](https://github.com/decentraland/cli#nodejs-installation)
-- [Python 2.7](https://www.python.org/downloads/)
+- [NodeJS v8 and above](https://nodejs.org)
+- [Python 2.7](https://www.python.org/downloads)
 - [IPFS](https://dist.ipfs.io/#go-ipfs)
 
 ## Documentation
