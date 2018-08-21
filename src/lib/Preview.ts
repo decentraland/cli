@@ -52,19 +52,17 @@ export class Preview extends EventEmitter {
       }
     }
 
-    if (!this.watch) {
-      return
+    if (this.watch) {
+      chokidar.watch(root).on('all', (event, path) => {
+        if (!ig.ignores(path)) {
+          this.wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send('update')
+            }
+          })
+        }
+      })
     }
-
-    chokidar.watch(root).on('all', (event, path) => {
-      if (!ig.ignores(path)) {
-        this.wss.clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send('update')
-          }
-        })
-      }
-    })
 
     this.app.use(cors())
 

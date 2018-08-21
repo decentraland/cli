@@ -66,8 +66,7 @@ export function start(vorpal: any) {
         dcl.on('preview:ready', port => {
           const ifaces = os.networkInterfaces()
 
-          const openBrowser =
-            (args.options.browser !== undefined ? args.options.browser : true) && (args.options.ci !== undefined ? args.options.ci : true)
+          const openBrowser = (args.options.browser ? args.options.browser : true) && (args.options.ci ? !args.options.ci : true)
           let url = null
 
           vorpal.log('') // line break
