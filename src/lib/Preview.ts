@@ -30,12 +30,12 @@ export class Preview extends EventEmitter {
   private server = createServer(this.app)
   private wss = new WebSocket.Server({ server: this.server })
   private ignoredPaths: string
-  private isCi: boolean
+  private watch: boolean
 
-  constructor(ignoredPaths: string, isCi: boolean) {
+  constructor(ignoredPaths: string, watch: boolean) {
     super()
     this.ignoredPaths = ignoredPaths
-    this.isCi = isCi
+    this.watch = watch
   }
 
   async startServer(port: number) {
@@ -52,7 +52,7 @@ export class Preview extends EventEmitter {
       }
     }
 
-    if (this.isCi) {
+    if (this.watch) {
       return
     }
 

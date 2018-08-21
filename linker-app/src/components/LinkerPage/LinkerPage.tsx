@@ -4,7 +4,7 @@ import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
 import Error from '../Error'
 import { LinkerPageProps, LinkerPageState } from './types'
-import { baseParcel, parcels, isDevelopment } from '../../modules/config'
+import { baseParcel, parcels, isDevelopment, ipfsKey } from '../../modules/config'
 import { getString, isEqual } from '../../modules/land/utils'
 import Transaction from '../Transaction'
 
@@ -62,7 +62,18 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               </Blockie>
             </p>
 
-            <img className="map" src={`https://api.decentraland.org/parcels/${x}/${y}/map.png`} alt={`Base parcel ${x},${y}`} />
+            <img className="map" src={`https://api.decentraland.org/v1/parcels/${x}/${y}/map.png`} alt={`Base parcel ${x},${y}`} />
+
+            <p>
+              Updating <b>{this.props.base.name ? `"${this.props.base.name}"` : `LAND without name`}</b> at coordinates{' '}
+              <b>
+                {baseParcel.x}, {baseParcel.y}{' '}
+              </b>
+            </p>
+
+            <p>
+              Linking to IPNS: <b>{ipfsKey}</b>
+            </p>
 
             <form>
               <div>
@@ -98,7 +109,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
         {isDevelopment() ? (
           <style>{`
             body:before {
-              content: 'Development mode on: you are operating on Ropsten';
+              content: 'Using Ropsten test network';
               background: var(--primary);
               color: white;
               text-align: center;
@@ -108,7 +119,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               position: fixed;
               padding-top: 2px;
             }
-            #root {
+            .LinkScenePage {
               padding-top: 24px;
             }
           `}</style>
