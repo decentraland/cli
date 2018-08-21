@@ -19,8 +19,12 @@ export interface IArguments {
   }
 }
 
+function isCi(args: IArguments) {
+  return !!args.options.ci
+}
+
 async function wrapper(fn: TargetFunction, ctx: any, args: IArguments): Promise<void> {
-  if (args.options.ci) {
+  if (!isCi(args)) {
     await Analytics.requestPermission()
   }
 
