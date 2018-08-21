@@ -2,6 +2,7 @@ import { wrapCommand } from '../utils/wrapCommand'
 import { formatDictionary, italic } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
 import * as Coordinates from '../utils/coordinateHelpers'
+import { Analytics } from '../utils/analytics'
 
 export interface IArguments {
   target: string
@@ -43,6 +44,7 @@ export function info(vorpal: any) {
           await dcl.project.validateExistingProject()
           const coords = await dcl.project.getParcelCoordinates()
           const scene = await dcl.getProjectInfo(coords.x, coords.y)
+          Analytics.infoCmd({ target: coords })
           logInfo(vorpal, scene)
         } else if (args.target.startsWith('address:')) {
           const address = args.target.replace('address:', '')
@@ -50,6 +52,8 @@ export function info(vorpal: any) {
           const formatted = parcels.reduce((acc, parcel) => {
             return { ...acc, [`${parcel.x},${parcel.y}`]: { name: parcel.name, description: parcel.description, ipns: parcel.ipns } }
           }, {})
+
+          Analytics.infoCmd({ target: address })
 
           if (parcels.length === 0) {
             vorpal.log(italic('\n  No information available\n'))
@@ -61,6 +65,7 @@ export function info(vorpal: any) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
           const scene = await dcl.getParcelInfo(coords.x, coords.y)
+          Analytics.infoCmd({ target: coords })
           logInfo(vorpal, scene)
         } else {
           vorpal.log(`\n  Invalid argument: ${args.target}`)

@@ -3,6 +3,7 @@ import { Decentraland } from '../lib/Decentraland'
 import * as Coordinates from '../utils/coordinateHelpers'
 import { formatList, italic } from '../utils/logging'
 import { IResolveDependency } from '../lib/IPFS'
+import { Analytics } from '../utils/analytics'
 
 export interface IArguments {
   target: string
@@ -42,12 +43,13 @@ export function status(vorpal: any) {
           await dcl.project.validateExistingProject()
           const coords = await dcl.project.getParcelCoordinates()
           const { lastModified, files } = await dcl.getParcelStatus(coords.x, coords.y)
-
+          Analytics.statusCmd({ target: coords })
           logStatus(vorpal, files, lastModified, `${coords.x},${coords.y}`)
         } else if (typeof args.target === 'string' && args.target.startsWith('coord:')) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
           const { lastModified, files } = await dcl.getParcelStatus(coords.x, coords.y)
+          Analytics.statusCmd({ target: coords })
           logStatus(vorpal, files, lastModified, raw)
         } else {
           vorpal.log(`\n  Invalid coordinates: ${args.target}`)

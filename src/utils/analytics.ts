@@ -2,7 +2,7 @@ import * as uuidv4 from 'uuid/v4'
 import { isDev } from './env'
 import inquirer = require('inquirer')
 import { getDCLInfo, writeDCLInfo } from './dclinfo'
-import { isOnline } from './moduleHelpers'
+import { isOnline, getInstalledCLIVersion, getInstalledVersion } from './moduleHelpers'
 const AnalyticsNode = require('analytics-node')
 
 // Setup segment.io
@@ -22,6 +22,8 @@ export namespace Analytics {
   export const deploy = (properties?: any) => trackAsync('Scene deploy requested', properties)
   export const pinRequest = (properties?: any) => trackAsync('Pin requested', properties)
   export const pinSuccess = (properties?: any) => trackAsync('Pin success', properties)
+  export const infoCmd = (properties?: any) => trackAsync('Info command', properties)
+  export const statusCmd = (properties?: any) => trackAsync('Status command', properties)
   export const sendData = (shareData: boolean) => trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
 
   export async function identify(devId: string) {
@@ -93,6 +95,9 @@ async function track(eventName: string, properties: any = {}) {
       properties: {
         ...properties,
         os: process.platform,
+        nodeVersion: process.version,
+        cliVersion: await getInstalledCLIVersion(),
+        dclApiVersion: await getInstalledVersion('decentraland-api'),
         ci: process.env.CI,
         devId
       }
