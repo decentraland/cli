@@ -52,7 +52,7 @@ export class Preview extends EventEmitter {
       }
     }
 
-    if (this.watch) {
+    if (!this.watch) {
       return
     }
 

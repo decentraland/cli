@@ -29,7 +29,7 @@ export function start(vorpal: any) {
       wrapCommand(async (args: IArguments) => {
         const dcl = new Decentraland({
           previewPort: args.options.port,
-          watch: args.options.watch
+          watch: args.options.watch || args.options.ci
         })
 
         Analytics.preview()
