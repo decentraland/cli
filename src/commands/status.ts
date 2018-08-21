@@ -43,13 +43,13 @@ export function status(vorpal: any) {
           await dcl.project.validateExistingProject()
           const coords = await dcl.project.getParcelCoordinates()
           const { lastModified, files } = await dcl.getParcelStatus(coords.x, coords.y)
-          Analytics.statusCmd({ target: coords })
+          Analytics.statusCmd({ type: 'coordinates', target: coords })
           logStatus(vorpal, files, lastModified, `${coords.x},${coords.y}`)
         } else if (typeof args.target === 'string' && args.target.startsWith('coord:')) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
           const { lastModified, files } = await dcl.getParcelStatus(coords.x, coords.y)
-          Analytics.statusCmd({ target: coords })
+          Analytics.statusCmd({ type: 'coordinates', target: coords })
           logStatus(vorpal, files, lastModified, raw)
         } else {
           vorpal.log(`\n  Invalid coordinates: ${args.target}`)
