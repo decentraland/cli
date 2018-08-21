@@ -11,6 +11,7 @@ export interface IArguments {
   options: {
     port?: number
     browser?: boolean
+    ci?: boolean
     watch?: boolean
   }
 }
@@ -22,12 +23,13 @@ export function start(vorpal: any) {
     .option('-p, --port <number>', 'parcel previewer server port (default is 2044).')
     .option('--no-browser', 'prevents the CLI from opening a new browser window.')
     .option('--no-watch', 'prevents the CLI from watching filesystem changes.')
+    .option('--ci', 'required to run the parcel previewer on a remote unix server')
     .description('Starts local development server.')
     .action(
       wrapCommand(async (args: IArguments) => {
         const dcl = new Decentraland({
           previewPort: args.options.port,
-          watch: args.options.watch
+          watch: args.options.watch || args.options.ci
         })
 
         Analytics.preview()
@@ -64,7 +66,7 @@ export function start(vorpal: any) {
         dcl.on('preview:ready', port => {
           const ifaces = os.networkInterfaces()
 
-          const openBrowser = args.options.browser !== undefined ? args.options.browser : true
+          const openBrowser = (args.options.browser ? args.options.browser : true) && (args.options.ci ? !args.options.ci : true)
           let url = null
 
           vorpal.log('') // line break

@@ -13,8 +13,20 @@ export function wrapCommand(fn: TargetFunction): WrappedFunction {
   }
 }
 
-async function wrapper(fn: TargetFunction, ctx: any, args: any[]): Promise<void> {
-  await Analytics.requestPermission()
+export interface IArguments {
+  options: {
+    ci?: boolean
+  }
+}
+
+function isCi(args: IArguments) {
+  return !!args.options.ci
+}
+
+async function wrapper(fn: TargetFunction, ctx: any, args: IArguments): Promise<void> {
+  if (!isCi(args)) {
+    await Analytics.requestPermission()
+  }
 
   try {
     await fn.call(ctx, args)
