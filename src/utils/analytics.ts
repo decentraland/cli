@@ -81,7 +81,16 @@ async function track(eventName: string, properties: any = {}) {
 
   return new Promise(async (resolve, reject) => {
     const dclinfo = await getDCLInfo()
-    let devId = dclinfo ? dclinfo.userId : null
+    const dclApiVersion = await getInstalledVersion('decentraland-api')
+    const devId = dclinfo ? dclinfo.userId : null
+    const newProperties = {
+      ...properties,
+      os: process.platform,
+      nodeVersion: process.version,
+      cliVersion: await getInstalledCLIVersion(),
+      devId
+    }
+
     let shouldTrack = dclinfo ? dclinfo.trackStats : true
     shouldTrack = shouldTrack || eventName === ANONYMOUS_DATA_QUESTION
 
@@ -89,18 +98,15 @@ async function track(eventName: string, properties: any = {}) {
       resolve()
     }
 
+    // Some commands may be running outside of a DCL project
+    if (dclApiVersion) {
+      newProperties.dclApiVersion = dclApiVersion
+    }
+
     const event = {
       userId: SINGLEUSER,
       event: eventName,
-      properties: {
-        ...properties,
-        os: process.platform,
-        nodeVersion: process.version,
-        cliVersion: await getInstalledCLIVersion(),
-        dclApiVersion: await getInstalledVersion('decentraland-api'),
-        ci: process.env.CI,
-        devId
-      }
+      properties: newProperties
     }
 
     try {
