@@ -16,6 +16,10 @@ export interface IArguments {
   }
 }
 
+function getOrElse(value: any, def: any) {
+  return value !== undefined ? value : def
+}
+
 export function start(vorpal: any) {
   vorpal
     .command('preview')
@@ -27,8 +31,9 @@ export function start(vorpal: any) {
     .description('Starts local development server.')
     .action(
       wrapCommand(async (args: IArguments) => {
-        const isCi = args.options.ci ? args.options.ci : false
-        const shouldWatchFiles = (args.options.watch !== undefined ? args.options.watch : true) && !isCi
+        const isCi = getOrElse(args.options.ci, false)
+
+        const shouldWatchFiles = getOrElse(args.options.watch, true) && !isCi
 
         const dcl = new Decentraland({
           previewPort: args.options.port,
@@ -69,7 +74,7 @@ export function start(vorpal: any) {
         dcl.on('preview:ready', port => {
           const ifaces = os.networkInterfaces()
 
-          const openBrowser = (args.options.browser !== undefined ? args.options.browser : true) && !isCi
+          const openBrowser = getOrElse(args.options.browser, true) && !isCi
           let url = null
 
           vorpal.log('') // line break
