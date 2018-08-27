@@ -1,4 +1,4 @@
-import { buildTypescript, installDependencies, isOnline, getInstalledVersion, isMetaverseApiOutdated } from '../utils/moduleHelpers'
+import { buildTypescript, installDependencies, isOnline, getInstalledVersion, isDecentralandApiOutdated } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
@@ -34,7 +34,7 @@ export function start(vorpal: any) {
 
         Analytics.preview()
 
-        const sdkOutdated = await isMetaverseApiOutdated()
+        const sdkOutdated = await isDecentralandApiOutdated()
         const installedVersion = await getInstalledVersion('decentraland-api')
 
         if (sdkOutdated) {

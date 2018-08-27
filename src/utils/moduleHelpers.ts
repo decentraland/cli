@@ -50,21 +50,21 @@ export async function getLatestVersion(name: string): Promise<string> {
 }
 
 export async function getInstalledVersion(name: string): Promise<string> {
-  let metaverseApiPkg: { version: string }
+  let decentralandApiPkg: { version: string }
 
   try {
-    metaverseApiPkg = await readJSON<{ version: string }>(path.resolve(getNodeModulesPath(getRootPath()), name, 'package.json'))
+    decentralandApiPkg = await readJSON<{ version: string }>(path.resolve(getNodeModulesPath(getRootPath()), name, 'package.json'))
   } catch (e) {
     return null
   }
 
-  return metaverseApiPkg.version
+  return decentralandApiPkg.version
 }
 
-export async function isMetaverseApiOutdated(): Promise<boolean> {
-  const metaverseApiVersionLatest = await getLatestVersion('decentraland-api')
-  const metaverseApiVersion = await getInstalledVersion('decentraland-api')
-  if (metaverseApiVersionLatest && metaverseApiVersion && semver.lt(metaverseApiVersion, metaverseApiVersionLatest)) {
+export async function isDecentralandApiOutdated(): Promise<boolean> {
+  const decentralandApiVersionLatest = await getLatestVersion('decentraland-api')
+  const decentralandApiVersion = await getInstalledVersion('decentraland-api')
+  if (decentralandApiVersionLatest && decentralandApiVersion && semver.lt(decentralandApiVersion, decentralandApiVersionLatest)) {
     return true
   }
 
@@ -84,7 +84,7 @@ export async function getInstalledCLIVersion(): Promise<string> {
 }
 
 export async function isCLIOutdated(): Promise<boolean> {
-  const cliVersion = await this.getInstalledCLIVersion()
+  const cliVersion = await getInstalledCLIVersion()
   const cliVersionLatest = await getLatestVersion('decentraland')
 
   if (cliVersionLatest && cliVersion && semver.lt(cliVersion, cliVersionLatest)) {

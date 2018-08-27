@@ -1,6 +1,6 @@
 import { exit, warning } from './logging'
 import { Analytics, finishPendingTracking } from './analytics'
-import { isMetaverseApiOutdated, isCLIOutdated } from './moduleHelpers'
+import { isDecentralandApiOutdated, isCLIOutdated } from './moduleHelpers'
 
 type TargetFunction = (args: any, callback: () => void) => Promise<any>
 type WrappedFunction = (this: any, args: any, callback: () => void) => void
@@ -40,7 +40,7 @@ async function wrapper(fn: TargetFunction, ctx: any, args: IArguments): Promise<
     ctx.log(warning('\nWARNING: outdated decentraland version\nPlease run ') + 'npm update -g decentraland\n')
   }
 
-  if (await isMetaverseApiOutdated()) {
+  if (await isDecentralandApiOutdated()) {
     ctx.log(warning('\nWARNING: outdated decentraland-api version\nPlease run ') + 'npm install decentraland-api@latest\n')
   }
 }
