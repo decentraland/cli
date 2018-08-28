@@ -1,4 +1,4 @@
-# Decentraland CLI 1.2
+# Decentraland CLI 1.3
 
 CLI tool for parcel management.
 
