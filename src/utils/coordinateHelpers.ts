@@ -108,7 +108,7 @@ export function inBounds(x: number, y: number): boolean {
 /**
  * Returns true if the given parcels array are connected
  */
-export function areConnected(parcels) {
+export function areConnected(parcels: ICoords[]): boolean {
   if (parcels.length === 0) {
     return false
   }
@@ -116,8 +116,8 @@ export function areConnected(parcels) {
   return visited.length === parcels.length
 }
 
-function visitParcel(parcel, allParcels = [parcel], visited = []) {
-  let isVisited = visited.some(visitedParcel => visitedParcel.x === parcel.x && visitedParcel.y === parcel.y)
+function visitParcel(parcel: ICoords, allParcels: ICoords[] = [parcel], visited: ICoords[] = []): ICoords[] {
+  let isVisited = visited.some(visitedParcel => isEqual(visitedParcel, parcel))
   if (!isVisited) {
     visited.push(parcel)
     let neighbours = getNeighbours(parcel.x, parcel.y, allParcels)
@@ -126,12 +126,12 @@ function visitParcel(parcel, allParcels = [parcel], visited = []) {
   return visited
 }
 
-function getIsNeighbourMatcher(x, y) {
-  return coords =>
+function getIsNeighbourMatcher(x: number, y: number) {
+  return (coords: ICoords) =>
     (coords.x === x && (coords.y + 1 === y || coords.y - 1 === y)) || (coords.y === y && (coords.x + 1 === x || coords.x - 1 === x))
 }
 
-function getNeighbours(x, y, parcels) {
+function getNeighbours(x: number, y: number, parcels: ICoords[]): ICoords[] {
   return parcels.filter(getIsNeighbourMatcher(x, y))
 }
 
