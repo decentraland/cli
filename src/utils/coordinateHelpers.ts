@@ -108,38 +108,31 @@ export function inBounds(x: number, y: number): boolean {
 /**
  * Returns true if the given parcels array are connected
  */
-export function areConnected(parcels: ICoords[]): boolean {
-  if (parcels.length === 1) {
-    return true
-  }
-
-  return areConnectedRecursive(parcels)
-}
-
-function areConnectedRecursive(parcels: ICoords[], alreadyTraveled = [], stack = [...parcels]): boolean {
-  if (alreadyTraveled.length === parcels.length) {
-    return true
-  }
-
-  if (stack.length === 0) {
+export function areConnected(parcels) {
+  if (parcels.length === 0) {
     return false
   }
-
-  const { x, y } = stack.pop()
-
-  const neighbours = getAdjacentsFrom(x, y, parcels).filter(coords => {
-    return parcels.some(coords2 => isEqual(coords, coords2)) && !alreadyTraveled.some(coords2 => isEqual(coords, coords2))
-  })
-
-  return areConnectedRecursive(parcels, [...alreadyTraveled, ...neighbours], stack)
+  const visited = visitParcel(parcels[0], parcels)
+  return visited.length === parcels.length
 }
 
-function getAdjacentsFrom(x: number, y: number, parcels: ICoords[]) {
-  return parcels.filter(coords => isAdjacent(x, y, coords))
+function visitParcel(parcel, allParcels = [parcel], visited = []) {
+  let isVisited = visited.some(visitedParcel => visitedParcel.x === parcel.x && visitedParcel.y === parcel.y)
+  if (!isVisited) {
+    visited.push(parcel)
+    let neighbours = getNeighbours(parcel.x, parcel.y, allParcels)
+    neighbours.forEach(neighbours => visitParcel(neighbours, allParcels, visited))
+  }
+  return visited
 }
 
-function isAdjacent(x: number, y: number, coords: ICoords): boolean {
-  return (coords.x === x && (coords.y + 1 === y || coords.y - 1 === y)) || (coords.y === y && (coords.x + 1 === x || coords.x - 1 === x))
+function getIsNeighbourMatcher(x, y) {
+  return coords =>
+    (coords.x === x && (coords.y + 1 === y || coords.y - 1 === y)) || (coords.y === y && (coords.x + 1 === x || coords.x - 1 === x))
+}
+
+function getNeighbours(x, y, parcels) {
+  return parcels.filter(getIsNeighbourMatcher(x, y))
 }
 
 export function isEqual(p1: ICoords, p2: ICoords): boolean {
