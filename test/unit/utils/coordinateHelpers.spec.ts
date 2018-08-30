@@ -162,5 +162,9 @@ describe('coordinateHelpers', () => {
       const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }])
       expect(result).to.deep.equal(true)
     })
+    it('should return false for connected parcels but not all of them', () => {
+      const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }, { x: 1, y: 3 }, { x: 1, y: 5 }, { x: 1, y: 6 }])
+      expect(result).to.deep.equal(false)
+    })
   })
 })
