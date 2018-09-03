@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "My new Decentraland project",
   "scripts": {
-    "start": "dcl start",
+    "start": "dcl start --ci",
     "build": "decentraland-compiler build.json",
     "watch": "decentraland-compiler build.json --watch"
   },
