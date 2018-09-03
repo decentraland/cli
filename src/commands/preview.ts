@@ -1,9 +1,17 @@
-import { buildTypescript, installDependencies, isOnline, getInstalledVersion, isDecentralandApiOutdated } from '../utils/moduleHelpers'
+import {
+  buildTypescript,
+  installDependencies,
+  isOnline,
+  getInstalledVersion,
+  isDecentralandApiOutdated,
+  isDeprecatedApiInstalled,
+  findFilesWithDeprecatedApi
+} from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import { info, comment, loading, bold, error } from '../utils/logging'
-import { ErrorType } from '../utils/errors'
+import { ErrorType, fail } from '../utils/errors'
 import opn = require('opn')
 import os = require('os')
 
@@ -22,8 +30,8 @@ function getOrElse(value: any, def: any) {
 
 export function start(vorpal: any) {
   vorpal
-    .command('preview')
-    .alias('start')
+    .command('start')
+    .alias('preview')
     .option('-p, --port <number>', 'parcel previewer server port (default is 2044).')
     .option('--no-browser', 'prevents the CLI from opening a new browser window.')
     .option('--no-watch', 'prevents the CLI from watching filesystem changes.')
@@ -41,6 +49,21 @@ export function start(vorpal: any) {
         })
 
         Analytics.preview()
+
+        const hasDeprecatedMetaverseApi = await isDeprecatedApiInstalled()
+        if (hasDeprecatedMetaverseApi) {
+          fail(
+            ErrorType.PREVIEW_ERROR,
+            `\n\n\n\n  ❗️ You've installed a deprecated package 'metaverse-api'. Please run:\n\n  npm rm metaverse-api && npm install decentraland-api@latest\n\n\n`
+          )
+        }
+
+        const getFilesWithDeprecatedApi = await findFilesWithDeprecatedApi()
+        if (getFilesWithDeprecatedApi) {
+          vorpal.log(error(`You're importing a deprecated package 'metaverse-api' on files:`))
+          getFilesWithDeprecatedApi.forEach(file => vorpal.log(error(`- ${file}`)))
+          fail(ErrorType.PREVIEW_ERROR, `Please fix those files and use 'decentraland-api' instead.`)
+        }
 
         const sdkOutdated = await isDecentralandApiOutdated()
         const installedVersion = await getInstalledVersion('decentraland-api')
