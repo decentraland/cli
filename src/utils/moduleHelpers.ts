@@ -61,6 +61,11 @@ export async function getInstalledVersion(name: string): Promise<string> {
   return decentralandApiPkg.version
 }
 
+export async function isDeprecatedApiInstalled(): Promise<boolean> {
+  const metaverseApi = await getInstalledVersion('metaverse-api')
+  return !!metaverseApi
+}
+
 export async function isDecentralandApiOutdated(): Promise<boolean> {
   const decentralandApiVersionLatest = await getLatestVersion('decentraland-api')
   const decentralandApiVersion = await getInstalledVersion('decentraland-api')
