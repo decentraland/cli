@@ -4,8 +4,7 @@ import {
   isOnline,
   getInstalledVersion,
   isDecentralandApiOutdated,
-  isDeprecatedApiInstalled,
-  findFilesWithDeprecatedApi
+  isDeprecatedApiInstalled
 } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
@@ -31,7 +30,6 @@ function getOrElse(value: any, def: any) {
 export function start(vorpal: any) {
   vorpal
     .command('start')
-    .alias('preview')
     .option('-p, --port <number>', 'parcel previewer server port (default is 2044).')
     .option('--no-browser', 'prevents the CLI from opening a new browser window.')
     .option('--no-watch', 'prevents the CLI from watching filesystem changes.')
@@ -54,15 +52,8 @@ export function start(vorpal: any) {
         if (hasDeprecatedMetaverseApi) {
           fail(
             ErrorType.PREVIEW_ERROR,
-            `\n\n\n\n  ❗️ You've installed a deprecated package 'metaverse-api'. Please run:\n\n  npm rm metaverse-api && npm install decentraland-api@latest\n\n\n`
+            `\n\n\n\n  ❗️ You've installed a deprecated package 'metaverse-api'. Please run:\n\n  npm rm metaverse-api && npm install decentraland-api@latest\n\n See more: https://docs.decentraland.org/releases/sdk/4.1.0/#migrate-a-scene-to-410\n`
           )
-        }
-
-        const getFilesWithDeprecatedApi = await findFilesWithDeprecatedApi()
-        if (getFilesWithDeprecatedApi) {
-          vorpal.log(error(`You're importing a deprecated package 'metaverse-api' on files:`))
-          getFilesWithDeprecatedApi.forEach(file => vorpal.log(error(`- ${file}`)))
-          fail(ErrorType.PREVIEW_ERROR, `Please fix those files and use 'decentraland-api' instead.`)
         }
 
         const sdkOutdated = await isDecentralandApiOutdated()

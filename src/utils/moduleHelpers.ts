@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as semver from 'semver'
 import { spawn } from 'child_process'
 import * as packageJson from 'package-json'
-import { readJSON, searchOnFiles } from '../utils/filesystem'
+import { readJSON } from '../utils/filesystem'
 import { getRootPath, getNodeModulesPath } from '../utils/project'
 import * as fetch from 'isomorphic-fetch'
 
@@ -64,10 +64,6 @@ export async function getInstalledVersion(name: string): Promise<string> {
 export async function isDeprecatedApiInstalled(): Promise<boolean> {
   const metaverseApi = await getInstalledVersion('metaverse-api')
   return !!metaverseApi
-}
-
-export async function findFilesWithDeprecatedApi(): Promise<string[]> {
-  return searchOnFiles('metaverse-api')
 }
 
 export async function isDecentralandApiOutdated(): Promise<boolean> {

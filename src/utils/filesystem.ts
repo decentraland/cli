@@ -68,37 +68,3 @@ export async function isEmptyDirectory(dir: string = '.'): Promise<boolean> {
 export function getUserHome(): string {
   return process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME']
 }
-
-/**
- * Returns all the file names that has the provided string
- */
-export async function searchOnFiles(matcher: string, dir: string = '.', ext: string = '.tsx'): Promise<string[]> {
-  const files = await getFilesInDirectory(dir, ext)
-  return Promise.all(
-    files.filter(async file => {
-      const content = await fs.readFile(file, 'utf-8')
-      return content.indexOf(matcher) !== -1
-    })
-  )
-}
-
-async function getFilesInDirectory(dir: string, ext: string) {
-  let files = []
-  const filesFromDirectory = await fs.readdir(dir)
-
-  for (let file of filesFromDirectory) {
-    const filePath = path.join(dir, file)
-    const stat = await fs.lstat(filePath)
-
-    if (stat.isDirectory()) {
-      const nestedFiles = await getFilesInDirectory(filePath, ext)
-      files = files.concat(nestedFiles)
-    } else {
-      if (path.extname(file) === ext) {
-        files.push(filePath)
-      }
-    }
-  }
-
-  return files
-}
