@@ -52,7 +52,7 @@ export function start(vorpal: any) {
         if (hasDeprecatedMetaverseApi) {
           fail(
             ErrorType.PREVIEW_ERROR,
-            `\n\n\n\n  ❗️ You've installed a deprecated package 'metaverse-api'. Please run:\n\n  npm rm metaverse-api && npm install decentraland-api@latest\n\n See more: https://docs.decentraland.org/releases/sdk/4.1.0/#migrate-a-scene-to-410\n`
+            `\n\n\n\n  ❗️ You've installed a deprecated package 'metaverse-api'. Please run:\n\n  npm rm metaverse-api && npm install decentraland-api@latest\n\n  See more: https://docs.decentraland.org/releases/sdk/4.1.0/#migrate-a-scene-to-410\n`
           )
         }
 
