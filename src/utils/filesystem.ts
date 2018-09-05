@@ -55,11 +55,7 @@ export async function readJSON<T>(path: string): Promise<T> {
 /**
  * Returns true if the directory is empty
  */
-export async function isEmptyDirectory(dir?: string): Promise<boolean> {
-  if (!dir) {
-    dir = '.'
-  }
-
+export async function isEmptyDirectory(dir: string = '.'): Promise<boolean> {
   const files = await fs.readdir(dir)
   return files.length === 0
 }
