@@ -1,7 +1,7 @@
 import { exit, warning } from './logging'
 import { Analytics, finishPendingTracking } from './analytics'
 import { isDecentralandApiOutdated, isCLIOutdated } from './moduleHelpers'
-import { getOrElse } from './index'
+import { getOrElse } from '.'
 import { isEnvCi } from './env'
 
 type TargetFunction = (args: any, callback: () => void) => Promise<any>
@@ -21,7 +21,7 @@ export interface IArguments {
   }
 }
 
-export function isCi(args: IArguments) {
+function isCi(args: IArguments) {
   return getOrElse(args.options.ci, false) || isEnvCi()
 }
 
