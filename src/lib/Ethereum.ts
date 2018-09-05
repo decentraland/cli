@@ -1,17 +1,16 @@
 import { EventEmitter } from 'events'
 import * as fetch from 'isomorphic-fetch'
 import * as CSV from 'comma-separated-values'
-import { RequestManager, ContractFactory, providers } from 'eth-connect'
+import { RequestManager, ContractFactory, providers, Contract } from 'eth-connect'
 
-import { isDev } from '../utils/env'
+import { isDev, getProvider } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
 import { ICoords, getString, getObject } from '../utils/coordinateHelpers'
 const { abi } = require('../../abi/LANDRegistry.json')
 
-const provider = process.env.RPC_URL || (isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/')
+const provider = process.env.RPC_URL || getProvider()
 const requestManager = new RequestManager(new providers.HTTPProvider(provider))
 const factory = new ContractFactory(requestManager, abi)
-export const landContract = factory.at(isDev ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b' : '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d')
 
 export interface ILandData {
   version: number
@@ -28,67 +27,54 @@ export interface ILandData {
  * ethereum:get-ipns-success - Successfully fetched and parsed landData
  */
 export class Ethereum extends EventEmitter {
-  /**
-   * Returns the LandProxy contract address.
-   * If the LAND_REGISTRY_CONTRACT_ADDRESS is specified, that value will be returned.
-   * Otherwise, an external resources will be queried and the address will be resturned based on the DCL_ENV.
-   */
-  static dclContracts
+  private static contracts = new Map<string, Contract>()
 
-  static async getDclContracts(): Promise<any> {
-    if (this.dclContracts) {
-      return this.dclContracts
+  static async getContractAddresses(): Promise<any> {
+    if (this.contracts) {
+      return this.contracts
     }
 
-    const raw = await fetch('https://contracts.decentraland.org/addresses.json')
-    this.dclContracts = await raw.json()
-    return this.dclContracts
+    try {
+      const raw = await fetch('https://contracts.decentraland.org/addresses.json')
+      this.contracts = await raw.json()
+      return this.contracts
+    } catch (error) {
+      fail(
+        ErrorType.ETHEREUM_ERROR,
+        `Unable to fetch decentraland contracts from "https://contracts.decentraland.org/addresses.json", error: ${error.message}`
+      )
+    }
+  }
+
+  static async getContractAddress(name: string): Promise<string> {
+    return (await this.getContractAddresses()).data[isDev ? 'ropsten' : 'mainnet'][name]
+  }
+
+  static async getContract(name: string): Promise<Contract> {
+    if (this.contracts.get(name)) {
+      return this.contracts.get(name)
+    }
+
+    const address = await this.getContractAddress(name)
+    const contract = await factory.at(address)
+    this.contracts.set(name, contract)
+    return contract
   }
 
   static async getLandContractAddress(): Promise<string> {
     const envContract = process.env.LAND_REGISTRY_CONTRACT_ADDRESS
-
-    if (envContract) {
-      return envContract
-    }
-
-    try {
-      const data = await this.getDclContracts()
-
-      if (isDev) {
-        return data.ropsten.LANDProxy
-      } else {
-        return data.mainnet.LANDProxy
-      }
-    } catch (error) {
-      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch land contract: ${error.message}`)
-    }
+    return envContract || this.getContractAddress('LANDProxy')
   }
 
   static async getManaContractAddress(): Promise<string> {
     const envContract = process.env.MANA_TOKEN_CONTRACT_ADDRESS
-
-    if (envContract) {
-      return envContract
-    }
-
-    try {
-      const data = await this.getDclContracts()
-
-      if (isDev) {
-        return data.ropsten.MANAToken
-      } else {
-        return data.mainnet.MANAToken
-      }
-    } catch (error) {
-      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch mana contract: ${error.message}`)
-    }
+    return envContract || this.getContractAddress('MANAToken')
   }
 
   async getLandOf(address: string): Promise<ICoords[]> {
     let res
     try {
-      const contract = await landContract
+      const contract = await Ethereum.getContract('LANDProxy')
       const [x, y] = await contract['landOf'](address.toUpperCase())
       res = x.map(($, i) => ({ x: $.toNumber(), y: y[i].toNumber() }))
     } catch (e) {
@@ -98,34 +84,27 @@ export class Ethereum extends EventEmitter {
   }
 
   async getLandData(x: number, y: number): Promise<ILandData> {
-    let landData
-
+    const contract = await Ethereum.getContract('LANDProxy')
     try {
-      const contract = await landContract
-      landData = await contract['landData'](x, y)
+      const landData = await contract['landData'](x, y)
+      return this.decodeLandData(landData)
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND data: ${e.message}`)
     }
-
-    return this.decodeLandData(landData)
   }
 
   async getLandOwner(x: number, y: number): Promise<string> {
-    let owner
-
+    const contract = await Ethereum.getContract('LANDProxy')
     try {
-      const contract = await landContract
-      owner = await contract['ownerOfLand'](x, y)
+      return await contract['ownerOfLand'](x, y)
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND owner: ${e.message}`)
     }
-
-    return owner
   }
 
   async getLandOperator(x: number, y: number): Promise<string> {
+    const contract = await Ethereum.getContract('LANDProxy')
     try {
-      const contract = await landContract
       const assetId = await contract['encodeTokenId'](x, y)
       return await contract['updateOperator'](assetId)
     } catch (e) {
