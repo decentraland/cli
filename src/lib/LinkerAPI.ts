@@ -97,7 +97,7 @@ export class LinkerAPI extends EventEmitter {
         this.landContract
       } base-parcel=${JSON.stringify(baseParcel)} parcels=${JSON.stringify(
         parcels
-      )} owner=${owner} ipfs-key=${ipfsKey}> provider=${getProvider()}</script>
+      )} owner=${owner} ipfs-key=${ipfsKey} provider=${getProvider()}></script>
           </div>
         </body>
       `)

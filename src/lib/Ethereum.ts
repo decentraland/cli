@@ -27,17 +27,18 @@ export interface ILandData {
  * ethereum:get-ipns-success - Successfully fetched and parsed landData
  */
 export class Ethereum extends EventEmitter {
+  private static addresses: any
   private static contracts = new Map<string, Contract>()
 
   static async getContractAddresses(): Promise<any> {
-    if (this.contracts) {
-      return this.contracts
+    if (this.addresses) {
+      return this.addresses
     }
 
     try {
       const raw = await fetch('https://contracts.decentraland.org/addresses.json')
-      this.contracts = await raw.json()
-      return this.contracts
+      this.addresses = await raw.json()
+      return this.addresses
     } catch (error) {
       fail(
         ErrorType.ETHEREUM_ERROR,
@@ -47,7 +48,8 @@ export class Ethereum extends EventEmitter {
   }
 
   static async getContractAddress(name: string): Promise<string> {
-    return (await this.getContractAddresses()).data[isDev ? 'ropsten' : 'mainnet'][name]
+    const addresses = await this.getContractAddresses()
+    return addresses[isDev ? 'ropsten' : 'mainnet'][name]
   }
 
   static async getContract(name: string): Promise<Contract> {
