@@ -22,7 +22,7 @@ export interface IArguments {
 }
 
 function isCi(args: IArguments) {
-  return getOrElse(args.options.ci, false) || isEnvCi()
+  return getOrElse(args.options.ci, isEnvCi())
 }
 
 async function wrapper(fn: TargetFunction, ctx: any, args: IArguments): Promise<void> {

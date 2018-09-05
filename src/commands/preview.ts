@@ -35,7 +35,7 @@ export function start(vorpal: any) {
     .description('Starts local development server.')
     .action(
       wrapCommand(async (args: IArguments) => {
-        const isCi = getOrElse(args.options.ci, false) || isEnvCi()
+        const isCi = getOrElse(args.options.ci, isEnvCi())
 
         const shouldWatchFiles = getOrElse(args.options.watch, true) && !isCi
 
