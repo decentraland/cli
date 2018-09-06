@@ -1,6 +1,8 @@
 import { exit, warning } from './logging'
 import { Analytics, finishPendingTracking } from './analytics'
 import { isDecentralandApiOutdated, isCLIOutdated } from './moduleHelpers'
+import { getOrElse } from '.'
+import { isEnvCi } from './env'
 
 type TargetFunction = (args: any, callback: () => void) => Promise<any>
 type WrappedFunction = (this: any, args: any, callback: () => void) => void
@@ -20,7 +22,7 @@ export interface IArguments {
 }
 
 function isCi(args: IArguments) {
-  return !!args.options.ci
+  return getOrElse(args.options.ci, isEnvCi())
 }
 
 async function wrapper(fn: TargetFunction, ctx: any, args: IArguments): Promise<void> {

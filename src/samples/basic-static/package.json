@@ -8,6 +8,7 @@
     "start": "dcl start"
   },
   "devDependencies": {
-    "decentraland-api": "latest"
+    "decentraland-api": "latest",
+    "decentraland": "latest"
   }
 }
