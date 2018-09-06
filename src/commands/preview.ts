@@ -11,8 +11,10 @@ import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import { info, comment, loading, bold, error } from '../utils/logging'
 import { ErrorType, fail } from '../utils/errors'
+import { getOrElse } from '../utils'
 import opn = require('opn')
 import os = require('os')
+import { isEnvCi } from '../utils/env'
 
 export interface IArguments {
   options: {
@@ -21,10 +23,6 @@ export interface IArguments {
     ci?: boolean
     watch?: boolean
   }
-}
-
-function getOrElse(value: any, def: any) {
-  return value !== undefined ? value : def
 }
 
 export function start(vorpal: any) {
@@ -37,7 +35,7 @@ export function start(vorpal: any) {
     .description('Starts local development server.')
     .action(
       wrapCommand(async (args: IArguments) => {
-        const isCi = getOrElse(args.options.ci, false)
+        const isCi = getOrElse(args.options.ci, isEnvCi())
 
         const shouldWatchFiles = getOrElse(args.options.watch, true) && !isCi
 
