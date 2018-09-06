@@ -74,9 +74,9 @@ export class Ethereum extends EventEmitter {
   }
 
   async getLandOf(address: string): Promise<ICoords[]> {
+    const contract = await Ethereum.getContract('LANDProxy')
     let res
     try {
-      const contract = await Ethereum.getContract('LANDProxy')
       const [x, y] = await contract['landOf'](address.toUpperCase())
       res = x.map(($, i) => ({ x: $.toNumber(), y: y[i].toNumber() }))
     } catch (e) {
