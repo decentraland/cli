@@ -5,6 +5,10 @@ import { getOrElse } from '.'
  */
 export const isDev: boolean = process.env.DCL_ENV === 'dev'
 
+export function getProvider() {
+  return isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/'
+}
+
 export function isEnvCi(): boolean {
   return getOrElse(process.env.NOW, false) || getOrElse(process.env.CI, false)
 }

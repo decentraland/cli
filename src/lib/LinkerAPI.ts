@@ -7,6 +7,7 @@ import * as express from 'express'
 import * as portfinder from 'portfinder'
 
 import { Project } from './Project'
+import { getProvider } from '../utils/env'
 
 /**
  * Events emitted by this class:
@@ -94,7 +95,9 @@ export class LinkerAPI extends EventEmitter {
           <div id="main">
             <script src="linker.js" env=${process.env.DCL_ENV} mana-contract=${this.manaContract} land-contract=${
         this.landContract
-      } base-parcel=${JSON.stringify(baseParcel)} parcels=${JSON.stringify(parcels)} owner=${owner} ipfs-key=${ipfsKey}></script>
+      } base-parcel=${JSON.stringify(baseParcel)} parcels=${JSON.stringify(
+        parcels
+      )} owner=${owner} ipfs-key=${ipfsKey} provider=${getProvider()}></script>
           </div>
         </body>
       `)

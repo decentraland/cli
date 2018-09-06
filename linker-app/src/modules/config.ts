@@ -8,6 +8,7 @@ export const owner = document.currentScript.getAttribute('owner')
 export const baseParcel = JSON.parse(document.currentScript.getAttribute('base-parcel')) as Coords
 export const parcels = JSON.parse(document.currentScript.getAttribute('parcels')) as Coords[]
 export const ipfsKey = document.currentScript.getAttribute('ipfs-key')
+export const provider = document.currentScript.getAttribute('provider')
 
 export function isDevelopment(): boolean {
   return env === 'dev'
