@@ -12,12 +12,6 @@ describe('deploy command', async () => {
         workingDir: dirPath,
         env: { DCL_ENV: 'dev' }
       })
-        .when(/Scene title/, () => 'My test Scene\n')
-        .when(/Your ethereum address/, () => '0x\n')
-        .when(/Your name/, () => 'John Titor\n')
-        .when(/Your email/, () => 'john.titor@example.com\n')
-        .when(/Parcels comprising the scene/, () => '0,0\n')
-        .when(/Which scene template would you like to generate/, () => '4\n')
         .endWhen(/Installing dependencies/)
         .on('end', async () => {
           new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
