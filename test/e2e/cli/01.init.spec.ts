@@ -14,16 +14,10 @@ describe('init command', async () => {
         env: { DCL_ENV: 'dev' }
       })
         .when(/Send anonymous usage stats to Decentraland?/, () => Response.YES)
-        .when(/Scene title/, () => 'My test Scene\n')
-        .when(/Your ethereum address/, () => '0x\n')
-        .when(/Your name/, () => 'John Titor\n')
-        .when(/Your email/, () => 'john.titor@example.com\n')
-        .when(/Parcels comprising the scene/, () => '0,0\n')
-        .when(/Which scene template would you like to generate/, () => '4\n')
         .endWhen(/Installing dependencies/)
         .on('err', e => console.log(e))
         .on('end', async () => {
-          expect(await fs.pathExists(path.resolve(dirPath, 'scene.xml')), 'scene.xml should exist').to.be.true
+          expect(await fs.pathExists(path.resolve(dirPath, 'scene.tsx')), 'scene.tsx should exist').to.be.true
           expect(await fs.pathExists(path.resolve(dirPath, 'scene.json')), 'scene.json should exist').to.be.true
           expect(await fs.pathExists(path.resolve(dirPath, '.decentraland')), '.decentraland should exist').to.be.true
           expect(await fs.pathExists(path.resolve(dirPath, 'package.json')), 'package.json should exist').to.be.true
@@ -31,17 +25,18 @@ describe('init command', async () => {
           expect(await fs.pathExists(path.resolve(dirPath, 'node_modules')), 'node_modules should exist').to.be.false
           expect(await fs.pathExists(path.resolve(dirPath, '.dclignore')), '.dclignore shoudl exist').to.be.true
 
-          const sceneFile = await fs.readFile(path.resolve(dirPath, 'scene.json'))
+          const sceneFileJson = await fs.readFile(path.resolve(dirPath, 'scene.json'))
+          const sceneFile = JSON.parse(sceneFileJson.toString())
 
-          expect(JSON.parse(sceneFile.toString())).to.deep.equal({
+          const expected = {
             display: {
-              title: 'My test Scene'
+              title: sceneFile.display.title
             },
-            owner: '0x',
             contact: {
-              name: 'John Titor',
-              email: 'john.titor@example.com'
+              name: '',
+              email: ''
             },
+            owner: '',
             scene: {
               parcels: ['0,0'],
               base: '0,0'
@@ -56,9 +51,10 @@ describe('init command', async () => {
               blacklist: [],
               teleportPosition: '0,0,0'
             },
-            main: 'scene.xml'
-          })
+            main: 'scene.js'
+          }
 
+          expect(sceneFile).to.deep.equal(expected)
           done()
         })
     })

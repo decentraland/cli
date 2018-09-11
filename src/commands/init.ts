@@ -51,8 +51,8 @@ export function init(vorpal: any) {
             signalling: 'https://rendezvous.decentraland.org'
           },
           policy: {
-            fly: 'true',
-            voiceEnabled: 'true',
+            fly: true,
+            voiceEnabled: true,
             blacklist: [],
             teleportPosition: '0,0,0'
           },
