@@ -21,8 +21,8 @@ declare namespace DCL {
 
   interface PolicySettings {
     contentRating?: string
-    fly: string
-    voiceEnabled: string
+    fly: boolean
+    voiceEnabled: boolean
     blacklist: Array<string>
     teleportPosition: string
   }
