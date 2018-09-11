@@ -1,7 +1,7 @@
 declare namespace DCL {
   interface DisplaySettings {
     title: string
-    favicon: string
+    favicon?: string
   }
 
   interface ContactSettings {
@@ -20,7 +20,7 @@ declare namespace DCL {
   }
 
   interface PolicySettings {
-    contentRating: string
+    contentRating?: string
     fly: string
     voiceEnabled: string
     blacklist: Array<string>
@@ -32,7 +32,7 @@ declare namespace DCL {
     owner: string
     contact: ContactSettings
     main: string
-    tags: Array<string>
+    tags?: Array<string>
     scene: SceneSettings
     communications: CommunicationsSettings
     policy: PolicySettings

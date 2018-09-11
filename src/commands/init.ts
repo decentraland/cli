@@ -3,10 +3,10 @@ import { wrapCommand } from '../utils/wrapCommand'
 import { installDependencies, isOnline } from '../utils/moduleHelpers'
 import { BoilerplateType } from '../lib/Project'
 import { Analytics } from '../utils/analytics'
-import { comment, warning, loading, positive } from '../utils/logging'
+import { warning, loading, positive, bold } from '../utils/logging'
 import { Decentraland } from '../lib/Decentraland'
 import { fail, ErrorType } from '../utils/errors'
-import * as Coordinates from '../utils/coordinateHelpers'
+import { getOrElse } from '../utils'
 
 export function init(vorpal: any) {
   vorpal
@@ -35,86 +35,42 @@ export function init(vorpal: any) {
           }
         }
 
-        const sceneMeta = await inquirer.prompt([
-          {
-            type: 'input',
-            name: 'display.title',
-            message: 'Scene title: \n',
-            default: dcl.project.getRandomName()
+        const sceneMeta = {
+          display: { title: dcl.project.getRandomName() },
+          contact: {
+            name: '',
+            email: ''
           },
-          {
-            type: 'input',
-            name: 'owner',
-            message: `${'Your ethereum address: '}\n${comment(
-              '(optional, recommended -- used to check ownership of parcels when deploying your scene)'
-            )}\n`
+          owner: '',
+          scene: {
+            parcels: ['0,0'],
+            base: '0,0'
           },
-          {
-            type: 'input',
-            name: 'contact.name',
-            message: `${'Your name: '}\n${comment('(optional -- shown to other users so that they can contact you)')}\n`
+          communications: {
+            type: 'webrtc',
+            signalling: 'https://rendezvous.decentraland.org'
           },
-          {
-            type: 'input',
-            name: 'contact.email',
-            message: `${'Your email: '}\n${comment('(optional -- shown to other users so that they can contact you)')}\n`
+          policy: {
+            fly: 'true',
+            voiceEnabled: 'true',
+            blacklist: [],
+            teleportPosition: '0,0,0'
           },
-          {
-            type: 'input',
-            name: 'scene.parcels',
-            message: `${'Parcels comprising the scene'}\n${comment(
-              '(optional, recommended -- used to show the limts of your scene and upload to these coordinates)\nPlease use this format: `x,y; x,y; x,y ...`'
-            )}\n`,
-            validate: Coordinates.validate as any
-          }
-        ])
-
-        sceneMeta.communications = {
-          type: 'webrtc',
-          signalling: 'https://rendezvous.decentraland.org'
+          main: 'scene.xml'
         }
 
-        sceneMeta.policy = {
-          fly: true,
-          voiceEnabled: true,
-          blacklist: [],
-          teleportPosition: '0,0,0'
-        }
-
-        sceneMeta.scene.parcels = sceneMeta.scene.parcels ? Coordinates.parse(sceneMeta.scene.parcels) : ['0,0']
-
-        sceneMeta.main = 'scene.xml' // replaced by chosen template
-        sceneMeta.scene.base = sceneMeta.scene.parcels[0]
-
-        let boilerplateType = args.options.boilerplate
+        const boilerplateType = getOrElse(args.options.boilerplate, BoilerplateType.TYPESCRIPT_STATIC)
         let websocketServer: string
 
-        if (args.options.boilerplate === undefined) {
-          const results = await inquirer.prompt({
-            type: 'list',
-            name: 'archetype',
-            message: warning('Which scene template would you like to generate?'),
-            choices: [
-              { name: 'Basic', value: BoilerplateType.TYPESCRIPT_STATIC },
-              { name: 'Interactive', value: BoilerplateType.TYPESCRIPT_DYNAMIC },
-              { name: 'Remote', value: BoilerplateType.WEBSOCKETS },
-              { name: 'Static', value: BoilerplateType.STATIC }
-            ],
-            default: BoilerplateType.TYPESCRIPT_STATIC
+        if (boilerplateType === BoilerplateType.WEBSOCKETS) {
+          const ws = await inquirer.prompt({
+            type: 'input',
+            name: 'server',
+            message: `Your websocket server`,
+            default: 'ws://localhost:8087'
           })
 
-          boilerplateType = results.archetype
-
-          if (boilerplateType === BoilerplateType.WEBSOCKETS) {
-            const ws = await inquirer.prompt({
-              type: 'input',
-              name: 'server',
-              message: `Your websocket server`,
-              default: 'ws://localhost:8087'
-            })
-
-            websocketServer = ws.server
-          }
+          websocketServer = ws.server
         }
 
         await dcl.init(sceneMeta as DCL.SceneMetadata, boilerplateType, websocketServer)
@@ -123,7 +79,7 @@ export function init(vorpal: any) {
           if (await isOnline()) {
             const spinner = loading('Installing dependencies')
             await installDependencies(true)
-            spinner.succeed()
+            spinner.succeed('Dependencies installed')
           } else {
             fail(ErrorType.PREVIEW_ERROR, 'Unable to install dependencies: no internet connection')
           }
@@ -131,7 +87,8 @@ export function init(vorpal: any) {
 
         Analytics.sceneCreated({ boilerplateType })
 
-        vorpal.log(positive(`\nSuccess! Run 'dcl start' to see your scene`))
+        vorpal.log(positive(`\nSuccess! Run 'dcl start' to see your scene\n`))
+        vorpal.log(bold(`Edit "parcels" property at scene.json to make your scene fit your estate.`))
       })
     )
 }
