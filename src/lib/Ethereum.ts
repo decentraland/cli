@@ -6,11 +6,22 @@ import { RequestManager, ContractFactory, providers, Contract } from 'eth-connec
 import { isDev, getProvider } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
 import { ICoords, isEqual, getObject } from '../utils/coordinateHelpers'
-const { abi } = require('../../abi/LANDRegistry.json')
+
+import { abi as manaAbi } from '../../abi/MANAToken.json'
+import { abi as landAbi } from '../../abi/LANDRegistry.json'
+import { abi as estateAbi } from '../../abi/EstateRegistry.json'
 
 const provider = process.env.RPC_URL || getProvider()
 const requestManager = new RequestManager(new providers.HTTPProvider(provider))
-const factory = new ContractFactory(requestManager, abi)
+
+const manaFactory = new ContractFactory(requestManager, manaAbi)
+const landFactory = new ContractFactory(requestManager, landAbi)
+const estateFactory = new ContractFactory(requestManager, estateAbi)
+
+const factories = new Map<String, ContractFactory>()
+factories.set('MANAToken', manaFactory)
+factories.set('LANDProxy', landFactory)
+factories.set('EstateProxy', estateFactory)
 
 export interface ILandData {
   id: string
@@ -59,24 +70,10 @@ export class Ethereum extends EventEmitter {
     }
 
     const address = await this.getContractAddress(name)
+    const factory = factories.get(name)
     const contract = await factory.at(address)
     this.contracts.set(name, contract)
     return contract
-  }
-
-  static async getLandContractAddress(): Promise<string> {
-    const envContract = process.env.LAND_REGISTRY_CONTRACT_ADDRESS
-    return envContract || this.getContractAddress('LANDProxy')
-  }
-
-  static async getManaContractAddress(): Promise<string> {
-    const envContract = process.env.MANA_TOKEN_CONTRACT_ADDRESS
-    return envContract || this.getContractAddress('MANAToken')
-  }
-
-  static async getEstateContractAddress(): Promise<string> {
-    const envContract = process.env.MANA_TOKEN_CONTRACT_ADDRESS
-    return envContract || this.getContractAddress('EstateProxy')
   }
 
   async getLandOf(address: string): Promise<ICoords[]> {
@@ -174,34 +171,37 @@ export class Ethereum extends EventEmitter {
     try {
       return await contract['isUpdateAuthorized'](owner, estateId)
     } catch (e) {
-      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate authorization: ${e}`)
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate authorization: ${e.message}`)
     }
   }
 
   private async getLandOfEstate(estateId: number): Promise<ICoords[]> {
     const contract = await Ethereum.getContract('EstateProxy')
+    const landContract = await Ethereum.getContract('LANDProxy')
+
     try {
       const estateSize = await contract['getEstateSize'](estateId)
       let promiseParcels = []
 
       for (let i = 0; i < estateSize; i++) {
-        const request = contract['estateLandIds'](estateId, i)
+        const request = contract['estateLandIds'](estateId, i).then(p => {
+          return landContract['decodeTokenId']([p])
+        })
         promiseParcels.push(request)
       }
 
-      const parcels = (await Promise.all(promiseParcels)).map(data => {
-        const { id } = this.decodeLandData(data)
-        return getObject(id)
-      })
+      const parcels = (await Promise.all(promiseParcels)).map(data => getObject(data))
 
       return parcels
     } catch (e) {
+      console['log'](e)
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LANDs of Estate: ${e.message}`)
     }
   }
 
   private decodeLandData(data: string = ''): ILandData {
     // this logic can also be found in decentraland-eth, but we can't rely on node-hid
+    console['log'](data)
     const version = data.charAt(0)
     switch (version) {
       case '0': {

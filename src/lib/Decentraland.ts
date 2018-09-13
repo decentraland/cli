@@ -88,8 +88,9 @@ export class Decentraland extends EventEmitter {
     await this.validateOwnership()
 
     return new Promise(async (resolve, reject) => {
-      const landContract = await Ethereum.getLandContractAddress()
-      const manaContract = await Ethereum.getManaContractAddress()
+      const manaContract = await Ethereum.getContractAddress('MANAToken')
+      const landContract = await Ethereum.getContractAddress('LANDProxy')
+
       const linker = new LinkerAPI(this.project, landContract, manaContract)
 
       events(linker, '*', this.pipeEvents.bind(this))

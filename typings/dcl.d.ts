@@ -39,3 +39,7 @@ declare namespace DCL {
     policy: PolicySettings
   }
 }
+
+declare module '*.json' {
+  export const abi: any
+}
