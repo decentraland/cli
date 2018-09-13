@@ -12,6 +12,7 @@ declare namespace DCL {
   interface SceneSettings {
     base: string
     parcels: Array<string>
+    estateId?: number
   }
 
   interface CommunicationsSettings {
