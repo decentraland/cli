@@ -9,8 +9,3 @@ export type LANDMeta = {
   description: string
   ipns: string
 }
-
-export type ManyLAND = {
-  base: LANDMeta
-  parcels: Coords[]
-}

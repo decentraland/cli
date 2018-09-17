@@ -84,10 +84,15 @@ export function isValid(val: string): boolean {
  * Converts a string-based set of coordinates to an object
  * @param coords A string containing a set of coordinates
  */
-export function getObject(coords: string): ICoords {
-  const parsed = parse(coords)[0]
-  const [x, y] = parsed.split(',')
-  return { x: parseInt(x, 10), y: parseInt(y, 10) }
+export function getObject(coords: string): ICoords
+/**
+ * Converts a array-based set of coordinates to an object
+ * @param coords An array containing a set of coordinates
+ */
+export function getObject(coords: number[]): ICoords
+export function getObject(coords: number[] | string): ICoords {
+  const [x, y] = typeof coords === 'string' ? parse(coords)[0].split(',') : coords
+  return { x: parseInt(x.toString(), 10), y: parseInt(y.toString(), 10) }
 }
 
 /**

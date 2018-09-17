@@ -1,11 +1,11 @@
 {
-  "contractName": "LANDRegistry",
+  "contractName": "EstateRegistry",
   "abi": [
     {
       "constant": true,
       "inputs": [
         {
-          "name": "_interfaceID",
+          "name": "_interfaceId",
           "type": "bytes4"
         }
       ],
@@ -14,20 +14,6 @@
         {
           "name": "",
           "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "proxyOwner",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
         }
       ],
       "payable": false,
@@ -52,7 +38,7 @@
       "constant": true,
       "inputs": [
         {
-          "name": "assetId",
+          "name": "_tokenId",
           "type": "uint256"
         }
       ],
@@ -71,11 +57,11 @@
       "constant": false,
       "inputs": [
         {
-          "name": "operator",
+          "name": "_to",
           "type": "address"
         },
         {
-          "name": "assetId",
+          "name": "_tokenId",
           "type": "uint256"
         }
       ],
@@ -83,6 +69,25 @@
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "landIdEstate",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -101,17 +106,12 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "latestPing",
+      "inputs": [],
+      "name": "InterfaceId_ERC165",
       "outputs": [
         {
           "name": "",
-          "type": "uint256"
+          "type": "bytes4"
         }
       ],
       "payable": false,
@@ -122,15 +122,15 @@
       "constant": false,
       "inputs": [
         {
-          "name": "from",
+          "name": "_from",
           "type": "address"
         },
         {
-          "name": "to",
+          "name": "_to",
           "type": "address"
         },
         {
-          "name": "assetId",
+          "name": "_tokenId",
           "type": "uint256"
         }
       ],
@@ -144,60 +144,18 @@
       "constant": true,
       "inputs": [
         {
-          "name": "operator",
+          "name": "_owner",
           "type": "address"
         },
         {
-          "name": "assetId",
-          "type": "uint256"
-        }
-      ],
-      "name": "isAuthorized",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "authorizedDeploy",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "name": "index",
+          "name": "_index",
           "type": "uint256"
         }
       ],
       "name": "tokenOfOwnerByIndex",
       "outputs": [
         {
-          "name": "assetId",
+          "name": "",
           "type": "uint256"
         }
       ],
@@ -208,7 +166,30 @@
     {
       "constant": true,
       "inputs": [],
-      "name": "decimals",
+      "name": "ERC165_SUPPORT",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "estateLandIds",
       "outputs": [
         {
           "name": "",
@@ -216,22 +197,22 @@
         }
       ],
       "payable": false,
-      "stateMutability": "pure",
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "constant": false,
       "inputs": [
         {
-          "name": "from",
+          "name": "_from",
           "type": "address"
         },
         {
-          "name": "to",
+          "name": "_to",
           "type": "address"
         },
         {
-          "name": "assetId",
+          "name": "_tokenId",
           "type": "uint256"
         }
       ],
@@ -245,15 +226,15 @@
       "constant": true,
       "inputs": [
         {
-          "name": "owner",
-          "type": "address"
+          "name": "_tokenId",
+          "type": "uint256"
         }
       ],
-      "name": "tokensOf",
+      "name": "exists",
       "outputs": [
         {
           "name": "",
-          "type": "uint256[]"
+          "type": "bool"
         }
       ],
       "payable": false,
@@ -264,7 +245,26 @@
       "constant": true,
       "inputs": [
         {
-          "name": "assetId",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenByIndex",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_tokenId",
           "type": "uint256"
         }
       ],
@@ -297,7 +297,7 @@
       "constant": true,
       "inputs": [
         {
-          "name": "owner",
+          "name": "_owner",
           "type": "address"
         }
       ],
@@ -313,27 +313,22 @@
       "type": "function"
     },
     {
-      "constant": true,
+      "constant": false,
       "inputs": [],
-      "name": "currentContract",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
+      "name": "renounceOwnership",
+      "outputs": [],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "constant": true,
       "inputs": [],
-      "name": "description",
+      "name": "registry",
       "outputs": [
         {
           "name": "",
-          "type": "string"
+          "type": "address"
         }
       ],
       "payable": false,
@@ -374,13 +369,17 @@
         {
           "name": "",
           "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
         }
       ],
-      "name": "updateOperator",
+      "name": "estateLandIndex",
       "outputs": [
         {
           "name": "",
-          "type": "address"
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -391,11 +390,11 @@
       "constant": false,
       "inputs": [
         {
-          "name": "operator",
+          "name": "_to",
           "type": "address"
         },
         {
-          "name": "authorized",
+          "name": "_approved",
           "type": "bool"
         }
       ],
@@ -409,19 +408,19 @@
       "constant": false,
       "inputs": [
         {
-          "name": "from",
+          "name": "_from",
           "type": "address"
         },
         {
-          "name": "to",
+          "name": "_to",
           "type": "address"
         },
         {
-          "name": "assetId",
+          "name": "_tokenId",
           "type": "uint256"
         },
         {
-          "name": "userData",
+          "name": "_data",
           "type": "bytes"
         }
       ],
@@ -433,12 +432,17 @@
     },
     {
       "constant": true,
-      "inputs": [],
-      "name": "estateRegistry",
+      "inputs": [
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "tokenURI",
       "outputs": [
         {
           "name": "",
-          "type": "address"
+          "type": "string"
         }
       ],
       "payable": false,
@@ -449,11 +453,11 @@
       "constant": true,
       "inputs": [
         {
-          "name": "assetHolder",
+          "name": "_owner",
           "type": "address"
         },
         {
-          "name": "operator",
+          "name": "_operator",
           "type": "address"
         }
       ],
@@ -462,25 +466,6 @@
         {
           "name": "",
           "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "assetId",
-          "type": "uint256"
-        }
-      ],
-      "name": "getApprovedAddress",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
         }
       ],
       "payable": false,
@@ -502,15 +487,44 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "name": "_name",
+          "type": "string"
+        },
+        {
+          "name": "_symbol",
+          "type": "string"
+        },
+        {
+          "name": "_registry",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
       "anonymous": false,
       "inputs": [
         {
           "indexed": true,
-          "name": "registry",
+          "name": "_owner",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_estateId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_data",
+          "type": "string"
         }
       ],
-      "name": "EstateRegistrySet",
+      "name": "CreateEstate",
       "type": "event"
     },
     {
@@ -518,22 +532,61 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "assetId",
+          "name": "_estateId",
           "type": "uint256"
         },
         {
           "indexed": true,
-          "name": "holder",
+          "name": "_landId",
+          "type": "uint256"
+        }
+      ],
+      "name": "AddLand",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_estateId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "_landId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "_destinatary",
+          "type": "address"
+        }
+      ],
+      "name": "RemoveLand",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_assetId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "_holder",
           "type": "address"
         },
         {
           "indexed": true,
-          "name": "operator",
+          "name": "_operator",
           "type": "address"
         },
         {
           "indexed": false,
-          "name": "data",
+          "name": "_data",
           "type": "string"
         }
       ],
@@ -545,12 +598,12 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "assetId",
+          "name": "_estateId",
           "type": "uint256"
         },
         {
           "indexed": true,
-          "name": "operator",
+          "name": "_operator",
           "type": "address"
         }
       ],
@@ -562,28 +615,59 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "from",
+          "name": "_registry",
+          "type": "address"
+        }
+      ],
+      "name": "SetLANDRegistry",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipRenounced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
           "type": "address"
         },
         {
           "indexed": true,
-          "name": "to",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_from",
           "type": "address"
         },
         {
           "indexed": true,
-          "name": "assetId",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_tokenId",
           "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "name": "operator",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "userData",
-          "type": "bytes"
         }
       ],
       "name": "Transfer",
@@ -594,61 +678,17 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "from",
+          "name": "_owner",
           "type": "address"
         },
         {
           "indexed": true,
-          "name": "to",
+          "name": "_approved",
           "type": "address"
         },
         {
           "indexed": true,
-          "name": "assetId",
-          "type": "uint256"
-        }
-      ],
-      "name": "Transfer",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "operator",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "holder",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "authorized",
-          "type": "bool"
-        }
-      ],
-      "name": "ApprovalForAll",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "operator",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "assetId",
+          "name": "_tokenId",
           "type": "uint256"
         }
       ],
@@ -659,28 +699,248 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
-          "name": "_prevOwner",
+          "indexed": true,
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_operator",
           "type": "address"
         },
         {
           "indexed": false,
-          "name": "_newOwner",
-          "type": "address"
+          "name": "_approved",
+          "type": "bool"
         }
       ],
-      "name": "OwnerUpdate",
+      "name": "ApprovalForAll",
       "type": "event"
     },
     {
       "constant": false,
       "inputs": [
         {
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        }
+      ],
+      "name": "mint",
+      "outputs": [
+        {
           "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "to",
+          "type": "address"
+        }
+      ],
+      "name": "mint",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "name": "estateTokenIdBytes",
           "type": "bytes"
         }
       ],
-      "name": "initialize",
+      "name": "onERC721Received",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "estateId",
+          "type": "uint256"
+        },
+        {
+          "name": "landId",
+          "type": "uint256"
+        },
+        {
+          "name": "destinatary",
+          "type": "address"
+        }
+      ],
+      "name": "transferLand",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "estateId",
+          "type": "uint256"
+        },
+        {
+          "name": "landIds",
+          "type": "uint256[]"
+        },
+        {
+          "name": "destinatary",
+          "type": "address"
+        }
+      ],
+      "name": "transferManyLands",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "landId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getLandEstateId",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_registry",
+          "type": "address"
+        }
+      ],
+      "name": "setLANDRegistry",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "ping",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "estateId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getEstateSize",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "estateId",
+          "type": "uint256"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        }
+      ],
+      "name": "updateMetadata",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "estateId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getMetadata",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "estateId",
+          "type": "uint256"
+        },
+        {
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "setUpdateOperator",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -694,7 +954,7 @@
           "type": "address"
         },
         {
-          "name": "assetId",
+          "name": "estateId",
           "type": "uint256"
         }
       ],
@@ -713,313 +973,19 @@
       "constant": false,
       "inputs": [
         {
-          "name": "beneficiary",
+          "name": "from",
           "type": "address"
-        }
-      ],
-      "name": "authorizeDeploy",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "beneficiary",
-          "type": "address"
-        }
-      ],
-      "name": "forbidDeploy",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        },
-        {
-          "name": "y",
-          "type": "int256"
-        },
-        {
-          "name": "beneficiary",
-          "type": "address"
-        }
-      ],
-      "name": "assignNewParcel",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256[]"
-        },
-        {
-          "name": "y",
-          "type": "int256[]"
-        },
-        {
-          "name": "beneficiary",
-          "type": "address"
-        }
-      ],
-      "name": "assignMultipleParcels",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [],
-      "name": "ping",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        }
-      ],
-      "name": "setLatestToNow",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        },
-        {
-          "name": "y",
-          "type": "int256"
-        }
-      ],
-      "name": "encodeTokenId",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "value",
-          "type": "uint256"
-        }
-      ],
-      "name": "decodeTokenId",
-      "outputs": [
-        {
-          "name": "",
-          "type": "int256"
-        },
-        {
-          "name": "",
-          "type": "int256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        },
-        {
-          "name": "y",
-          "type": "int256"
-        }
-      ],
-      "name": "exists",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "assetId",
-          "type": "uint256"
-        }
-      ],
-      "name": "exists",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        },
-        {
-          "name": "y",
-          "type": "int256"
-        }
-      ],
-      "name": "ownerOfLand",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256[]"
-        },
-        {
-          "name": "y",
-          "type": "int256[]"
-        }
-      ],
-      "name": "ownerOfLandMany",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "landOf",
-      "outputs": [
-        {
-          "name": "",
-          "type": "int256[]"
-        },
-        {
-          "name": "",
-          "type": "int256[]"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "assetId",
-          "type": "uint256"
-        }
-      ],
-      "name": "tokenMetadata",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        },
-        {
-          "name": "y",
-          "type": "int256"
-        }
-      ],
-      "name": "landData",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        },
-        {
-          "name": "y",
-          "type": "int256"
         },
         {
           "name": "to",
           "type": "address"
+        },
+        {
+          "name": "estateIds",
+          "type": "uint256[]"
         }
       ],
-      "name": "transferLand",
+      "name": "safeTransferManyFrom",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -1029,197 +995,23 @@
       "constant": false,
       "inputs": [
         {
-          "name": "x",
-          "type": "int256[]"
-        },
-        {
-          "name": "y",
-          "type": "int256[]"
+          "name": "from",
+          "type": "address"
         },
         {
           "name": "to",
           "type": "address"
-        }
-      ],
-      "name": "transferManyLand",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
         },
         {
-          "name": "y",
-          "type": "int256"
-        },
-        {
-          "name": "estateId",
-          "type": "uint256"
-        }
-      ],
-      "name": "transferLandToEstate",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256[]"
-        },
-        {
-          "name": "y",
-          "type": "int256[]"
-        },
-        {
-          "name": "estateId",
-          "type": "uint256"
-        }
-      ],
-      "name": "transferManyLandToEstate",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "assetId",
-          "type": "uint256"
-        },
-        {
-          "name": "operator",
-          "type": "address"
-        }
-      ],
-      "name": "setUpdateOperator",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "registry",
-          "type": "address"
-        }
-      ],
-      "name": "setEstateRegistry",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256[]"
-        },
-        {
-          "name": "y",
-          "type": "int256[]"
-        },
-        {
-          "name": "beneficiary",
-          "type": "address"
-        }
-      ],
-      "name": "createEstate",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256[]"
-        },
-        {
-          "name": "y",
-          "type": "int256[]"
-        },
-        {
-          "name": "beneficiary",
-          "type": "address"
-        },
-        {
-          "name": "metadata",
-          "type": "string"
-        }
-      ],
-      "name": "createEstateWithMetadata",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        },
-        {
-          "name": "y",
-          "type": "int256"
+          "name": "estateIds",
+          "type": "uint256[]"
         },
         {
           "name": "data",
-          "type": "string"
+          "type": "bytes"
         }
       ],
-      "name": "updateLandData",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256[]"
-        },
-        {
-          "name": "y",
-          "type": "int256[]"
-        },
-        {
-          "name": "data",
-          "type": "string"
-        }
-      ],
-      "name": "updateManyLandData",
+      "name": "safeTransferManyFrom",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",

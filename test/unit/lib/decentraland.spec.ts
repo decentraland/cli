@@ -24,12 +24,14 @@ const ctx = sandbox.create()
 
 describe('Decentraland', () => {
   let getIPNSStub
-  let validateExistingProjectStub
-  let validateParcelOptionsStub
+  let validateSceneOptionsStub
   let getParcelCoordinatesStub
   let getOwnerStub
+  let getEstateStub
+  let validateAuthorizationOfEstateStub
   let getParcelsStub
-  let validateAuthorizationStub
+  let validateParcelsInEstateStub
+  let validateAuthorizationOfParcelStub
   let getProjectFileStub
   let writeProjectFileStub
   let getFilesStub
@@ -42,13 +44,16 @@ describe('Decentraland', () => {
   const addFilesResult = beforeEach(() => {
     // Ethereum stubs
     getIPNSStub = ctx.stub(Ethereum.prototype, 'getIPNS').callsFake(() => 'Qmwasd')
-    validateAuthorizationStub = ctx.stub(Ethereum.prototype, 'validateAuthorization').callsFake(() => undefined)
+    validateAuthorizationOfParcelStub = ctx.stub(Ethereum.prototype, 'validateAuthorizationOfParcel').callsFake(() => undefined)
+    validateAuthorizationOfEstateStub = ctx.stub(Ethereum.prototype, 'validateAuthorizationOfEstate').callsFake(() => undefined)
+    validateParcelsInEstateStub = ctx.stub(Ethereum.prototype, 'validateParcelsInEstate').callsFake(() => ({ x: 0, y: 0 }))
 
     // Project stubs
-    validateExistingProjectStub = ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
-    validateParcelOptionsStub = ctx.stub(Project.prototype, 'validateParcelOptions').callsFake(() => undefined)
+    ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
+    validateSceneOptionsStub = ctx.stub(Project.prototype, 'validateSceneOptions').callsFake(() => undefined)
     getParcelCoordinatesStub = ctx.stub(Project.prototype, 'getParcelCoordinates').callsFake(() => ({ x: 0, y: 0 }))
     getOwnerStub = ctx.stub(Project.prototype, 'getOwner').callsFake(() => '0x8Bed95D830475691C10281f1FeA2c0a0fE51304B')
+    getEstateStub = ctx.stub(Project.prototype, 'getEstate').callsFake(() => undefined)
     getParcelsStub = ctx.stub(Project.prototype, 'getParcels').callsFake(() => ({ x: 0, y: 0 }))
     getProjectFileStub = ctx.stub(Project.prototype, 'getProjectFile').callsFake(() => ({ id: 'projectId' }))
     writeProjectFileStub = ctx.stub(Project.prototype, 'writeProjectFile').callsFake(() => undefined)
@@ -79,12 +84,15 @@ describe('Decentraland', () => {
       await dcl.deploy(files)
 
       expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
-      expect(validateAuthorizationStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
+      expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
-      expect(validateParcelOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
+      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
-      expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.true
+      expect(getEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
+      expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.false
+      expect(validateAuthorizationOfEstateStub.called, 'expect Project.getParcels() to be called').to.be.false
+      expect(validateParcelsInEstateStub.called, 'expect Project.getParcels() to be called').to.be.false
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
       expect(
         addFilesStub.withArgs([{ path: '/tmp/myFile.txt', content: null }]).calledBefore(genIPFSKeyStub),
@@ -108,10 +116,67 @@ describe('Decentraland', () => {
       await dcl.deploy(files)
 
       expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
-      expect(validateAuthorizationStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
-      expect(validateParcelOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
+      expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
+      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
-      expect(validateParcelOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
+      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
+      expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
+      expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
+      expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
+      expect(
+        addFilesStub.withArgs([{ path: '/tmp/myFile.txt', content: null }]).calledBefore(publishStub),
+        'expect IPFS.addFiles() to be called'
+      ).to.be.true
+      expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(linkStub), 'expect IPFS.publish() to be called').to.be.true
+      expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
+      expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
+      expect(genIPFSKeyStub.notCalled, 'expect IPFS.genIPFSKey() not to be called').to.be.true
+    })
+
+    it('should verify estate ownership', async () => {
+      getEstateStub.callsFake(() => 49)
+
+      const dcl = new Decentraland()
+      const files = await dcl.project.getFiles()
+      await dcl.deploy(files)
+
+      expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
+      expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.false
+      expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
+      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
+      expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
+      expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
+      expect(getEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
+      expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.true
+      expect(validateAuthorizationOfEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
+      expect(validateParcelsInEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
+      expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
+      expect(
+        addFilesStub.withArgs([{ path: '/tmp/myFile.txt', content: null }]).calledBefore(genIPFSKeyStub),
+        'expect IPFS.addFiles() to be called'
+      ).to.be.true
+      expect(genIPFSKeyStub.withArgs('projectId').calledBefore(writeProjectFileStub), 'expect IPFS.genIPFSKey() to be called').to.be.true
+      expect(writeProjectFileStub.withArgs({ ipfsKey: 'Qmwqwe' }).calledBefore(publishStub), 'expect Project.writeProjectFile to be called')
+        .to.be.true
+      expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(linkStub), 'expect IPFS.publish() to be called').to.be.true
+      expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
+      expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
+    })
+
+    it('should skip generating a new IPFS key if one is already available', async () => {
+      getProjectFileStub.callsFake(() => ({
+        id: 'projectId',
+        ipfsKey: 'QmExists'
+      }))
+      const dcl = new Decentraland()
+      const files = await dcl.project.getFiles()
+      await dcl.deploy(files)
+
+      expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
+      expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
+      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
+      expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
+      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true
@@ -135,9 +200,9 @@ describe('Decentraland', () => {
       await dcl.deploy(files)
 
       expect(getIPNSStub.called, 'expect Ethereum.getIPNS() to be called').to.be.true
-      expect(validateAuthorizationStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
+      expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
-      expect(validateParcelOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
+      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
       expect(getProjectFileStub.called, 'expect Project.getProjectFile to be called').to.be.true

@@ -228,6 +228,11 @@ export class Project {
     return sceneFile.scene.parcels.map(getObject)
   }
 
+  async getEstate(): Promise<number> {
+    const sceneFile = await this.getSceneFile()
+    return sceneFile.scene.estateId
+  }
+
   /**
    * Returns a promise of the owner address
    */
@@ -242,9 +247,9 @@ export class Project {
   /**
    * Fails the execution if one of the parcel data is invalid
    */
-  async validateParcelOptions(): Promise<void> {
+  async validateSceneOptions(): Promise<void> {
     const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
-    return this.validateParcelData(sceneFile)
+    return this.validateSceneData(sceneFile)
   }
 
   /**
@@ -419,7 +424,7 @@ export class Project {
    * Fails the execution if one of the parcel data is invalid
    * @param sceneFile The JSON parsed file of scene.json
    */
-  private validateParcelData(sceneFile: DCL.SceneMetadata): void {
+  private validateSceneData(sceneFile: DCL.SceneMetadata): void {
     const { base, parcels } = sceneFile.scene
     const parcelSet = new Set(parcels)
 

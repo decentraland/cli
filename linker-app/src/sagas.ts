@@ -3,13 +3,13 @@ import { eth } from 'decentraland-eth'
 import { createWalletSaga } from 'decentraland-dapps/dist/modules/wallet/sagas'
 import { transactionSaga } from 'decentraland-dapps/dist/modules/transaction/sagas'
 
-import { MANAToken, LANDRegistry } from './contracts'
+import { MANAToken, LANDRegistry, EstateRegistry } from './contracts'
 import { provider } from './modules/config'
 import { landSaga } from './modules/land/sagas'
 
 const walletSaga = createWalletSaga({
   provider,
-  contracts: [MANAToken, LANDRegistry],
+  contracts: [MANAToken, LANDRegistry, EstateRegistry],
   eth
 })
 

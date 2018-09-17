@@ -38,7 +38,7 @@ export function deploy(vorpal: any) {
         dcl.on('ipfs:add', () => {
           const spinner = loading('Uploading files to local IPFS node')
           dcl.on('ipfs:add-success', () => {
-            spinner.succeed()
+            spinner.succeed('Files uploaded to IPFS')
           })
         })
 
@@ -50,7 +50,7 @@ export function deploy(vorpal: any) {
           })
 
           dcl.on('ethereum:get-ipns-success', () => {
-            spinner.succeed()
+            spinner.succeed('IPNS Found')
           })
         })
 
@@ -88,7 +88,7 @@ export function deploy(vorpal: any) {
 
           dcl.on('ipfs:pin-success', async () => {
             Analytics.pinSuccess()
-            spinner.succeed()
+            spinner.succeed('Files pinned to IPFS gateway')
           })
         })
 

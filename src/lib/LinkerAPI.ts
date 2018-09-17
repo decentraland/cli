@@ -21,12 +21,14 @@ export class LinkerAPI extends EventEmitter {
   private app = express()
   private landContract: string
   private manaContract: string
+  private estateContract: string
 
-  constructor(project: Project, landRegistryContract: string, manaTokenContract: string) {
+  constructor(project: Project, manaTokenContract: string, landRegistryContract: string, estateRegistryContract: string) {
     super()
     this.project = project
-    this.landContract = landRegistryContract
     this.manaContract = manaTokenContract
+    this.landContract = landRegistryContract
+    this.estateContract = estateRegistryContract
   }
 
   link(port: number, isHttps: boolean) {
@@ -83,6 +85,7 @@ export class LinkerAPI extends EventEmitter {
       const parcels = await this.project.getParcels()
       const owner = await this.project.getOwner()
       const { ipfsKey } = await this.project.getProjectFile()
+      const estateId = await this.project.getEstate()
 
       res.write(`
         <head>
@@ -93,11 +96,9 @@ export class LinkerAPI extends EventEmitter {
         </head>
         <body>
           <div id="main">
-            <script src="linker.js" env=${process.env.DCL_ENV} mana-contract=${this.manaContract} land-contract=${
-        this.landContract
-      } base-parcel=${JSON.stringify(baseParcel)} parcels=${JSON.stringify(
-        parcels
-      )} owner=${owner} ipfs-key=${ipfsKey} provider=${getProvider()}></script>
+            <script src="linker.js" env=${process.env.DCL_ENV} mana-contract=${this.manaContract} land-contract=${this.landContract}
+              estate-contract=${this.estateContract} base-parcel=${JSON.stringify(baseParcel)} parcels=${JSON.stringify(parcels)}
+              estate-id=${estateId} owner=${owner} ipfs-key=${ipfsKey} provider=${getProvider()}></script>
           </div>
         </body>
       `)

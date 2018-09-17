@@ -53,7 +53,7 @@ export class Decentraland extends EventEmitter {
   }
 
   async deploy(files: IFile[]) {
-    await this.project.validateParcelOptions()
+    await this.project.validateSceneOptions()
     await this.validateOwnership()
     const { x, y } = await this.project.getParcelCoordinates()
 
@@ -65,9 +65,7 @@ export class Decentraland extends EventEmitter {
 
     if (!ipfsKey) {
       ipfsKey = await this.localIPFS.genIPFSKey(projectFile.id)
-      await this.project.writeProjectFile({
-        ipfsKey
-      })
+      await this.project.writeProjectFile({ ipfsKey })
       this.localIPFS.genKeySuccess()
     }
 
@@ -86,13 +84,15 @@ export class Decentraland extends EventEmitter {
 
   async link() {
     await this.project.validateExistingProject()
-    await this.project.validateParcelOptions()
+    await this.project.validateSceneOptions()
     await this.validateOwnership()
 
     return new Promise(async (resolve, reject) => {
-      const landContract = await Ethereum.getLandContractAddress()
-      const manaContract = await Ethereum.getManaContractAddress()
-      const linker = new LinkerAPI(this.project, landContract, manaContract)
+      const manaContract = await Ethereum.getContractAddress('MANAToken')
+      const landContract = await Ethereum.getContractAddress('LANDProxy')
+      const estateContract = await Ethereum.getContractAddress('EstateProxy')
+
+      const linker = new LinkerAPI(this.project, manaContract, landContract, estateContract)
 
       events(linker, '*', this.pipeEvents.bind(this))
 
@@ -117,7 +117,7 @@ export class Decentraland extends EventEmitter {
 
   async preview() {
     await this.project.validateExistingProject()
-    await this.project.validateParcelOptions()
+    await this.project.validateSceneOptions()
     const preview = new Preview(await this.project.getDCLIgnore(), this.getWatch())
 
     events(preview, '*', this.pipeEvents.bind(this))
@@ -130,13 +130,7 @@ export class Decentraland extends EventEmitter {
     const info = coords.map(async coord => {
       const data = await this.ethereum.getLandData(coord.x, coord.y)
 
-      return {
-        x: coord.x,
-        y: coord.y,
-        name: data ? data.name : '',
-        description: data ? data.description : '',
-        ipns: data ? data.ipns : ''
-      }
+      return { x: coord.x, y: coord.y, name: data ? data.name : '', description: data ? data.description : '', ipns: data ? data.ipns : '' }
     }) as Promise<IAddressInfo>[]
     return Promise.all(info)
   }
@@ -164,9 +158,7 @@ export class Decentraland extends EventEmitter {
 
     if (!url) return { files: [] }
 
-    const result: { lastModified?: string; files: IResolveDependency[] } = {
-      files: url.dependencies
-    }
+    const result: { lastModified?: string; files: IResolveDependency[] } = { files: url.dependencies }
 
     if (url.lastModified) {
       // only available in redis metadata >= 2
@@ -182,7 +174,14 @@ export class Decentraland extends EventEmitter {
 
   private async validateOwnership() {
     const owner = await this.project.getOwner()
-    const parcels = await this.project.getParcels()
-    await this.ethereum.validateAuthorization(owner, parcels)
+    const estate = await this.project.getEstate()
+    if (estate) {
+      await this.ethereum.validateAuthorizationOfEstate(owner, estate)
+      const parcels = await this.project.getParcels()
+      await this.ethereum.validateParcelsInEstate(estate, parcels)
+    } else {
+      const parcel = await this.project.getParcelCoordinates()
+      await this.ethereum.validateAuthorizationOfParcel(owner, parcel)
+    }
   }
 }

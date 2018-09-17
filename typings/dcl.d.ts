@@ -12,6 +12,7 @@ declare namespace DCL {
   interface SceneSettings {
     base: string
     parcels: Array<string>
+    estateId?: number
   }
 
   interface CommunicationsSettings {
@@ -37,4 +38,8 @@ declare namespace DCL {
     communications: CommunicationsSettings
     policy: PolicySettings
   }
+}
+
+declare module '*.json' {
+  export const abi: any
 }
