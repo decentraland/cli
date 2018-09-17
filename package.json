@@ -101,7 +101,7 @@
     "cross-spawn": "^6.0.5",
     "dcl-tslint-config-standard": "^1.0.1",
     "decentraland-dapps": "^1.0.5",
-    "decentraland-eth": "^4.2.0",
+    "decentraland-eth": "^4.3.0",
     "decentraland-ui": "^1.10.0",
     "git-rev-sync": "^1.11.1",
     "husky": "^0.14.3",

@@ -13,8 +13,9 @@ import {
   updateLandFailure,
   fetchLandRequest
 } from './actions'
-import { ipfsKey, baseParcel } from '../config'
-import { LANDRegistry } from '../../contracts'
+import { ipfsKey, baseParcel, isEstate, estateId } from '../config'
+import { LANDRegistry, EstateRegistry } from '../../contracts'
+import { Coords } from './types'
 import { getEmptyLandData } from './utils'
 
 export function* landSaga() {
@@ -25,8 +26,13 @@ export function* landSaga() {
 
 function* handleFetchLandRequest(action: FetchLandRequestAction) {
   try {
-    const { x, y } = action.payload
-    const data = yield call(() => LANDRegistry['landData'](x, y))
+    let data
+    if (isEstate()) {
+      data = yield call(() => EstateRegistry['getMetadata'](action.payload))
+    } else {
+      const { x, y } = action.payload as Coords
+      data = yield call(() => LANDRegistry['landData'](x, y))
+    }
     const land = data ? contracts.LANDRegistry.decodeLandData(data) : getEmptyLandData()
     yield put(fetchLandSuccess(land))
   } catch (error) {
@@ -35,16 +41,18 @@ function* handleFetchLandRequest(action: FetchLandRequestAction) {
 }
 
 function* handleConnectWalletSuccess(action: ConnectWalletSuccessAction) {
-  const { x, y } = baseParcel
-  yield put(fetchLandRequest({ x, y }))
+  yield put(fetchLandRequest(isEstate() ? estateId : baseParcel))
 }
 
 function* handleUpdateLandRequest(action: UpdateLandRequestAction) {
   try {
-    const { base, parcels } = action.payload
-    const land = { ...base, ipns: `ipns:${ipfsKey}` }
+    const target = action.payload
+    const land = { ...target, ipns: `ipns:${ipfsKey}` }
     const data = contracts.LANDRegistry.encodeLandData(land)
-    const txHash = yield call(() => LANDRegistry.updateManyLandData(parcels, data))
+    const txHash = yield call(
+      () =>
+        isEstate() ? EstateRegistry['updateMetadata'](estateId, data) : LANDRegistry['updateLandData'](baseParcel.x, baseParcel.y, data)
+    )
 
     yield put(updateLandSuccess(txHash))
   } catch (error) {

@@ -5,8 +5,8 @@ import { getData as getTransactions } from 'decentraland-dapps/dist/modules/tran
 
 import { RootState } from '../../types'
 import { LinkerPageProps } from './types'
-import { isLoading as isLandLoading, getData as getLand, getError } from '../../modules/land/selectors'
-import { ManyLAND } from '../../modules/land/types'
+import { isLoading as isLandLoading, getData as getTarget, getError } from '../../modules/land/selectors'
+import { LANDMeta } from '../../modules/land/types'
 import { updateLandRequest } from '../../modules/land/actions'
 
 import LinkerPage from './LinkerPage'
@@ -17,14 +17,16 @@ const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps 
   const transaction = getTransactions(state)[0]
 
   const isLoading = !isWalletConnected(state) || isLandLoading(state)
-  const base = getLand(state)
+
+  // Target could be either a single parcel or an estate
+  const target = getTarget(state)
   const error = getError(state)
 
-  return { ...ownProps, base, wallet, transaction, isLoading, error }
+  return { ...ownProps, target, wallet, transaction, isLoading, error }
 }
 
 const mapDispatch = (dispatch: Dispatch<AnyAction>): Partial<LinkerPageProps> => ({
-  onUpdateLand: (manyLand: ManyLAND) => dispatch(updateLandRequest(manyLand))
+  onUpdateLand: (land: LANDMeta) => dispatch(updateLandRequest(land))
 })
 
 export default connect<LinkerPageProps>(

@@ -4,46 +4,23 @@ import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
 import Error from '../Error'
 import { LinkerPageProps, LinkerPageState } from './types'
-import { baseParcel, parcels, isDevelopment, ipfsKey } from '../../modules/config'
-import { getString, isEqual } from '../../modules/land/utils'
+import { baseParcel, estateId, ipfsKey, isDevelopment, isEstate } from '../../modules/config'
 import Transaction from '../Transaction'
 
 export default class LinkScenePage extends React.PureComponent<LinkerPageProps, LinkerPageState> {
   constructor(props) {
     super(props)
-    this.state = {
-      options: parcels.map(parcel => ({
-        id: getString(parcel),
-        checked: true,
-        value: parcel,
-        base: isEqual(baseParcel, parcel)
-      }))
-    }
-  }
-
-  handleRadioChange = e => {
-    const parcelId = e.target.value
-    const options = this.state.options.map(option => {
-      if (parcelId === option.id) {
-        return { ...option, checked: !option.checked }
-      }
-
-      return option
-    })
-    this.setState({ options })
   }
 
   handleDeploy = e => {
     e.preventDefault()
-    const { options } = this.state
-    const parcels = options.filter(option => option.checked).map(option => option.value)
-    this.props.onUpdateLand({ base: this.props.base, parcels })
+    const { onUpdateLand, target } = this.props
+    onUpdateLand(target)
   }
 
   render() {
-    const { wallet, transaction, isLoading, error } = this.props
+    const { wallet, transaction, isLoading, error, target } = this.props
     const { x, y } = baseParcel
-    const { options } = this.state
     return (
       <div className="LinkScenePage">
         <Navbar />
@@ -53,7 +30,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
           <Error>{error}</Error>
         ) : (
           <React.Fragment>
-            <Header>Update LAND data</Header>
+            <Header>Update {isEstate() ? 'Estate' : 'LAND'} data</Header>
 
             <p>
               Using {wallet.type === 'node' ? 'MetaMask' : wallet.type} address: &nbsp;
@@ -62,13 +39,28 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               </Blockie>
             </p>
 
-            <img className="map" src={`https://api.decentraland.org/v1/parcels/${x}/${y}/map.png`} alt={`Base parcel ${x},${y}`} />
+            <img
+              className="map"
+              src={`https://api.decentraland.${isDevelopment() ? 'zone' : 'org'}/v1/${
+                isEstate() ? `estates/${estateId}` : `parcels/${x}/${y}`
+              }/map.png`}
+              alt={`Base parcel ${x},${y}`}
+            />
 
             <p>
-              Updating <b>{this.props.base.name ? `"${this.props.base.name}"` : `LAND without name`}</b> at coordinates{' '}
-              <b>
-                {baseParcel.x}, {baseParcel.y}{' '}
-              </b>
+              Updating <b>{target.name ? `"${target.name}"` : `${isEstate() ? 'Estate' : 'LAND'} without name`}</b>{' '}
+              {isEstate() ? (
+                <React.Fragment>
+                  with ID: <b>{estateId}</b>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  at coordinates{' '}
+                  <b>
+                    {baseParcel.x}, {baseParcel.y}
+                  </b>
+                </React.Fragment>
+              )}
             </p>
 
             <p>
@@ -81,15 +73,6 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
                   Deploy
                 </Button>
               </div>
-              {options.length > 1 ? (
-                <div className="options">
-                  {options.map(({ id, checked, base }) => (
-                    <div key={id}>
-                      <input type="checkbox" value={id} checked={checked} disabled={base} onChange={this.handleRadioChange} /> {id}
-                    </div>
-                  ))}
-                </div>
-              ) : null}
             </form>
 
             {transaction ? <Transaction value={transaction} /> : null}
