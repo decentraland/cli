@@ -24,7 +24,6 @@ factories.set('LANDProxy', landFactory)
 factories.set('EstateProxy', estateFactory)
 
 export interface ILandData {
-  id: string
   version: number
   name: string
   description: string
@@ -201,12 +200,11 @@ export class Ethereum extends EventEmitter {
 
   private decodeLandData(data: string = ''): ILandData {
     // this logic can also be found in decentraland-eth, but we can't rely on node-hid
-    console['log'](data)
     const version = data.charAt(0)
     switch (version) {
       case '0': {
-        const [id, name, description, ipns] = CSV.parse(data)[0]
-        return { id, version: 0, name: name || null, description: description || null, ipns: ipns || null }
+        const [, name, description, ipns] = CSV.parse(data)[0]
+        return { version: 0, name: name || null, description: description || null, ipns: ipns || null }
       }
       default:
         return null
