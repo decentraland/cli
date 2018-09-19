@@ -1,6 +1,6 @@
 import { wrapCommand } from '../utils/wrapCommand'
 import { formatDictionary, italic } from '../utils/logging'
-import { Decentraland } from '../lib/Decentraland'
+import { Decentraland, Estate } from '../lib/Decentraland'
 import * as Coordinates from '../utils/coordinateHelpers'
 import { Analytics } from '../utils/analytics'
 
@@ -33,6 +33,8 @@ export function info(vorpal: any) {
         return `info coord:${target} ${rest}`
       } else if (target.startsWith('0x')) {
         return `info address:${target} ${rest}`
+      } else if (Number.isInteger(parseInt(target, 10))) {
+        return `info estate:${target} ${rest}`
       }
       return command
     })
@@ -42,18 +44,25 @@ export function info(vorpal: any) {
 
         if (!args.target) {
           await dcl.project.validateExistingProject()
+          const estateId = await dcl.project.getEstate()
+          if (estateId) {
+            Analytics.infoCmd({ type: 'estate', target: estateId })
+            const estate = await dcl.getEstateInfo(estateId)
+            return logEstate(vorpal, estate, estateId)
+          }
           const coords = await dcl.project.getParcelCoordinates()
-          const scene = await dcl.getProjectInfo(coords.x, coords.y)
           Analytics.infoCmd({ type: 'coordinates', target: coords })
-          logInfo(vorpal, scene)
-        } else if (args.target.startsWith('address:')) {
+          const scene = await dcl.getProjectInfo(coords.x, coords.y)
+          return logInfo(vorpal, scene)
+        }
+
+        if (args.target.startsWith('address:')) {
           const address = args.target.replace('address:', '')
+          Analytics.infoCmd({ type: 'address', target: address })
           const parcels = await dcl.getAddressInfo(address)
           const formatted = parcels.reduce((acc, parcel) => {
             return { ...acc, [`${parcel.x},${parcel.y}`]: { name: parcel.name, description: parcel.description, ipns: parcel.ipns } }
           }, {})
-
-          Analytics.infoCmd({ type: 'address', target: address })
 
           if (parcels.length === 0) {
             vorpal.log(italic('\n  No information available\n'))
@@ -61,16 +70,26 @@ export function info(vorpal: any) {
             vorpal.log(`\n  LAND owned by ${address}:\n`)
             vorpal.log(formatDictionary(formatted, { spacing: 2, padding: 2 }))
           }
-        } else if (args.target.startsWith('coord:')) {
+          return
+        }
+
+        if (args.target.startsWith('coord:')) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
-          const scene = await dcl.getParcelInfo(coords.x, coords.y)
           Analytics.infoCmd({ type: 'coordinates', target: coords })
-          logInfo(vorpal, scene)
-        } else {
-          vorpal.log(`\n  Invalid argument: ${args.target}`)
-          vorpal.log(example)
+          const data = await dcl.getParcelInfo(coords.x, coords.y)
+          return logInfo(vorpal, data)
         }
+
+        if (args.target.startsWith('estate:')) {
+          const estateId = parseInt(args.target.replace('estate:', ''), 10)
+          Analytics.infoCmd({ type: 'estate', target: estateId })
+          const estate = await dcl.getEstateInfo(estateId)
+          return logEstate(vorpal, estate, estateId)
+        }
+
+        vorpal.log(`\n  Invalid argument: ${args.target}`)
+        vorpal.log(example)
       })
     )
 }
@@ -90,5 +109,18 @@ export function logInfo(vorpal, scene) {
     vorpal.log(formatDictionary(scene.land, { spacing: 2, padding: 2 }))
   } else {
     vorpal.log(italic('    No information available\n'))
+  }
+}
+
+export function logEstate(vorpal, estate: Estate, id: number) {
+  if (!estate) {
+    vorpal.log(italic(`\n  Estate with ID ${id} doesn't exist\n`))
+    return
+  }
+
+  vorpal.log('  Estate Metadata:\n')
+
+  if (estate) {
+    vorpal.log(formatDictionary(estate, { spacing: 2, padding: 2 }))
   }
 }

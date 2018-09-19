@@ -5,7 +5,7 @@ export interface IBounds {
   maxY: number
 }
 
-export interface ICoords {
+export type ICoords = {
   x: number
   y: number
 }

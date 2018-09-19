@@ -89,7 +89,12 @@ export class Project {
       return this.sceneFile
     }
 
-    this.sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    try {
+      this.sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    } catch (e) {
+      fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
+    }
+
     return this.sceneFile
   }
 
@@ -296,13 +301,7 @@ export class Project {
    * Throws if a project contains an invalid main path or if the `scene.json` file is missing.
    */
   async validateExistingProject() {
-    let sceneFile
-
-    try {
-      sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
-    } catch (e) {
-      fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
-    }
+    const sceneFile = await this.getSceneFile()
 
     if (!this.isWebSocket(sceneFile.main)) {
       if (!this.isValidMainFormat(sceneFile.main)) {

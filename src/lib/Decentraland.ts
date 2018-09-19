@@ -1,12 +1,14 @@
 import { EventEmitter } from 'events'
+import * as events from 'wildcards'
+
 import { IPFS, IResolveDependency } from './IPFS'
 import { Project, BoilerplateType, IFile } from './Project'
-import { Ethereum } from './Ethereum'
-import * as events from 'wildcards'
-import { getRootPath } from '../utils/project'
+import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
+import { getRootPath } from '../utils/project'
 import { ErrorType, fail } from '../utils/errors'
+import { ICoords } from '../utils/coordinateHelpers'
 
 export interface IDecentralandArguments {
   workingDir?: string
@@ -24,6 +26,20 @@ export interface IAddressInfo {
   name: string
   description: string
   ipns: string
+}
+
+export type Parcel = LANDData & {
+  owner: string
+  operators?: string[]
+}
+
+export type Estate = Parcel & {
+  parcels: ICoords[]
+}
+
+export type ParcelMetadata = {
+  scene: DCL.SceneMetadata
+  land: Parcel
 }
 
 export class Decentraland extends EventEmitter {
@@ -146,11 +162,22 @@ export class Decentraland extends EventEmitter {
     return { scene, land: { ...land, owner } }
   }
 
-  async getParcelInfo(x: number, y: number) {
+  async getParcelInfo(x: number, y: number): Promise<ParcelMetadata> {
     const scene = await this.localIPFS.getRemoteSceneMetadata(x, y)
     const land = await this.ethereum.getLandData(x, y)
     const owner = await this.ethereum.getLandOwner(x, y)
     return { scene, land: { ...land, owner } }
+  }
+
+  async getEstateInfo(estateId: number): Promise<Estate> {
+    const estate = await this.ethereum.getEstateData(estateId)
+    if (!estate) {
+      return
+    }
+
+    const owner = await this.ethereum.getEstateOwner(estateId)
+    const parcels = await this.ethereum.getLandOfEstate(estateId)
+    return { ...estate, owner, parcels }
   }
 
   async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: IResolveDependency[] }> {

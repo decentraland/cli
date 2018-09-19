@@ -23,7 +23,7 @@ factories.set('MANAToken', manaFactory)
 factories.set('LANDProxy', landFactory)
 factories.set('EstateProxy', estateFactory)
 
-export interface ILandData {
+export type LANDData = {
   version: number
   name: string
   description: string
@@ -87,10 +87,20 @@ export class Ethereum extends EventEmitter {
     return res
   }
 
-  async getLandData(x: number, y: number): Promise<ILandData> {
+  async getLandData(x: number, y: number): Promise<LANDData> {
     const contract = await Ethereum.getContract('LANDProxy')
     try {
       const landData = await contract['landData'](x, y)
+      return this.decodeLandData(landData)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND data: ${e.message}`)
+    }
+  }
+
+  async getEstateData(estateId: number): Promise<LANDData> {
+    const contract = await Ethereum.getContract('EstateProxy')
+    try {
+      const landData = await contract['getMetadata'](estateId)
       return this.decodeLandData(landData)
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND data: ${e.message}`)
@@ -101,6 +111,15 @@ export class Ethereum extends EventEmitter {
     const contract = await Ethereum.getContract('LANDProxy')
     try {
       return await contract['ownerOfLand'](x, y)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND owner: ${e.message}`)
+    }
+  }
+
+  async getEstateOwner(estateId: number): Promise<string> {
+    const contract = await Ethereum.getContract('EstateProxy')
+    try {
+      return await contract['ownerOf'](estateId)
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND owner: ${e.message}`)
     }
@@ -155,26 +174,7 @@ export class Ethereum extends EventEmitter {
     return landData.ipns.replace('ipns:', '')
   }
 
-  private async isLandOperator({ x, y }: ICoords, owner: string): Promise<string> {
-    const contract = await Ethereum.getContract('LANDProxy')
-    try {
-      const assetId = await contract['encodeTokenId'](x, y)
-      return await contract['isUpdateAuthorized'](owner, assetId.toString())
-    } catch (e) {
-      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND authorization: ${e.message}`)
-    }
-  }
-
-  private async isEstateOperator(estateId: number, owner: string): Promise<boolean> {
-    const contract = await Ethereum.getContract('EstateProxy')
-    try {
-      return await contract['isUpdateAuthorized'](owner, estateId)
-    } catch (e) {
-      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate authorization: ${e.message}`)
-    }
-  }
-
-  private async getLandOfEstate(estateId: number): Promise<ICoords[]> {
+  async getLandOfEstate(estateId: number): Promise<ICoords[]> {
     const contract = await Ethereum.getContract('EstateProxy')
     const landContract = await Ethereum.getContract('LANDProxy')
 
@@ -198,7 +198,26 @@ export class Ethereum extends EventEmitter {
     }
   }
 
-  private decodeLandData(data: string = ''): ILandData {
+  private async isLandOperator({ x, y }: ICoords, owner: string): Promise<string> {
+    const contract = await Ethereum.getContract('LANDProxy')
+    try {
+      const assetId = await contract['encodeTokenId'](x, y)
+      return await contract['isUpdateAuthorized'](owner, assetId.toString())
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND authorization: ${e.message}`)
+    }
+  }
+
+  private async isEstateOperator(estateId: number, owner: string): Promise<boolean> {
+    const contract = await Ethereum.getContract('EstateProxy')
+    try {
+      return await contract['isUpdateAuthorized'](owner, estateId)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate authorization: ${e.message}`)
+    }
+  }
+
+  private decodeLandData(data: string = ''): LANDData {
     // this logic can also be found in decentraland-eth, but we can't rely on node-hid
     const version = data.charAt(0)
     switch (version) {
