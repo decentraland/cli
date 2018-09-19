@@ -1,12 +1,14 @@
 import { EventEmitter } from 'events'
+import * as events from 'wildcards'
+
 import { IPFS, IResolveDependency } from './IPFS'
 import { Project, BoilerplateType, IFile } from './Project'
-import { Ethereum } from './Ethereum'
-import * as events from 'wildcards'
-import { getRootPath } from '../utils/project'
+import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
+import { getRootPath } from '../utils/project'
 import { ErrorType, fail } from '../utils/errors'
+import { Coords } from '../utils/coordinateHelpers'
 
 export interface IDecentralandArguments {
   workingDir?: string
@@ -18,12 +20,20 @@ export interface IDecentralandArguments {
   watch?: boolean
 }
 
-export interface IAddressInfo {
-  x: number
-  y: number
-  name: string
-  description: string
-  ipns: string
+export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
+
+export type Parcel = LANDData & {
+  owner: string
+  operators?: string[]
+}
+
+export type Estate = Parcel & {
+  parcels: Coords[]
+}
+
+export type ParcelMetadata = {
+  scene: DCL.SceneMetadata
+  land: Parcel
 }
 
 export class Decentraland extends EventEmitter {
@@ -125,14 +135,32 @@ export class Decentraland extends EventEmitter {
     await preview.startServer(this.options.previewPort)
   }
 
-  async getAddressInfo(address: string): Promise<IAddressInfo[]> {
-    const coords = await this.ethereum.getLandOf(address)
-    const info = coords.map(async coord => {
-      const data = await this.ethereum.getLandData(coord.x, coord.y)
+  async getAddressInfo(address: string): Promise<AddressInfo> {
+    const [coords, estateIds] = await Promise.all([this.ethereum.getLandOf(address), this.ethereum.getEstatesOf(address)])
 
-      return { x: coord.x, y: coord.y, name: data ? data.name : '', description: data ? data.description : '', ipns: data ? data.ipns : '' }
-    }) as Promise<IAddressInfo>[]
-    return Promise.all(info)
+    const pRequests = Promise.all(coords.map(coord => this.ethereum.getLandData(coord.x, coord.y)))
+    const eRequests = Promise.all(estateIds.map(estateId => this.ethereum.getEstateData(estateId)))
+
+    const [pData, eData] = await Promise.all([pRequests, eRequests])
+
+    const parcels =
+      pData.map((data, i) => ({
+        x: coords[i].x,
+        y: coords[i].y,
+        name: data ? data.name : '',
+        description: data ? data.description : '',
+        ipns: data ? data.ipns : ''
+      })) || []
+
+    const estates =
+      eData.map((data, i) => ({
+        id: parseInt(estateIds[i].toString(), 10),
+        name: data ? data.name : '',
+        description: data ? data.description : '',
+        ipns: data ? data.ipns : ''
+      })) || []
+
+    return { parcels, estates }
   }
 
   getWatch(): boolean {
@@ -146,11 +174,31 @@ export class Decentraland extends EventEmitter {
     return { scene, land: { ...land, owner } }
   }
 
-  async getParcelInfo(x: number, y: number) {
+  async getParcelInfo({ x, y }: Coords): Promise<ParcelMetadata> {
     const scene = await this.localIPFS.getRemoteSceneMetadata(x, y)
     const land = await this.ethereum.getLandData(x, y)
     const owner = await this.ethereum.getLandOwner(x, y)
     return { scene, land: { ...land, owner } }
+  }
+
+  async getEstateInfo(estateId: number): Promise<Estate> {
+    const estate = await this.ethereum.getEstateData(estateId)
+    if (!estate) {
+      return
+    }
+
+    const owner = await this.ethereum.getEstateOwner(estateId)
+    const parcels = await this.ethereum.getLandOfEstate(estateId)
+    return { ...estate, owner, parcels }
+  }
+
+  async getEstateOfParcel(coords: Coords): Promise<Estate> {
+    const estateId = await this.ethereum.getEstateIdOfLand(coords)
+    if (!estateId) {
+      return
+    }
+
+    return this.getEstateInfo(estateId)
   }
 
   async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: IResolveDependency[] }> {

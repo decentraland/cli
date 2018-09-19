@@ -16,7 +16,7 @@ import {
 } from '../utils/project'
 import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
-import { inBounds, getBounds, getObject, areConnected, ICoords } from '../utils/coordinateHelpers'
+import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',
@@ -89,7 +89,12 @@ export class Project {
       return this.sceneFile
     }
 
-    this.sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    try {
+      this.sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    } catch (e) {
+      fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
+    }
+
     return this.sceneFile
   }
 
@@ -214,7 +219,7 @@ export class Project {
   /**
    * Returns a promise of an object containing the base X and Y coordinates for a parcel.
    */
-  async getParcelCoordinates(): Promise<ICoords> {
+  async getParcelCoordinates(): Promise<Coords> {
     const sceneFile = await this.getSceneFile()
     const { base } = sceneFile.scene
     return getObject(base)
@@ -223,7 +228,7 @@ export class Project {
   /**
    * Returns a promise of an array of the parcels of the scene
    */
-  async getParcels(): Promise<ICoords[]> {
+  async getParcels(): Promise<Coords[]> {
     const sceneFile = await this.getSceneFile()
     return sceneFile.scene.parcels.map(getObject)
   }
@@ -296,13 +301,7 @@ export class Project {
    * Throws if a project contains an invalid main path or if the `scene.json` file is missing.
    */
   async validateExistingProject() {
-    let sceneFile
-
-    try {
-      sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
-    } catch (e) {
-      fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
-    }
+    const sceneFile = await this.getSceneFile()
 
     if (!this.isWebSocket(sceneFile.main)) {
       if (!this.isValidMainFormat(sceneFile.main)) {
