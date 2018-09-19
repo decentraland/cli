@@ -5,7 +5,7 @@ import { RequestManager, ContractFactory, providers, Contract } from 'eth-connec
 
 import { isDev, getProvider } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
-import { ICoords, isEqual, getObject } from '../utils/coordinateHelpers'
+import { Coords, isEqual, getObject } from '../utils/coordinateHelpers'
 
 import { abi as manaAbi } from '../../abi/MANAToken.json'
 import { abi as landAbi } from '../../abi/LANDRegistry.json'
@@ -24,7 +24,7 @@ factories.set('LANDProxy', landFactory)
 factories.set('EstateProxy', estateFactory)
 
 export type LANDData = {
-  version: number
+  version?: number
   name: string
   description: string
   ipns: string
@@ -75,16 +75,29 @@ export class Ethereum extends EventEmitter {
     return contract
   }
 
-  async getLandOf(address: string): Promise<ICoords[]> {
+  async getLandOf(address: string): Promise<Coords[]> {
     const contract = await Ethereum.getContract('LANDProxy')
-    let res
     try {
       const [x, y] = await contract['landOf'](address.toUpperCase())
-      res = x.map(($, i) => ({ x: $.toNumber(), y: y[i].toNumber() }))
+      return x.map(($, i) => ({ x: $.toNumber(), y: y[i].toNumber() }))
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LANDs: ${e.message}`)
     }
-    return res
+  }
+
+  async getEstatesOf(address: string): Promise<number[]> {
+    const contract = await Ethereum.getContract('EstateProxy')
+    try {
+      const balance = await contract['balanceOf'](address)
+      const requests = []
+      for (let i = 0; i < balance; i++) {
+        const request = contract['tokenOfOwnerByIndex'](address, i)
+        requests.push(request)
+      }
+      return Promise.all(requests)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate IDs of owner: ${e.message}`)
+    }
   }
 
   async getLandData(x: number, y: number): Promise<LANDData> {
@@ -128,7 +141,7 @@ export class Ethereum extends EventEmitter {
   /**
    * It fails if the owner address isn't able to update given parcel (as an owner or operator)
    */
-  async validateAuthorizationOfParcel(owner: string, parcel: ICoords): Promise<void> {
+  async validateAuthorizationOfParcel(owner: string, parcel: Coords): Promise<void> {
     const isLandOperator = await this.isLandOperator(parcel, owner)
     if (!isLandOperator) {
       fail(ErrorType.ETHEREUM_ERROR, `Provided address ${owner} is not authorized to update LAND ${parcel.x},${parcel.y}`)
@@ -148,7 +161,7 @@ export class Ethereum extends EventEmitter {
   /**
    * It fails if the given parcels aren't inside the given estate
    */
-  async validateParcelsInEstate(estateId: number, parcels: ICoords[]): Promise<void> {
+  async validateParcelsInEstate(estateId: number, parcels: Coords[]): Promise<void> {
     const lands = await this.getLandOfEstate(estateId)
     const incorrectParcel = lands.find(parcel => !parcels.some(p => isEqual(parcel, p)))
     if (incorrectParcel) {
@@ -174,7 +187,7 @@ export class Ethereum extends EventEmitter {
     return landData.ipns.replace('ipns:', '')
   }
 
-  async getLandOfEstate(estateId: number): Promise<ICoords[]> {
+  async getLandOfEstate(estateId: number): Promise<Coords[]> {
     const contract = await Ethereum.getContract('EstateProxy')
     const landContract = await Ethereum.getContract('LANDProxy')
 
@@ -198,7 +211,19 @@ export class Ethereum extends EventEmitter {
     }
   }
 
-  private async isLandOperator({ x, y }: ICoords, owner: string): Promise<string> {
+  async getEstateIdOfLand({ x, y }: Coords): Promise<number> {
+    const contract = await Ethereum.getContract('EstateProxy')
+    const landContract = await Ethereum.getContract('LANDProxy')
+
+    try {
+      const assetId = await landContract['encodeTokenId'](x, y)
+      return await contract['getLandEstateId'](assetId)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate ID of LAND: ${e.message}`)
+    }
+  }
+
+  private async isLandOperator({ x, y }: Coords, owner: string): Promise<string> {
     const contract = await Ethereum.getContract('LANDProxy')
     try {
       const assetId = await contract['encodeTokenId'](x, y)

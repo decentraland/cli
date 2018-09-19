@@ -5,7 +5,7 @@ export interface IBounds {
   maxY: number
 }
 
-export type ICoords = {
+export type Coords = {
   x: number
   y: number
 }
@@ -84,21 +84,21 @@ export function isValid(val: string): boolean {
  * Converts a string-based set of coordinates to an object
  * @param coords A string containing a set of coordinates
  */
-export function getObject(coords: string): ICoords
+export function getObject(coords: string): Coords
 /**
  * Converts a array-based set of coordinates to an object
  * @param coords An array containing a set of coordinates
  */
-export function getObject(coords: number[]): ICoords
-export function getObject(coords: number[] | string): ICoords {
+export function getObject(coords: number[]): Coords
+export function getObject(coords: number[] | string): Coords {
   const [x, y] = typeof coords === 'string' ? parse(coords)[0].split(',') : coords
   return { x: parseInt(x.toString(), 10), y: parseInt(y.toString(), 10) }
 }
 
 /**
- * Converts a ICoords object to a string-based set of coordinates
+ * Converts a Coords object to a string-based set of coordinates
  */
-export function getString({ x, y }: ICoords): string {
+export function getString({ x, y }: Coords): string {
   return `${x},${y}`
 }
 
@@ -113,7 +113,7 @@ export function inBounds(x: number, y: number): boolean {
 /**
  * Returns true if the given parcels array are connected
  */
-export function areConnected(parcels: ICoords[]): boolean {
+export function areConnected(parcels: Coords[]): boolean {
   if (parcels.length === 0) {
     return false
   }
@@ -121,7 +121,7 @@ export function areConnected(parcels: ICoords[]): boolean {
   return visited.length === parcels.length
 }
 
-function visitParcel(parcel: ICoords, allParcels: ICoords[] = [parcel], visited: ICoords[] = []): ICoords[] {
+function visitParcel(parcel: Coords, allParcels: Coords[] = [parcel], visited: Coords[] = []): Coords[] {
   let isVisited = visited.some(visitedParcel => isEqual(visitedParcel, parcel))
   if (!isVisited) {
     visited.push(parcel)
@@ -132,14 +132,14 @@ function visitParcel(parcel: ICoords, allParcels: ICoords[] = [parcel], visited:
 }
 
 function getIsNeighbourMatcher(x: number, y: number) {
-  return (coords: ICoords) =>
+  return (coords: Coords) =>
     (coords.x === x && (coords.y + 1 === y || coords.y - 1 === y)) || (coords.y === y && (coords.x + 1 === x || coords.x - 1 === x))
 }
 
-function getNeighbours(x: number, y: number, parcels: ICoords[]): ICoords[] {
+function getNeighbours(x: number, y: number, parcels: Coords[]): Coords[] {
   return parcels.filter(getIsNeighbourMatcher(x, y))
 }
 
-export function isEqual(p1: ICoords, p2: ICoords): boolean {
+export function isEqual(p1: Coords, p2: Coords): boolean {
   return p1.x === p2.x && p1.y === p2.y
 }

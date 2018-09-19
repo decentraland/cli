@@ -16,7 +16,7 @@ import {
 } from '../utils/project'
 import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
-import { inBounds, getBounds, getObject, areConnected, ICoords } from '../utils/coordinateHelpers'
+import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',
@@ -219,7 +219,7 @@ export class Project {
   /**
    * Returns a promise of an object containing the base X and Y coordinates for a parcel.
    */
-  async getParcelCoordinates(): Promise<ICoords> {
+  async getParcelCoordinates(): Promise<Coords> {
     const sceneFile = await this.getSceneFile()
     const { base } = sceneFile.scene
     return getObject(base)
@@ -228,7 +228,7 @@ export class Project {
   /**
    * Returns a promise of an array of the parcels of the scene
    */
-  async getParcels(): Promise<ICoords[]> {
+  async getParcels(): Promise<Coords[]> {
     const sceneFile = await this.getSceneFile()
     return sceneFile.scene.parcels.map(getObject)
   }
