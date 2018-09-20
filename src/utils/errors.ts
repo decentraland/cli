@@ -7,7 +7,8 @@ export enum ErrorType {
   UPGRADE_ERROR = 'UpgradeError',
   INFO_ERROR = 'InfoError',
   STATUS_ERROR = 'StatusError',
-  DEPLOY_ERROR = 'DeployError'
+  DEPLOY_ERROR = 'DeployError',
+  API_ERROR = 'APIError'
 }
 
 export function fail(type: ErrorType, message: string) {
