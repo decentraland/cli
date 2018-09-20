@@ -157,13 +157,13 @@ export class Decentraland extends EventEmitter {
       pData.map((data, i) => ({
         x: coords[i].x,
         y: coords[i].y,
-        ...filterAndFillEmpty(data)
+        ...filterAndFillEmpty(data, '')
       })) || []
 
     const estates =
       eData.map((data, i) => ({
         id: parseInt(estateIds[i].toString(), 10),
-        ...filterAndFillEmpty(data)
+        ...filterAndFillEmpty(data, '')
       })) || []
 
     return { parcels, estates }

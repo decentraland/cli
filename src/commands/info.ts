@@ -107,7 +107,6 @@ async function infoParcel(vorpal, dcl: Decentraland, coords: Coords) {
   Analytics.infoCmd({ type: 'coordinates', target: coords })
   const estate = await dcl.getEstateOfParcel(coords)
   const data = await dcl.getParcelInfo(coords)
-  console['log'](data)
   return logInfo(vorpal, estate ? { ...data, estate } : data)
 }
 
