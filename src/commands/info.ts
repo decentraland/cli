@@ -4,8 +4,11 @@ import { Decentraland, Estate } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
 import { Coords, getObject, isValid } from '../utils/coordinateHelpers'
 
-export interface IArguments {
+export type Arguments = {
   target: string
+  options: {
+    blockchain: boolean
+  }
 }
 
 const command = 'info [target]'
@@ -23,6 +26,7 @@ export function info(vorpal: any) {
   vorpal
     .command(command)
     .description(description)
+    .option('-b, --blockchain', 'Retrieve information directly from our blockchain provider instead of our remote API.')
     .help(() => vorpal.log(`\n  Usage: ${command}\n\n  ${description}${example}`))
     .parse((command, args) => {
       // Vorpal doesn't like negative numbers (confused with flags), walkaround:
@@ -40,8 +44,8 @@ export function info(vorpal: any) {
       return command
     })
     .action(
-      wrapCommand(async (args: IArguments) => {
-        const dcl = new Decentraland()
+      wrapCommand(async (args: Arguments) => {
+        const dcl = new Decentraland({ blockchain: args.options.blockchain })
 
         if (!args.target) {
           await dcl.project.validateExistingProject()

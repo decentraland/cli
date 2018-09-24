@@ -9,8 +9,11 @@ import { Preview } from './Preview'
 import { getRootPath } from '../utils/project'
 import { ErrorType, fail } from '../utils/errors'
 import { Coords } from '../utils/coordinateHelpers'
+import { API } from './API'
+import { IEthereumDataProvider } from './IEthereumDataProvider'
+import { filterAndFillEmpty } from '../utils/land'
 
-export interface IDecentralandArguments {
+export type DecentralandArguments = {
   workingDir?: string
   ipfsHost?: string
   ipfsPort?: number
@@ -18,6 +21,7 @@ export interface IDecentralandArguments {
   previewPort?: number
   isHttps?: boolean
   watch?: boolean
+  blockchain?: boolean
 }
 
 export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
@@ -40,15 +44,21 @@ export class Decentraland extends EventEmitter {
   localIPFS: IPFS
   project: Project
   ethereum: Ethereum
-  options: IDecentralandArguments = {}
+  options: DecentralandArguments = {}
+  provider: IEthereumDataProvider
 
-  constructor(args: IDecentralandArguments = {}) {
+  constructor(args: DecentralandArguments = {}) {
     super()
     this.options = args
     this.options.workingDir = args.workingDir || getRootPath()
     this.localIPFS = new IPFS(args.ipfsHost, args.ipfsPort)
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
+    this.provider = this.ethereum
+
+    if (!this.options.blockchain) {
+      this.provider = new API()
+    }
 
     // Pipe all events
     events(this.localIPFS, 'ipfs:*', this.pipeEvents.bind(this))
@@ -136,10 +146,10 @@ export class Decentraland extends EventEmitter {
   }
 
   async getAddressInfo(address: string): Promise<AddressInfo> {
-    const [coords, estateIds] = await Promise.all([this.ethereum.getLandOf(address), this.ethereum.getEstatesOf(address)])
+    const [coords, estateIds] = await Promise.all([this.provider.getLandOf(address), this.provider.getEstatesOf(address)])
 
-    const pRequests = Promise.all(coords.map(coord => this.ethereum.getLandData(coord.x, coord.y)))
-    const eRequests = Promise.all(estateIds.map(estateId => this.ethereum.getEstateData(estateId)))
+    const pRequests = Promise.all(coords.map(coord => this.provider.getLandData(coord)))
+    const eRequests = Promise.all(estateIds.map(estateId => this.provider.getEstateData(estateId)))
 
     const [pData, eData] = await Promise.all([pRequests, eRequests])
 
@@ -147,17 +157,13 @@ export class Decentraland extends EventEmitter {
       pData.map((data, i) => ({
         x: coords[i].x,
         y: coords[i].y,
-        name: data ? data.name : '',
-        description: data ? data.description : '',
-        ipns: data ? data.ipns : ''
+        ...filterAndFillEmpty(data, '')
       })) || []
 
     const estates =
       eData.map((data, i) => ({
         id: parseInt(estateIds[i].toString(), 10),
-        name: data ? data.name : '',
-        description: data ? data.description : '',
-        ipns: data ? data.ipns : ''
+        ...filterAndFillEmpty(data, '')
       })) || []
 
     return { parcels, estates }
@@ -169,31 +175,34 @@ export class Decentraland extends EventEmitter {
 
   async getProjectInfo(x: number, y: number) {
     const scene = await this.project.getSceneFile()
-    const land = await this.ethereum.getLandData(x, y)
-    const owner = await this.ethereum.getLandOwner(x, y)
+    const land = await this.provider.getLandData({ x, y })
+    const owner = await this.provider.getLandOwner({ x, y })
     return { scene, land: { ...land, owner } }
   }
 
   async getParcelInfo({ x, y }: Coords): Promise<ParcelMetadata> {
-    const scene = await this.localIPFS.getRemoteSceneMetadata(x, y)
-    const land = await this.ethereum.getLandData(x, y)
-    const owner = await this.ethereum.getLandOwner(x, y)
+    const [scene, land, owner] = await Promise.all([
+      this.localIPFS.getRemoteSceneMetadata(x, y),
+      this.provider.getLandData({ x, y }),
+      this.provider.getLandOwner({ x, y })
+    ])
+
     return { scene, land: { ...land, owner } }
   }
 
   async getEstateInfo(estateId: number): Promise<Estate> {
-    const estate = await this.ethereum.getEstateData(estateId)
+    const estate = await this.provider.getEstateData(estateId)
     if (!estate) {
       return
     }
 
-    const owner = await this.ethereum.getEstateOwner(estateId)
-    const parcels = await this.ethereum.getLandOfEstate(estateId)
+    const owner = await this.provider.getEstateOwner(estateId)
+    const parcels = await this.provider.getLandOfEstate(estateId)
     return { ...estate, owner, parcels }
   }
 
   async getEstateOfParcel(coords: Coords): Promise<Estate> {
-    const estateId = await this.ethereum.getEstateIdOfLand(coords)
+    const estateId = await this.provider.getEstateIdOfLand(coords)
     if (!estateId) {
       return
     }

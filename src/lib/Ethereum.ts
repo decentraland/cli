@@ -10,6 +10,7 @@ import { Coords, isEqual, getObject } from '../utils/coordinateHelpers'
 import { abi as manaAbi } from '../../abi/MANAToken.json'
 import { abi as landAbi } from '../../abi/LANDRegistry.json'
 import { abi as estateAbi } from '../../abi/EstateRegistry.json'
+import { IEthereumDataProvider } from './IEthereumDataProvider'
 
 const provider = process.env.RPC_URL || getProvider()
 const requestManager = new RequestManager(new providers.HTTPProvider(provider))
@@ -37,7 +38,7 @@ export type LANDData = {
  * ethereum:get-ipns-empty   - No IPNS was found on the blockchain
  * ethereum:get-ipns-success - Successfully fetched and parsed landData
  */
-export class Ethereum extends EventEmitter {
+export class Ethereum extends EventEmitter implements IEthereumDataProvider {
   private static addresses: any
   private static contracts = new Map<string, Contract>()
 
@@ -100,7 +101,7 @@ export class Ethereum extends EventEmitter {
     }
   }
 
-  async getLandData(x: number, y: number): Promise<LANDData> {
+  async getLandData({ x, y }: Coords): Promise<LANDData> {
     const contract = await Ethereum.getContract('LANDProxy')
     try {
       const landData = await contract['landData'](x, y)
@@ -120,7 +121,7 @@ export class Ethereum extends EventEmitter {
     }
   }
 
-  async getLandOwner(x: number, y: number): Promise<string> {
+  async getLandOwner({ x, y }: Coords): Promise<string> {
     const contract = await Ethereum.getContract('LANDProxy')
     try {
       return await contract['ownerOfLand'](x, y)
@@ -176,7 +177,7 @@ export class Ethereum extends EventEmitter {
   async getIPNS(x: number, y: number): Promise<string> {
     this.emit('ethereum:get-ipns', x, y)
 
-    const landData = await this.getLandData(x, y)
+    const landData = await this.getLandData({ x, y })
 
     if (!landData || !landData.ipns) {
       this.emit('ethereum:get-ipns-empty')
@@ -206,7 +207,6 @@ export class Ethereum extends EventEmitter {
 
       return parcels
     } catch (e) {
-      console['log'](e)
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LANDs of Estate: ${e.message}`)
     }
   }
