@@ -16,3 +16,4 @@ appveyor.yml
 /build.json
 /tsconfig.json
 /tslint.json
+test-*
