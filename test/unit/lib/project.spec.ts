@@ -180,7 +180,10 @@ describe('Project', () => {
       expect(project['isValidMainFormat']('ts')).to.be.false
       expect(project['isValidMainFormat']('')).to.be.false
       expect(project['isValidMainFormat'](undefined)).to.be.false
-      expect(project['isValidMainFormat'](null)).to.be.false
+    })
+    
+    it('should return true for null', () => {
+      expect(project['isValidMainFormat'](null)).to.be.true
     })
   })
 
