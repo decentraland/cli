@@ -396,7 +396,7 @@ export class Project {
   private isValidMainFormat(path: string): boolean {
     const supportedExtensions = new Set(['js', 'html', 'xml'])
     const mainExt = path ? path.split('.').pop() : null
-    return supportedExtensions.has(mainExt)
+    return path === null || supportedExtensions.has(mainExt)
   }
 
   /**
