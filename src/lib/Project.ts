@@ -308,7 +308,7 @@ export class Project {
         fail(ErrorType.PROJECT_ERROR, `Main scene format file (${sceneFile.main}) is not a supported format`)
       }
 
-      if (!(await this.fileExists(sceneFile.main))) {
+      if (sceneFile.main !== null && !(await this.fileExists(sceneFile.main))) {
         fail(ErrorType.PROJECT_ERROR, `Main scene file ${sceneFile.main} is missing`)
       }
     }
