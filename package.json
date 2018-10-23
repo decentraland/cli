@@ -77,7 +77,10 @@
     "semver": "^5.5.0",
     "vorpal": "^1.12.0",
     "wildcards": "^1.0.2",
-    "ws": "^6.0.0"
+    "ws": "^6.0.0",
+    "ipfs-unixfs": "^0.1.15",
+    "ipld-dag-pb": "^0.14.10",
+    "ipfs-unixfs-engine": "^0.32.4"
   },
   "devDependencies": {
     "@types/analytics-node": "0.0.31",
