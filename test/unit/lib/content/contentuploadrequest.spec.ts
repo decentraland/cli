@@ -4,8 +4,6 @@ import { CIDUtils } from '../../../../src/lib/content/CIDUtils'
 import { Project, IFile } from '../../../../src/lib/Project';
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from '../../../../src/lib/content/ContentUploadRequest';
 
-const request = require('request');
-
 const dataFolderPath = "test/unit/resources/data";
 
 describe('ContentUploadRequest', () => {
