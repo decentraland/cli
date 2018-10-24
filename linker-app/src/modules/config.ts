@@ -13,6 +13,7 @@ export const baseParcel = JSON.parse(document.currentScript.getAttribute('base-p
 export const parcels = JSON.parse(document.currentScript.getAttribute('parcels')) as Coords[]
 export const estateId = JSON.parse(document.currentScript.getAttribute('estate-id')) as number
 export const ipfsKey = document.currentScript.getAttribute('ipfs-key')
+export const rootCID = document.currentScript.getAttribute('root-cid')
 
 export function isDevelopment(): boolean {
   return env === 'dev'

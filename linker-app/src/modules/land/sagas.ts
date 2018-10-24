@@ -1,5 +1,5 @@
 import { call, put, takeLatest, takeEvery } from 'redux-saga/effects'
-import { contracts } from 'decentraland-eth'
+import { contracts, eth } from 'decentraland-eth'
 import { CONNECT_WALLET_SUCCESS, ConnectWalletSuccessAction } from 'decentraland-dapps/dist/modules/wallet/actions'
 
 import {
@@ -7,21 +7,25 @@ import {
   FetchLandRequestAction,
   fetchLandSuccess,
   fetchLandFailure,
-  UPDATE_LAND_REQUEST,
-  UpdateLandRequestAction,
-  updateLandSuccess,
-  updateLandFailure,
-  fetchLandRequest
+  SIGN_CONTENT_REQUEST,
+  SignContentRequestAction,
+  signContentSuccess,
+  signContentFailure,
+  fetchLandRequest,
+  SignContentSuccessAction,
+  SIGN_CONTENT_SUCCESS
 } from './actions'
-import { ipfsKey, baseParcel, isEstate, estateId } from '../config'
+import { baseParcel, isEstate, estateId } from '../config'
 import { LANDRegistry, EstateRegistry } from '../../contracts'
 import { Coords } from './types'
 import { getEmptyLandData } from './utils'
+import { closeServer } from '../server/utils';
 
 export function* landSaga() {
   yield takeEvery(FETCH_LAND_REQUEST, handleFetchLandRequest)
   yield takeEvery(CONNECT_WALLET_SUCCESS, handleConnectWalletSuccess)
-  yield takeLatest(UPDATE_LAND_REQUEST, handleUpdateLandRequest)
+  yield takeLatest(SIGN_CONTENT_REQUEST, handleSignContentRequest)
+  yield takeEvery(SIGN_CONTENT_SUCCESS, handleSignContentSuccess)
 }
 
 function* handleFetchLandRequest(action: FetchLandRequestAction) {
@@ -44,18 +48,28 @@ function* handleConnectWalletSuccess(action: ConnectWalletSuccessAction) {
   yield put(fetchLandRequest(isEstate() ? estateId : baseParcel))
 }
 
-function* handleUpdateLandRequest(action: UpdateLandRequestAction) {
+function* handleSignContentRequest(action: SignContentRequestAction) {
   try {
-    const target = action.payload
-    const land = { ...target, ipns: `ipns:${ipfsKey}` }
-    const data = contracts.LANDRegistry.encodeLandData(land)
-    const txHash = yield call(
-      () =>
-        isEstate() ? EstateRegistry['updateMetadata'](estateId, data) : LANDRegistry['updateLandData'](baseParcel.x, baseParcel.y, data)
+    const hashToSign = action.payload
+    const signedMessage = yield call(
+      () => {
+        return eth.wallet.sign(hashToSign)
+      }
     )
-
-    yield put(updateLandSuccess(txHash))
+    yield put(signContentSuccess(signedMessage))
   } catch (error) {
-    yield put(updateLandFailure(error.message))
+    yield put(signContentFailure(error.message))
+  }
+}
+
+function* handleSignContentSuccess(action: SignContentSuccessAction) {
+  try {
+    yield call(
+      () => {
+        closeServer(true, action.payload)
+      }
+    )
+  } catch (error) {
+    yield put(signContentFailure(error.message))
   }
 }

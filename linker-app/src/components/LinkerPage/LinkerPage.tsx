@@ -4,22 +4,21 @@ import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
 import Error from '../Error'
 import { LinkerPageProps, LinkerPageState } from './types'
-import { baseParcel, estateId, ipfsKey, isDevelopment, isEstate } from '../../modules/config'
-import Transaction from '../Transaction'
+import { baseParcel, estateId, isDevelopment, isEstate, rootCID } from '../../modules/config'
 
 export default class LinkScenePage extends React.PureComponent<LinkerPageProps, LinkerPageState> {
   constructor(props) {
     super(props)
   }
 
-  handleDeploy = e => {
+  handleSignature = e => {
     e.preventDefault()
-    const { onUpdateLand, target } = this.props
-    onUpdateLand(target)
+    const { onSignContent } = this.props
+    onSignContent(rootCID)
   }
 
   render() {
-    const { wallet, transaction, isLoading, error, target } = this.props
+    const { wallet, isLoading, error, target } = this.props
     const { x, y } = baseParcel
     return (
       <div className="LinkScenePage">
@@ -64,18 +63,17 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             </p>
 
             <p>
-              Linking to IPNS: <b>{ipfsKey}</b>
+              Sign Project CID: <b>{rootCID}</b>
             </p>
 
             <form>
               <div>
-                <Button primary onClick={this.handleDeploy}>
-                  Deploy
+                <Button primary onClick={this.handleSignature}>
+                  Sign and Deploy
                 </Button>
               </div>
             </form>
 
-            {transaction ? <Transaction value={transaction} /> : null}
           </React.Fragment>
         )}
         <style>{`
