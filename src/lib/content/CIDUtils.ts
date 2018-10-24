@@ -28,7 +28,11 @@ export class CIDUtils {
       pull(
         pull.values(files),
         pull.asyncMap((file, cb) => {
-          cb(null, file)
+          const data = {
+            path : "/tmp/" + file.path,
+            content: file.content
+          }
+          cb(null, data)
         }),
         importer,
         pull.onEnd(() => importer.flush(
