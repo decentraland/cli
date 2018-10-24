@@ -26,4 +26,26 @@ export class ContentUploadRequest {
     this.manifest = _manifest
     this.metadata = _metadata
   }
+
+  requestContent(): any {
+    const formData: any = {
+      metadata: JSON.stringify(this.metadata),
+      [this.rootCid] : JSON.stringify(this.manifest)
+    }
+    for (let i = 0; i < this.files.length; i++) {
+      const file = this.files[i]
+      const result = this.manifest.filter(ci => {
+        return ci.name === file.path
+      })
+      if (result.length > 0) {
+        formData[result[0].cid] = {
+          value: file.content,
+          options: {
+            filename: file.path
+          }
+        }
+      }
+    }
+    return formData
+  }
 }
