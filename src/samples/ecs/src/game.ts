@@ -22,4 +22,6 @@ function spawn(x: number, y: number, z: number) {
   return cube
 }
 
+spawn(5, 1, 5)
+
 engine.addSystem(new RotatorSystem())
