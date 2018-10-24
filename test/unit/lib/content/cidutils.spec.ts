@@ -9,7 +9,7 @@ const dataFolderPath = "test/unit/resources/data";
 const sceneJsonfilePath = "test/unit/resources/data/scene.json";
 
 const sceneJsonExpectedCID = "QmfRoY2437YZgrJK9s5Vvkj6z9xH4DqGT1VKp1WFoh6Ec4";
-const fullContentExpectedCID = "QmcbDbiTdMtrJE4w3hff3UXziKrFC9ssYcfZdK1Um3uSAH";
+const fullContentExpectedCID = "QmYaarcZ65C6K58xLpPyVqYLVbdT1KbE5H7TF221jYDaEU";
 
 describe('CIDUtils', () => {
   it('shold generate the CID of a list of files', async () => {

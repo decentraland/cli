@@ -32,20 +32,21 @@ export class ContentUploadRequest {
       metadata: JSON.stringify(this.metadata),
       [this.rootCid] : JSON.stringify(this.manifest)
     }
-    for (let i = 0; i < this.files.length; i++) {
-      const file = this.files[i]
-      const result = this.manifest.filter(ci => {
+    this.files.forEach((file) => {
+      const identifier = this.manifest.find(ci => {
         return ci.name === file.path
       })
-      if (result.length > 0) {
-        formData[result[0].cid] = {
-          value: file.content,
-          options: {
-            filename: file.path
-          }
-        }
+      if (identifier) this.addFileToRequest(identifier, file, formData)
+    })
+    return formData
+  }
+
+  private addFileToRequest(identifier: ContentIdentifier, file: IFile, form: any): void {
+    form[identifier.cid] = {
+      value: file.content,
+      options: {
+        filename: file.path
       }
     }
-    return formData
   }
 }
