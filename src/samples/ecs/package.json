@@ -1,0 +1,18 @@
+{
+  "name": "dcl-project",
+  "version": "1.0.0",
+  "description": "My new Decentraland project",
+  "scripts": {
+    "start": "dcl start",
+    "build": "build-ecs",
+    "watch": "build-ecs --watch",
+    "ecs:install-next": "npm install --save-dev decentraland-ecs@next",
+    "ecs:install-stable": "npm install --save-dev decentraland-ecs@latest"
+  },
+  "author": "",
+  "license": "Not defined",
+  "devDependencies": {
+    "decentraland-ecs": "next"
+  },
+  "dependencies": {}
+}

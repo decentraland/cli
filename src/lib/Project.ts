@@ -21,6 +21,7 @@ import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/c
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',
   TYPESCRIPT_DYNAMIC = 'ts-dynamic',
+  ECS = 'ecs',
   WEBSOCKETS = 'multiplayer',
   STATIC = 'static'
 }
@@ -66,12 +67,7 @@ export class Project {
    * @param type
    */
   isValidBoilerplateType(type: string): boolean {
-    for (let key in BoilerplateType) {
-      if (type === BoilerplateType[key]) {
-        return true
-      }
-    }
-    return false
+    return Object.values(BoilerplateType).includes(type)
   }
 
   /**
@@ -112,13 +108,6 @@ export class Project {
    * @param websocketServer Optional websocket server URL
    */
   async scaffoldProject(boilerplateType: string, websocketServer?: string) {
-    if (!this.isValidBoilerplateType(boilerplateType)) {
-      fail(
-        ErrorType.PROJECT_ERROR,
-        `Invalid boilerplate type: '${boilerplateType}'. Supported types are 'static', 'singleplayer' and 'multiplayer'.`
-      )
-    }
-
     switch (boilerplateType) {
       case BoilerplateType.TYPESCRIPT_STATIC: {
         await this.copySample('ts-static')
@@ -128,13 +117,18 @@ export class Project {
         await this.copySample('ts-dynamic')
         break
       }
-      case BoilerplateType.WEBSOCKETS:
+      case BoilerplateType.WEBSOCKETS: {
         await this.scaffoldWebsockets(websocketServer)
         break
-      case BoilerplateType.STATIC:
-      default:
+      }
+      case BoilerplateType.STATIC: {
         await this.copySample('basic-static')
         break
+      }
+      case BoilerplateType.ECS: {
+        await this.copySample('ecs')
+        break
+      }
     }
   }
 

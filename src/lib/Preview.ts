@@ -66,10 +66,19 @@ export class Preview extends EventEmitter {
 
     this.app.use(cors())
 
-    const artifactPath = path.resolve('node_modules', 'decentraland-api')
+    const npmModulesPath = path.resolve('node_modules')
+
+    if (!fs.pathExistsSync(npmModulesPath)) {
+      fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${npmModulesPath}, please run: npm install`)
+    }
+
+    const dclEcsPath = path.resolve('node_modules', 'decentraland-ecs')
+    const dclApiPath = path.resolve('node_modules', 'decentraland-api')
+
+    const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
 
     if (!fs.pathExistsSync(artifactPath)) {
-      fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${artifactPath}, please run: npm install decentraland-api@latest`)
+      fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${dclApiPath} or ${dclEcsPath}, please run: npm install`)
     }
 
     this.app.get('/', (req, res) => {
@@ -90,10 +99,8 @@ export class Preview extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.server
         .listen(resolvedPort)
-        .on('close', () => resolve())
-        .on('error', (e: any) => {
-          reject(e)
-        })
+        .on('close', resolve)
+        .on('error', reject)
     })
   }
 }

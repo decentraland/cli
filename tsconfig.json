@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2015",
+    "target": "es2017",
     "diagnostics": true,
     "outDir": "dist",
     "baseUrl": ".",
@@ -11,8 +11,10 @@
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,
+    "preserveConstEnums": true,
     "plugins": [{ "name": "tslint-language-service" }],
-    "jsx": "react"
+    "jsx": "react",
+    "lib": ["es2017", "dom"]
   },
   "exclude": ["dist", "node_modules", "**/*.spec.ts", "src/samples/*"],
   "include": ["src/**/*"]

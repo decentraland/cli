@@ -4,6 +4,7 @@ import * as path from 'path'
 
 import { tmpTest } from '../../sandbox'
 import { Decentraland } from '../../../src/lib/Decentraland'
+import { BoilerplateType } from '../../../src/lib/Project'
 
 async function expectBaseFilesToExist(dirPath) {
   expect(await fs.pathExists(path.resolve(dirPath, '.decentraland')), 'expect .decentraland folder to exist').to.be.true
@@ -86,6 +87,35 @@ describe('Decentraland.init()', () => {
       expect(sceneFile.main).to.equal('scene.js')
       await expectBaseFilesToExist(dirPath)
       await expectBasicDCLIgnore(dirPath)
+      done()
+    })
+  }).timeout(5000)
+
+  it('should successfully create a ECS project', async () => {
+    await tmpTest(async (dirPath, done) => {
+      const dcl = new Decentraland({
+        workingDir: dirPath
+      })
+
+      const scenePath = path.resolve(dirPath, 'scene.json')
+
+      await dcl.init(
+        {
+          main: '???'
+        },
+        BoilerplateType.ECS
+      )
+
+      const sceneFile = await fs.readJson(scenePath)
+
+      expect(sceneFile.main).to.equal('bin/game.js')
+      await expectBaseFilesToExist(dirPath)
+      await expectBasicDCLIgnore(dirPath)
+
+      expect(await fs.pathExists(path.resolve(dirPath, 'tsconfig.json')), 'expect tsconfig.json folder to exist').to.be.true
+      expect(await fs.pathExists(path.resolve(dirPath, 'src/game.ts')), 'expect src/game.ts folder to exist').to.be.true
+      expect(await fs.pathExists(path.resolve(dirPath, 'package.json')), 'expect package.json folder to exist').to.be.true
+
       done()
     })
   }).timeout(5000)
