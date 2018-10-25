@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 import * as events from 'wildcards'
 
-import { IPFS, IResolveDependency } from './IPFS'
+import { IResolveDependency } from './IPFS'
 import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI } from './LinkerAPI'
@@ -23,8 +23,6 @@ const web3utils = new Web3()
 
 export type DecentralandArguments = {
   workingDir?: string
-  ipfsHost?: string
-  ipfsPort?: number
   linkerPort?: number
   previewPort?: number
   isHttps?: boolean
@@ -49,7 +47,6 @@ export type ParcelMetadata = {
 }
 
 export class Decentraland extends EventEmitter {
-  localIPFS: IPFS
   project: Project
   ethereum: Ethereum
   options: DecentralandArguments = {}
@@ -59,7 +56,6 @@ export class Decentraland extends EventEmitter {
     super()
     this.options = args
     this.options.workingDir = args.workingDir || getRootPath()
-    this.localIPFS = new IPFS(args.ipfsHost, args.ipfsPort)
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.ethereum
@@ -69,7 +65,6 @@ export class Decentraland extends EventEmitter {
     }
 
     // Pipe all events
-    events(this.localIPFS, 'ipfs:*', this.pipeEvents.bind(this))
     events(this.ethereum, 'ethereum:*', this.pipeEvents.bind(this))
   }
 
@@ -87,7 +82,7 @@ export class Decentraland extends EventEmitter {
     await this.ethereum.getIPNS(x, y)
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
-    const client: ContentClient = new ContentClient("http://localhost:8000/")
+    const client: ContentClient = new ContentClient("http://localhost:8000")
 
     try {
       const signature = await this.link(rootCID)
@@ -174,7 +169,7 @@ export class Decentraland extends EventEmitter {
 
   async getParcelInfo({ x, y }: Coords): Promise<ParcelMetadata> {
     const [scene, land, owner] = await Promise.all([
-      this.localIPFS.getRemoteSceneMetadata(x, y),
+      null, // this.localIPFS.getRemoteSceneMetadata(x, y), Get Scene from content server
       this.provider.getLandData({ x, y }),
       this.provider.getLandOwner({ x, y })
     ])
@@ -203,7 +198,7 @@ export class Decentraland extends EventEmitter {
   }
 
   async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: IResolveDependency[] }> {
-    const { url } = await this.localIPFS.resolveParcel(x, y)
+    const { url } = { url: null } // TODO: replace await this.localIPFS.resolveParcel(x, y)
 
     if (!url) return { files: [] }
 

@@ -28,8 +28,8 @@ export function deploy(vorpal: any) {
     .action(
       wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
-          ipfsHost: args.options.host || 'localhost',
-          ipfsPort: args.options.port || 5001,
+          // TODO this should be the content server host ipfsHost: args.options.host || 'localhost',
+          // TODO this should be the content server port ipfsHostipfsPort: args.options.port || 5001,
           isHttps: !!args.options.https
         })
 

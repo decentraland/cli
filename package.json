@@ -78,7 +78,8 @@
     "vorpal": "^1.12.0",
     "wildcards": "^1.0.2",
     "ws": "^6.0.0",
-    "ipfs-unixfs-engine": "^0.32.4"
+    "ipfs-unixfs-engine": "^0.32.4",
+    "interface-datastore": "^0.5.0"
   },
   "devDependencies": {
     "@types/analytics-node": "0.0.31",

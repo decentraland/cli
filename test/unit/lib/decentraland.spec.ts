@@ -39,8 +39,7 @@ describe('Decentraland', () => {
   let publishStub
   let addFilesStub
   let linkStub
-  let pinStub
-
+  
   const addFilesResult = beforeEach(() => {
     // Ethereum stubs
     getIPNSStub = ctx.stub(Ethereum.prototype, 'getIPNS').callsFake(() => 'Qmwasd')
@@ -66,8 +65,6 @@ describe('Decentraland', () => {
 
     // Decentraland stubs
     linkStub = ctx.stub(Decentraland.prototype, 'link').callsFake(() => null)
-    pinStub = ctx.stub(Decentraland.prototype, 'pin').callsFake(() => null)
-
     // Utils stub
     var stub = ctx.stub(ProjectUtils, 'getRootPath').callsFake(() => '.')
   })
@@ -102,8 +99,7 @@ describe('Decentraland', () => {
       expect(writeProjectFileStub.withArgs({ ipfsKey: 'Qmwqwe' }).calledBefore(publishStub), 'expect Project.writeProjectFile to be called')
         .to.be.true
       expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(linkStub), 'expect IPFS.publish() to be called').to.be.true
-      expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
-      expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
+      // expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
     })
 
     it('should skip generating a new IPFS key if one is already available', async () => {
@@ -128,8 +124,8 @@ describe('Decentraland', () => {
         'expect IPFS.addFiles() to be called'
       ).to.be.true
       expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(linkStub), 'expect IPFS.publish() to be called').to.be.true
-      expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
-      expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
+      // expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
+      // expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
       expect(genIPFSKeyStub.notCalled, 'expect IPFS.genIPFSKey() not to be called').to.be.true
     })
 
@@ -159,8 +155,8 @@ describe('Decentraland', () => {
       expect(writeProjectFileStub.withArgs({ ipfsKey: 'Qmwqwe' }).calledBefore(publishStub), 'expect Project.writeProjectFile to be called')
         .to.be.true
       expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(linkStub), 'expect IPFS.publish() to be called').to.be.true
-      expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
-      expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
+      // expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
+      // expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
     })
 
     it('should skip generating a new IPFS key if one is already available', async () => {
@@ -185,8 +181,8 @@ describe('Decentraland', () => {
         'expect IPFS.addFiles() to be called'
       ).to.be.true
       expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(linkStub), 'expect IPFS.publish() to be called').to.be.true
-      expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
-      expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
+      // expect(linkStub.calledBefore(pinStub), 'expect Decentraland.link() to be called').to.be.true
+      // expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
       expect(genIPFSKeyStub.notCalled, 'expect IPFS.genIPFSKey() not to be called').to.be.true
     })
 
@@ -210,8 +206,8 @@ describe('Decentraland', () => {
         addFilesStub.withArgs([{ path: '/tmp/myFile.txt', content: null }]).calledBefore(publishStub),
         'expect IPFS.addFiles() to be called'
       ).to.be.true
-      expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(pinStub), 'expect IPFS.publish() to be called').to.be.true
-      expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
+      // expect(publishStub.withArgs('projectId', `/ipfs/QmHash`).calledBefore(pinStub), 'expect IPFS.publish() to be called').to.be.true
+      // expect(pinStub.called, 'expect Decentraland.pin() to be called').to.be.true
       expect(linkStub.notCalled, 'expect Decentraland.link() not to be called').to.be.true
       expect(genIPFSKeyStub.notCalled, 'expect IPFS.genIPFSKey() not to be called').to.be.true
     })
