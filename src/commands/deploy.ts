@@ -20,7 +20,7 @@ export interface IDeployArguments {
 export function deploy(vorpal: any) {
   vorpal
     .command('deploy')
-    .description('Uploads scene to IPFS and updates IPNS.')
+    .description('Uploads scene to content server.')
     .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
     .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
@@ -30,7 +30,8 @@ export function deploy(vorpal: any) {
         const dcl = new Decentraland({
           // TODO this should be the content server host ipfsHost: args.options.host || 'localhost',
           // TODO this should be the content server port ipfsHostipfsPort: args.options.port || 5001,
-          isHttps: !!args.options.https
+          isHttps: !!args.options.https,
+          contentServerUrl: args.options.host || 'http://localhost:8000'
         })
 
         let ignoreFile = await dcl.project.getDCLIgnore()

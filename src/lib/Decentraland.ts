@@ -14,12 +14,8 @@ import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { filterAndFillEmpty } from '../utils/land'
 import { CIDUtils } from './content/CIDUtils'
 
-import { SignedMessage } from 'decentraland-eth'
-import Web3 = require('web3')
-import { RequestMetadata, ContentUploadRequest } from './content/ContentUploadRequest'
 import { ContentClient } from './content/ContentClient'
-
-const web3utils = new Web3()
+import { ContentService } from './content/ContentService';
 
 export type DecentralandArguments = {
   workingDir?: string
@@ -28,6 +24,7 @@ export type DecentralandArguments = {
   isHttps?: boolean
   watch?: boolean
   blockchain?: boolean
+  contentServerUrl?: string
 }
 
 export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
@@ -51,6 +48,7 @@ export class Decentraland extends EventEmitter {
   ethereum: Ethereum
   options: DecentralandArguments = {}
   provider: IEthereumDataProvider
+  contentService: ContentService
 
   constructor(args: DecentralandArguments = {}) {
     super()
@@ -59,6 +57,7 @@ export class Decentraland extends EventEmitter {
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.ethereum
+    this.contentService = new ContentService(new ContentClient(args.contentServerUrl))
 
     if (!this.options.blockchain) {
       this.provider = new API()
@@ -66,6 +65,7 @@ export class Decentraland extends EventEmitter {
 
     // Pipe all events
     events(this.ethereum, 'ethereum:*', this.pipeEvents.bind(this))
+    events(this.contentService,'upload:*', this.pipeEvents.bind(this))
   }
 
   async init(sceneMeta: DCL.SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
@@ -82,14 +82,12 @@ export class Decentraland extends EventEmitter {
     await this.ethereum.getIPNS(x, y)
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
-    const client: ContentClient = new ContentClient("http://localhost:8000")
-
     try {
       const signature = await this.link(rootCID)
-      const manifest = await CIDUtils.getFilesContentIdentifier(files)
-
-      await client.uploadContent(new ContentUploadRequest(rootCID, files, manifest, this.buildMetadata(rootCID, signature)))
-
+      const uploadResult = await this.contentService.uploadContent(rootCID, files, signature)
+      if(!uploadResult) {
+        fail(ErrorType.UPLOAD_ERROR, "Fail to upload the content")
+      }
     } catch (e) {
       fail(ErrorType.LINKER_ERROR, e.message)
     }
@@ -227,17 +225,5 @@ export class Decentraland extends EventEmitter {
       const parcel = await this.project.getParcelCoordinates()
       await this.ethereum.validateAuthorizationOfParcel(owner, parcel)
     }
-  }
-
-  private buildMetadata(rootCID: string, signature: string): RequestMetadata {
-    const signedMessage = new SignedMessage(web3utils.toHex(rootCID), signature)
-    const validity = new Date()
-    validity.setMonth(validity.getMonth() + 6)
-    return {value: rootCID,
-      signature: signature,
-      pubKey: signedMessage.getAddress(),
-      validityType: 0,
-      validity: validity,
-      sequence: 2}
   }
 }

@@ -7,8 +7,15 @@ const pull = require('pull-stream')
 const MemoryDatastore = require('interface-datastore').MemoryDatastore
 const CID = require('cids')
 
+/**
+ * Utility class to handle the calculation of a IFile CID
+ */
 export class CIDUtils {
 
+  /**
+   * Retrieves a ContentIdentifier (which contains the CID) for each File
+   * @param files Files to calculate the CID
+   */
   static async getFilesContentIdentifier(files: IFile[]): Promise<ContentIdentifier[]> {
     const result: ContentIdentifier[] = []
     for (let i = 0; i < files.length; i++) {
@@ -19,6 +26,10 @@ export class CIDUtils {
     return result
   }
 
+  /**
+   * Calculates the RootCID for all the files
+   * @param files Content to use to calculate the root CID
+   */
   static async getFilesComposedCID(files: IFile[]): Promise<string> {
     return this.getListCID(files, true)
   }

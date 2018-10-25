@@ -27,6 +27,9 @@ export class ContentUploadRequest {
     this.metadata = _metadata
   }
 
+  /**
+   * Generates a formData to sent in a http multipart request
+   */
   requestContent(): any {
     const formData: any = {
       metadata: JSON.stringify(this.metadata),
