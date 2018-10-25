@@ -1,8 +1,5 @@
 import { IFile } from "../Project"
 import { ContentIdentifier } from "./ContentUploadRequest"
-import dag = require('ipld-dag-pb')
-import DAGNode = dag.DAGNode
-import Unix = require('ipfs-unixfs')
 import imp = require('ipfs-unixfs-engine')
 import Importer = imp.Importer
 
@@ -12,24 +9,28 @@ const CID = require('cids')
 
 export class CIDUtils {
 
-  static async getContentIdentifier(files: IFile[]): Promise<ContentIdentifier[]> {
+  static async getFilesContentIdentifier(files: IFile[]): Promise<ContentIdentifier[]> {
     const result: ContentIdentifier[] = []
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      const fileCID: string = await this.getCID(file.content)
+      const fileCID: string = await this.getListCID([file], false)
       result.push({ cid: fileCID, name : file.path })
     }
     return result
   }
 
-  static async getContentCID(files: IFile[]): Promise<string> {
+  static async getFilesComposedCID(files: IFile[]): Promise<string> {
+    return this.getListCID(files, true)
+  }
+
+  private static async getListCID(files: IFile[], shareRoot: boolean): Promise<string> {
     const importer = new Importer(new MemoryDatastore())
     return new Promise<string>((resolve, reject) => {
       pull(
         pull.values(files),
         pull.asyncMap((file, cb) => {
           const data = {
-            path : "/tmp/" + file.path,
+            path :  shareRoot ? "/tmp/" + file.path : file.path,
             content: file.content
           }
           cb(null, data)
@@ -45,17 +46,6 @@ export class CIDUtils {
         )
       )
     )
-    })
-  }
-
-  private static getCID(buffer: Buffer): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      DAGNode.create(new Unix('file', buffer).marshal(), (err, node1) => {
-        if (err) {
-          reject("Fail to calculate CID")
-        }
-        resolve(node1.toJSON().multihash)
-      })
     })
   }
 }

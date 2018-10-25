@@ -14,14 +14,14 @@ const fullContentExpectedCID = "QmYaarcZ65C6K58xLpPyVqYLVbdT1KbE5H7TF221jYDaEU";
 describe('CIDUtils', () => {
   it('shold generate the CID of a list of files', async () => {
     const file: IFile = await getTestFile(sceneJsonfilePath)
-    const result: ContentIdentifier[] = await CIDUtils.getContentIdentifier([file])
+    const result: ContentIdentifier[] = await CIDUtils.getFilesContentIdentifier([file])
     expect(result[0].cid).to.be.equals(sceneJsonExpectedCID)
   })
 
   it('should generate the CID for all the contnent', async () => {
     const project = new Project(dataFolderPath)
     const files = await project.getFiles()
-    const result: string = await CIDUtils.getContentCID(files)
+    const result: string = await CIDUtils.getFilesComposedCID(files)
     expect(result).to.be.equals(fullContentExpectedCID)
   })
 })
@@ -29,5 +29,5 @@ describe('CIDUtils', () => {
 async function getTestFile(filePath: string) {
   const stat = await fs.stat(filePath)
   const content = await fs.readFile(filePath)
-  return { path: filePath.replace(/\\/g, '/'), content: Buffer.from(content), size: stat.size }
+  return { path: "scene.json", content: Buffer.from(content), size: stat.size }
 }

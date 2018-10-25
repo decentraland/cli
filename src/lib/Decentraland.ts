@@ -85,13 +85,13 @@ export class Decentraland extends EventEmitter {
     await this.validateOwnership()
     const { x, y } = await this.project.getParcelCoordinates()
     await this.ethereum.getIPNS(x, y)
-    const rootCID = await CIDUtils.getContentCID(files)
+    const rootCID = await CIDUtils.getFilesComposedCID(files)
 
     const client: ContentClient = new ContentClient("http://localhost:8000/")
 
     try {
       const signature = await this.link(rootCID)
-      const manifest = await CIDUtils.getContentIdentifier(files)
+      const manifest = await CIDUtils.getFilesContentIdentifier(files)
 
       await client.uploadContent(new ContentUploadRequest(rootCID, files, manifest, this.buildMetadata(rootCID, signature)))
 
