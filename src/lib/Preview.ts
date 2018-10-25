@@ -68,6 +68,7 @@ export class Preview extends EventEmitter {
 
     const npmModulesPath = path.resolve('node_modules')
 
+    // TODO: dcl.project.needsDependencies() should do this
     if (!fs.pathExistsSync(npmModulesPath)) {
       fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${npmModulesPath}, please run: npm install`)
     }
