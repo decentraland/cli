@@ -31,7 +31,7 @@ export class LinkerAPI extends EventEmitter {
     this.estateContract = estateRegistryContract
   }
 
-  link(port: number, isHttps: boolean) {
+  link(port: number, isHttps: boolean, rootCID: string) {
     return new Promise(async (resolve, reject) => {
       let resolvedPort = port
 
@@ -45,7 +45,7 @@ export class LinkerAPI extends EventEmitter {
 
       const url = `${isHttps ? 'https' : 'http'}://localhost:${resolvedPort}/linker`
 
-      this.setRoutes()
+      this.setRoutes(rootCID)
 
       this.on('link:error', err => {
         reject(err)
@@ -73,7 +73,7 @@ export class LinkerAPI extends EventEmitter {
     })
   }
 
-  private setRoutes() {
+  private setRoutes(rootCID: string) {
     this.app.get('/linker.js', (req, res) => {
       res.sendFile(path.resolve(__dirname, '../../linker-app/build/src/index.js'))
     })
@@ -98,7 +98,7 @@ export class LinkerAPI extends EventEmitter {
           <div id="main">
             <script src="linker.js" env=${process.env.DCL_ENV} mana-contract=${this.manaContract} land-contract=${this.landContract}
               estate-contract=${this.estateContract} base-parcel=${JSON.stringify(baseParcel)} parcels=${JSON.stringify(parcels)}
-              estate-id=${estateId} owner=${owner} ipfs-key=${ipfsKey} provider=${getProvider()}></script>
+              estate-id=${estateId} owner=${owner} ipfs-key=${ipfsKey} provider=${getProvider()} root-cid=${rootCID}></script>
           </div>
         </body>
       `)
@@ -113,7 +113,7 @@ export class LinkerAPI extends EventEmitter {
       const { ok, reason } = urlParse.parse(req.url, true).query
 
       if (ok === 'true') {
-        this.emit('link:success')
+        this.emit('link:success', reason)
       }
 
       if (process.env.DEBUG) {

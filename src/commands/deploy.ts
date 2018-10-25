@@ -35,13 +35,6 @@ export function deploy(vorpal: any) {
 
         let ignoreFile = await dcl.project.getDCLIgnore()
 
-        dcl.on('ipfs:add', () => {
-          const spinner = loading('Uploading files to local IPFS node')
-          dcl.on('ipfs:add-success', () => {
-            spinner.succeed('Files uploaded to IPFS')
-          })
-        })
-
         dcl.on('ethereum:get-ipns', (x, y) => {
           const spinner = loading(`Checking IPNS for coordinates ${x},${y}`)
 
@@ -54,19 +47,10 @@ export function deploy(vorpal: any) {
           })
         })
 
-        dcl.on('ipfs:publish', (ipfsHash: string) => {
-          const spinner = loading(`Publishing IPNS for ${ipfsHash}`)
-
-          dcl.on('ipfs:publish-success', (ipnsHash: string) => {
-            spinner.succeed()
-            info(`IPNS hash: ${ipnsHash}`)
-          })
-        })
-
         dcl.on('link:ready', url => {
           Analytics.sceneLink()
-          info('This is the first time you deploy using this IPNS, please link your project to the LAND Registry:')
-          const linkerMsg = loading(`Linking app ready at ${url}`)
+          info('You need to sign the content before the deployment:')
+          const linkerMsg = loading(`Signing app ready at ${url}`)
 
           setTimeout(() => {
             try {
@@ -76,19 +60,9 @@ export function deploy(vorpal: any) {
             }
           }, 5000)
 
-          dcl.on('link:success', () => {
+          dcl.on('link:success', (signature: string) => {
             Analytics.sceneLinkSuccess()
-            linkerMsg.succeed('Project successfully updated in LAND Registry')
-          })
-        })
-
-        dcl.on('ipfs:pin', () => {
-          Analytics.pinRequest()
-          const spinner = loading(`Pinning files to IPFS gateway`)
-
-          dcl.on('ipfs:pin-success', async () => {
-            Analytics.pinSuccess()
-            spinner.succeed('Files pinned to IPFS gateway')
+            linkerMsg.succeed('Content succesfully signed ')
           })
         })
 

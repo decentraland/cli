@@ -12,6 +12,7 @@ import { Coords } from '../utils/coordinateHelpers'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { filterAndFillEmpty } from '../utils/land'
+import { CIDUtils } from './content/CIDUtils'
 
 export type DecentralandArguments = {
   workingDir?: string
@@ -76,33 +77,19 @@ export class Decentraland extends EventEmitter {
     await this.project.validateSceneOptions()
     await this.validateOwnership()
     const { x, y } = await this.project.getParcelCoordinates()
+    await this.ethereum.getIPNS(x, y)
+    const rootCID = await CIDUtils.getContentCID(files)
 
-    const projectFile = await this.project.getProjectFile()
-    const filesAdded = await this.localIPFS.addFiles(files)
-    const rootFolder = filesAdded[filesAdded.length - 1]
-    const ipns = await this.ethereum.getIPNS(x, y)
-    let ipfsKey = projectFile.ipfsKey
-
-    if (!ipfsKey) {
-      ipfsKey = await this.localIPFS.genIPFSKey(projectFile.id)
-      await this.project.writeProjectFile({ ipfsKey })
-      this.localIPFS.genKeySuccess()
+    try {
+      await this.link(rootCID)
+    } catch (e) {
+      fail(ErrorType.LINKER_ERROR, e.message)
     }
 
-    await this.localIPFS.publish(projectFile.id, `/ipfs/${rootFolder.hash}`)
-
-    if (ipfsKey !== ipns) {
-      try {
-        await this.link()
-      } catch (e) {
-        fail(ErrorType.LINKER_ERROR, e.message)
-      }
-    }
-
-    await this.pin(rootFolder.hash)
+    fail(ErrorType.LINKER_ERROR,"asdasdasd")
   }
 
-  async link() {
+  async link(rootCID: string) {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
     await this.validateOwnership()
@@ -121,18 +108,11 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(this.options.linkerPort, this.options.isHttps)
+        await linker.link(this.options.linkerPort, this.options.isHttps, rootCID)
       } catch (e) {
         reject(e)
       }
     })
-  }
-
-  async pin(ipfsHash?: string) {
-    await this.project.validateExistingProject()
-    const coords = await this.project.getParcelCoordinates()
-    const peerId = await this.localIPFS.getPeerId()
-    await this.localIPFS.pinFiles(peerId, coords, ipfsHash)
   }
 
   async preview() {
