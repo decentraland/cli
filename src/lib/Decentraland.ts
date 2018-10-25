@@ -14,6 +14,13 @@ import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { filterAndFillEmpty } from '../utils/land'
 import { CIDUtils } from './content/CIDUtils'
 
+import { SignedMessage } from 'decentraland-eth'
+import Web3 = require('web3')
+import { RequestMetadata, ContentUploadRequest } from './content/ContentUploadRequest'
+import { ContentClient } from './content/ContentClient'
+
+const web3utils = new Web3()
+
 export type DecentralandArguments = {
   workingDir?: string
   ipfsHost?: string
@@ -80,13 +87,18 @@ export class Decentraland extends EventEmitter {
     await this.ethereum.getIPNS(x, y)
     const rootCID = await CIDUtils.getContentCID(files)
 
+    const client: ContentClient = new ContentClient("http://localhost:8000/")
+
     try {
-      await this.link(rootCID)
+      const signature = await this.link(rootCID)
+      const manifest = await CIDUtils.getContentIdentifier(files)
+
+      await client.uploadContent(new ContentUploadRequest(rootCID, files, manifest, this.buildMetadata(rootCID, signature)))
+
     } catch (e) {
       fail(ErrorType.LINKER_ERROR, e.message)
     }
 
-    fail(ErrorType.LINKER_ERROR,"asdasdasd")
   }
 
   async link(rootCID: string) {
@@ -94,7 +106,7 @@ export class Decentraland extends EventEmitter {
     await this.project.validateSceneOptions()
     await this.validateOwnership()
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise<string>(async (resolve, reject) => {
       const manaContract = await Ethereum.getContractAddress('MANAToken')
       const landContract = await Ethereum.getContractAddress('LANDProxy')
       const estateContract = await Ethereum.getContractAddress('EstateProxy')
@@ -103,8 +115,8 @@ export class Decentraland extends EventEmitter {
 
       events(linker, '*', this.pipeEvents.bind(this))
 
-      linker.on('link:success', async () => {
-        resolve()
+      linker.on('link:success', async (signature: string) => {
+        resolve(signature)
       })
 
       try {
@@ -220,5 +232,17 @@ export class Decentraland extends EventEmitter {
       const parcel = await this.project.getParcelCoordinates()
       await this.ethereum.validateAuthorizationOfParcel(owner, parcel)
     }
+  }
+
+  private buildMetadata(rootCID: string, signature: string): RequestMetadata {
+    const signedMessage = new SignedMessage(web3utils.toHex(rootCID), signature)
+    const validity = new Date()
+    validity.setMonth(validity.getMonth() + 6)
+    return {value: rootCID,
+      signature: signature,
+      pubKey: signedMessage.getAddress(),
+      validityType: 0,
+      validity: validity,
+      sequence: 2}
   }
 }

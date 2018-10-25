@@ -62,7 +62,20 @@ export function deploy(vorpal: any) {
 
           dcl.on('link:success', (signature: string) => {
             Analytics.sceneLinkSuccess()
-            linkerMsg.succeed('Content succesfully signed ')
+            linkerMsg.succeed(`Content succesfully signed. Signature[${signature}]`)
+          })
+        })
+
+        dcl.on('upload:starting', () => {
+          const uploadMsg = loading(`Uploading content...`)
+
+          dcl.on('upload:failed', (error: any) => {
+            uploadMsg.fail("Fail to upload content")
+            fail(ErrorType.DEPLOY_ERROR, `Unable ro upload content. ${error}`)
+          })
+
+          dcl.on('upload:success', () => {
+            uploadMsg.succeed('Content uploaded')
           })
         })
 
