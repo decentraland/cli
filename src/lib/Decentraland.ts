@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events'
 import * as events from 'wildcards'
 
-import { IResolveDependency } from './IPFS'
 import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI } from './LinkerAPI'
@@ -195,18 +194,20 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: IResolveDependency[] }> {
-    const { url } = { url: null } // TODO: replace await this.localIPFS.resolveParcel(x, y)
+  async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: any[] }> {
+    // this.localIPFS.resolveParcel(x, y)
+    // const { url } = { url: null } // TODO: replace await this.localIPFS.resolveParcel(x, y)
 
-    if (!url) return { files: [] }
+    // if (!url) return { files: [] }
 
-    const result: { lastModified?: string; files: IResolveDependency[] } = { files: url.dependencies }
+    // const result: { lastModified?: string; files: any[] } = { files: url.dependencies }
 
-    if (url.lastModified) {
-      // only available in redis metadata >= 2
-      result.lastModified = url.lastModified
-    }
+    // if (url.lastModified) {
+    //   // only available in redis metadata >= 2
+    //   result.lastModified = url.lastModified
+    // }
 
+    const result = { files: [] }
     return result
   }
 

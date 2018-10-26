@@ -2,7 +2,6 @@ import { wrapCommand } from '../utils/wrapCommand'
 import { Decentraland } from '../lib/Decentraland'
 import * as Coordinates from '../utils/coordinateHelpers'
 import { formatList, italic } from '../utils/logging'
-import { IResolveDependency } from '../lib/IPFS'
 import { Analytics } from '../utils/analytics'
 
 export interface IArguments {
@@ -59,7 +58,7 @@ export function status(vorpal: any) {
     )
 }
 
-export function logStatus(vorpal, files: IResolveDependency[], lastModified: string, coords: string) {
+export function logStatus(vorpal, files: any[], lastModified: string, coords: string) {
   const serializedList = formatList(files, { spacing: 2, padding: 2 })
 
   if (files.length === 0) {

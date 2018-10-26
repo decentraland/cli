@@ -21,15 +21,12 @@ export function deploy(vorpal: any) {
   vorpal
     .command('deploy')
     .description('Uploads scene to content server.')
-    .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
-    .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
+    .option('-h, --host <string>', 'Content servert url (default is http://localhost:8000).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .option('-hs, --https', 'Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)')
     .action(
       wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
-          // TODO this should be the content server host ipfsHost: args.options.host || 'localhost',
-          // TODO this should be the content server port ipfsHostipfsPort: args.options.port || 5001,
           isHttps: !!args.options.https,
           contentServerUrl: args.options.host || 'http://localhost:8000'
         })

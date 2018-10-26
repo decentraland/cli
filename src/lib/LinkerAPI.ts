@@ -84,7 +84,6 @@ export class LinkerAPI extends EventEmitter {
       const baseParcel = await this.project.getParcelCoordinates()
       const parcels = await this.project.getParcels()
       const owner = await this.project.getOwner()
-      const { ipfsKey } = await this.project.getProjectFile()
       const estateId = await this.project.getEstate()
 
       res.write(`
@@ -98,7 +97,7 @@ export class LinkerAPI extends EventEmitter {
           <div id="main">
             <script src="linker.js" env=${process.env.DCL_ENV} mana-contract=${this.manaContract} land-contract=${this.landContract}
               estate-contract=${this.estateContract} base-parcel=${JSON.stringify(baseParcel)} parcels=${JSON.stringify(parcels)}
-              estate-id=${estateId} owner=${owner} ipfs-key=${ipfsKey} provider=${getProvider()} root-cid=${rootCID}></script>
+              estate-id=${estateId} owner=${owner} provider=${getProvider()} root-cid=${rootCID}></script>
           </div>
         </body>
       `)

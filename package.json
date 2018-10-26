@@ -68,7 +68,6 @@
     "fs-extra": "^6.0.0",
     "ignore": "^4.0.3",
     "inquirer": "^5.1.0",
-    "ipfs-api": "^17.5.0",
     "isomorphic-fetch": "^2.2.1",
     "opn": "^5.2.0",
     "ora": "^2.1.0",

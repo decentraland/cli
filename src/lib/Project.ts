@@ -99,7 +99,7 @@ export class Project {
    * @param dirName The directory where the project file will be created.
    */
   async initProject() {
-    await this.writeProjectFile({ id: uuid.v4(), ipfsKey: null })
+    await this.writeProjectFile({ id: uuid.v4() })
   }
 
   /**
@@ -357,7 +357,7 @@ export class Project {
 
       if (stat.size > Project.MAX_FILE_SIZE) {
         // MAX_FILE_SIZE is an arbitrary file size
-        fail(ErrorType.IPFS_ERROR, `Maximum file size exceeded: '${file}' is larger than ${Project.MAX_FILE_SIZE} bytes`)
+        fail(ErrorType.UPLOAD_ERROR, `Maximum file size exceeded: '${file}' is larger than ${Project.MAX_FILE_SIZE} bytes`)
       }
 
       const content = await fs.readFile(filePath)
