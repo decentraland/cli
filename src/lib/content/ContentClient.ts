@@ -16,7 +16,7 @@ export class ContentClient {
    */
   async uploadContent(uploadRequest: ContentUploadRequest): Promise<any> {
     return new Promise<any>((resolve, reject) => {
-      request.post({ url: this.contentServerUrl + 'mappings', formData: uploadRequest.requestContent() }, function optionalCallback(err, httpResponse, body) {
+      request.post({ url: this.contentServerUrl + '/mappings', formData: uploadRequest.requestContent() }, function optionalCallback(err, httpResponse, body) {
         if (err) {
           fail(err)
         }
