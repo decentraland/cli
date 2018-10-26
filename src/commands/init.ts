@@ -13,9 +13,34 @@ export function init(vorpal: any) {
     .command('init')
     .description('Generates new Decentraland scene.')
     .option('--path <path>', 'output path (default is the current working directory).')
-    .option('--boilerplate', 'static, singleplayer or multiplayer')
+    .option(
+      '--boilerplate <type>',
+      Object.keys(BoilerplateType)
+        .filter(isNaN as any)
+        .join(', ')
+    )
     .action(
       wrapCommand(async (args: any) => {
+        if (args.options.boilerplate === true) {
+          fail(
+            ErrorType.PROJECT_ERROR,
+            `dcl init --boilerplate <type>\n<type> is missing, supported types are ${Object.values(BoilerplateType)
+              .filter($ => isNaN($ as any))
+              .join(', ')}`
+          )
+        }
+
+        const boilerplateType = getOrElse(args.options.boilerplate, BoilerplateType.TYPESCRIPT_STATIC)
+
+        if (!Object.values(BoilerplateType).includes(boilerplateType)) {
+          fail(
+            ErrorType.PROJECT_ERROR,
+            `Invalid boilerplate type: '${boilerplateType}'. Supported types are ${Object.values(BoilerplateType)
+              .filter($ => isNaN($ as any))
+              .join(', ')}`
+          )
+        }
+
         const dcl = new Decentraland({
           workingDir: args.options.path
         })
@@ -59,7 +84,6 @@ export function init(vorpal: any) {
           main: 'scene.xml'
         }
 
-        const boilerplateType = getOrElse(args.options.boilerplate, BoilerplateType.TYPESCRIPT_STATIC)
         let websocketServer: string
 
         if (boilerplateType === BoilerplateType.WEBSOCKETS) {

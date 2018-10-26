@@ -9,7 +9,7 @@ import * as filesystem from '../../../src/utils/filesystem'
 const ctx = sandbox.create()
 let packageJsonStub
 let readJSONStub
-let helpers
+let helpers: typeof import('../../../src/utils/moduleHelpers')
 
 tmpTest(async (dirPath, done) => {
   await setupFilesystem(dirPath, [
@@ -43,20 +43,20 @@ tmpTest(async (dirPath, done) => {
     describe('isDecentralandApiOutdated()', async () => {
       it('should return false if the local and remote versions are equal', async () => {
         readJSONStub.callsFake(() => ({ version: '1.0.0' }))
-        const isOutdated = await helpers.isDecentralandApiOutdated()
-        expect(isOutdated).to.be.false
+        const isOutdated = await helpers.getOutdatedApi()
+        expect(isOutdated).to.be.undefined
       }).timeout(5000)
 
       it('should return false if the local version is higher than the remote version', async () => {
         packageJsonStub.callsFake(() => ({ version: '0.1.0' }))
         readJSONStub.callsFake(() => ({ version: '1.0.0' }))
-        const isOutdated = await helpers.isDecentralandApiOutdated()
-        expect(isOutdated).to.be.false
+        const isOutdated = await helpers.getOutdatedApi()
+        expect(isOutdated).to.be.undefined
       }).timeout(5000)
 
       it('should return true if the local version is lower than the remote version', async () => {
-        const isOutdated = await helpers.isDecentralandApiOutdated()
-        expect(isOutdated).to.be.true
+        const isOutdated = await helpers.getOutdatedApi()
+        expect(isOutdated).to.be.not.undefined
       }).timeout(5000)
     })
 

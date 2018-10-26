@@ -24,7 +24,7 @@ export function buildTypescript(): Promise<void> {
     const child = spawn(npm, ['run', 'watch'], { shell: true })
     child.stdout.pipe(process.stdout)
     child.stdout.on('data', data => {
-      if (data.toString().indexOf('The compiler is watching file changes...') > -1) {
+      if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
         return resolve()
       }
     })
@@ -66,14 +66,23 @@ export async function isDeprecatedApiInstalled(): Promise<boolean> {
   return !!metaverseApi
 }
 
-export async function isDecentralandApiOutdated(): Promise<boolean> {
-  const decentralandApiVersionLatest = await getLatestVersion('decentraland-api')
+export async function getOutdatedApi(): Promise<{ package: string; installedVersion: string; latestVersion: string }> {
   const decentralandApiVersion = await getInstalledVersion('decentraland-api')
-  if (decentralandApiVersionLatest && decentralandApiVersion && semver.lt(decentralandApiVersion, decentralandApiVersionLatest)) {
-    return true
+  const decentralandEcsVersion = await getInstalledVersion('decentraland-ecs')
+
+  if (decentralandEcsVersion) {
+    const latestVersion = await getLatestVersion('decentraland-ecs')
+    if (latestVersion && semver.lt(decentralandEcsVersion, latestVersion)) {
+      return { package: 'decentraland-ecs', installedVersion: decentralandEcsVersion, latestVersion }
+    }
+  } else if (decentralandApiVersion) {
+    const latestVersion = await getLatestVersion('decentraland-api')
+    if (latestVersion && semver.lt(decentralandApiVersion, latestVersion)) {
+      return { package: 'decentraland-api', installedVersion: decentralandApiVersion, latestVersion }
+    }
   }
 
-  return false
+  return undefined
 }
 
 export async function getInstalledCLIVersion(): Promise<string> {

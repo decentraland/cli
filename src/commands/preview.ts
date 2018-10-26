@@ -1,15 +1,8 @@
-import {
-  buildTypescript,
-  installDependencies,
-  isOnline,
-  getInstalledVersion,
-  isDecentralandApiOutdated,
-  isDeprecatedApiInstalled
-} from '../utils/moduleHelpers'
+import { buildTypescript, installDependencies, isOnline, getOutdatedApi, isDeprecatedApiInstalled } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
-import { info, comment, loading, bold, error } from '../utils/logging'
+import { info, comment, loading, bold, error, formatOutdatedMessage } from '../utils/logging'
 import { ErrorType, fail } from '../utils/errors'
 import { getOrElse } from '../utils'
 import opn = require('opn')
@@ -47,6 +40,7 @@ export function start(vorpal: any) {
         Analytics.preview()
 
         const hasDeprecatedMetaverseApi = await isDeprecatedApiInstalled()
+
         if (hasDeprecatedMetaverseApi) {
           fail(
             ErrorType.PREVIEW_ERROR,
@@ -54,15 +48,10 @@ export function start(vorpal: any) {
           )
         }
 
-        const sdkOutdated = await isDecentralandApiOutdated()
-        const installedVersion = await getInstalledVersion('decentraland-api')
+        const sdkOutdated = await getOutdatedApi()
 
         if (sdkOutdated) {
-          vorpal.log(
-            bold(
-              error(`\n\n\n\n  ❗️ Your decentraland-api version is outdated. Please run:\n\n  npm install decentraland-api@latest\n\n\n`)
-            )
-          )
+          vorpal.log(bold(error(formatOutdatedMessage(sdkOutdated))))
 
           // TODO: would you like to install it? [Yn]
         }
@@ -108,8 +97,6 @@ export function start(vorpal: any) {
           })
 
           vorpal.log(bold('\n  Details:\n'))
-
-          vorpal.log(`    decentraland-api version: ${installedVersion}`, sdkOutdated ? '(OUTDATED)' : '')
 
           vorpal.log(comment('\nPress CTRL+C to exit\n'))
 
