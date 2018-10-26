@@ -1,15 +1,8 @@
-import {
-  buildTypescript,
-  installDependencies,
-  isOnline,
-  getOutdatedApi,
-  isDeprecatedApiInstalled,
-  formatOutdatedMessage
-} from '../utils/moduleHelpers'
+import { buildTypescript, installDependencies, isOnline, getOutdatedApi, isDeprecatedApiInstalled } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
-import { info, comment, loading, bold, error } from '../utils/logging'
+import { info, comment, loading, bold, error, formatOutdatedMessage } from '../utils/logging'
 import { ErrorType, fail } from '../utils/errors'
 import { getOrElse } from '../utils'
 import opn = require('opn')

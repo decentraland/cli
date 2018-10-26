@@ -85,17 +85,6 @@ export async function getOutdatedApi(): Promise<{ package: string; installedVers
   return undefined
 }
 
-export function formatOutdatedMessage(arg: { package: string; installedVersion: string; latestVersion: string }): string {
-  return [
-    `A package is outdated:`,
-    `  ${arg.package}:`,
-    `    installed: ${arg.installedVersion}`,
-    `    latest: ${arg.latestVersion}`,
-    `    to upgrade to the latest version run the command:`,
-    `      npm install ${arg.package}@latest`
-  ].join('\n')
-}
-
 export async function getInstalledCLIVersion(): Promise<string> {
   let pkg: { version: string }
 

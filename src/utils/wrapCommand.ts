@@ -1,6 +1,6 @@
-import { exit, warning } from './logging'
+import { exit, warning, formatOutdatedMessage } from './logging'
 import { Analytics, finishPendingTracking } from './analytics'
-import { getOutdatedApi, isCLIOutdated, formatOutdatedMessage } from './moduleHelpers'
+import { getOutdatedApi, isCLIOutdated } from './moduleHelpers'
 import { getOrElse } from '.'
 import { isEnvCi } from './env'
 
