@@ -7,7 +7,7 @@ export class ContentClient {
   contentServerUrl: string
 
   constructor(_contentServerUrl: string) {
-    this.contentServerUrl = (_contentServerUrl.endsWith("/")) ? _contentServerUrl : _contentServerUrl + "/"
+    this.contentServerUrl = _contentServerUrl
   }
 
   /**

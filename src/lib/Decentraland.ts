@@ -15,7 +15,7 @@ import { filterAndFillEmpty } from '../utils/land'
 import { CIDUtils } from './content/CIDUtils'
 
 import { ContentClient } from './content/ContentClient'
-import { ContentService } from './content/ContentService';
+import { ContentService } from './content/ContentService'
 
 export type DecentralandArguments = {
   workingDir?: string
@@ -85,7 +85,7 @@ export class Decentraland extends EventEmitter {
     try {
       const signature = await this.link(rootCID)
       const uploadResult = await this.contentService.uploadContent(rootCID, files, signature)
-      if(!uploadResult) {
+      if (!uploadResult) {
         fail(ErrorType.UPLOAD_ERROR, "Fail to upload the content")
       }
     } catch (e) {

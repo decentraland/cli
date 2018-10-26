@@ -4,7 +4,7 @@ import { IFile } from "../Project"
 import { SignedMessage } from "decentraland-eth"
 import Web3 = require('web3')
 import { CIDUtils } from "./CIDUtils"
-import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from "./ContentUploadRequest";
+import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from "./ContentUploadRequest"
 
 const web3utils = new Web3()
 
