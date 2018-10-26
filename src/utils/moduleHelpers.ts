@@ -121,7 +121,7 @@ export async function isCLIOutdated(): Promise<boolean> {
 
 export function isOnline(): Promise<boolean> {
   return new Promise(resolve => {
-    fetch('https://decentraland.org/')
+    fetch('https://decentraland.org/ping')
       .then(() => resolve(true))
       .catch(() => resolve(false))
     setTimeout(() => {
