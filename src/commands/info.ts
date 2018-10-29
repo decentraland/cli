@@ -8,6 +8,7 @@ export type Arguments = {
   target: string
   options: {
     blockchain: boolean
+    contentHost?: string
   }
 }
 
@@ -45,7 +46,10 @@ export function info(vorpal: any) {
     })
     .action(
       wrapCommand(async (args: Arguments) => {
-        const dcl = new Decentraland({ blockchain: args.options.blockchain })
+        const dcl = new Decentraland({
+          blockchain: args.options.blockchain,
+          contentServerUrl: args.options.contentHost || 'http://localhost:8000'
+        })
 
         if (!args.target) {
           await dcl.project.validateExistingProject()

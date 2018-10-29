@@ -5,9 +5,10 @@ import { SignedMessage } from "decentraland-eth"
 import Web3 = require('web3')
 import { CIDUtils } from "./CIDUtils"
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from "./ContentUploadRequest"
-import { fail } from "assert";
+import { fail } from "assert"
 
 const web3utils = new Web3()
+const SCENE_FILE = "scene.json"
 
 /**
  * This mostly to decouple the event handling from the client.
@@ -47,7 +48,23 @@ export class ContentService extends EventEmitter {
     if (response.ok) {
       return (response.data.length > 0) ? response.data[0] : null
     }
-    fail(`Error retrieving parel ${x},${y} information: ${response.errorMessage}`)
+    fail(`Error retrieving parcel ${x},${y} information: ${response.errorMessage}`)
+  }
+
+  async getSceneData(x: number, y: number): Promise<DCL.SceneMetadata> {
+    const information: ParcelInformation = await this.getParcelStatus(x, y)
+
+    const sceneFileCID = information.contents[SCENE_FILE]
+
+    if (sceneFileCID) {
+      const response = await this.client.getContent(sceneFileCID)
+      if (response.statusCode === 200) {
+        return JSON.parse(response.body)
+      } else {
+        fail(`Error retrieving parcel ${x},${y} scene.json: ${response.body}`)
+      }
+    }
+    return null
   }
 
   private buildMetadata(rootCID: string, signature: string): RequestMetadata {

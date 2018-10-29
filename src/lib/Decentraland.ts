@@ -170,7 +170,7 @@ export class Decentraland extends EventEmitter {
 
   async getParcelInfo({ x, y }: Coords): Promise<ParcelMetadata> {
     const [scene, land, owner] = await Promise.all([
-      null, // this.localIPFS.getRemoteSceneMetadata(x, y), Get Scene from content server
+      this.contentService.getSceneData(x, y),
       this.provider.getLandData({ x, y }),
       this.provider.getLandOwner({ x, y })
     ])

@@ -1,6 +1,6 @@
 import { ContentUploadRequest } from "./ContentUploadRequest"
 import { fail } from "assert"
-import { Coords } from "src/utils/coordinateHelpers";
+import { Coords } from "src/utils/coordinateHelpers"
 
 const request = require('request')
 
@@ -61,6 +61,17 @@ export class ContentClient {
         } else {
           resolve({ ok: false, data: [], errorMessage: result.body })
         }
+      })
+    })
+  }
+
+  async getContent(cid: string): Promise<any> {
+    return new Promise<MappingsResponse>((resolve, reject) => {
+      request({ url: `${this.contentServerUrl}/contents/${cid}` }, function(err, response) {
+        if (err) {
+          fail(err)
+        }
+        resolve(response.toJSON())
       })
     })
   }
