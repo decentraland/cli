@@ -195,7 +195,7 @@ export class Project {
 
   async getEstate(): Promise<number> {
     const sceneFile = await this.getSceneFile()
-    return sceneFile.scene.estateId
+    return (sceneFile.scene.estateId !== undefined) ? sceneFile.scene.estateId : null
   }
 
   /**

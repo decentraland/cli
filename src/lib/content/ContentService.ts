@@ -37,7 +37,7 @@ export class ContentService extends EventEmitter {
       this.emit('upload:success')
       return true
     }
-    this.emit('upload:failed', JSON.stringify(response))
+    this.emit('upload:failed', JSON.stringify(response.body))
     return false
   }
 
