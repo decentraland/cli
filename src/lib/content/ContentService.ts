@@ -1,10 +1,11 @@
 import { EventEmitter } from "events"
-import { ContentClient } from "./ContentClient"
+import { ContentClient, ParcelInformation } from "./ContentClient"
 import { IFile } from "../Project"
 import { SignedMessage } from "decentraland-eth"
 import Web3 = require('web3')
 import { CIDUtils } from "./CIDUtils"
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from "./ContentUploadRequest"
+import { fail } from "assert";
 
 const web3utils = new Web3()
 
@@ -39,6 +40,14 @@ export class ContentService extends EventEmitter {
     }
     this.emit('upload:failed', JSON.stringify(response.body))
     return false
+  }
+
+  async getParcelStatus(x: number, y: number): Promise<ParcelInformation> {
+    const response = await this.client.getParcelsInformation({ x: x, y: y }, { x: x, y: y })
+    if (response.ok) {
+      return (response.data.length > 0) ? response.data[0] : null
+    }
+    fail(`Error retrieving parel ${x},${y} information: ${response.errorMessage}`)
   }
 
   private buildMetadata(rootCID: string, signature: string): RequestMetadata {

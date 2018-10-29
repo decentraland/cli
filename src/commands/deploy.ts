@@ -11,7 +11,6 @@ const MAX_FILE_COUNT = 100
 export interface IDeployArguments {
   options: {
     host?: string
-    port?: number
     skip?: boolean
     https?: boolean
   }

@@ -42,6 +42,11 @@ export type ParcelMetadata = {
   land: Parcel
 }
 
+export type FileInfo = {
+  name: string
+  cid: string
+}
+
 export class Decentraland extends EventEmitter {
   project: Project
   ethereum: Ethereum
@@ -193,21 +198,16 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: any[] }> {
-    // this.localIPFS.resolveParcel(x, y)
-    // const { url } = { url: null } // TODO: replace await this.localIPFS.resolveParcel(x, y)
-
-    // if (!url) return { files: [] }
-
-    // const result: { lastModified?: string; files: any[] } = { files: url.dependencies }
-
-    // if (url.lastModified) {
-    //   // only available in redis metadata >= 2
-    //   result.lastModified = url.lastModified
-    // }
-
-    const result = { files: [] }
-    return result
+  async getParcelStatus(x: number, y: number): Promise<{ ipns?: string; files: FileInfo[] }> {
+    const information = await this.contentService.getParcelStatus(x, y)
+    if (information) {
+      const files: FileInfo [] = []
+      for (const key in information.contents) {
+        files.push({ name: key, cid: information.contents[key] })
+      }
+      return { ipns: information.root_cid, files: files }
+    }
+    return { files: [] }
   }
 
   private pipeEvents(event: string, ...args: any[]) {

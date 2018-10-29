@@ -6,6 +6,7 @@ import { Analytics } from '../utils/analytics'
 
 export interface IArguments {
   target: string
+  host: string
 }
 
 const command = 'status [target]'
@@ -36,20 +37,22 @@ export function status(vorpal: any) {
     })
     .action(
       wrapCommand(async (args: IArguments) => {
-        const dcl = new Decentraland()
+        const dcl = new Decentraland({
+          contentServerUrl: args.host || 'http://localhost:8000'
+        })
 
         if (!args.target) {
           await dcl.project.validateExistingProject()
           const coords = await dcl.project.getParcelCoordinates()
-          const { lastModified, files } = await dcl.getParcelStatus(coords.x, coords.y)
+          const { ipns, files } = await dcl.getParcelStatus(coords.x, coords.y)
           Analytics.statusCmd({ type: 'coordinates', target: coords })
-          logStatus(vorpal, files, lastModified, `${coords.x},${coords.y}`)
+          logStatus(vorpal, files, ipns, `${coords.x},${coords.y}`)
         } else if (typeof args.target === 'string' && args.target.startsWith('coord:')) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
-          const { lastModified, files } = await dcl.getParcelStatus(coords.x, coords.y)
+          const { ipns, files } = await dcl.getParcelStatus(coords.x, coords.y)
           Analytics.statusCmd({ type: 'coordinates', target: coords })
-          logStatus(vorpal, files, lastModified, raw)
+          logStatus(vorpal, files, ipns, raw)
         } else {
           vorpal.log(`\n  Invalid coordinates: ${args.target}`)
           vorpal.log(example)
@@ -58,15 +61,15 @@ export function status(vorpal: any) {
     )
 }
 
-export function logStatus(vorpal, files: any[], lastModified: string, coords: string) {
+export function logStatus(vorpal, files: any[], ipns: string, coords: string) {
   const serializedList = formatList(files, { spacing: 2, padding: 2 })
 
   if (files.length === 0) {
     vorpal.log(italic('\n  No information available'))
   } else {
     vorpal.log(`\n  Deployment status for ${coords}:`)
-    if (lastModified) {
-      vorpal.log(`\n    Last Deployment: ${lastModified}`)
+    if (ipns) {
+      vorpal.log(`\n    Proyect CID: ${ipns}`)
     }
     vorpal.log(serializedList)
   }
