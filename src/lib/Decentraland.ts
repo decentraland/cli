@@ -69,7 +69,6 @@ export class Decentraland extends EventEmitter {
 
   async init(sceneMeta: DCL.SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
     await this.project.writeDclIgnore()
-    await this.project.initProject()
     await this.project.writeSceneFile(sceneMeta)
     await this.project.scaffoldProject(boilerplateType, websocketServer)
   }

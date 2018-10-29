@@ -1,22 +1,8 @@
 import * as path from 'path'
 
-export interface IProjectFile {
-  id: string
-}
-
 export const SCENE_FILE = 'scene.json'
-export const PROJECT_FILE = 'project.json'
 export const PACKAGE_FILE = 'package.json'
-export const DECENTRALAND_FOLDER = '.decentraland'
 export const DCLIGNORE_FILE = '.dclignore'
-
-/**
- * Composes the path to the `.decentraland` folder based on the provided path.
- * @param dir The path to the directory containing the decentraland folder.
- */
-export function getDecentralandFolderPath(dir: string): string {
-  return path.resolve(dir, DECENTRALAND_FOLDER)
-}
 
 /**
  * Composes the path to the `scene.json` file based on the provided path.
@@ -32,14 +18,6 @@ export function getSceneFilePath(dir: string): string {
  */
 export function getPackageFilePath(dir: string): string {
   return path.resolve(dir, PACKAGE_FILE)
-}
-
-/**
- * Composes the path to the `project.json` file based on the provided path.
- * @param dir The path to the directory containing the project file. By default the `.decentraland` folder.
- */
-export function getProjectFilePath(dir: string): string {
-  return path.resolve(dir, DECENTRALAND_FOLDER, PROJECT_FILE)
 }
 
 /**

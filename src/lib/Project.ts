@@ -1,16 +1,12 @@
 import * as fs from 'fs-extra'
-import * as uuid from 'uuid'
 import dockerNames = require('docker-names')
 import * as path from 'path'
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import {
   getSceneFilePath,
-  getProjectFilePath,
   SCENE_FILE,
   getIgnoreFilePath,
-  IProjectFile,
   DCLIGNORE_FILE,
-  getDecentralandFolderPath,
   PACKAGE_FILE,
   getPackageFilePath
 } from '../utils/project'
@@ -49,13 +45,6 @@ export class Project {
   }
 
   /**
-   * Returns `true` if the provided path contains a `.decentraland` folder
-   */
-  decentralandFolderExists(): Promise<boolean> {
-    return fs.pathExists(getDecentralandFolderPath(this.workingDir))
-  }
-
-  /**
    * Returns `true` if the project working directory is empty of files
    */
   async isProjectDirEmpty(): Promise<boolean> {
@@ -68,13 +57,6 @@ export class Project {
    */
   isValidBoilerplateType(type: string): boolean {
     return Object.values(BoilerplateType).includes(type)
-  }
-
-  /**
-   * Returns an object containing the contents of the `project.json` file.
-   */
-  async getProjectFile(): Promise<IProjectFile> {
-    return readJSON<IProjectFile>(getProjectFilePath(this.workingDir))
   }
 
   /**
@@ -92,14 +74,6 @@ export class Project {
     }
 
     return this.sceneFile
-  }
-
-  /**
-   * Creates the `project.json` file and all other mandatory folders.
-   * @param dirName The directory where the project file will be created.
-   */
-  async initProject() {
-    await this.writeProjectFile({ id: uuid.v4() })
   }
 
   /**
@@ -168,14 +142,6 @@ export class Project {
     if (server) {
       await this.writeSceneFile({ main: server })
     }
-  }
-
-  /**
-   * Creates a new `project.json` file
-   * @param content The content of the `project.json` file
-   */
-  writeProjectFile(content: any): Promise<void> {
-    return writeJSON(getProjectFilePath(this.workingDir), content)
   }
 
   /**
@@ -285,7 +251,7 @@ export class Project {
    * Throws if a project already exists or if the directory is not empty.
    */
   async validateNewProject() {
-    if ((await this.sceneFileExists()) || (await this.decentralandFolderExists())) {
+    if (await this.sceneFileExists()) {
       fail(ErrorType.PROJECT_ERROR, 'Project already exists')
     }
   }
