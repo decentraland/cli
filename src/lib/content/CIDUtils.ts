@@ -6,6 +6,7 @@ import Importer = imp.Importer
 const pull = require('pull-stream')
 const MemoryDatastore = require('interface-datastore').MemoryDatastore
 const CID = require('cids')
+const path = require("path")
 
 /**
  * Utility class to handle the calculation of a IFile CID
@@ -14,13 +15,14 @@ export class CIDUtils {
 
   /**
    * Retrieves a ContentIdentifier (which contains the CID) for each File
+   * The path is ignored, it only uses the file name.
    * @param files Files to calculate the CID
    */
-  static async getFilesContentIdentifier(files: IFile[]): Promise<ContentIdentifier[]> {
+  static async getIdentifiersForIndividualFile(files: IFile[]): Promise<ContentIdentifier[]> {
     const result: ContentIdentifier[] = []
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      const fileCID: string = await this.getListCID([file], false)
+      const fileCID: string = await this.getListCID([{ path: path.basename(file.path), content: file.content, size: file.size }], false)
       result.push({ cid: fileCID, name : file.path })
     }
     return result

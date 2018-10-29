@@ -29,7 +29,7 @@ export class ContentService extends EventEmitter {
    */
   async uploadContent(rootCID: string, content: IFile[], contentSignature: string): Promise<boolean> {
     this.emit('upload:starting')
-    const manifest: ContentIdentifier[] = await CIDUtils.getFilesContentIdentifier(content)
+    const manifest: ContentIdentifier[] = await CIDUtils.getIdentifiersForIndividualFile(content)
     const metadata: RequestMetadata = this.buildMetadata(rootCID, contentSignature)
     const response = await this.client.uploadContent(new ContentUploadRequest(rootCID, content, manifest, metadata))
 

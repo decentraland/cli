@@ -48,7 +48,7 @@ export class ContentUploadRequest {
     form[identifier.cid] = {
       value: file.content,
       options: {
-        filename: file.path
+        filepath: file.path
       }
     }
   }
