@@ -11,7 +11,7 @@ describe('ContentUploadRequest', () => {
     const project: Project = new Project(dataFolderPath)
     const files: IFile[] = await project.getFiles()
     const rootCID: string = await CIDUtils.getFilesComposedCID(files)
-    const manifest: ContentIdentifier [] = await CIDUtils.getFilesContentIdentifier(files)
+    const manifest: ContentIdentifier [] = await CIDUtils.getIdentifiersForIndividualFile(files)
     const metadata: RequestMetadata = buildMetadata(rootCID)
 
     const uploadRequest: ContentUploadRequest = new ContentUploadRequest(rootCID, files, manifest, metadata)

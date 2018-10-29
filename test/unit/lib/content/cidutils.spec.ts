@@ -14,7 +14,7 @@ const fullContentExpectedCID = "QmYaarcZ65C6K58xLpPyVqYLVbdT1KbE5H7TF221jYDaEU";
 describe('CIDUtils', () => {
   it('shold generate the CID of a list of files', async () => {
     const file: IFile = await getTestFile(sceneJsonfilePath)
-    const result: ContentIdentifier[] = await CIDUtils.getFilesContentIdentifier([file])
+    const result: ContentIdentifier[] = await CIDUtils.getIdentifiersForIndividualFile([file])
     expect(result[0].cid).to.be.equals(sceneJsonExpectedCID)
   })
 
