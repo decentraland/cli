@@ -101,7 +101,6 @@ describe('Decentraland.init()', () => {
       const sceneFile = await fs.readJson(scenePath)
 
       expect(sceneFile.main).to.equal('bin/game.js')
-      await expectBaseFilesToExist(dirPath)
       await expectBasicDCLIgnore(dirPath)
 
       expect(await fs.pathExists(path.resolve(dirPath, 'tsconfig.json')), 'expect tsconfig.json folder to exist').to.be.true
