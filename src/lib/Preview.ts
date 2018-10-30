@@ -11,6 +11,7 @@ import ignore = require('ignore')
 import * as portfinder from 'portfinder'
 import bodyParser = require('body-parser')
 import cors = require('cors')
+import glob = require('glob')
 
 function nocache(req, res, next) {
   res.setHeader('Surrogate-Control', 'no-store')
@@ -40,6 +41,15 @@ export class Preview extends EventEmitter {
 
   async startServer(port: number) {
     const root = getRootPath()
+
+    const relativiseUrl = (url: string) => {
+      if (root.endsWith('/')) {
+        return url.replace(root, '')
+      } else {
+        return url.replace(root + '/', '')
+      }
+    }
+
     const ig = (ignore as any)().add(this.ignoredPaths)
 
     let resolvedPort = port
@@ -58,6 +68,13 @@ export class Preview extends EventEmitter {
           this.wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
               client.send('update')
+
+              client.send(
+                JSON.stringify({
+                  type: 'update',
+                  path: relativiseUrl(path)
+                })
+              )
             }
           })
         }
@@ -88,6 +105,32 @@ export class Preview extends EventEmitter {
     })
 
     this.app.use('/@', express.static(artifactPath))
+
+    this.app.use('/contents/', express.static(root))
+
+    this.app.get('/mappings', (req, res) => {
+      glob(root + '/**/*', (err, files) => {
+        if (err) {
+          res.status(500)
+          res.json(err)
+          res.end()
+        } else {
+          const mappings: Record<string, string> = {}
+
+          files
+            .filter($ => !ig.ignores($))
+            .filter($ => fs.statSync($).isFile())
+            .map(relativiseUrl)
+            .forEach($ => {
+              mappings[$] = 'contents/' + $
+            })
+
+          res.json({
+            mappings
+          })
+        }
+      })
+    })
 
     this.app.use(express.static(root))
 
