@@ -10,10 +10,6 @@ import { fail } from "assert"
 const web3utils = new Web3()
 const SCENE_FILE = "scene.json"
 
-/**
- * This mostly to decouple the event handling from the client.
- * But also, to add logic if needed.
- */
 export class ContentService extends EventEmitter {
   client: ContentClient
 
@@ -43,6 +39,11 @@ export class ContentService extends EventEmitter {
     return false
   }
 
+  /**
+   * Retrives teh uploaded content information by a given Parcel (x y coordinates)
+   * @param x
+   * @param y
+   */
   async getParcelStatus(x: number, y: number): Promise<ParcelInformation> {
     const response = await this.client.getParcelsInformation({ x: x, y: y }, { x: x, y: y })
     if (response.ok) {
@@ -51,6 +52,11 @@ export class ContentService extends EventEmitter {
     fail(`Error retrieving parcel ${x},${y} information: ${response.errorMessage}`)
   }
 
+  /**
+   * Retrives the content of the scene.json file from the content-server
+   * @param x
+   * @param y
+   */
   async getSceneData(x: number, y: number): Promise<DCL.SceneMetadata> {
     const information: ParcelInformation = await this.getParcelStatus(x, y)
 

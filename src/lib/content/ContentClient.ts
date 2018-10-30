@@ -65,6 +65,10 @@ export class ContentClient {
     })
   }
 
+  /**
+   * Fetch a file from the content-service
+   * @param cid CID use to identify the file
+   */
   async getContent(cid: string): Promise<any> {
     return new Promise<MappingsResponse>((resolve, reject) => {
       request({ url: `${this.contentServerUrl}/contents/${cid}` }, function(err, response) {
