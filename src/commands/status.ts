@@ -44,15 +44,15 @@ export function status(vorpal: any) {
         if (!args.target) {
           await dcl.project.validateExistingProject()
           const coords = await dcl.project.getParcelCoordinates()
-          const { ipns, files } = await dcl.getParcelStatus(coords.x, coords.y)
+          const { cid, files } = await dcl.getParcelStatus(coords.x, coords.y)
           Analytics.statusCmd({ type: 'coordinates', target: coords })
-          logStatus(vorpal, files, ipns, `${coords.x},${coords.y}`)
+          logStatus(vorpal, files, cid, `${coords.x},${coords.y}`)
         } else if (typeof args.target === 'string' && args.target.startsWith('coord:')) {
           const raw = args.target.replace('coord:', '')
           const coords = Coordinates.getObject(raw)
-          const { ipns, files } = await dcl.getParcelStatus(coords.x, coords.y)
+          const { cid, files } = await dcl.getParcelStatus(coords.x, coords.y)
           Analytics.statusCmd({ type: 'coordinates', target: coords })
-          logStatus(vorpal, files, ipns, raw)
+          logStatus(vorpal, files, cid, raw)
         } else {
           vorpal.log(`\n  Invalid coordinates: ${args.target}`)
           vorpal.log(example)
@@ -61,15 +61,15 @@ export function status(vorpal: any) {
     )
 }
 
-export function logStatus(vorpal, files: any[], ipns: string, coords: string) {
+export function logStatus(vorpal, files: any[], cid: string, coords: string) {
   const serializedList = formatList(files, { spacing: 2, padding: 2 })
 
   if (files.length === 0) {
     vorpal.log(italic('\n  No information available'))
   } else {
     vorpal.log(`\n  Deployment status for ${coords}:`)
-    if (ipns) {
-      vorpal.log(`\n    Proyect CID: ${ipns}`)
+    if (cid) {
+      vorpal.log(`\n    Proyect CID: ${cid}`)
     }
     vorpal.log(serializedList)
   }
