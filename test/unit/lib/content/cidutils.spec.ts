@@ -18,7 +18,7 @@ describe('CIDUtils', () => {
     expect(result[0].cid).to.be.equals(sceneJsonExpectedCID)
   })
 
-  it('should generate the CID for all the contnent', async () => {
+  it('should generate the CID for all the content', async () => {
     const project = new Project(dataFolderPath)
     const files = await project.getFiles()
     const result: string = await CIDUtils.getFilesComposedCID(files)

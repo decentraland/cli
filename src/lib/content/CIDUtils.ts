@@ -4,7 +4,7 @@ import imp = require('ipfs-unixfs-engine')
 import Importer = imp.Importer
 
 const pull = require('pull-stream')
-const MemoryDatastore = require('interface-datastore').MemoryDatastore
+const { MemoryDatastore } = require('interface-datastore')
 const CID = require('cids')
 const path = require("path")
 
@@ -20,8 +20,7 @@ export class CIDUtils {
    */
   static async getIdentifiersForIndividualFile(files: IFile[]): Promise<ContentIdentifier[]> {
     const result: ContentIdentifier[] = []
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
+    for (const file of files) {
       const fileCID: string = await this.getListCID([{ path: path.basename(file.path), content: file.content, size: file.size }], false)
       result.push({ cid: fileCID, name : file.path })
     }
@@ -32,7 +31,7 @@ export class CIDUtils {
    * Calculates the RootCID for all the files
    * @param files Content to use to calculate the root CID
    */
-  static async getFilesComposedCID(files: IFile[]): Promise<string> {
+  static getFilesComposedCID(files: IFile[]): Promise<string> {
     return this.getListCID(files, true)
   }
 

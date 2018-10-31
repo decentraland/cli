@@ -81,8 +81,6 @@ export class Decentraland extends EventEmitter {
   async deploy(files: IFile[]) {
     await this.project.validateSceneOptions()
     await this.validateOwnership()
-    const { x, y } = await this.project.getParcelCoordinates()
-    await this.ethereum.getIPNS(x, y)
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
     try {
@@ -170,7 +168,7 @@ export class Decentraland extends EventEmitter {
 
   async getParcelInfo({ x, y }: Coords): Promise<ParcelMetadata> {
     const [scene, land, owner] = await Promise.all([
-      this.contentService.getSceneData(x, y),
+      this.contentService.getSceneData({ x: x, y: y }),
       this.provider.getLandData({ x, y }),
       this.provider.getLandOwner({ x, y })
     ])
@@ -198,14 +196,14 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  async getParcelStatus(x: number, y: number): Promise<{ ipns?: string; files: FileInfo[] }> {
-    const information = await this.contentService.getParcelStatus(x, y)
+  async getParcelStatus(x: number, y: number): Promise<{ cid?: string; files: FileInfo[] }> {
+    const information = await this.contentService.getParcelStatus({ x: x, y: y })
     if (information) {
       const files: FileInfo [] = []
       for (const key in information.contents) {
         files.push({ name: key, cid: information.contents[key] })
       }
-      return { ipns: information.root_cid, files: files }
+      return { cid: information.root_cid, files: files }
     }
     return { files: [] }
   }

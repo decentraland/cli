@@ -5,7 +5,8 @@ import { SignedMessage } from "decentraland-eth"
 import Web3 = require('web3')
 import { CIDUtils } from "./CIDUtils"
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from "./ContentUploadRequest"
-import { fail } from "assert"
+import { Coords } from "src/utils/coordinateHelpers"
+import { fail, ErrorType } from "src/utils/errors"
 
 const web3utils = new Web3()
 const SCENE_FILE = "scene.json"
@@ -13,9 +14,9 @@ const SCENE_FILE = "scene.json"
 export class ContentService extends EventEmitter {
   client: ContentClient
 
-  constructor(_client: ContentClient) {
+  constructor(client: ContentClient) {
     super()
-    this.client = _client
+    this.client = client
   }
 
   /**
@@ -40,16 +41,16 @@ export class ContentService extends EventEmitter {
   }
 
   /**
-   * Retrives teh uploaded content information by a given Parcel (x y coordinates)
+   * Retrives the uploaded content information by a given Parcel (x y coordinates)
    * @param x
    * @param y
    */
-  async getParcelStatus(x: number, y: number): Promise<ParcelInformation> {
-    const response = await this.client.getParcelsInformation({ x: x, y: y }, { x: x, y: y })
+  async getParcelStatus(coordinates: Coords): Promise<ParcelInformation> {
+    const response = await this.client.getParcelsInformation(coordinates, coordinates)
     if (response.ok) {
       return (response.data.length > 0) ? response.data[0] : null
     }
-    fail(`Error retrieving parcel ${x},${y} information: ${response.errorMessage}`)
+    fail(ErrorType.CONTENT_SERVER_ERROR, `Error retrieving parcel ${coordinates.x},${coordinates.y} information: ${response.errorMessage}`)
   }
 
   /**
@@ -57,8 +58,8 @@ export class ContentService extends EventEmitter {
    * @param x
    * @param y
    */
-  async getSceneData(x: number, y: number): Promise<DCL.SceneMetadata> {
-    const information: ParcelInformation = await this.getParcelStatus(x, y)
+  async getSceneData(coordinates: Coords): Promise<DCL.SceneMetadata> {
+    const information: ParcelInformation = await this.getParcelStatus(coordinates)
 
     const sceneFileCID = information.contents[SCENE_FILE]
 
@@ -67,7 +68,7 @@ export class ContentService extends EventEmitter {
       if (response.statusCode === 200) {
         return JSON.parse(response.body)
       } else {
-        fail(`Error retrieving parcel ${x},${y} scene.json: ${response.body}`)
+        fail(ErrorType.CONTENT_SERVER_ERROR, `Error retrieving parcel ${coordinates.x},${coordinates.y} scene.json: ${response.body}`)
       }
     }
     return null
