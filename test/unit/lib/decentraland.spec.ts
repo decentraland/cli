@@ -74,11 +74,9 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
-      expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
       expect(getEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
       expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.false
@@ -95,11 +93,9 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(getIPNSStub.withArgs(0, 0).called, 'expect Ethereum.getIPNS() to be called').to.be.true
       expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.false
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
-      expect(getParcelCoordinatesStub.called, 'expect Project.getParcelCoordinates() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
       expect(getEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
       expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.true

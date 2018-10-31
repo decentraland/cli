@@ -6,7 +6,7 @@ import Web3 = require('web3')
 import { CIDUtils } from "./CIDUtils"
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from "./ContentUploadRequest"
 import { Coords } from "src/utils/coordinateHelpers"
-import { fail, ErrorType } from "src/utils/errors"
+import { fail, ErrorType } from "../../utils/errors"
 
 const web3utils = new Web3()
 const SCENE_FILE = "scene.json"
