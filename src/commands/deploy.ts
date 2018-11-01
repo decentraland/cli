@@ -32,18 +32,6 @@ export function deploy(vorpal: any) {
 
         let ignoreFile = await dcl.project.getDCLIgnore()
 
-        dcl.on('ethereum:get-ipns', (x, y) => {
-          const spinner = loading(`Checking IPNS for coordinates ${x},${y}`)
-
-          dcl.on('ethereum:get-ipns-empty', () => {
-            spinner.info(`No IPNS found for coordinates ${x},${y}`)
-          })
-
-          dcl.on('ethereum:get-ipns-success', () => {
-            spinner.succeed('IPNS Found')
-          })
-        })
-
         dcl.on('link:ready', url => {
           Analytics.sceneLink()
           info('You need to sign the content before the deployment:')

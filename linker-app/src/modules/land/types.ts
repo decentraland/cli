@@ -7,5 +7,4 @@ export type LANDMeta = {
   version: number
   name: string
   description: string
-  ipns: string
 }

@@ -13,7 +13,7 @@ import { getProvider } from '../utils/env'
  * Events emitted by this class:
  *
  * link:ready   - The server is up and running
- * link:success - The IPNS hash was successfully submitted to the blockchain
+ * link:success - Signatire success
  * link:error   - The transaction failed and the server was closed
  */
 export class LinkerAPI extends EventEmitter {

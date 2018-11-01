@@ -19,7 +19,7 @@ import { baseParcel, isEstate, estateId } from '../config'
 import { LANDRegistry, EstateRegistry } from '../../contracts'
 import { Coords } from './types'
 import { getEmptyLandData } from './utils'
-import { closeServer } from '../server/utils';
+import { closeServer } from '../server/utils'
 
 export function* landSaga() {
   yield takeEvery(FETCH_LAND_REQUEST, handleFetchLandRequest)

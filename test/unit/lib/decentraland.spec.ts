@@ -23,7 +23,6 @@ const ctx = sandbox.create()
  */
 
 describe('Decentraland', () => {
-  let getIPNSStub
   let validateSceneOptionsStub
   let getParcelCoordinatesStub
   let getOwnerStub
@@ -40,7 +39,6 @@ describe('Decentraland', () => {
 
   const addFilesResult = beforeEach(() => {
     // Ethereum stubs
-    getIPNSStub = ctx.stub(Ethereum.prototype, 'getIPNS').callsFake(() => 'Qmwasd')
     validateAuthorizationOfParcelStub = ctx.stub(Ethereum.prototype, 'validateAuthorizationOfParcel').callsFake(() => undefined)
     validateAuthorizationOfEstateStub = ctx.stub(Ethereum.prototype, 'validateAuthorizationOfEstate').callsFake(() => undefined)
     validateParcelsInEstateStub = ctx.stub(Ethereum.prototype, 'validateParcelsInEstate').callsFake(() => ({ x: 0, y: 0 }))

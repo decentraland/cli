@@ -3,9 +3,8 @@
 CLI tool for parcel management.
 
 - [x] Quickly create new projects
-- [x] Uploading scenes to IPFS
+- [x] Uploading scenes to Content Server
 - [x] Linking Ethereum to the scene
-- [x] Pinning scene to Decentraland IPFS node
 - [x] Compiling scripts
 - [x] Warnings and linting of scenes
 - [x] Hot reloading
@@ -19,7 +18,6 @@ CLI tool for parcel management.
 
 - [NodeJS v8 and above](https://nodejs.org)
 - [Python 2.7](https://www.python.org/downloads)
-- [IPFS](https://dist.ipfs.io/#go-ipfs)
 
 ## Documentation
 
@@ -41,9 +39,8 @@ dcl start
 
 You can prevent the browser from opening by using the `--no-browser` flag.
 
-### Deploy scene to IPFS and the Ethereum Blockchain:
+### Deploy scene to Content sserver and the Ethereum Blockchain:
 
-You need to have IPFS daemon running for this to work!
 
 ```bash
 dcl deploy
@@ -91,7 +88,5 @@ When deployments are unsuccessful you can save some time by calling `dcl link` o
 `dcl` command should now be available.
 
 For CLI tool development, run `npm run watch` in your terminal and `npm link` in order to use it anywhere. The CLI will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can define the `LAND_REGISTRY_CONTRACT_ADDRESS` environment variable. You can also use `DCL_ENV=dev` to point to the Ropsten contract. Contract addresses are available [here](https://contracts.decentraland.org/addresses.json).
-
-For the Decentraland IPFS node, we are getting the url from [here](decentraland.github.io/ipfs-node/url.json). If you want to set a different url set the `IPFS_GATEWAY` var in the `.env` file.
 
 You can do incremental compilations by running `npm run watch`, but you will need to run `npm run build` at least once before.
