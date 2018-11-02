@@ -21,8 +21,7 @@ describe('Ethereum', () => {
     expect(eth['decodeLandData']('0,"myLand","my description","QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.deep.equal({
       version: 0,
       name: 'myLand',
-      description: 'my description',
-      ipns: 'QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE'
+      description: 'my description'
     })
 
     expect(eth['decodeLandData']('"asd","myLand","my description","QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.be.null
@@ -30,22 +29,19 @@ describe('Ethereum', () => {
     expect(eth['decodeLandData']('0,"myLand","my description",')).to.deep.equal({
       version: 0,
       name: 'myLand',
-      description: 'my description',
-      ipns: null
+      description: 'my description'
     })
 
     expect(eth['decodeLandData']('0,,,')).to.deep.equal({
       version: 0,
       name: null,
-      description: null,
-      ipns: null
+      description: null
     })
 
     expect(eth['decodeLandData']('0,"",,"QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.deep.equal({
       version: 0,
       name: null,
-      description: null,
-      ipns: 'QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE'
+      description: null
     })
   })
 })

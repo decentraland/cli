@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events'
 import * as events from 'wildcards'
 
-import { IPFS, IResolveDependency } from './IPFS'
 import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI } from './LinkerAPI'
@@ -12,16 +11,19 @@ import { Coords } from '../utils/coordinateHelpers'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { filterAndFillEmpty } from '../utils/land'
+import { CIDUtils } from './content/CIDUtils'
+
+import { ContentClient } from './content/ContentClient'
+import { ContentService } from './content/ContentService'
 
 export type DecentralandArguments = {
   workingDir?: string
-  ipfsHost?: string
-  ipfsPort?: number
   linkerPort?: number
   previewPort?: number
   isHttps?: boolean
   watch?: boolean
   blockchain?: boolean
+  contentServerUrl?: string
 }
 
 export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
@@ -40,34 +42,38 @@ export type ParcelMetadata = {
   land: Parcel
 }
 
+export type FileInfo = {
+  name: string
+  cid: string
+}
+
 export class Decentraland extends EventEmitter {
-  localIPFS: IPFS
   project: Project
   ethereum: Ethereum
   options: DecentralandArguments = {}
   provider: IEthereumDataProvider
+  contentService: ContentService
 
   constructor(args: DecentralandArguments = {}) {
     super()
     this.options = args
     this.options.workingDir = args.workingDir || getRootPath()
-    this.localIPFS = new IPFS(args.ipfsHost, args.ipfsPort)
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.ethereum
+    this.contentService = new ContentService(new ContentClient(args.contentServerUrl))
 
     if (!this.options.blockchain) {
       this.provider = new API()
     }
 
     // Pipe all events
-    events(this.localIPFS, 'ipfs:*', this.pipeEvents.bind(this))
     events(this.ethereum, 'ethereum:*', this.pipeEvents.bind(this))
+    events(this.contentService,'upload:*', this.pipeEvents.bind(this))
   }
 
   async init(sceneMeta: DCL.SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
     await this.project.writeDclIgnore()
-    await this.project.initProject()
     await this.project.writeSceneFile(sceneMeta)
     await this.project.scaffoldProject(boilerplateType, websocketServer)
   }
@@ -75,39 +81,26 @@ export class Decentraland extends EventEmitter {
   async deploy(files: IFile[]) {
     await this.project.validateSceneOptions()
     await this.validateOwnership()
-    const { x, y } = await this.project.getParcelCoordinates()
+    const rootCID = await CIDUtils.getFilesComposedCID(files)
 
-    const projectFile = await this.project.getProjectFile()
-    const filesAdded = await this.localIPFS.addFiles(files)
-    const rootFolder = filesAdded[filesAdded.length - 1]
-    const ipns = await this.ethereum.getIPNS(x, y)
-    let ipfsKey = projectFile.ipfsKey
-
-    if (!ipfsKey) {
-      ipfsKey = await this.localIPFS.genIPFSKey(projectFile.id)
-      await this.project.writeProjectFile({ ipfsKey })
-      this.localIPFS.genKeySuccess()
-    }
-
-    await this.localIPFS.publish(projectFile.id, `/ipfs/${rootFolder.hash}`)
-
-    if (ipfsKey !== ipns) {
-      try {
-        await this.link()
-      } catch (e) {
-        fail(ErrorType.LINKER_ERROR, e.message)
+    try {
+      const signature = await this.link(rootCID)
+      const uploadResult = await this.contentService.uploadContent(rootCID, files, signature)
+      if (!uploadResult) {
+        fail(ErrorType.UPLOAD_ERROR, "Fail to upload the content")
       }
+    } catch (e) {
+      fail(ErrorType.LINKER_ERROR, e.message)
     }
 
-    await this.pin(rootFolder.hash)
   }
 
-  async link() {
+  async link(rootCID: string) {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
     await this.validateOwnership()
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise<string>(async (resolve, reject) => {
       const manaContract = await Ethereum.getContractAddress('MANAToken')
       const landContract = await Ethereum.getContractAddress('LANDProxy')
       const estateContract = await Ethereum.getContractAddress('EstateProxy')
@@ -116,23 +109,16 @@ export class Decentraland extends EventEmitter {
 
       events(linker, '*', this.pipeEvents.bind(this))
 
-      linker.on('link:success', async () => {
-        resolve()
+      linker.on('link:success', async (signature: string) => {
+        resolve(signature)
       })
 
       try {
-        await linker.link(this.options.linkerPort, this.options.isHttps)
+        await linker.link(this.options.linkerPort, this.options.isHttps, rootCID)
       } catch (e) {
         reject(e)
       }
     })
-  }
-
-  async pin(ipfsHash?: string) {
-    await this.project.validateExistingProject()
-    const coords = await this.project.getParcelCoordinates()
-    const peerId = await this.localIPFS.getPeerId()
-    await this.localIPFS.pinFiles(peerId, coords, ipfsHash)
   }
 
   async preview() {
@@ -182,7 +168,7 @@ export class Decentraland extends EventEmitter {
 
   async getParcelInfo({ x, y }: Coords): Promise<ParcelMetadata> {
     const [scene, land, owner] = await Promise.all([
-      this.localIPFS.getRemoteSceneMetadata(x, y),
+      this.contentService.getSceneData({ x: x, y: y }),
       this.provider.getLandData({ x, y }),
       this.provider.getLandOwner({ x, y })
     ])
@@ -210,19 +196,16 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  async getParcelStatus(x: number, y: number): Promise<{ lastModified?: string; files: IResolveDependency[] }> {
-    const { url } = await this.localIPFS.resolveParcel(x, y)
-
-    if (!url) return { files: [] }
-
-    const result: { lastModified?: string; files: IResolveDependency[] } = { files: url.dependencies }
-
-    if (url.lastModified) {
-      // only available in redis metadata >= 2
-      result.lastModified = url.lastModified
+  async getParcelStatus(x: number, y: number): Promise<{ cid?: string; files: FileInfo[] }> {
+    const information = await this.contentService.getParcelStatus({ x: x, y: y })
+    if (information) {
+      const files: FileInfo [] = []
+      for (const key in information.contents) {
+        files.push({ name: key, cid: information.contents[key] })
+      }
+      return { cid: information.root_cid, files: files }
     }
-
-    return result
+    return { files: [] }
   }
 
   private pipeEvents(event: string, ...args: any[]) {

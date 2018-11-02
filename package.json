@@ -69,7 +69,6 @@
     "glob": "^7.1.3",
     "ignore": "^4.0.3",
     "inquirer": "^5.1.0",
-    "ipfs-api": "^17.5.0",
     "isomorphic-fetch": "^2.2.1",
     "opn": "^5.2.0",
     "ora": "^2.1.0",
@@ -78,7 +77,9 @@
     "semver": "^5.5.0",
     "vorpal": "^1.12.0",
     "wildcards": "^1.0.2",
-    "ws": "^6.0.0"
+    "ws": "^6.0.0",
+    "ipfs-unixfs-engine": "^0.32.4",
+    "interface-datastore": "^0.5.0"
   },
   "devDependencies": {
     "@types/analytics-node": "0.0.31",

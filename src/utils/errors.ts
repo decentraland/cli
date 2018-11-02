@@ -1,14 +1,15 @@
 export enum ErrorType {
   LINKER_ERROR = 'LinkerError',
   ETHEREUM_ERROR = 'EthereumError',
-  IPFS_ERROR = 'IPFSError',
   PROJECT_ERROR = 'ProjectError',
   PREVIEW_ERROR = 'PreviewError',
   UPGRADE_ERROR = 'UpgradeError',
   INFO_ERROR = 'InfoError',
   STATUS_ERROR = 'StatusError',
   DEPLOY_ERROR = 'DeployError',
-  API_ERROR = 'APIError'
+  API_ERROR = 'APIError',
+  UPLOAD_ERROR = 'UploadError',
+  CONTENT_SERVER_ERROR = 'ContentServerError'
 }
 
 export function fail(type: ErrorType, message: string) {

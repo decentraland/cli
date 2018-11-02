@@ -28,15 +28,11 @@ export type LANDData = {
   version?: number
   name: string
   description: string
-  ipns: string
 }
 
 /**
  * Events emitted by this class:
  *
- * ethereum:get-ipns         - An attempt to load landData from the ethereum blockchain
- * ethereum:get-ipns-empty   - No IPNS was found on the blockchain
- * ethereum:get-ipns-success - Successfully fetched and parsed landData
  */
 export class Ethereum extends EventEmitter implements IEthereumDataProvider {
   private static addresses: any
@@ -170,24 +166,6 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     }
   }
 
-  /**
-   * Queries the Blockchain and returns the IPNS return by `landData`
-   * @param coordinates An object containing the base X and Y coordinates for the parcel.
-   */
-  async getIPNS(x: number, y: number): Promise<string> {
-    this.emit('ethereum:get-ipns', x, y)
-
-    const landData = await this.getLandData({ x, y })
-
-    if (!landData || !landData.ipns) {
-      this.emit('ethereum:get-ipns-empty')
-      return null
-    }
-
-    this.emit('ethereum:get-ipns-success')
-    return landData.ipns.replace('ipns:', '')
-  }
-
   async getLandOfEstate(estateId: number): Promise<Coords[]> {
     const contract = await Ethereum.getContract('EstateProxy')
     const landContract = await Ethereum.getContract('LANDProxy')
@@ -247,8 +225,8 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     const version = data.charAt(0)
     switch (version) {
       case '0': {
-        const [, name, description, ipns] = CSV.parse(data)[0]
-        return { version: 0, name: name || null, description: description || null, ipns: ipns || null }
+        const [, name, description] = CSV.parse(data)[0]
+        return { version: 0, name: name || null, description: description || null }
       }
       default:
         return null

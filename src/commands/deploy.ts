@@ -11,7 +11,6 @@ const MAX_FILE_COUNT = 100
 export interface IDeployArguments {
   options: {
     host?: string
-    port?: number
     skip?: boolean
     https?: boolean
   }
@@ -20,53 +19,23 @@ export interface IDeployArguments {
 export function deploy(vorpal: any) {
   vorpal
     .command('deploy')
-    .description('Uploads scene to IPFS and updates IPNS.')
-    .option('-h, --host <string>', 'IPFS daemon API host (default is localhost).')
-    .option('-p, --port <number>', 'IPFS daemon API port (default is 5001).')
+    .description('Uploads scene to content server.')
+    .option('-h, --host <string>', 'Content servert url (default is http://localhost:8000).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .option('-hs, --https', 'Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)')
     .action(
       wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
-          ipfsHost: args.options.host || 'localhost',
-          ipfsPort: args.options.port || 5001,
-          isHttps: !!args.options.https
+          isHttps: !!args.options.https,
+          contentServerUrl: args.options.host || 'http://localhost:8000'
         })
 
         let ignoreFile = await dcl.project.getDCLIgnore()
 
-        dcl.on('ipfs:add', () => {
-          const spinner = loading('Uploading files to local IPFS node')
-          dcl.on('ipfs:add-success', () => {
-            spinner.succeed('Files uploaded to IPFS')
-          })
-        })
-
-        dcl.on('ethereum:get-ipns', (x, y) => {
-          const spinner = loading(`Checking IPNS for coordinates ${x},${y}`)
-
-          dcl.on('ethereum:get-ipns-empty', () => {
-            spinner.info(`No IPNS found for coordinates ${x},${y}`)
-          })
-
-          dcl.on('ethereum:get-ipns-success', () => {
-            spinner.succeed('IPNS Found')
-          })
-        })
-
-        dcl.on('ipfs:publish', (ipfsHash: string) => {
-          const spinner = loading(`Publishing IPNS for ${ipfsHash}`)
-
-          dcl.on('ipfs:publish-success', (ipnsHash: string) => {
-            spinner.succeed()
-            info(`IPNS hash: ${ipnsHash}`)
-          })
-        })
-
         dcl.on('link:ready', url => {
           Analytics.sceneLink()
-          info('This is the first time you deploy using this IPNS, please link your project to the LAND Registry:')
-          const linkerMsg = loading(`Linking app ready at ${url}`)
+          info('You need to sign the content before the deployment:')
+          const linkerMsg = loading(`Signing app ready at ${url}`)
 
           setTimeout(() => {
             try {
@@ -76,19 +45,22 @@ export function deploy(vorpal: any) {
             }
           }, 5000)
 
-          dcl.on('link:success', () => {
+          dcl.on('link:success', (signature: string) => {
             Analytics.sceneLinkSuccess()
-            linkerMsg.succeed('Project successfully updated in LAND Registry')
+            linkerMsg.succeed(`Content succesfully signed. Signature[${signature}]`)
           })
         })
 
-        dcl.on('ipfs:pin', () => {
-          Analytics.pinRequest()
-          const spinner = loading(`Pinning files to IPFS gateway`)
+        dcl.on('upload:starting', () => {
+          const uploadMsg = loading(`Uploading content...`)
 
-          dcl.on('ipfs:pin-success', async () => {
-            Analytics.pinSuccess()
-            spinner.succeed('Files pinned to IPFS gateway')
+          dcl.on('upload:failed', (error: any) => {
+            uploadMsg.fail("Fail to upload content")
+            fail(ErrorType.DEPLOY_ERROR, `Unable ro upload content. ${error}`)
+          })
+
+          dcl.on('upload:success', () => {
+            uploadMsg.succeed('Content uploaded')
           })
         })
 

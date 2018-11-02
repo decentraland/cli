@@ -1,6 +1,4 @@
 import { action } from 'typesafe-actions'
-import { buildTransactionPayload } from 'decentraland-dapps/dist/modules/transaction/utils'
-
 import { LANDMeta, Coords } from './types'
 
 export const FETCH_LAND_REQUEST = '[Request] Fetch LAND'
@@ -15,14 +13,14 @@ export type FetchLandRequestAction = ReturnType<typeof fetchLandRequest>
 export type FetchLandSuccessAction = ReturnType<typeof fetchLandSuccess>
 export type FetchLandFailureAction = ReturnType<typeof fetchLandFailure>
 
-export const UPDATE_LAND_REQUEST = '[Request] Update LAND'
-export const UPDATE_LAND_SUCCESS = '[Success] Update LAND'
-export const UPDATE_LAND_FAILURE = '[Failure] Update LAND'
+export const SIGN_CONTENT_REQUEST = '[Request] Sign Content'
+export const SIGN_CONTENT_SUCCESS = '[Success] Sign Content'
+export const SIGN_CONTENT_FAILURE = '[Failure] Sign Content'
 
-export const updateLandRequest = (land: LANDMeta) => action(UPDATE_LAND_REQUEST, land)
-export const updateLandSuccess = (tx: string) => action(UPDATE_LAND_SUCCESS, { ...buildTransactionPayload(tx) })
-export const updateLandFailure = (error: string) => action(UPDATE_LAND_FAILURE, { error })
+export const signContentRequest = (cid: string) => action(SIGN_CONTENT_REQUEST, cid)
+export const signContentSuccess = (signature: string) => action(SIGN_CONTENT_SUCCESS, signature)
+export const signContentFailure = (error: string) => action(SIGN_CONTENT_FAILURE, { error })
 
-export type UpdateLandRequestAction = ReturnType<typeof updateLandRequest>
-export type UpdateLandSuccessAction = ReturnType<typeof updateLandSuccess>
-export type UpdateLandFailureAction = ReturnType<typeof updateLandFailure>
+export type SignContentRequestAction = ReturnType<typeof signContentRequest>
+export type SignContentSuccessAction = ReturnType<typeof signContentSuccess>
+export type SignContentFailureAction = ReturnType<typeof signContentFailure>

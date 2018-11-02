@@ -5,5 +5,5 @@ export function filterAndFillEmpty(data: any, def: string = null): LANDData {
     return data
   }
 
-  return { name: data.name ? data.name : def, description: data.description ? data.description : def, ipns: data.ipns ? data.ipns : def }
+  return { name: data.name ? data.name : def, description: data.description ? data.description : def }
 }

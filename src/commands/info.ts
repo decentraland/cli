@@ -8,6 +8,7 @@ export type Arguments = {
   target: string
   options: {
     blockchain: boolean
+    contentHost?: string
   }
 }
 
@@ -45,7 +46,10 @@ export function info(vorpal: any) {
     })
     .action(
       wrapCommand(async (args: Arguments) => {
-        const dcl = new Decentraland({ blockchain: args.options.blockchain })
+        const dcl = new Decentraland({
+          blockchain: args.options.blockchain,
+          contentServerUrl: args.options.contentHost || 'http://localhost:8000'
+        })
 
         if (!args.target) {
           await dcl.project.validateExistingProject()
@@ -63,10 +67,10 @@ export function info(vorpal: any) {
           const { parcels, estates } = await dcl.getAddressInfo(address)
 
           const formattedParcels = parcels.reduce((acc, parcel) => {
-            return { ...acc, [`${parcel.x},${parcel.y}`]: { name: parcel.name, description: parcel.description, ipns: parcel.ipns } }
+            return { ...acc, [`${parcel.x},${parcel.y}`]: { name: parcel.name, description: parcel.description } }
           }, {})
           const formattedEstates = estates.reduce((acc, estate) => {
-            return { ...acc, [`ID ${estate.id.toString()}`]: { name: estate.name, description: estate.description, ipns: estate.ipns } }
+            return { ...acc, [`ID ${estate.id.toString()}`]: { name: estate.name, description: estate.description } }
           }, {})
 
           if (parcels.length === 0 && estates.length === 0) {

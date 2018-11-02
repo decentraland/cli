@@ -12,7 +12,6 @@ describe('Project', () => {
   let getAllFilePathsStub
   let readFileStub
   let sceneFileExistsStub
-  let decentralandFolderExistsStub
   let statStub
 
   beforeEach(() => {
@@ -20,7 +19,6 @@ describe('Project', () => {
       .stub(Project.prototype, 'getAllFilePaths')
       .callsFake(() => ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore'])
     sceneFileExistsStub = ctx.stub(Project.prototype, 'sceneFileExists').callsFake(() => false)
-    decentralandFolderExistsStub = ctx.stub(Project.prototype, 'decentralandFolderExists').callsFake(() => false)
     readFileStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
     statStub = ctx.stub(fs, 'stat').callsFake(path => ({ size: 1000 }))
   })
@@ -115,15 +113,7 @@ describe('Project', () => {
     })
 
     it('should fail if the working directory contains a scene.json file', async () => {
-      decentralandFolderExistsStub.callsFake(() => false)
       sceneFileExistsStub.callsFake(() => true)
-      const project = new Project('.')
-      return expect(project.validateNewProject(), 'expect validateNewProject to fail').to.be['rejectedWith']('Project already exists')
-    })
-
-    it('should fail if the working directory contains a .decentraland folder', async () => {
-      sceneFileExistsStub.callsFake(() => false)
-      decentralandFolderExistsStub.callsFake(() => true)
       const project = new Project('.')
       return expect(project.validateNewProject(), 'expect validateNewProject to fail').to.be['rejectedWith']('Project already exists')
     })
