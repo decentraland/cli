@@ -90,8 +90,8 @@ export class LinkerAPI extends EventEmitter {
         <head>
           <title>Link scene</title>
           <meta charset="utf-8">
-          <link href="https://ui.decentraland.org/styles.css" rel="stylesheet" />
-          <link href="https://ui.decentraland.org/dark-theme.css" rel="stylesheet" />
+          <link href="css/styles.css" rel="stylesheet" />
+          <link href="css/dark-theme.css" rel="stylesheet" />
         </head>
         <body>
           <div id="main">
@@ -103,6 +103,16 @@ export class LinkerAPI extends EventEmitter {
       `)
 
       res.end()
+    })
+
+    this.app.get('/css/styles.css', (req, res) => {
+      const filePath = path.resolve(__dirname, '../css/decentraland-ui-styles.css')
+      res.sendFile(filePath)
+    })
+
+    this.app.get('/css/dark-theme.css', (req, res) => {
+      const filePath = path.resolve(__dirname, '../css/decentraland-ui-dark-theme.css')
+      res.sendFile(filePath)
     })
 
     this.app.get('/api/close', (req, res) => {
