@@ -5,7 +5,7 @@ import { Decentraland } from '../../../src/lib/Decentraland'
 import { Ethereum } from '../../../src/lib/Ethereum'
 import { Project } from '../../../src/lib/Project'
 import * as ProjectUtils from '../../../src/utils/project'
-import { ContentService } from '../../../src/lib/content/ContentService';
+import { ContentService } from '../../../src/lib/content/ContentService'
 
 const ctx = sandbox.create()
 
@@ -35,7 +35,9 @@ describe('Decentraland', () => {
   let linkStub
   let uploadContentStub
 
-  const projectSignature = "0x9adcd58e1d65aeb9d92cb25f59a1f9d1c19d9935534c91e59057135b2ecf020e3e56476788cee00bd4a8aa62602af307851276ee4b97be4832fbc541b24f0d141c"
+  const address = '0x8Bed95D830475691C10281f1FeA2c0a0fE51304B'
+  const projectSignature =
+    '0x9adcd58e1d65aeb9d92cb25f59a1f9d1c19d9935534c91e59057135b2ecf020e3e56476788cee00bd4a8aa62602af307851276ee4b97be4832fbc541b24f0d141c'
 
   const addFilesResult = beforeEach(() => {
     // Ethereum stubs
@@ -47,16 +49,16 @@ describe('Decentraland', () => {
     ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
     validateSceneOptionsStub = ctx.stub(Project.prototype, 'validateSceneOptions').callsFake(() => undefined)
     getParcelCoordinatesStub = ctx.stub(Project.prototype, 'getParcelCoordinates').callsFake(() => ({ x: 0, y: 0 }))
-    getOwnerStub = ctx.stub(Project.prototype, 'getOwner').callsFake(() => '0x8Bed95D830475691C10281f1FeA2c0a0fE51304B')
+    getOwnerStub = ctx.stub(Project.prototype, 'getOwner').callsFake(() => address)
     getEstateStub = ctx.stub(Project.prototype, 'getEstate').callsFake(() => undefined)
     getParcelsStub = ctx.stub(Project.prototype, 'getParcels').callsFake(() => ({ x: 0, y: 0 }))
     getFilesStub = ctx.stub(Project.prototype, 'getFiles').callsFake(() => [{ path: '/tmp/myFile.txt', content: null }])
 
     // ContentServicestubs
     uploadContentStub = ctx.stub(ContentService.prototype, 'uploadContent').callsFake(() => true)
-  
+
     // Decentraland stubs
-    linkStub = ctx.stub(Decentraland.prototype, 'link').callsFake(() => projectSignature)
+    linkStub = ctx.stub(Decentraland.prototype, 'link').callsFake(() => `{"signature":"${projectSignature}","address":"${address}"}`)
     // Utils stub
     var stub = ctx.stub(ProjectUtils, 'getRootPath').callsFake(() => '.')
   })
