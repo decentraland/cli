@@ -65,7 +65,7 @@ function* handleSignContentSuccess(action: SignContentSuccessAction) {
 
   try {
     yield call(() => {
-      closeServer(true, `{"signature":"${action.payload}","address":"${address}"}`)
+      closeServer(true, JSON.stringify({ signature: action.payload, address }))
     })
   } catch (error) {
     yield put(signContentFailure(error.message))
