@@ -69,7 +69,7 @@ export class Decentraland extends EventEmitter {
 
     // Pipe all events
     events(this.ethereum, 'ethereum:*', this.pipeEvents.bind(this))
-    events(this.contentService,'upload:*', this.pipeEvents.bind(this))
+    events(this.contentService, 'upload:*', this.pipeEvents.bind(this))
   }
 
   async init(sceneMeta: DCL.SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
@@ -84,18 +84,18 @@ export class Decentraland extends EventEmitter {
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
     try {
-      const signature = await this.link(rootCID)
-      const uploadResult = await this.contentService.uploadContent(rootCID, files, signature)
+      const message = await this.link(rootCID)
+      const { signature, address } = JSON.parse(message)
+      const uploadResult = await this.contentService.uploadContent(rootCID, files, signature, address)
       if (!uploadResult) {
-        fail(ErrorType.UPLOAD_ERROR, "Fail to upload the content")
+        fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')
       }
     } catch (e) {
       fail(ErrorType.LINKER_ERROR, e.message)
     }
-
   }
 
-  async link(rootCID: string) {
+  async link(rootCID: string): Promise<string> {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
     await this.validateOwnership()
@@ -109,8 +109,8 @@ export class Decentraland extends EventEmitter {
 
       events(linker, '*', this.pipeEvents.bind(this))
 
-      linker.on('link:success', async (signature: string) => {
-        resolve(signature)
+      linker.on('link:success', async (message: string) => {
+        resolve(message)
       })
 
       try {
@@ -199,7 +199,7 @@ export class Decentraland extends EventEmitter {
   async getParcelStatus(x: number, y: number): Promise<{ cid?: string; files: FileInfo[] }> {
     const information = await this.contentService.getParcelStatus({ x: x, y: y })
     if (information) {
-      const files: FileInfo [] = []
+      const files: FileInfo[] = []
       for (const key in information.contents) {
         files.push({ name: key, cid: information.contents[key] })
       }
