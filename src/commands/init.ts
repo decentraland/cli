@@ -15,7 +15,7 @@ export function init(vorpal: any) {
     .option('--path <path>', 'output path (default is the current working directory).')
     .option(
       '--boilerplate <type>',
-      Object.keys(BoilerplateType)
+      Object.values(BoilerplateType)
         .filter(isNaN as any)
         .join(', ')
     )
