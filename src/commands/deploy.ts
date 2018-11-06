@@ -55,7 +55,7 @@ export function deploy(vorpal: any) {
           const uploadMsg = loading(`Uploading content...`)
 
           dcl.on('upload:failed', (error: any) => {
-            uploadMsg.fail("Fail to upload content")
+            uploadMsg.fail('Fail to upload content')
             fail(ErrorType.DEPLOY_ERROR, `Unable ro upload content. ${error}`)
           })
 

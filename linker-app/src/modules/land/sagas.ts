@@ -51,11 +51,9 @@ function* handleConnectWalletSuccess(action: ConnectWalletSuccessAction) {
 function* handleSignContentRequest(action: SignContentRequestAction) {
   try {
     const hashToSign = action.payload
-    const signedMessage = yield call(
-      () => {
-        return eth.wallet.sign(hashToSign)
-      }
-    )
+    const signedMessage = yield call(() => {
+      return eth.wallet.sign(hashToSign)
+    })
     yield put(signContentSuccess(signedMessage))
   } catch (error) {
     yield put(signContentFailure(error.message))
@@ -63,12 +61,12 @@ function* handleSignContentRequest(action: SignContentRequestAction) {
 }
 
 function* handleSignContentSuccess(action: SignContentSuccessAction) {
+  const address = eth.wallet.getAccount()
+
   try {
-    yield call(
-      () => {
-        closeServer(true, action.payload)
-      }
-    )
+    yield call(() => {
+      closeServer(true, `{"signature":"${action.payload}","address":"${address}"}`)
+    })
   } catch (error) {
     yield put(signContentFailure(error.message))
   }
