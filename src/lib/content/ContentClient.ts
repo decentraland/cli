@@ -1,19 +1,19 @@
-import { ContentUploadRequest } from "./ContentUploadRequest"
-import { fail } from "assert"
-import { Coords } from "src/utils/coordinateHelpers"
+import { ContentUploadRequest } from './ContentUploadRequest'
+import { fail } from 'assert'
+import { Coords } from 'src/utils/coordinateHelpers'
 
-const request = require('request')
+import * as request from 'request'
 
 export type ParcelInformation = {
-  parcel_id: string,
-  contents: Map<string, string>,
-  root_cid: string,
+  parcel_id: string
+  contents: Map<string, string>
+  root_cid: string
   publisher: string
 }
 
 export type MappingsResponse = {
-  ok: boolean,
-  data: ParcelInformation [],
+  ok: boolean
+  data: ParcelInformation[]
   errorMessage?: string
 }
 
@@ -29,15 +29,19 @@ export class ContentClient {
    * @param uploadRequest
    */
   async uploadContent(uploadRequest: ContentUploadRequest): Promise<any> {
+    // TODO: use node-fetch here
     return new Promise<any>((resolve, reject) => {
-      request.post({ url: `${this.contentServerUrl}/mappings`, formData: uploadRequest.requestContent() }, function optionalCallback(err, httpResponse, body) {
+      request.post({ url: `${this.contentServerUrl}/mappings`, formData: uploadRequest.requestContent() }, function optionalCallback(
+        err,
+        httpResponse,
+        body
+      ) {
         if (err) {
           fail(err)
         }
         const result = httpResponse.toJSON()
         resolve(result)
-      }
-    )
+      })
     })
   }
 
@@ -50,6 +54,7 @@ export class ContentClient {
   async getParcelsInformation(from: Coords, to: Coords): Promise<MappingsResponse> {
     return new Promise<MappingsResponse>((resolve, reject) => {
       const params = { nw: `${from.x},${from.y}`, se: `${to.x},${to.y}` }
+      // TODO: use node-fetch here
       request({ url: `${this.contentServerUrl}/mappings`, qs: params }, function(err, response) {
         if (err) {
           fail(err)
@@ -70,14 +75,14 @@ export class ContentClient {
    * @param cid CID use to identify the file
    */
   async getContent(cid: string): Promise<any> {
+    // TODO: use node-fetch here
     return new Promise<MappingsResponse>((resolve, reject) => {
       request({ url: `${this.contentServerUrl}/contents/${cid}` }, function(err, response) {
         if (err) {
           fail(err)
         }
-        resolve(response.toJSON())
+        resolve((response.toJSON() as any) as MappingsResponse)
       })
     })
   }
-
 }
