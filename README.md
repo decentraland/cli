@@ -3,12 +3,11 @@
 CLI tool for parcel management.
 
 - [x] Quickly create new projects
-- [x] Uploading scenes to Content Server
-- [x] Linking Ethereum to the scene
 - [x] Compiling scripts
 - [x] Warnings and linting of scenes
 - [x] Hot reloading
-- [x] Query parcel info
+- [x] Sign and upload scenes to Decentraland Content Server (scene deploying)
+- [x] Query parcel/estate/address info
 - [x] Query deployment status
 - [ ] Optimizing objects, textures
 - [ ] Generating bundles of assets
@@ -21,7 +20,7 @@ CLI tool for parcel management.
 
 ## Documentation
 
-Installation details for each platform can be found on the [Documentation](https://docs.decentraland.org/documentation/installation-guide/)
+Installation details for each platform can be found on the [Documentation](https://docs.decentraland.org/getting-started/installation-guide)
 
 ## Usage
 
@@ -37,9 +36,13 @@ dcl init
 dcl start
 ```
 
-You can prevent the browser from opening by using the `--no-browser` flag.
+If you're using a remote server you should use the CI flag (this disable analytics reporting, browser opening and files hot-reloading)
 
-### Deploy scene to Content sserver and the Ethereum Blockchain:
+```bash
+dcl start --ci
+```
+
+### Deploy scene to Content server and the Ethereum Blockchain:
 
 
 ```bash
@@ -52,41 +55,28 @@ If you're a ledger user you must use HTTPs flag to support the hardware wallet c
 dcl deploy --https
 ```
 
-### Check installed CLI version:
+### Check parcel/estate/address information:
 
 ```bash
-dcl -v
+dcl info 0,0 # Parcels
+dcl info 0x9abdcb8825696cc2ef3a0a955f99850418847f5d # Addresses
+dcl info 52 # Estates
 ```
 
-### Check parcel information:
-
-```bash
-dcl info 0,0
-```
-
-### Check owner information:
-
-```bash
-dcl info 0x...
-```
-
-### Check parcel deployment status:
+### Check LAND deployment status:
 
 ```bash
 dcl status 0,0
 ```
-
-When deployments are unsuccessful you can save some time by calling `dcl link` or `dcl pin` atomically.
 
 ## Building
 
 1.  Clone the repo: `git clone https://github.com/decentraland/cli.git`
 2.  Go into the CLI directory: `cd cli`
 3.  Run `npm install`
+4.  Build the project by running `npm run build`
 4.  Link the CLI with: `npm link`
 
 `dcl` command should now be available.
 
-For CLI tool development, run `npm run watch` in your terminal and `npm link` in order to use it anywhere. The CLI will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can define the `LAND_REGISTRY_CONTRACT_ADDRESS` environment variable. You can also use `DCL_ENV=dev` to point to the Ropsten contract. Contract addresses are available [here](https://contracts.decentraland.org/addresses.json).
-
-You can do incremental compilations by running `npm run watch`, but you will need to run `npm run build` at least once before.
+For CLI tool development, run `npm run watch` in your terminal (you''ll first need to run the build process at least once) and `npm link` in order to use it anywhere. The CLI will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can define the `LAND_REGISTRY_CONTRACT_ADDRESS` environment variable. You can also use `DCL_ENV=dev` to point to the Ropsten contract. Contract addresses are available [here](https://contracts.decentraland.org/addresses.json).
