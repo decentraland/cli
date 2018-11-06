@@ -31,28 +31,19 @@ dcl init
 ```
 
 ### Start local development server and serve your scene:
-
-```bash
-dcl start
-```
-
 If you're using a remote server you should use the CI flag (this disable analytics reporting, browser opening and files hot-reloading)
 
 ```bash
-dcl start --ci
+dcl start
+dcl start --ci # Remote server
 ```
 
 ### Deploy scene to Content server and the Ethereum Blockchain:
-
+If you're a ledger user you must use HTTPs flag to support the hardware wallet connection.
 
 ```bash
 dcl deploy
-```
-
-If you're a ledger user you must use HTTPs flag to support the hardware wallet connection:
-
-```bash
-dcl deploy --https
+dcl deploy --https # Ledger users
 ```
 
 ### Check parcel/estate/address information:
