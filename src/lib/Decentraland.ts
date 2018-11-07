@@ -103,9 +103,8 @@ export class Decentraland extends EventEmitter {
     return new Promise<string>(async (resolve, reject) => {
       const manaContract = await Ethereum.getContractAddress('MANAToken')
       const landContract = await Ethereum.getContractAddress('LANDProxy')
-      const estateContract = await Ethereum.getContractAddress('EstateProxy')
 
-      const linker = new LinkerAPI(this.project, manaContract, landContract, estateContract)
+      const linker = new LinkerAPI(this.project, manaContract, landContract)
 
       events(linker, '*', this.pipeEvents.bind(this))
 
@@ -214,14 +213,7 @@ export class Decentraland extends EventEmitter {
 
   private async validateOwnership() {
     const owner = await this.project.getOwner()
-    const estate = await this.project.getEstate()
-    if (estate) {
-      await this.ethereum.validateAuthorizationOfEstate(owner, estate)
-      const parcels = await this.project.getParcels()
-      await this.ethereum.validateParcelsInEstate(estate, parcels)
-    } else {
-      const parcel = await this.project.getParcelCoordinates()
-      await this.ethereum.validateAuthorizationOfParcel(owner, parcel)
-    }
+    const parcel = await this.project.getParcelCoordinates()
+    await this.ethereum.validateAuthorizationOfParcel(owner, parcel)
   }
 }

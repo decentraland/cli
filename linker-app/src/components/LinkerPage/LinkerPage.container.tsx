@@ -4,7 +4,7 @@ import { getData as getWallet, isConnected as isWalletConnected } from 'decentra
 
 import { RootState } from '../../types'
 import { LinkerPageProps } from './types'
-import { isLoading as isLandLoading, getData as getTarget, getError } from '../../modules/land/selectors'
+import { isLoading as isLandLoading, getData as getLand, getError } from '../../modules/land/selectors'
 import { signContentRequest } from '../../modules/land/actions'
 
 import LinkerPage from './LinkerPage'
@@ -14,11 +14,10 @@ const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps 
 
   const isLoading = !isWalletConnected(state) || isLandLoading(state)
 
-  // Target could be either a single parcel or an estate
-  const target = getTarget(state)
+  const base = getLand(state)
   const error = getError(state)
 
-  return { ...ownProps, target, wallet, isLoading, error }
+  return { ...ownProps, base, wallet, isLoading, error }
 }
 
 const mapDispatch = (dispatch: Dispatch<AnyAction>): Partial<LinkerPageProps> => ({

@@ -53,10 +53,6 @@ export function info(vorpal: any) {
 
         if (!args.target) {
           await dcl.project.validateExistingProject()
-          const estateId = await dcl.project.getEstate()
-          if (estateId) {
-            return infoEstate(vorpal, dcl, estateId)
-          }
           const coords = await dcl.project.getParcelCoordinates()
           return infoParcel(vorpal, dcl, coords)
         }

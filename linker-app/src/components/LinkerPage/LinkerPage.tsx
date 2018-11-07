@@ -3,10 +3,10 @@ import { Address, Blockie, Header, Button, Loader } from 'decentraland-ui'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
 import Error from '../Error'
-import { LinkerPageProps, LinkerPageState } from './types'
-import { baseParcel, estateId, isDevelopment, isEstate, rootCID } from '../../modules/config'
+import { LinkerPageProps } from './types'
+import { baseParcel, isDevelopment, rootCID } from '../../modules/config'
 
-export default class LinkScenePage extends React.PureComponent<LinkerPageProps, LinkerPageState> {
+export default class LinkScenePage extends React.PureComponent<LinkerPageProps, any> {
   constructor(props) {
     super(props)
   }
@@ -18,7 +18,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { wallet, isLoading, error, target } = this.props
+    const { wallet, isLoading, error, base } = this.props
     const { x, y } = baseParcel
     return (
       <div className="LinkScenePage">
@@ -29,7 +29,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
           <Error>{error}</Error>
         ) : (
           <React.Fragment>
-            <Header>Update {isEstate() ? 'Estate' : 'LAND'} data</Header>
+            <Header>Update LAND data</Header>
 
             <p>
               Using {wallet.type === 'node' ? 'MetaMask' : wallet.type} address: &nbsp;
@@ -40,25 +40,15 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
 
             <img
               className="map"
-              src={`https://api.decentraland.${isDevelopment() ? 'zone' : 'org'}/v1/${
-                isEstate() ? `estates/${estateId}` : `parcels/${x}/${y}`
-              }/map.png`}
+              src={`https://api.decentraland.${isDevelopment() ? 'zone' : 'org'}/v1/parcels/${x}/${y}/map.png`}
               alt={`Base parcel ${x},${y}`}
             />
 
             <p>
-              Updating <b>{target.name ? `"${target.name}"` : `${isEstate() ? 'Estate' : 'LAND'} without name`}</b>{' '}
-              {isEstate() ? (
-                <React.Fragment>
-                  with ID: <b>{estateId}</b>
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  at coordinates{' '}
-                  <b>
-                    {baseParcel.x}, {baseParcel.y}
-                  </b>
-                </React.Fragment>
+              Updating <b>{base.name ? `"${base.name}"` : `LAND without name`}</b> at coordinates{' '}
+              <b>
+                {x}, {y}
+              </b>
               )}
             </p>
 
@@ -73,7 +63,6 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
                 </Button>
               </div>
             </form>
-
           </React.Fragment>
         )}
         <style>{`

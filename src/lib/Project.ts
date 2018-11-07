@@ -2,14 +2,7 @@ import * as fs from 'fs-extra'
 import dockerNames = require('docker-names')
 import * as path from 'path'
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
-import {
-  getSceneFilePath,
-  SCENE_FILE,
-  getIgnoreFilePath,
-  DCLIGNORE_FILE,
-  PACKAGE_FILE,
-  getPackageFilePath
-} from '../utils/project'
+import { getSceneFilePath, SCENE_FILE, getIgnoreFilePath, DCLIGNORE_FILE, PACKAGE_FILE, getPackageFilePath } from '../utils/project'
 import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
@@ -191,11 +184,6 @@ export class Project {
   async getParcels(): Promise<Coords[]> {
     const sceneFile = await this.getSceneFile()
     return sceneFile.scene.parcels.map(getObject)
-  }
-
-  async getEstate(): Promise<number> {
-    const sceneFile = await this.getSceneFile()
-    return (sceneFile.scene.estateId !== undefined) ? sceneFile.scene.estateId : null
   }
 
   /**

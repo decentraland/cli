@@ -24,10 +24,7 @@ const ctx = sandbox.create()
 
 describe('Decentraland', () => {
   let validateSceneOptionsStub
-  let getParcelCoordinatesStub
   let getOwnerStub
-  let getEstateStub
-  let validateAuthorizationOfEstateStub
   let getParcelsStub
   let validateParcelsInEstateStub
   let validateAuthorizationOfParcelStub
@@ -42,15 +39,13 @@ describe('Decentraland', () => {
   const addFilesResult = beforeEach(() => {
     // Ethereum stubs
     validateAuthorizationOfParcelStub = ctx.stub(Ethereum.prototype, 'validateAuthorizationOfParcel').callsFake(() => undefined)
-    validateAuthorizationOfEstateStub = ctx.stub(Ethereum.prototype, 'validateAuthorizationOfEstate').callsFake(() => undefined)
     validateParcelsInEstateStub = ctx.stub(Ethereum.prototype, 'validateParcelsInEstate').callsFake(() => ({ x: 0, y: 0 }))
 
     // Project stubs
     ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
     validateSceneOptionsStub = ctx.stub(Project.prototype, 'validateSceneOptions').callsFake(() => undefined)
-    getParcelCoordinatesStub = ctx.stub(Project.prototype, 'getParcelCoordinates').callsFake(() => ({ x: 0, y: 0 }))
+    ctx.stub(Project.prototype, 'getParcelCoordinates').callsFake(() => ({ x: 0, y: 0 }))
     getOwnerStub = ctx.stub(Project.prototype, 'getOwner').callsFake(() => address)
-    getEstateStub = ctx.stub(Project.prototype, 'getEstate').callsFake(() => undefined)
     getParcelsStub = ctx.stub(Project.prototype, 'getParcels').callsFake(() => ({ x: 0, y: 0 }))
     getFilesStub = ctx.stub(Project.prototype, 'getFiles').callsFake(() => [{ path: '/tmp/myFile.txt', content: null }])
 
@@ -78,29 +73,8 @@ describe('Decentraland', () => {
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
-      expect(getEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
       expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.false
-      expect(validateAuthorizationOfEstateStub.called, 'expect Project.getParcels() to be called').to.be.false
       expect(validateParcelsInEstateStub.called, 'expect Project.getParcels() to be called').to.be.false
-      expect(linkStub.calledBefore(uploadContentStub), 'expect Decentraland.link() to be called').to.be.true
-      expect(uploadContentStub.called).to.be.true
-    })
-
-    it('should verify estate ownership', async () => {
-      getEstateStub.callsFake(() => 49)
-
-      const dcl = new Decentraland()
-      const files = await dcl.project.getFiles()
-      await dcl.deploy(files)
-
-      expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.false
-      expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
-      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
-      expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
-      expect(getEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
-      expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.true
-      expect(validateAuthorizationOfEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
-      expect(validateParcelsInEstateStub.called, 'expect Project.getParcels() to be called').to.be.true
       expect(linkStub.calledBefore(uploadContentStub), 'expect Decentraland.link() to be called').to.be.true
       expect(uploadContentStub.called).to.be.true
     })
