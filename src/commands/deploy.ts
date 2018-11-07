@@ -20,14 +20,14 @@ export function deploy(vorpal: any) {
   vorpal
     .command('deploy')
     .description('Uploads scene to content server.')
-    .option('-h, --host <string>', 'Content servert url (default is http://localhost:8000).')
+    .option('-h, --host <string>', 'Content servert url (default is https://content-service.decentraland.zone).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .option('-hs, --https', 'Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)')
     .action(
       wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
           isHttps: !!args.options.https,
-          contentServerUrl: args.options.host || 'http://localhost:8000'
+          contentServerUrl: args.options.host || 'https://content-service.decentraland.zone'
         })
 
         let ignoreFile = await dcl.project.getDCLIgnore()
