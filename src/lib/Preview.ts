@@ -43,10 +43,12 @@ export class Preview extends EventEmitter {
     const root = getRootPath()
 
     const relativiseUrl = (url: string) => {
-      if (root.endsWith('/')) {
-        return url.replace(root, '')
+      url = url.replace(/[\/\\]/g, '/')
+      const newRoot = root.replace(/\//g, '/').replace(/\\/g, '/')
+      if (newRoot.endsWith('/')) {
+        return url.replace(newRoot, '')
       } else {
-        return url.replace(root + '/', '')
+        return url.replace(newRoot + '/', '')
       }
     }
 
