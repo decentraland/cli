@@ -212,8 +212,7 @@ export class Decentraland extends EventEmitter {
   }
 
   private async validateOwnership() {
-    const owner = await this.project.getOwner()
-    const parcel = await this.project.getParcelCoordinates()
-    await this.ethereum.validateAuthorizationOfParcel(owner, parcel)
+    const [parcels, owner] = await Promise.all([this.project.getParcels(), this.project.getOwner()])
+    await this.ethereum.validateAuthorization(owner, parcels)
   }
 }

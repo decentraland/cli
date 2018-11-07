@@ -135,6 +135,11 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     }
   }
 
+  async validateAuthorization(owner: string, parcels: Coords[]) {
+    const validations = parcels.map(parcel => this.validateAuthorizationOfParcel(owner, parcel))
+    return Promise.all(validations)
+  }
+
   /**
    * It fails if the owner address isn't able to update given parcel (as an owner or operator)
    */
@@ -142,27 +147,6 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     const isLandOperator = await this.isLandOperator(parcel, owner)
     if (!isLandOperator) {
       fail(ErrorType.ETHEREUM_ERROR, `Provided address ${owner} is not authorized to update LAND ${parcel.x},${parcel.y}`)
-    }
-  }
-
-  /**
-   * It fails if the owner address isn't able to update given estate ID (as an owner or operator)
-   */
-  async validateAuthorizationOfEstate(owner: string, estateId: number): Promise<void> {
-    const isEstateOperator = await this.isEstateOperator(estateId, owner)
-    if (!isEstateOperator) {
-      fail(ErrorType.ETHEREUM_ERROR, `Provided address ${owner} is not authorized to update Estate ${estateId}`)
-    }
-  }
-
-  /**
-   * It fails if the given parcels aren't inside the given estate
-   */
-  async validateParcelsInEstate(estateId: number, parcels: Coords[]): Promise<void> {
-    const lands = await this.getLandOfEstate(estateId)
-    const incorrectParcel = lands.find(parcel => !parcels.some(p => isEqual(parcel, p)))
-    if (incorrectParcel) {
-      fail(ErrorType.ETHEREUM_ERROR, `LAND ${incorrectParcel.x},${incorrectParcel.y} is not included at Estate ${estateId}`)
     }
   }
 
@@ -201,9 +185,16 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     }
   }
 
-  private async isLandOperator({ x, y }: Coords, owner: string): Promise<string> {
+  private async isLandOperator(coords: Coords, owner: string): Promise<boolean> {
     const contract = await Ethereum.getContract('LANDProxy')
+
+    const estate = await this.getEstateIdOfLand(coords)
+    if (estate) {
+      return this.isEstateOperator(estate, owner)
+    }
+
     try {
+      const { x, y } = coords
       const assetId = await contract['encodeTokenId'](x, y)
       return await contract['isUpdateAuthorized'](owner, assetId.toString())
     } catch (e) {

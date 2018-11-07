@@ -201,7 +201,7 @@ export class Project {
    * Fails the execution if one of the parcel data is invalid
    */
   async validateSceneOptions(): Promise<void> {
-    const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+    const sceneFile = await this.getSceneFile()
     return this.validateSceneData(sceneFile)
   }
 
@@ -383,7 +383,7 @@ export class Project {
       fail(ErrorType.PROJECT_ERROR, 'Missing scene parcels attribute at scene.json')
     }
 
-    if ([...parcelSet].length < parcels.length) {
+    if (parcelSet.size < parcels.length) {
       fail(ErrorType.PROJECT_ERROR, 'There are duplicated parcels at scene.json')
     }
 
