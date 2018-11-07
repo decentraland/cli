@@ -26,8 +26,7 @@ describe('Decentraland', () => {
   let validateSceneOptionsStub
   let getOwnerStub
   let getParcelsStub
-  let validateParcelsInEstateStub
-  let validateAuthorizationOfParcelStub
+  let validateAuthorizationStub
   let getFilesStub
   let linkStub
   let uploadContentStub
@@ -38,8 +37,7 @@ describe('Decentraland', () => {
 
   const addFilesResult = beforeEach(() => {
     // Ethereum stubs
-    validateAuthorizationOfParcelStub = ctx.stub(Ethereum.prototype, 'validateAuthorizationOfParcel').callsFake(() => undefined)
-    validateParcelsInEstateStub = ctx.stub(Ethereum.prototype, 'validateParcelsInEstate').callsFake(() => ({ x: 0, y: 0 }))
+    validateAuthorizationStub = ctx.stub(Ethereum.prototype, 'validateAuthorization').callsFake(() => undefined)
 
     // Project stubs
     ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
@@ -69,12 +67,11 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(validateAuthorizationOfParcelStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
+      expect(validateAuthorizationStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
       expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
       expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
       expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
-      expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.false
-      expect(validateParcelsInEstateStub.called, 'expect Project.getParcels() to be called').to.be.false
+      expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.true
       expect(linkStub.calledBefore(uploadContentStub), 'expect Decentraland.link() to be called').to.be.true
       expect(uploadContentStub.called).to.be.true
     })
