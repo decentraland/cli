@@ -21,7 +21,7 @@ describe('ContentUploadRequest', () => {
     expect(form[rootCID]).to.be.equals(JSON.stringify(manifest))
 
     manifest.forEach((content) => {
-      expect(form[content.name]).to.be.not.undefined
+      expect(form[content.cid]).to.be.not.undefined
     })
   })
 })

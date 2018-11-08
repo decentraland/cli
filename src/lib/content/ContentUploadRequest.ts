@@ -45,7 +45,7 @@ export class ContentUploadRequest {
   }
 
   private addFileToRequest(identifier: ContentIdentifier, file: IFile, form: any): void {
-    form[file.path] = {
+    form[identifier.cid] = {
       value: file.content,
       options: {
         filepath: file.path
