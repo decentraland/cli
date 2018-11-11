@@ -5,7 +5,7 @@ import { RequestManager, ContractFactory, providers, Contract } from 'eth-connec
 
 import { isDev, getProvider } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
-import { Coords, isEqual, getObject } from '../utils/coordinateHelpers'
+import { Coords, getObject } from '../utils/coordinateHelpers'
 
 import { abi as manaAbi } from '../../abi/MANAToken.json'
 import { abi as landAbi } from '../../abi/LANDRegistry.json'
