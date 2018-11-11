@@ -49,7 +49,6 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               <b>
                 {x}, {y}
               </b>
-              )}
             </p>
 
             <p>

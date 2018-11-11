@@ -189,10 +189,9 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     const contract = await Ethereum.getContract('LANDProxy')
 
     const estate = await this.getEstateIdOfLand(coords)
-    if (estate) {
+    if (estate && estate > 0) {
       return this.isEstateOperator(estate, owner)
     }
-
     try {
       const { x, y } = coords
       const assetId = await contract['encodeTokenId'](x, y)

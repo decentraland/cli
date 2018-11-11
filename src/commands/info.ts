@@ -6,6 +6,7 @@ import { Coords, getObject, isValid } from '../utils/coordinateHelpers'
 
 export type Arguments = {
   target: string
+  host: string
   options: {
     blockchain: boolean
     contentHost?: string
@@ -48,7 +49,7 @@ export function info(vorpal: any) {
       wrapCommand(async (args: Arguments) => {
         const dcl = new Decentraland({
           blockchain: args.options.blockchain,
-          contentServerUrl: args.options.host || 'https://content-service.decentraland.zone'
+          contentServerUrl: args.host || 'https://content-service.decentraland.zone'
         })
 
         if (!args.target) {
