@@ -48,7 +48,7 @@ export function info(vorpal: any) {
       wrapCommand(async (args: Arguments) => {
         const dcl = new Decentraland({
           blockchain: args.options.blockchain,
-          contentServerUrl: args.options.contentHost || 'http://localhost:8000'
+          contentServerUrl: args.options.host || 'https://content-service.decentraland.zone'
         })
 
         if (!args.target) {

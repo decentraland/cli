@@ -38,7 +38,7 @@ export function status(vorpal: any) {
     .action(
       wrapCommand(async (args: IArguments) => {
         const dcl = new Decentraland({
-          contentServerUrl: args.host || 'http://localhost:8000'
+          contentServerUrl: args.host || 'https://content-service.decentraland.zone'
         })
 
         if (!args.target) {
