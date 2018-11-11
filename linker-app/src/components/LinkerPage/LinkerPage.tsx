@@ -23,10 +23,10 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     return (
       <div className="LinkScenePage">
         <Navbar />
-        {isLoading ? (
-          <Loader active size="massive" />
-        ) : error ? (
+        {error ? (
           <Error>{error}</Error>
+        ) : isLoading ? (
+          <Loader active size="massive" />
         ) : (
           <React.Fragment>
             <Header>Update LAND data</Header>
