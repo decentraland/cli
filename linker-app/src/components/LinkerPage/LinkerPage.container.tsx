@@ -1,10 +1,7 @@
 import { AnyAction, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import {
-  getData as getWallet,
-  isConnected as isWalletConnected,
-  getError as getWalletError
-} from 'decentraland-dapps/dist/modules/wallet/selectors'
+import { connectWalletRequest } from 'decentraland-dapps/dist/modules/wallet/actions'
+import { getData as getWallet, isConnected, isConnecting } from 'decentraland-dapps/dist/modules/wallet/selectors'
 
 import { RootState } from '../../types'
 import { LinkerPageProps } from './types'
@@ -14,17 +11,19 @@ import { signContentRequest } from '../../modules/land/actions'
 import LinkerPage from './LinkerPage'
 
 const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps => {
-  const wallet = getWallet(state)
-
-  const isLoading = !isWalletConnected(state) || isLandLoading(state)
-
-  const base = getLand(state)
-  const error = getLandError(state) || getWalletError(state)
-
-  return { ...ownProps, base, wallet, isLoading, error }
+  return {
+    ...ownProps,
+    base: getLand(state),
+    wallet: getWallet(state),
+    isLoading: isLandLoading(state),
+    isConnected: isConnected(state),
+    isConnecting: isConnecting(state),
+    error: getLandError(state)
+  }
 }
 
 const mapDispatch = (dispatch: Dispatch<AnyAction>): Partial<LinkerPageProps> => ({
+  onConnectWallet: () => dispatch(connectWalletRequest()),
   onSignContent: (cid: string) => dispatch(signContentRequest(cid))
 })
 
