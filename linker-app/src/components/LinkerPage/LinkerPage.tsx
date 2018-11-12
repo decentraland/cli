@@ -18,7 +18,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { wallet, isLoading, error, base } = this.props
+    const { wallet, error, base, isLoading, isConnected, isConnecting, onConnectWallet } = this.props
     const { x, y } = baseParcel
     return (
       <div className="LinkScenePage">
@@ -30,35 +30,41 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
         ) : (
           <React.Fragment>
             <Header>Update LAND data</Header>
-
-            <p>
-              Using {wallet.type === 'node' ? 'MetaMask' : wallet.type} address: &nbsp;
-              <Blockie scale={3} seed={wallet.address}>
-                <Address tooltip strong value={wallet.address} />
-              </Blockie>
-            </p>
-
+            {isConnected ? (
+              <p>
+                Using {wallet.type === 'node' ? 'MetaMask' : wallet.type} address: &nbsp;
+                <Blockie scale={3} seed={wallet.address}>
+                  <Address tooltip strong value={wallet.address} />
+                </Blockie>
+              </p>
+            ) : (
+              <React.Fragment>
+                <p>Could not find any wallet</p>
+                <p>
+                  <Button primary onClick={onConnectWallet} loading={isConnecting}>
+                    Reconnect{' '}
+                  </Button>
+                </p>
+              </React.Fragment>
+            )}
+            )}
             <img
               className="map"
               src={`https://api.decentraland.${isDevelopment() ? 'zone' : 'org'}/v1/parcels/${x}/${y}/map.png`}
               alt={`Base parcel ${x},${y}`}
             />
-
             <p>
               Updating <b>{base.name ? `"${base.name}"` : `LAND without name`}</b> at coordinates{' '}
               <b>
                 {x}, {y}
               </b>
-              )}
             </p>
-
             <p>
               Sign Project CID: <b>{rootCID}</b>
             </p>
-
             <form>
               <div>
-                <Button primary onClick={this.handleSignature}>
+                <Button primary onClick={this.handleSignature} disabled={!isConnected}>
                   Sign and Deploy
                 </Button>
               </div>
