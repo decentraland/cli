@@ -39,9 +39,9 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               </p>
             ) : (
               <React.Fragment>
-                <p>Could not find any wallet</p>
+                {isConnecting ? null : <p>Could not find any wallet</p>}
                 <p>
-                  <Button primary onClick={onConnectWallet} loading={isConnecting}>
+                  <Button primary onClick={onConnectWallet} loading={isConnecting} disabled={isConnecting}>
                     Reconnect{' '}
                   </Button>
                 </p>
