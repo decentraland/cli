@@ -189,7 +189,7 @@ export class Decentraland extends EventEmitter {
 
   async getEstateOfParcel(coords: Coords): Promise<Estate> {
     const estateId = await this.provider.getEstateIdOfLand(coords)
-    if (!estateId) {
+    if (!estateId || estateId < 1) {
       return
     }
 
