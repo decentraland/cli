@@ -1,5 +1,5 @@
 import { wrapCommand } from '../utils/wrapCommand'
-import { formatDictionary, italic } from '../utils/logging'
+import { formatDictionary, italic, bold } from '../utils/logging'
 import { Decentraland, Estate } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
 import { Coords, getObject, isValid } from '../utils/coordinateHelpers'
@@ -143,6 +143,11 @@ export function logEstate(vorpal, estate: Estate, id: number) {
   if (!estate) {
     vorpal.log(italic(`\n  Estate with ID ${id} doesn't exist\n`))
     return
+  }
+
+  if (estate.parcels.length === 0) {
+    vorpal.log(bold(`\n  Estate with ID ${id} has been disolved\n`))
+    delete estate.parcels
   }
 
   vorpal.log('  Estate Metadata:\n')
