@@ -2,8 +2,8 @@ import { LANDData } from '../lib/Ethereum'
 
 export function filterAndFillEmpty(data: any, def: string = null): LANDData {
   if (!data) {
-    return data
+    return { name: def, description: def }
   }
 
-  return { name: data.name ? data.name : def, description: data.description ? data.description : def }
+  return { name: data.name || def, description: data.description || def }
 }
