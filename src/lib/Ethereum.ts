@@ -6,6 +6,7 @@ import { RequestManager, ContractFactory, providers, Contract } from 'eth-connec
 import { isDev, getProvider } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
 import { Coords, getObject } from '../utils/coordinateHelpers'
+import { filterAndFillEmpty } from '../utils/land'
 
 import { abi as manaAbi } from '../../abi/MANAToken.json'
 import { abi as landAbi } from '../../abi/LANDRegistry.json'
@@ -101,7 +102,7 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     const contract = await Ethereum.getContract('LANDProxy')
     try {
       const landData = await contract['landData'](x, y)
-      return this.decodeLandData(landData)
+      return filterAndFillEmpty(this.decodeLandData(landData))
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND data: ${e.message}`)
     }
@@ -111,7 +112,7 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     const contract = await Ethereum.getContract('EstateProxy')
     try {
       const landData = await contract['getMetadata'](estateId)
-      return this.decodeLandData(landData)
+      return filterAndFillEmpty(this.decodeLandData(landData))
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND data: ${e.message}`)
     }

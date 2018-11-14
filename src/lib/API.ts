@@ -1,7 +1,8 @@
-import { Coords } from '../utils/coordinateHelpers'
-import { fail, ErrorType } from '../utils/errors'
 import { LANDData } from './Ethereum'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
+
+import { Coords } from '../utils/coordinateHelpers'
+import { fail, ErrorType } from '../utils/errors'
 import { filterAndFillEmpty } from '../utils/land'
 
 const dclApiUrl = 'https://api.decentraland.org/v1'
@@ -31,7 +32,7 @@ export class API implements IEthereumDataProvider {
       return
     }
 
-    return json.data.id
+    return json.data.estate_id
   }
 
   async getEstateData(estateId: number): Promise<LANDData> {
