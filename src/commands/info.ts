@@ -146,7 +146,7 @@ export function logEstate(vorpal, estate: Estate, id: number) {
   }
 
   if (estate.parcels.length === 0) {
-    vorpal.log(bold(`\n  Estate with ID ${id} has been disolved\n`))
+    vorpal.log(bold(`\n  Estate with ID ${id} has been dissolved\n`))
     delete estate.parcels
   }
 
