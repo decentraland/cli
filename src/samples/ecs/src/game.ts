@@ -1,6 +1,6 @@
 /// --- Set up a system ---
 
-class RotatorSystem extends System {
+class RotatorSystem {
   // this group will contain every entity that has a Transform component
   group = engine.getComponentGroup(Transform)
 
@@ -11,7 +11,7 @@ class RotatorSystem extends System {
       const transform = entity.get(Transform)
 
       // mutate the rotation
-      transform.rotation.y += dt * 10
+      transform.rotate(Vector3.Up(), dt * 10) 
     }
   }
 }
