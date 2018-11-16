@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events'
 import * as fetch from 'isomorphic-fetch'
-import * as CSV from 'comma-separated-values'
 import { RequestManager, ContractFactory, providers, Contract } from 'eth-connect'
 
 import { IEthereumDataProvider } from './IEthereumDataProvider'
@@ -213,14 +212,15 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
 
   private decodeLandData(data: string = ''): LANDData {
     // this logic can also be found in decentraland-eth, but we can't rely on node-hid
-    const version = data.charAt(0)
-    switch (version) {
-      case '0': {
-        const [, name, description] = CSV.parse(data)[0]
-        return { version: 0, name: name || null, description: description || null }
-      }
-      default:
-        return null
+
+    if (data === '') {
+      return null
     }
+
+    const [, name, description] = data.split(',').map(field => {
+      return field.slice(1, -1)
+    })
+
+    return { version: 0, name: name || null, description: description || null }
   }
 }
