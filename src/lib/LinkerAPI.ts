@@ -1,8 +1,8 @@
 import * as path from 'path'
-import * as fs from 'fs-extra'
 import * as https from 'https'
 import { EventEmitter } from 'events'
 import * as urlParse from 'url'
+import * as fs from 'fs-extra'
 import * as express from 'express'
 import * as portfinder from 'portfinder'
 

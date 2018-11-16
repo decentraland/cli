@@ -2,16 +2,17 @@ import * as path from 'path'
 import { createServer } from 'http'
 import * as WebSocket from 'ws'
 import * as express from 'express'
-import { getRootPath } from '../utils/project'
 import { EventEmitter } from 'events'
 import * as fs from 'fs-extra'
-import { fail, ErrorType } from '../utils/errors'
-import * as chokidar from 'chokidar'
-import ignore = require('ignore')
 import * as portfinder from 'portfinder'
-import bodyParser = require('body-parser')
-import cors = require('cors')
-import glob = require('glob')
+import * as bodyParser from 'body-parser'
+import * as cors from 'cors'
+import * as glob from 'glob'
+import * as chokidar from 'chokidar'
+import * as ignore from 'ignore'
+
+import { getRootPath } from '../utils/project'
+import { fail, ErrorType } from '../utils/errors'
 
 function nocache(req, res, next) {
   res.setHeader('Surrogate-Control', 'no-store')

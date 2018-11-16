@@ -1,9 +1,10 @@
-import * as fs from 'fs-extra'
-import dockerNames = require('docker-names')
 import * as path from 'path'
+import * as dockerNames from 'docker-names'
+import * as fs from 'fs-extra'
+import * as ignore from 'ignore'
+
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import { getSceneFilePath, SCENE_FILE, getIgnoreFilePath, DCLIGNORE_FILE, PACKAGE_FILE, getPackageFilePath } from '../utils/project'
-import ignore = require('ignore')
 import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
 

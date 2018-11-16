@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import ora = require('ora')
+import * as ora from 'ora'
 
 export function error(message: string): string {
   return chalk.red(message)

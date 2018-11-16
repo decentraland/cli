@@ -1,18 +1,18 @@
-import { IFile } from "../Project"
-import { ContentIdentifier } from "./ContentUploadRequest"
-import imp = require('ipfs-unixfs-engine')
-import Importer = imp.Importer
+import * as path from 'path'
+import * as pull from 'pull-stream'
+import * as CID from 'cids'
+import { MemoryDatastore } from 'interface-datastore'
+import * as imp from 'ipfs-unixfs-engine'
 
-const pull = require('pull-stream')
-const { MemoryDatastore } = require('interface-datastore')
-const CID = require('cids')
-const path = require("path")
+import { ContentIdentifier } from './ContentUploadRequest'
+import { IFile } from '../Project'
+
+import Importer = imp.Importer
 
 /**
  * Utility class to handle the calculation of a IFile CID
  */
 export class CIDUtils {
-
   /**
    * Retrieves a ContentIdentifier (which contains the CID) for each File
    * The path is ignored, it only uses the file name.
@@ -22,7 +22,7 @@ export class CIDUtils {
     const result: ContentIdentifier[] = []
     for (const file of files) {
       const fileCID: string = await this.getListCID([{ path: path.basename(file.path), content: file.content, size: file.size }], false)
-      result.push({ cid: fileCID, name : file.path })
+      result.push({ cid: fileCID, name: file.path })
     }
     return result
   }
@@ -42,22 +42,21 @@ export class CIDUtils {
         pull.values(files),
         pull.asyncMap((file, cb) => {
           const data = {
-            path :  shareRoot ? "/tmp/" + file.path : file.path,
+            path: shareRoot ? '/tmp/' + file.path : file.path,
             content: file.content
           }
           cb(null, data)
         }),
         importer,
-        pull.onEnd(() => importer.flush(
-          (err, content) => {
+        pull.onEnd(() =>
+          importer.flush((err, content) => {
             if (err) {
               reject(err)
             }
             resolve(new CID(content).toBaseEncodedString())
-          }
+          })
         )
       )
-    )
     })
   }
 }

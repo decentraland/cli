@@ -1,6 +1,7 @@
 /// <reference path="../typings/dcl.d.ts" />
 
 import Vorpal = require('vorpal')
+
 import { init as initCommand } from './commands/init'
 import { start } from './commands/preview'
 import { deploy } from './commands/deploy'

@@ -1,9 +1,10 @@
+import * as inquirer from 'inquirer'
+import opn = require('opn')
+
 import { wrapCommand } from '../utils/wrapCommand'
 import { loading, info, positive, warning } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
-import opn = require('opn')
-import inquirer = require('inquirer')
 import { ErrorType, fail } from '../utils/errors'
 
 const MAX_FILE_COUNT = 100

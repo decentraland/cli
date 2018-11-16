@@ -1,10 +1,11 @@
 import * as path from 'path'
 import * as semver from 'semver'
 import { spawn } from 'child_process'
+import * as fetch from 'isomorphic-fetch'
 import * as packageJson from 'package-json'
+
 import { readJSON } from '../utils/filesystem'
 import { getRootPath, getNodeModulesPath } from '../utils/project'
-import * as fetch from 'isomorphic-fetch'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 

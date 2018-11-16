@@ -12,7 +12,6 @@ import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { filterAndFillEmpty } from '../utils/land'
 import { CIDUtils } from './content/CIDUtils'
-
 import { ContentClient } from './content/ContentClient'
 import { ContentService } from './content/ContentService'
 

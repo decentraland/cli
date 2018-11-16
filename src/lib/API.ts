@@ -1,6 +1,5 @@
 import { LANDData } from './Ethereum'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
-
 import { Coords } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
 import { filterAndFillEmpty } from '../utils/land'

@@ -1,6 +1,6 @@
+import { Decentraland, Estate } from '../lib/Decentraland'
 import { wrapCommand } from '../utils/wrapCommand'
 import { formatDictionary, italic, bold } from '../utils/logging'
-import { Decentraland, Estate } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
 import { Coords, getObject, isValid } from '../utils/coordinateHelpers'
 

@@ -1,12 +1,13 @@
-import inquirer = require('inquirer')
-import { wrapCommand } from '../utils/wrapCommand'
-import { installDependencies, isOnline } from '../utils/moduleHelpers'
+import * as inquirer from 'inquirer'
+
 import { BoilerplateType } from '../lib/Project'
+import { Decentraland } from '../lib/Decentraland'
+import { getOrElse } from '../utils'
 import { Analytics } from '../utils/analytics'
 import { warning, loading, positive, bold } from '../utils/logging'
-import { Decentraland } from '../lib/Decentraland'
+import { wrapCommand } from '../utils/wrapCommand'
+import { installDependencies, isOnline } from '../utils/moduleHelpers'
 import { fail, ErrorType } from '../utils/errors'
-import { getOrElse } from '../utils'
 
 export function init(vorpal: any) {
   vorpal

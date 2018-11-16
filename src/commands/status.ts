@@ -1,5 +1,5 @@
-import { wrapCommand } from '../utils/wrapCommand'
 import { Decentraland } from '../lib/Decentraland'
+import { wrapCommand } from '../utils/wrapCommand'
 import * as Coordinates from '../utils/coordinateHelpers'
 import { formatList, italic } from '../utils/logging'
 import { Analytics } from '../utils/analytics'

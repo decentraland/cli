@@ -1,9 +1,10 @@
 import * as uuidv4 from 'uuid/v4'
+import * as inquirer from 'inquirer'
+import AnalyticsNode = require('analytics-node')
+
 import { isDev } from './env'
-import inquirer = require('inquirer')
 import { getDCLInfo, writeDCLInfo } from './dclinfo'
 import { isOnline, getInstalledCLIVersion, getInstalledVersion } from './moduleHelpers'
-const AnalyticsNode = require('analytics-node')
 
 // Setup segment.io
 const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'

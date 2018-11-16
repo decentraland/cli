@@ -1,6 +1,7 @@
-import { ContentUploadRequest } from './ContentUploadRequest'
 import { fail } from 'assert'
-import { Coords } from 'src/utils/coordinateHelpers'
+
+import { ContentUploadRequest } from './ContentUploadRequest'
+import { Coords } from '../../utils/coordinateHelpers'
 
 import * as request from 'request'
 

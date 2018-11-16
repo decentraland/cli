@@ -3,6 +3,7 @@ import * as fetch from 'isomorphic-fetch'
 import * as CSV from 'comma-separated-values'
 import { RequestManager, ContractFactory, providers, Contract } from 'eth-connect'
 
+import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { isDev, getProvider } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
 import { Coords, getObject } from '../utils/coordinateHelpers'
@@ -11,7 +12,6 @@ import { filterAndFillEmpty } from '../utils/land'
 import { abi as manaAbi } from '../../abi/MANAToken.json'
 import { abi as landAbi } from '../../abi/LANDRegistry.json'
 import { abi as estateAbi } from '../../abi/EstateRegistry.json'
-import { IEthereumDataProvider } from './IEthereumDataProvider'
 
 const provider = process.env.RPC_URL || getProvider()
 const requestManager = new RequestManager(new providers.HTTPProvider(provider))
