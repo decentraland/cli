@@ -112,6 +112,11 @@ export class LinkerAPI extends EventEmitter {
       res.sendFile(filePath)
     })
 
+    this.app.get('/css/logo.svg', (req, res) => {
+      const filePath = path.resolve(__dirname, '../css/logo.svg')
+      res.sendFile(filePath)
+    })
+
     this.app.get('/api/close', (req, res) => {
       res.writeHead(200)
       res.end()
