@@ -62,6 +62,7 @@
     "cors": "^2.8.4",
     "docker-names": "^1.0.3",
     "eth-connect": "^0.3.0",
+    "ethers": "^4.0.12",
     "express": "^4.16.2",
     "fs-extra": "^7.0.1",
     "glob": "^7.1.3",

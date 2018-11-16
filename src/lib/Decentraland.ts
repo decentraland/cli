@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events'
 import * as events from 'wildcards'
+import { ethers } from 'ethers'
 
 import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
@@ -23,6 +24,7 @@ export type DecentralandArguments = {
   watch?: boolean
   blockchain?: boolean
   contentServerUrl?: string
+  privateKey?: string
 }
 
 export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
@@ -52,6 +54,7 @@ export class Decentraland extends EventEmitter {
   options: DecentralandArguments = {}
   provider: IEthereumDataProvider
   contentService: ContentService
+  wallet: ethers.Wallet
 
   constructor(args: DecentralandArguments = {}) {
     super()
@@ -64,6 +67,10 @@ export class Decentraland extends EventEmitter {
 
     if (!this.options.blockchain) {
       this.provider = new API()
+    }
+
+    if (this.options.privateKey) {
+      this.validatePrivateKey(this.options.privateKey)
     }
 
     // Pipe all events
@@ -83,8 +90,7 @@ export class Decentraland extends EventEmitter {
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
     try {
-      const message = await this.link(rootCID)
-      const { signature, address } = JSON.parse(message)
+      const { signature, address } = await this.getAddressAndSignature(rootCID)
       const uploadResult = await this.contentService.uploadContent(rootCID, files, signature, address)
       if (!uploadResult) {
         fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')
@@ -97,7 +103,6 @@ export class Decentraland extends EventEmitter {
   async link(rootCID: string): Promise<string> {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
-    await this.validateOwnership()
 
     return new Promise<string>(async (resolve, reject) => {
       const manaContract = await Ethereum.getContractAddress('MANAToken')
@@ -207,12 +212,35 @@ export class Decentraland extends EventEmitter {
     return { files: [] }
   }
 
+  async getPublicAddress(): Promise<string> {
+    return this.wallet.getAddress()
+  }
+
+  private async getAddressAndSignature(rootCID): Promise<{ signature: string; address: string }> {
+    if (this.wallet) {
+      const [signature, address] = await Promise.all([this.wallet.signMessage(rootCID), this.wallet.getAddress()])
+      return { signature, address }
+    }
+
+    const message = await this.link(rootCID)
+    return JSON.parse(message)
+  }
+
   private pipeEvents(event: string, ...args: any[]) {
     this.emit(event, ...args)
   }
 
   private async validateOwnership() {
-    const [parcels, owner] = await Promise.all([this.project.getParcels(), this.project.getOwner()])
-    await this.ethereum.validateAuthorization(owner, parcels)
+    const pOwner = this.wallet ? this.wallet.getAddress() : this.project.getOwner()
+    const [parcels, owner] = await Promise.all([this.project.getParcels(), pOwner])
+    return this.ethereum.validateAuthorization(owner, parcels)
+  }
+
+  private validatePrivateKey(privateKey: string): void {
+    if (privateKey.length !== 64) {
+      fail(ErrorType.DEPLOY_ERROR, 'Addresses should be 64 characters length.')
+    }
+
+    this.wallet = new ethers.Wallet(privateKey)
   }
 }

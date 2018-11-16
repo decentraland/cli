@@ -13,7 +13,9 @@ import { abi as landAbi } from '../../abi/LANDRegistry.json'
 import { abi as estateAbi } from '../../abi/EstateRegistry.json'
 
 const provider = process.env.RPC_URL || getProvider()
-const requestManager = new RequestManager(new providers.HTTPProvider(provider))
+const providerInstance = new providers.HTTPProvider(provider)
+const requestManager = new RequestManager(providerInstance)
+providerInstance.debug = !!process.env.DEBUG
 
 const manaFactory = new ContractFactory(requestManager, manaAbi)
 const landFactory = new ContractFactory(requestManager, landAbi)
@@ -189,15 +191,17 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     const contract = await Ethereum.getContract('LANDProxy')
 
     const estate = await this.getEstateIdOfLand(coords)
+
     if (estate && estate > 0) {
       return this.isEstateOperator(estate, owner)
     }
+
     try {
       const { x, y } = coords
       const assetId = await contract['encodeTokenId'](x, y)
-      return await contract['isUpdateAuthorized'](owner, assetId.toString())
+      return await contract['isUpdateAuthorized'](owner.toLowerCase(), assetId.toString())
     } catch (e) {
-      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND authorization: ${e.message}`)
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND authorization: ${JSON.stringify(e)}`)
     }
   }
 
