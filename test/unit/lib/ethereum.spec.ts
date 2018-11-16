@@ -24,8 +24,6 @@ describe('Ethereum', () => {
       description: 'my description'
     })
 
-    expect(eth['decodeLandData']('"asd","myLand","my description","QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.be.null
-
     expect(eth['decodeLandData']('0,"myLand","my description",')).to.deep.equal({
       version: 0,
       name: 'myLand',
