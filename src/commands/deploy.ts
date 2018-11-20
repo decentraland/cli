@@ -14,7 +14,6 @@ export interface IDeployArguments {
     host?: string
     skip?: boolean
     https?: boolean
-    'private-key'?: string
   }
 }
 
@@ -25,16 +24,11 @@ export function deploy(vorpal: any) {
     .option('-h, --host <string>', 'Content servert url (default is https://content-service.decentraland.zone).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .option('-hs, --https', 'Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)')
-    .option(
-      '-k, --private-key <key>',
-      "Set private key as parameter and avoid prompting the linker app (It's recommended to not use LAND owner addresses but operators)"
-    )
     .action(
       wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
           isHttps: !!args.options.https,
-          contentServerUrl: args.options.host || 'https://content-service.decentraland.zone',
-          privateKey: args.options['private-key']
+          contentServerUrl: args.options.host || 'https://content-service.decentraland.zone'
         })
 
         let ignoreFile = await dcl.project.getDCLIgnore()
@@ -71,7 +65,7 @@ export function deploy(vorpal: any) {
           })
         })
 
-        if (args.options['private-key']) {
+        if (process.env.DCL_PRIVATE_KEY) {
           const publicKey = await dcl.getPublicAddress()
           vorpal.log(bold(`Using public address ${publicKey}`))
         }

@@ -24,7 +24,6 @@ export type DecentralandArguments = {
   watch?: boolean
   blockchain?: boolean
   contentServerUrl?: string
-  privateKey?: string
 }
 
 export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
@@ -69,8 +68,8 @@ export class Decentraland extends EventEmitter {
       this.provider = new API()
     }
 
-    if (this.options.privateKey) {
-      this.validatePrivateKey(this.options.privateKey)
+    if (process.env.DCL_PRIVATE_KEY) {
+      this.createWallet(process.env.DCL_PRIVATE_KEY)
     }
 
     // Pipe all events
@@ -236,7 +235,7 @@ export class Decentraland extends EventEmitter {
     return this.ethereum.validateAuthorization(owner, parcels)
   }
 
-  private validatePrivateKey(privateKey: string): void {
+  private createWallet(privateKey: string): void {
     if (privateKey.length !== 64) {
       fail(ErrorType.DEPLOY_ERROR, 'Addresses should be 64 characters length.')
     }
