@@ -2,7 +2,7 @@ import * as inquirer from 'inquirer'
 import opn = require('opn')
 
 import { wrapCommand } from '../utils/wrapCommand'
-import { loading, info, positive, warning } from '../utils/logging'
+import { loading, info, positive, warning, bold } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import { ErrorType, fail } from '../utils/errors'
@@ -64,6 +64,11 @@ export function deploy(vorpal: any) {
             uploadMsg.succeed('Content uploaded')
           })
         })
+
+        if (process.env.DCL_PRIVATE_KEY) {
+          const publicKey = await dcl.getPublicAddress()
+          vorpal.log(bold(`Using public address ${publicKey}`))
+        }
 
         if (args.options.https) {
           vorpal.log(warning(`WARNING: Using self signed certificate to support ledger wallet`))
