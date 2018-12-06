@@ -10,5 +10,5 @@ export function getProvider() {
 }
 
 export function isEnvCi(): boolean {
-  return getOrElse(process.env.NOW, false) || getOrElse(process.env.CI, false)
+  return getOrElse(process.env.CI, false)
 }

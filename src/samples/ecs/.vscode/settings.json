@@ -10,7 +10,10 @@
     ".vscode": true,
     "tsconfig.json": true,
     "package.json": true,
+    "package-lock.json": true,
     ".dclignore": true,
-    ".gitignore": true
+    ".gitignore": true,
+    "now.json": true,
+    "Dockerfile": true
   }
 }
