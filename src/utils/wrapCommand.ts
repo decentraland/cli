@@ -36,21 +36,20 @@ async function wrapper(fn: TargetFunction, ctx: any, args: IArguments): Promise<
     await Analytics.requestPermission()
   }
 
+  if (await isCLIOutdated()) {
+    ctx.log(warning('\nWARNING: outdated decentraland version\nPlease run ') + 'npm update -g decentraland\n')
+  }
+
+  const outatedAPI = await getOutdatedApi()
+  if (outatedAPI) {
+    ctx.log(warning(formatOutdatedMessage(outatedAPI)))
+  }
+
   try {
     await fn.call(ctx, args)
     await finishPendingTracking()
   } catch (e) {
     await Analytics.reportError(e.name, e.message, e.stack)
     exit(e, ctx)
-  }
-
-  if (await isCLIOutdated()) {
-    ctx.log(warning('\nWARNING: outdated decentraland version\nPlease run ') + 'npm update -g decentraland\n')
-  }
-
-  const outatedAPI = await getOutdatedApi()
-
-  if (outatedAPI) {
-    ctx.log(warning(formatOutdatedMessage(outatedAPI)))
   }
 }

@@ -35,7 +35,7 @@ export function deploy(vorpal: any) {
 
         dcl.on('link:ready', url => {
           Analytics.sceneLink()
-          info('You need to sign the content before the deployment:')
+          vorpal.log(bold('You need to sign the content before the deployment:'))
           const linkerMsg = loading(`Signing app ready at ${url}`)
 
           setTimeout(() => {
