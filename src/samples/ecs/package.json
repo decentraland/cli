@@ -6,13 +6,11 @@
     "start": "dcl start",
     "build": "build-ecs",
     "watch": "build-ecs --watch",
+    "deploy:now": "now --platform-version 1 --docker",
     "ecs:install-next": "npm install --save-dev decentraland-ecs@next",
     "ecs:install-stable": "npm install --save-dev decentraland-ecs@latest"
   },
-  "author": "",
-  "license": "Not defined",
   "devDependencies": {
     "decentraland-ecs": "next"
-  },
-  "dependencies": {}
+  }
 }
