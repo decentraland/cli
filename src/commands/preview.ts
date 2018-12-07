@@ -2,11 +2,11 @@ import * as os from 'os'
 import opn = require('opn')
 
 import { Decentraland } from '../lib/Decentraland'
-import { buildTypescript, installDependencies, isOnline, getOutdatedApi, isDeprecatedApiInstalled } from '../utils/moduleHelpers'
+import { buildTypescript, installDependencies, isOnline, getOutdatedApi } from '../utils/moduleHelpers'
 import { wrapCommand } from '../utils/wrapCommand'
 import { Analytics } from '../utils/analytics'
 import { info, comment, loading, bold, error, formatOutdatedMessage } from '../utils/logging'
-import { ErrorType, fail } from '../utils/errors'
+import { ErrorType } from '../utils/errors'
 import { getOrElse } from '../utils'
 import { isEnvCi } from '../utils/env'
 
