@@ -3,10 +3,11 @@ import { connect } from 'react-redux'
 import { connectWalletRequest } from 'decentraland-dapps/dist/modules/wallet/actions'
 import { getData as getWallet, isConnected, isConnecting } from 'decentraland-dapps/dist/modules/wallet/selectors'
 
+import { isLoading as isLandLoading, getData as getLand, getError as getLandError } from '../../modules/land/selectors'
+import { getData as getSignature } from '../../modules/signature/selectors'
+import { signContentRequest } from '../../modules/signature/actions'
 import { RootState } from '../../types'
 import { LinkerPageProps } from './types'
-import { isLoading as isLandLoading, getData as getLand, getError as getLandError } from '../../modules/land/selectors'
-import { signContentRequest } from '../../modules/land/actions'
 
 import LinkerPage from './LinkerPage'
 
@@ -18,7 +19,8 @@ const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps 
     isLoading: isLandLoading(state),
     isConnected: isConnected(state),
     isConnecting: isConnecting(state),
-    error: getLandError(state)
+    error: getLandError(state),
+    signed: !!getSignature(state)
   }
 }
 

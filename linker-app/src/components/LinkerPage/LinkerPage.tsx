@@ -2,9 +2,9 @@ import * as React from 'react'
 import { Address, Blockie, Header, Button, Loader } from 'decentraland-ui'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
+import { baseParcel, isDevelopment, rootCID } from '../../modules/config'
 import Error from '../Error'
 import { LinkerPageProps } from './types'
-import { baseParcel, isDevelopment, rootCID } from '../../modules/config'
 
 export default class LinkScenePage extends React.PureComponent<LinkerPageProps, any> {
   constructor(props) {
@@ -60,7 +60,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               </b>
             </p>
             <p>
-              Sign Project CID: <b>{rootCID}</b>
+              Project CID: <b>{rootCID}</b>
             </p>
             <form>
               <div>
