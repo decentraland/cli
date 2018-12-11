@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 
-import { tmpTest } from '../../sandbox'
+import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import { Decentraland } from '../../../src/lib/Decentraland'
 import { BoilerplateType } from '../../../src/lib/Project'
 
@@ -35,7 +35,7 @@ describe('Decentraland.init()', () => {
       await expectBasicDCLIgnore(dirPath)
       done()
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT_MS)
 
   it('should successfully create a static typescript project', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -58,7 +58,7 @@ describe('Decentraland.init()', () => {
       await expectBasicDCLIgnore(dirPath)
       done()
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT_MS)
 
   it('should successfully create a dynamic typescript project', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -81,7 +81,7 @@ describe('Decentraland.init()', () => {
       await expectBasicDCLIgnore(dirPath)
       done()
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT_MS)
 
   it('should successfully create a ECS project', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -109,7 +109,7 @@ describe('Decentraland.init()', () => {
 
       done()
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT_MS)
 
   it('should successfully create a websocket project', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -136,5 +136,5 @@ describe('Decentraland.init()', () => {
       )
       done()
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT_MS)
 })

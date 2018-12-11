@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import * as path from 'path'
 
 import { setupFilesystem } from '../helpers'
-import { tmpTest } from '../../sandbox'
+import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import { Project } from '../../../src/lib/Project'
 
 tmpTest(async (dirPath, done) => {
@@ -63,7 +63,7 @@ tmpTest(async (dirPath, done) => {
           `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
         )
         expect(result.map(f => f.path)).to.deep.equal(['models/test.fbx', 'scene.json', 'scene.xml', 'test.js'])
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
     })
 
     describe('needsDependencies()', async () => {
@@ -71,13 +71,13 @@ tmpTest(async (dirPath, done) => {
         const project = new Project(dirPath)
         const result = await project.needsDependencies()
         expect(result).to.be.true
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
 
       it('should return false when a node_modules folder is present (and not empty)', async () => {
         const project = new Project(path.resolve(dirPath, 'src'))
         const result = await project.needsDependencies()
         expect(result).to.be.false
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
     })
 
     describe('isTypescriptProject()', async () => {
@@ -85,7 +85,7 @@ tmpTest(async (dirPath, done) => {
         const project = new Project(dirPath)
         const result = await project.isTypescriptProject()
         expect(result).to.be.true
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
     })
   })
 })

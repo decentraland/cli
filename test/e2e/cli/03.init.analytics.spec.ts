@@ -4,7 +4,7 @@ import { expect } from 'chai'
 import * as sinon from 'sinon'
 
 import { Analytics } from '../../../src/utils/analytics'
-import { tmpTest } from '../../sandbox'
+import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import Commando, { Response } from './Commando'
 
 describe('init command (with mocked analytics)', async () => {
@@ -54,5 +54,5 @@ describe('init command (with mocked analytics)', async () => {
           done()
         })
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT_MS)
 })

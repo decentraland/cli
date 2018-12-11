@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import { expect } from 'chai'
 
-import { tmpTest } from '../../sandbox'
+import { tmpTest, TIMEOUT } from '../../sandbox'
 import Commando, { Response } from './Commando'
 
 describe('deploy command', async () => {
@@ -39,7 +39,7 @@ describe('deploy command', async () => {
             })
         })
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT)
 
   it('should display an error message if owner attribute is missing', async () => {
     await tmpTest(async (dirPath, done) => {
@@ -81,7 +81,7 @@ describe('deploy command', async () => {
             })
         })
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT)
 
   it(`should display an error message if owner hasn't got deploying permission`, async () => {
     await tmpTest(async (dirPath, done) => {
@@ -124,5 +124,5 @@ describe('deploy command', async () => {
             })
         })
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT)
 })

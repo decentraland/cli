@@ -2,7 +2,7 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import { expect } from 'chai'
 
-import { tmpTest } from '../../sandbox'
+import { tmpTest, TIMEOUT } from '../../sandbox'
 import Commando, { Response } from './Commando'
 
 describe('init command', async () => {
@@ -57,5 +57,5 @@ describe('init command', async () => {
           done()
         })
     })
-  }).timeout(5000)
+  }).timeout(TIMEOUT)
 })

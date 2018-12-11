@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { sandbox } from 'sinon'
 
-import { tmpTest } from '../../sandbox'
+import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import { setupFilesystem } from '../helpers'
 import * as proxyquire from 'proxyquire'
 import * as filesystem from '../../../src/utils/filesystem'
@@ -45,19 +45,19 @@ tmpTest(async (dirPath, done) => {
         readJSONStub.callsFake(() => ({ version: '1.0.0' }))
         const isOutdated = await helpers.getOutdatedApi()
         expect(isOutdated).to.be.undefined
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
 
       it('should return false if the local version is higher than the remote version', async () => {
         packageJsonStub.callsFake(() => ({ version: '0.1.0' }))
         readJSONStub.callsFake(() => ({ version: '1.0.0' }))
         const isOutdated = await helpers.getOutdatedApi()
         expect(isOutdated).to.be.undefined
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
 
       it('should return true if the local version is lower than the remote version', async () => {
         const isOutdated = await helpers.getOutdatedApi()
         expect(isOutdated).to.be.not.undefined
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
     })
 
     describe('isCLIOutdated()', async () => {
@@ -65,19 +65,19 @@ tmpTest(async (dirPath, done) => {
         readJSONStub.resolves({ version: '1.0.0' })
         const isOutdated = await helpers.isCLIOutdated()
         expect(isOutdated).to.be.false
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
 
       it('should return false if the local version is higher than the remote version', async () => {
         readJSONStub.resolves({ version: '2.0.0' })
         const isOutdated = await helpers.isCLIOutdated()
         expect(isOutdated).to.be.false
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
 
       it('should return true if the local version is lower than the remote version', async () => {
         readJSONStub.resolves({ version: '0.0.5' })
         const isOutdated = await helpers.isCLIOutdated()
         expect(isOutdated).to.be.true
-      }).timeout(5000)
+      }).timeout(TIMEOUT_MS)
     })
   })
 })
