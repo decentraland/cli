@@ -22,7 +22,7 @@ describe('init command', async () => {
           expect(await fs.pathExists(path.resolve(dirPath, 'package.json')), 'package.json should exist').to.be.true
           // we are skipping installation to keep things speedy
           expect(await fs.pathExists(path.resolve(dirPath, 'node_modules')), 'node_modules should exist').to.be.false
-          expect(await fs.pathExists(path.resolve(dirPath, '.dclignore')), '.dclignore shoudl exist').to.be.true
+          expect(await fs.pathExists(path.resolve(dirPath, '.dclignore')), '.dclignore should exist').to.be.true
 
           const sceneFileJson = await fs.readFile(path.resolve(dirPath, 'scene.json'))
           const sceneFile = JSON.parse(sceneFileJson.toString())
