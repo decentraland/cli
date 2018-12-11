@@ -18,59 +18,57 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { wallet, error, base, isLoading, isConnected, isConnecting, onConnectWallet } = this.props
+    const { wallet, error, base, isLandLoading, isConnected, isConnecting, onConnectWallet } = this.props
     const { x, y } = baseParcel
     return (
       <div className="LinkScenePage">
         <Navbar />
-        {error ? (
-          <Error>{error}</Error>
-        ) : isLoading ? (
-          <Loader active size="massive" />
+        <Header>Update LAND data</Header>
+        {isConnected ? (
+          <p>
+            Using {wallet.type === 'node' ? 'MetaMask' : wallet.type} address: &nbsp;
+            <Blockie scale={3} seed={wallet.address}>
+              <Address tooltip strong value={wallet.address} />
+            </Blockie>
+          </p>
         ) : (
           <React.Fragment>
-            <Header>Update LAND data</Header>
-            {isConnected ? (
-              <p>
-                Using {wallet.type === 'node' ? 'MetaMask' : wallet.type} address: &nbsp;
-                <Blockie scale={3} seed={wallet.address}>
-                  <Address tooltip strong value={wallet.address} />
-                </Blockie>
-              </p>
-            ) : (
-              <React.Fragment>
-                {isConnecting ? null : <p>Could not find any wallet</p>}
-                <p>
-                  <Button primary onClick={onConnectWallet} loading={isConnecting} disabled={isConnecting}>
-                    Reconnect{' '}
-                  </Button>
-                </p>
-              </React.Fragment>
-            )}
-            )}
-            <img
-              className="map"
-              src={`https://api.decentraland.${isDevelopment() ? 'zone' : 'org'}/v1/parcels/${x}/${y}/map.png`}
-              alt={`Base parcel ${x},${y}`}
-            />
+            {isConnecting ? null : <p>Could not find any wallet</p>}
+            <p>
+              <Button primary onClick={onConnectWallet} loading={isConnecting || isLandLoading} disabled={isConnecting}>
+                Reconnect{' '}
+              </Button>
+            </p>
+          </React.Fragment>
+        )}
+        <img
+          className="map"
+          src={`https://api.decentraland.${isDevelopment() ? 'zone' : 'org'}/v1/parcels/${x}/${y}/map.png`}
+          alt={`Base parcel ${x},${y}`}
+        />
+        {!error && (isConnected || isConnecting) ? (
+          isLandLoading || isConnecting ? (
+            <Loader active />
+          ) : (
             <p>
               Updating <b>{base.name ? `"${base.name}"` : `LAND without name`}</b> at coordinates{' '}
               <b>
                 {x}, {y}
               </b>
             </p>
-            <p>
-              Project CID: <b>{rootCID}</b>
-            </p>
-            <form>
-              <div>
-                <Button primary onClick={this.handleSignature} disabled={!isConnected}>
-                  Sign and Deploy
-                </Button>
-              </div>
-            </form>
-          </React.Fragment>
-        )}
+          )
+        ) : null}
+        <p>
+          Project CID: <b>{rootCID}</b>
+        </p>
+        <form>
+          <div>
+            <Button primary onClick={this.handleSignature} disabled={!isConnected || !!error}>
+              Sign and Deploy
+            </Button>
+          </div>
+        </form>
+        {error ? <Error>{error}</Error> : null}
         <style>{`
           .LinkScenePage {
             text-align: center;

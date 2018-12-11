@@ -10,7 +10,7 @@ export type LinkerPageProps = {
   base: LANDMeta
   wallet: Partial<BaseWallet>
   transaction: Transaction
-  isLoading: boolean
+  isLandLoading: boolean
   isConnected: boolean
   isConnecting: boolean
   error: string

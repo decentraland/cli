@@ -16,7 +16,7 @@ const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps 
     ...ownProps,
     base: getLand(state),
     wallet: getWallet(state),
-    isLoading: isLandLoading(state),
+    isLandLoading: isLandLoading(state),
     isConnected: isConnected(state),
     isConnecting: isConnecting(state),
     error: getLandError(state),

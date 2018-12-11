@@ -5,7 +5,7 @@ export const FETCH_LAND_REQUEST = '[Request] Fetch LAND'
 export const FETCH_LAND_SUCCESS = '[Success] Fetch LAND'
 export const FETCH_LAND_FAILURE = '[Failure] Fetch LAND'
 
-export const fetchLandRequest = (coords: Coords | number) => action(FETCH_LAND_REQUEST, coords)
+export const fetchLandRequest = (coords: Coords) => action(FETCH_LAND_REQUEST, coords)
 export const fetchLandSuccess = (land: LANDMeta) => action(FETCH_LAND_SUCCESS, { land })
 export const fetchLandFailure = (error: string) => action(FETCH_LAND_FAILURE, { error })
 
