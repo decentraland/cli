@@ -1,7 +1,20 @@
-import { RootState } from '../../types'
-import { LandState } from './reducer'
+import { createSelector } from 'reselect'
 
-export const getState: (state: RootState) => LandState = state => state.land
-export const getData: (state: RootState) => LandState['data'] = state => getState(state).data
-export const isLoading: (state: RootState) => boolean = state => getState(state).loading.length > 0
-export const getError: (state: RootState) => LandState['error'] = state => getState(state).error
+import { RootState } from '../../types'
+
+export const getState = (state: RootState) => state.land
+
+export const getData = createSelector(
+  getState,
+  state => state.data
+)
+
+export const isLoading = createSelector(
+  getState,
+  state => state.loading.length > 0
+)
+
+export const getError = createSelector(
+  getState,
+  state => state.error
+)

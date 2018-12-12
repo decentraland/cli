@@ -1,7 +1,3 @@
 import * as React from 'react'
 
-export default class Error extends React.PureComponent<{ children: string }, any> {
-  render() {
-    return <p style={{ color: 'var(--primary)' }}> Error: {this.props.children}</p>
-  }
-}
+export default React.memo(({ children }: { children: string }) => <p style={{ color: 'var(--primary)' }}> Error: {children}</p>)
