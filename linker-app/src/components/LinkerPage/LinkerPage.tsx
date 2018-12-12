@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Address, Blockie, Header, Button, Loader } from 'decentraland-ui'
+import { Address, Blockie, Header, Button } from 'decentraland-ui'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
 import { baseParcel, isDevelopment, rootCID } from '../../modules/config'
@@ -17,53 +17,84 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     onSignContent(rootCID)
   }
 
+  getWalletType() {
+    const { wallet } = this.props
+    return wallet.type === 'node' ? 'MetaMask' : wallet.type
+  }
+
+  getLANDname() {
+    const { base } = this.props
+    return base.name ? `"${base.name}"` : `LAND without name`
+  }
+
+  renderWalletData() {
+    const { isConnected, wallet, base, isConnecting, onConnectWallet } = this.props
+    if (isConnected) {
+      return (
+        <React.Fragment>
+          <p>
+            Using {this.getWalletType()} address: &nbsp;
+            <Blockie scale={3} seed={wallet.address}>
+              <Address tooltip strong value={wallet.address} />
+            </Blockie>
+          </p>
+          {'isUpdateAuthorized' in base && !base.isUpdateAuthorized ? (
+            <Error>This address doesn't either own this LAND or have update permissions.</Error>
+          ) : null}
+        </React.Fragment>
+      )
+    }
+
+    return (
+      <React.Fragment>
+        {isConnecting ? null : <p>Could not find any wallet</p>}
+        <p>
+          <Button primary onClick={onConnectWallet} loading={isConnecting} disabled={isConnecting}>
+            Reconnect{' '}
+          </Button>
+        </p>
+      </React.Fragment>
+    )
+  }
+
+  renderLANDinfo() {
+    const { error, isLandLoading, isConnected } = this.props
+    const { x, y } = baseParcel
+
+    if (error || !isConnected || isLandLoading) {
+      return
+    }
+
+    return (
+      <p>
+        Updating <b>{this.getLANDname()}</b> at coordinates{' '}
+        <b>
+          {x}, {y}
+        </b>
+      </p>
+    )
+  }
+
   render() {
-    const { wallet, error, base, isLandLoading, isConnected, isConnecting, onConnectWallet } = this.props
+    const { error, isConnected, base } = this.props
     const { x, y } = baseParcel
     return (
       <div className="LinkScenePage">
         <Navbar />
         <Header>Update LAND data</Header>
-        {isConnected ? (
-          <p>
-            Using {wallet.type === 'node' ? 'MetaMask' : wallet.type} address: &nbsp;
-            <Blockie scale={3} seed={wallet.address}>
-              <Address tooltip strong value={wallet.address} />
-            </Blockie>
-          </p>
-        ) : (
-          <React.Fragment>
-            {isConnecting ? null : <p>Could not find any wallet</p>}
-            <p>
-              <Button primary onClick={onConnectWallet} loading={isConnecting || isLandLoading} disabled={isConnecting}>
-                Reconnect{' '}
-              </Button>
-            </p>
-          </React.Fragment>
-        )}
+        {this.renderWalletData()}
         <img
           className="map"
           src={`https://api.decentraland.${isDevelopment() ? 'zone' : 'org'}/v1/parcels/${x}/${y}/map.png`}
           alt={`Base parcel ${x},${y}`}
         />
-        {!error && (isConnected || isConnecting) ? (
-          isLandLoading || isConnecting ? (
-            <Loader active />
-          ) : (
-            <p>
-              Updating <b>{base.name ? `"${base.name}"` : `LAND without name`}</b> at coordinates{' '}
-              <b>
-                {x}, {y}
-              </b>
-            </p>
-          )
-        ) : null}
+        {this.renderLANDinfo()}
         <p>
           Project CID: <b>{rootCID}</b>
         </p>
         <form>
           <div>
-            <Button primary onClick={this.handleSignature} disabled={!isConnected || !!error}>
+            <Button primary onClick={this.handleSignature} disabled={!isConnected || !!error || !base.isUpdateAuthorized}>
               Sign and Deploy
             </Button>
           </div>

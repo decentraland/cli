@@ -8,3 +8,7 @@ export type LANDMeta = {
   name: string
   description: string
 }
+
+export type LAND = LANDMeta & {
+  isUpdateAuthorized: boolean
+}
