@@ -89,19 +89,22 @@ export class ContentClient {
   }
 
   async checkContentStatus(cids: string[]): Promise<Response> {
-    return fetch(`${this.contentServerUrl}/content/status`,{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ "content": cids })
-    }).then(async function(response) {
+    try {
+      const response = await fetch(`${this.contentServerUrl}/content/status`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "content": cids })
+      })
       if (response.status >= 400) {
         const msg = await response.json()
         throw new Error(`Bad response from server: ${msg.error}`)
       }
-      return response.json()
-    })
+      return await response.json()
+    } catch (error) {
+      fail(error)
+    }
   }
 
 }
