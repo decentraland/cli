@@ -24,6 +24,7 @@ export type DecentralandArguments = {
   watch?: boolean
   blockchain?: boolean
   contentServerUrl?: string
+  forceDeploy?: boolean
 }
 
 export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
@@ -54,6 +55,7 @@ export class Decentraland extends EventEmitter {
   provider: IEthereumDataProvider
   contentService: ContentService
   wallet: ethers.Wallet
+  forceDeploy: boolean
 
   constructor(args: DecentralandArguments = {}) {
     super()
@@ -63,6 +65,7 @@ export class Decentraland extends EventEmitter {
     this.ethereum = new Ethereum()
     this.provider = this.ethereum
     this.contentService = new ContentService(new ContentClient(args.contentServerUrl))
+    this.forceDeploy = args.forceDeploy || false
 
     if (!this.options.blockchain) {
       this.provider = new API()
@@ -90,7 +93,7 @@ export class Decentraland extends EventEmitter {
 
     try {
       const { signature, address } = await this.getAddressAndSignature(rootCID)
-      const uploadResult = await this.contentService.uploadContent(rootCID, files, signature, address)
+      const uploadResult = await this.contentService.uploadContent(rootCID, files, signature, address, this.forceDeploy)
       if (!uploadResult) {
         fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')
       }

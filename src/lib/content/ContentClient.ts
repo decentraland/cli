@@ -4,6 +4,7 @@ import { ContentUploadRequest } from './ContentUploadRequest'
 import { Coords } from '../../utils/coordinateHelpers'
 
 import * as request from 'request'
+import * as fetch from 'isomorphic-fetch'
 
 export type ParcelInformation = {
   parcel_id: string
@@ -86,4 +87,21 @@ export class ContentClient {
       })
     })
   }
+
+  async checkContentStatus(cids: string[]): Promise<Response> {
+    return fetch(`${this.contentServerUrl}/content/status`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ "content": cids })
+    }).then(async function(response) {
+      if (response.status >= 400) {
+        const msg = await response.json()
+        throw new Error(`Bad response from server: ${msg.error}`)
+      }
+      return response.json()
+    })
+  }
+
 }
