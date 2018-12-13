@@ -47,6 +47,12 @@ export type FileInfo = {
   cid: string
 }
 
+export type LinkerResponse = {
+  address: string
+  signature: string
+  network: string
+}
+
 export class Decentraland extends EventEmitter {
   project: Project
   ethereum: Ethereum
@@ -99,11 +105,11 @@ export class Decentraland extends EventEmitter {
     }
   }
 
-  async link(rootCID: string): Promise<string> {
+  async link(rootCID: string): Promise<LinkerResponse> {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
 
-    return new Promise<string>(async (resolve, reject) => {
+    return new Promise<LinkerResponse>(async (resolve, reject) => {
       const manaContract = await Ethereum.getContractAddress('MANAToken')
       const landContract = await Ethereum.getContractAddress('LANDProxy')
 
@@ -112,7 +118,8 @@ export class Decentraland extends EventEmitter {
       events(linker, '*', this.pipeEvents.bind(this))
 
       linker.on('link:success', async (message: string) => {
-        resolve(message)
+        const response = JSON.parse(message) as LinkerResponse
+        resolve(response)
       })
 
       try {
