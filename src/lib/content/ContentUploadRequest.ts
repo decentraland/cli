@@ -1,5 +1,7 @@
 import { IFile } from "../Project"
 
+const FormData = require('form-data')
+
 export type RequestMetadata = {
   value: string
   signature: string
@@ -31,17 +33,20 @@ export class ContentUploadRequest {
    * Generates a formData to sent in a http multipart request
    */
   requestContent(): any {
-    const formData: any = {
-      metadata: JSON.stringify(this.metadata),
-      [this.rootCid] : JSON.stringify(this.manifest)
-    }
+    const data = new FormData()
+    data.append('metadata', JSON.stringify(this.metadata))
+    data.append(this.rootCid, JSON.stringify(this.manifest))
     this.files.forEach((file) => {
       const identifier = this.manifest.find(ci => {
         return ci.name === file.path
       })
-      if (identifier) this.addFileToRequest(identifier, file, formData)
+      if (identifier) {
+        data.append(identifier.cid, file.content, {
+          filepath: file.path
+        })
+      }
     })
-    return formData
+    return data
   }
 
   private addFileToRequest(identifier: ContentIdentifier, file: IFile, form: any): void {

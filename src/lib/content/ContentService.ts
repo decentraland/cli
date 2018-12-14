@@ -34,14 +34,14 @@ export class ContentService extends EventEmitter {
       uploadContent = await this.filterUploadedContent(content, manifest)
     }
 
-    const response = await this.client.uploadContent(new ContentUploadRequest(rootCID, uploadContent, manifest, metadata))
+    const result = await this.client.uploadContent(new ContentUploadRequest(rootCID, uploadContent, manifest, metadata))
 
-    if (response.statusCode === 200) {
+    if (result.success) {
       this.emit('upload:success')
-      return true
+    } else {
+      this.emit('upload:failed', result.errorMessage)
     }
-    this.emit('upload:failed', JSON.stringify(response.body))
-    return false
+    return result.success
   }
 
   /**
@@ -68,12 +68,7 @@ export class ContentService extends EventEmitter {
     const sceneFileCID = information.contents[SCENE_FILE]
 
     if (sceneFileCID) {
-      const response = await this.client.getContent(sceneFileCID)
-      if (response.statusCode === 200) {
-        return JSON.parse(response.body)
-      } else {
-        fail(ErrorType.CONTENT_SERVER_ERROR, `Error retrieving parcel ${coordinates.x},${coordinates.y} scene.json: ${response.body}`)
-      }
+      return this.client.getContent(sceneFileCID)
     }
     return null
   }
