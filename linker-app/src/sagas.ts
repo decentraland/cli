@@ -6,6 +6,7 @@ import { transactionSaga } from 'decentraland-dapps/dist/modules/transaction/sag
 import { MANAToken, LANDRegistry } from './contracts'
 import { provider } from './modules/config'
 import { landSaga } from './modules/land/sagas'
+import { signatureSaga } from './modules/signature/sagas'
 
 const walletSaga = createWalletSaga({
   provider,
@@ -14,5 +15,5 @@ const walletSaga = createWalletSaga({
 })
 
 export function* rootSaga() {
-  yield all([walletSaga(), transactionSaga(), landSaga()])
+  yield all([walletSaga(), transactionSaga(), landSaga(), signatureSaga()])
 }
