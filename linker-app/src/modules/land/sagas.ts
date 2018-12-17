@@ -7,6 +7,7 @@ import { LANDRegistry } from '../../contracts'
 import { FETCH_LAND_REQUEST, FetchLandRequestAction, fetchLandSuccess, fetchLandFailure, fetchLandRequest } from './actions'
 import { getEmptyLandData } from './utils'
 import { getAddress } from 'decentraland-dapps/dist/modules/wallet/selectors'
+import { LANDMeta } from './types'
 
 export function* landSaga() {
   yield takeEvery(FETCH_LAND_REQUEST, handleFetchLandRequest)
@@ -21,7 +22,7 @@ function* handleFetchLandRequest(action: FetchLandRequestAction) {
     const [data, isUpdateAuthorized] = yield call(() =>
       Promise.all([LANDRegistry['landData'](x, y), LANDRegistry['isUpdateAuthorized'](address, assetId)])
     )
-    const land = data ? contracts.LANDRegistry.decodeLandData(data) : getEmptyLandData()
+    const land = data ? (contracts.LANDRegistry.decodeLandData(data) as LANDMeta) : getEmptyLandData()
     yield put(fetchLandSuccess({ ...land, isUpdateAuthorized }))
   } catch (error) {
     yield put(fetchLandFailure(error.message))
