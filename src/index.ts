@@ -1,50 +1,101 @@
-/// <reference path="../typings/dcl.d.ts" />
+import * as arg from 'arg'
+import chalk from 'chalk'
 
-import Vorpal = require('vorpal')
+import commands from './commands'
+import { error } from './utils/logging'
+import { finishPendingTracking, Analytics } from './utils/analytics'
 
-import { init as initCommand } from './commands/init'
-import { start } from './commands/preview'
-import { deploy } from './commands/deploy'
-import { info } from './commands/info'
-import { status } from './commands/status'
+const args = arg(
+  {
+    '--help': Boolean,
+    '--version': Boolean,
+    '-h': '--help',
+    '-v': '--version'
+  },
+  {
+    permissive: true
+  }
+)
 
-const pkg = require('../package.json')
+const subcommand = args._[0]
 
-export const VERSION = pkg.version
-export const DELIMITER = 'dcl $'
-export const vorpal = new Vorpal()
+const help = `
+  ${chalk.bold('Decentraland CLI')}
 
-export function init(options = {}) {
-  vorpal.use(initCommand)
-  vorpal.use(start)
-  vorpal.use(deploy)
-  vorpal.use(info)
-  vorpal.use(status)
+  Usage: ${chalk.bold('dcl [command] [options]')}
 
-  vorpal
-    .delimiter(DELIMITER)
-    .catch('[words...]')
-    .option('-v, --version', 'Prints the version of the CLI')
-    .action(args => {
-      if (args.options.version) {
-        vorpal.log(`v${VERSION}`)
+    ${chalk.dim('Commands:')}
+
+      init                Create a new Decentraland Scene project
+      start               Starts a local development server for a Decentraland Scene
+      deploy              Upload scene to Decentraland
+      info      [args]    Displays information about a LAND, an Estate or an address
+      status    [args]    Displays the deployment status of the project or a given LAND
+      help      [cmd]     Displays complete help for given command
+      version             Display current version of dcl
+
+    ${chalk.dim('Options:')}
+
+      -h, --help          Displays complete help for used command or subcommand
+      -v, --version       Display current version of dcl
+
+    ${chalk.dim('Example:')}
+
+    - Show complete help for the subcommand "${chalk.dim('deploy')}"
+
+      ${chalk.green('$ dcl help deploy')}
+`
+
+async function main() {
+  if (subcommand === 'version' || args['--version']) {
+    console.log(require('../package').version)
+    process.exit(0)
+  }
+
+  if (!subcommand) {
+    console.log(help)
+    process.exit(0)
+  }
+
+  if (subcommand === 'help') {
+    const command = args._[1]
+    if (commands.has(command)) {
+      try {
+        const { help } = await import(`./commands/${command}`)
+        console.log(help())
+        process.exit(0)
+      } catch (e) {
+        console.error(error(e.message))
+        process.exit(1)
       }
-    })
-
-  if (process.argv.length > 2) {
-    const exists = vorpal.commands.some((command: any) => command._name === process.argv[2] || command._aliases.includes(process.argv[2]))
-
-    if (exists) {
-      vorpal.parse(process.argv)
-    } else {
-      showHelp()
     }
-  } else {
-    showHelp()
+    console.log(help)
+    process.exit(0)
+  }
+
+  if (!commands.has(subcommand)) {
+    if (subcommand.startsWith('-')) {
+      console.error(error(`The "${chalk.bold(subcommand)}" option does not exist, run ${chalk.bold('"dcl help"')} for more info.`))
+      process.exit(1)
+    }
+    console.error(error(`The "${chalk.bold(subcommand)}" subcommand does not exist, run ${chalk.bold('"dcl help"')} for more info.`))
+    process.exit(1)
+  }
+
+  try {
+    const command = await import(`./commands/${subcommand}`)
+    await command.main()
+    await finishPendingTracking()
+  } catch (e) {
+    console.error(
+      error(`\`${chalk.green(`dcl ${subcommand}`)}\` ${e.message}, run ${chalk.bold(`"dcl help ${subcommand}"`)} for more info.`)
+    )
+    if (process.env.DEBUG) {
+      console.log(e)
+    }
+    await Analytics.reportError(e.name, e.message, e.stack)
+    process.exit(1)
   }
 }
 
-function showHelp() {
-  vorpal.log(`\n  Decentraland CLI v${VERSION}`)
-  vorpal.execSync('help')
-}
+main()
