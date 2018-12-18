@@ -126,7 +126,6 @@ function trackAsync(eventName: string, properties: any = {}) {
   const pTracking = track(eventName, properties)
     .then()
     .catch(e => {
-      // tslint:disable-next-line:no-console
       if (process.env.DEBUG) console.log(e)
     })
   pendingTracking.push(pTracking)
