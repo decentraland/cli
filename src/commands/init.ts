@@ -20,7 +20,7 @@ export const help = () => `
 
     ${chalk.dim('Examples:')}
 
-    - Generate a new project in my-project folder
+    - Generate a new Decentraland Scene project in my-project folder
 
       ${chalk.green('$ dcl init my-project')}
 

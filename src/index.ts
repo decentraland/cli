@@ -27,7 +27,7 @@ const help = `
     ${chalk.dim('Commands:')}
 
       init                Create a new Decentraland Scene project
-      start               Starts a local development server for a Decentraland Scene
+      start               Start a local development server for a Decentraland Scene
       deploy              Upload scene to Decentraland
       info      [args]    Displays information about a LAND, an Estate or an address
       status    [args]    Displays the deployment status of the project or a given LAND

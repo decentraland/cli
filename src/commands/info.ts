@@ -11,9 +11,9 @@ export const help = () => `
 
     ${chalk.dim('Options:')}
 
-      -h, --help          Displays complete help
-      -b, --blockchain    Retrieve information directly from the blockchain instead of Decentraland remote API
-      -c, --host          Set content server (default is https://content-service.decentraland.zone)
+      -h, --help                Displays complete help
+      -b, --blockchain          Retrieve information directly from the blockchain instead of Decentraland remote API
+      -c, --host        [host]  Set content server (default is https://content-service.decentraland.zone)
 
     ${chalk.dim('Examples:')}
 
