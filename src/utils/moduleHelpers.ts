@@ -35,19 +35,16 @@ export function buildTypescript(): Promise<void> {
 }
 
 export async function getLatestVersion(name: string): Promise<string> {
-  let pkg: { version: string }
-
   if (!(await isOnline())) {
     return null
   }
 
   try {
-    pkg = await packageJson(name.toLowerCase())
+    const pkg = await packageJson(name.toLowerCase())
+    return pkg.version
   } catch (e) {
     return null
   }
-
-  return pkg.version
 }
 
 export async function getInstalledVersion(name: string): Promise<string> {
@@ -81,20 +78,12 @@ export async function getOutdatedApi(): Promise<{ package: string; installedVers
   return undefined
 }
 
-export async function getInstalledCLIVersion(): Promise<string> {
-  let pkg: { version: string }
-
-  try {
-    pkg = await readJSON<{ version: string }>(path.resolve(__dirname, '../../package.json'))
-  } catch (e) {
-    return null
-  }
-
-  return pkg.version
+export function getInstalledCLIVersion(): string {
+  return require('../../package').version
 }
 
 export async function isCLIOutdated(): Promise<boolean> {
-  const cliVersion = await getInstalledCLIVersion()
+  const cliVersion = getInstalledCLIVersion()
   const cliVersionLatest = await getLatestVersion('decentraland')
 
   if (cliVersionLatest && cliVersion && semver.lt(cliVersion, cliVersionLatest)) {

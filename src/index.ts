@@ -2,9 +2,9 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import commands from './commands'
-import { error } from './utils/logging'
+import { error, warning } from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
-import { fail } from 'assert'
+import { isCLIOutdated, getInstalledCLIVersion } from './utils/moduleHelpers'
 
 const args = arg(
   {
@@ -48,8 +48,16 @@ const help = `
 `
 
 async function main() {
+  if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
+    await Analytics.requestPermission()
+  }
+
+  if (await isCLIOutdated()) {
+    console.log(warning(`You are running an outdated version of "${chalk.bold('dcl')}", run "${chalk.bold('npm i -g decentraland')}"`))
+  }
+
   if (subcommand === 'version' || args['--version']) {
-    console.log(require('../package').version)
+    console.log(getInstalledCLIVersion())
     process.exit(0)
   }
 
@@ -58,7 +66,7 @@ async function main() {
     process.exit(0)
   }
 
-  if (subcommand === 'help') {
+  if (subcommand === 'help' || args['--help']) {
     const command = args._[1]
     if (commands.has(command) && command !== 'help') {
       try {
