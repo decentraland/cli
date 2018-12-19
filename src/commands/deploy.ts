@@ -19,6 +19,7 @@ export const help = () => `
       -c, --host  [host]  Set content server (default is https://content-service.decentraland.zone)
       -s, --skip          Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
+      -f, --force         Force deployment of all files (by default only new changes)
 
     ${chalk.dim('Examples:')}
 
@@ -37,16 +38,19 @@ export async function main() {
     '--host': String,
     '--skip': Boolean,
     '--https': Boolean,
+    '--force': Boolean,
     '-h': '--help',
     '-c': '--host',
     '-s': '--skip',
-    '-l': '--https'
+    '-l': '--https',
+    '-f': '--force'
   })
 
   const dcl = new Decentraland({
     isHttps: args['--https'],
     contentServerUrl: args['--host'] || 'https://content-service.decentraland.zone',
-    workingDir: args._[2]
+    workingDir: args._[2],
+    forceDeploy: args['--force']
   })
 
   let ignoreFile = await dcl.project.getDCLIgnore()
