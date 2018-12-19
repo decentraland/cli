@@ -46,7 +46,7 @@ describe('ContentService', () => {
     expect(uploadContent.args[0][0].files).to.have.all.members(files)
   })
 
-  it('should Not upload previously uploded content', async () => {
+  it('should Not upload previously uploded content (except scene.json file)', async () => {
     checkContentStatus = ctx.stub(ContentClient.prototype, 'checkContentStatus').callsFake(() => buildStatusResponse(manifest, true))
     uploadContent = ctx.stub(ContentClient.prototype, 'uploadContent').callsFake(() => ({ success: true, errorMessage: "" }))
 
@@ -54,7 +54,9 @@ describe('ContentService', () => {
     const result = await service.uploadContent(rootCID, files, "", "", false)
 
     expect(result).to.be.true
-    expect(uploadContent.args[0][0].files.length).to.be.eq(0)
+    const sentFiles = uploadContent.args[0][0].files
+    expect(sentFiles.length).to.be.eq(1)
+    expect(sentFiles[0].path).to.be.eq("scene.json")
   })
 
   it('should upload all content in fullUpload mode', async () => {

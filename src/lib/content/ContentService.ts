@@ -83,6 +83,9 @@ export class ContentService extends EventEmitter {
     const cidMaps = manifest.reduce((map, obj) => (map[obj.name] = obj.cid, map), {})
     const res = await this.client.checkContentStatus(Object.values(cidMaps))
     return files.filter(f => {
+      if (f.path === "scene.json") {
+        return true
+      }
       const cid = cidMaps[f.path]
       const uploaded = res[cid]
       return !(!!uploaded)

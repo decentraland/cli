@@ -14,7 +14,7 @@ export interface IDeployArguments {
     host?: string
     skip?: boolean
     https?: boolean
-    forceDeploy?: boolean
+    force?: boolean
   }
 }
 
@@ -31,9 +31,8 @@ export function deploy(vorpal: any) {
         const dcl = new Decentraland({
           isHttps: !!args.options.https,
           contentServerUrl: args.options.host || 'https://content-service.decentraland.zone',
-          forceDeploy: args.options.forceDeploy
+          forceDeploy: args.options.force
         })
-
         let ignoreFile = await dcl.project.getDCLIgnore()
 
         dcl.on('link:ready', url => {
