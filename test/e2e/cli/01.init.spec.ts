@@ -17,7 +17,7 @@ describe('init command', async () => {
         .endWhen(/Installing dependencies/)
         .on('err', e => console.log(e))
         .on('end', async () => {
-          expect(await fs.pathExists(path.resolve(dirPath, 'scene.tsx')), 'scene.tsx should exist').to.be.true
+          expect(await fs.pathExists(path.resolve(dirPath, 'src', 'game.ts')), 'game.ts should exist').to.be.true
           expect(await fs.pathExists(path.resolve(dirPath, 'scene.json')), 'scene.json should exist').to.be.true
           expect(await fs.pathExists(path.resolve(dirPath, 'package.json')), 'package.json should exist').to.be.true
           // we are skipping installation to keep things speedy
@@ -28,30 +28,18 @@ describe('init command', async () => {
           const sceneFile = JSON.parse(sceneFileJson.toString())
 
           const expected = {
-            display: {
-              title: sceneFile.display.title
-            },
-            contact: {
-              name: '',
-              email: ''
-            },
+            display: { title: 'interactive-text', favicon: 'favicon_asset' },
+            contact: { name: 'king of the bongo', email: '' },
             owner: '',
-            scene: {
-              parcels: ['0,0'],
-              base: '0,0'
-            },
-            communications: {
-              type: 'webrtc',
-              signalling: 'https://rendezvous.decentraland.org'
-            },
-            policy: {
-              fly: true,
-              voiceEnabled: true,
-              blacklist: [],
-              teleportPosition: '0,0,0'
-            },
-            main: 'scene.js'
+            scene: { parcels: ['0,0'], base: '0,0' },
+            communications: { type: 'webrtc', signalling: 'https://signalling-01.decentraland.org' },
+            policy: { contentRating: 'E', fly: true, voiceEnabled: true, blacklist: [], teleportPosition: '' },
+            main: 'bin/game.js',
+            tags: []
           }
+
+          console.log(expected)
+          console.log(sceneFile)
 
           expect(sceneFile).to.deep.equal(expected)
           done()
