@@ -34,12 +34,6 @@ export function loading(message: string) {
   return spinner
 }
 
-export function exit(err: Error, logger: any) {
-  logger.log(error('\n' + err.message + '\n'))
-  if (process.env.DEBUG) logger.log(error(err.stack))
-  process.exit(1)
-}
-
 export function tabulate(spaces: number = 0) {
   return spaces > 0 ? ' '.repeat(spaces) : ''
 }

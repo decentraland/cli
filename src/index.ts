@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import commands from './commands'
 import { error } from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
+import { fail } from 'assert'
 
 const args = arg(
   {

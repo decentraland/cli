@@ -2,18 +2,19 @@ import { EventEmitter } from 'events'
 import * as events from 'wildcards'
 import { ethers } from 'ethers'
 
+import { CIDUtils } from './content/CIDUtils'
+import { ContentClient } from './content/ContentClient'
+import { ContentService } from './content/ContentService'
+import { filterAndFillEmpty } from '../utils/land'
+import { Coords } from '../utils/coordinateHelpers'
+import { ErrorType, fail } from '../utils/errors'
+import { getRootPath } from '../utils/project'
 import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
-import { ErrorType, fail } from '../utils/errors'
-import { Coords } from '../utils/coordinateHelpers'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
-import { filterAndFillEmpty } from '../utils/land'
-import { CIDUtils } from './content/CIDUtils'
-import { ContentClient } from './content/ContentClient'
-import { ContentService } from './content/ContentService'
 
 export type DecentralandArguments = {
   workingDir?: string
@@ -57,7 +58,7 @@ export class Decentraland extends EventEmitter {
   constructor(args: DecentralandArguments = {}) {
     super()
     this.options = args
-    this.options.workingDir = args.workingDir
+    this.options.workingDir = args.workingDir || getRootPath()
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.ethereum

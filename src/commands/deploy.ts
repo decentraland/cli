@@ -7,7 +7,6 @@ import { loading, info, warning } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
 import { ErrorType, fail } from '../utils/errors'
-import { getRootPath } from '../utils/project'
 
 const MAX_FILE_COUNT = 100
 
@@ -47,7 +46,7 @@ export async function main() {
   const dcl = new Decentraland({
     isHttps: args['--https'],
     contentServerUrl: args['--host'] || 'https://content-service.decentraland.zone',
-    workingDir: args._[2] || getRootPath()
+    workingDir: args._[2]
   })
 
   let ignoreFile = await dcl.project.getDCLIgnore()
@@ -126,7 +125,7 @@ export async function main() {
 
     if (!results.continue) {
       console.log('Aborting...')
-      process.exit(1)
+      return
     }
   }
 

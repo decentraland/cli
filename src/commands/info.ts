@@ -5,6 +5,7 @@ import { Decentraland, Estate } from '../lib/Decentraland'
 import { formatDictionary } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
+import { fail, ErrorType } from '../utils/errors'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl info [target] [options]')}
@@ -63,7 +64,7 @@ export async function main() {
   const type = getTargetType(target)
 
   if (!type) {
-    throw new Error(`Invalid target "${chalk.bold(target)}"`)
+    fail(ErrorType.INFO_ERROR, `Invalid target "${chalk.bold(target)}"`)
   }
 
   const dcl = new Decentraland({

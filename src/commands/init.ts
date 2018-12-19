@@ -8,7 +8,6 @@ import { Analytics } from '../utils/analytics'
 import { warning, loading } from '../utils/logging'
 import { installDependencies, isOnline } from '../utils/moduleHelpers'
 import { fail, ErrorType } from '../utils/errors'
-import { getRootPath } from '../utils/project'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [path] [options]')}
@@ -46,11 +45,14 @@ export async function main() {
   const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
 
   if (!Object.values(BoilerplateType).includes(boilerplate)) {
-    throw new Error(`Invalid boilerplate: "${chalk.bold(boilerplate)}". Supported types are ${chalk.bold(getBoilerplateTypes())}`)
+    fail(
+      ErrorType.INIT_ERROR,
+      `Invalid boilerplate: "${chalk.bold(boilerplate)}". Supported types are ${chalk.bold(getBoilerplateTypes())}`
+    )
   }
 
   const dcl = new Decentraland({
-    workingDir: args._[2] || getRootPath()
+    workingDir: args._[2]
   })
 
   await dcl.project.validateNewProject()
@@ -64,7 +66,7 @@ export async function main() {
     })
 
     if (!results.continue) {
-      process.exit(0)
+      return
     }
   }
 
