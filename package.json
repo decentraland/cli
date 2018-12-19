@@ -78,7 +78,6 @@
     "portfinder": "^1.0.13",
     "request": "^2.88.0",
     "semver": "^5.5.0",
-    "vorpal": "^1.12.0",
     "wildcards": "^1.0.2",
     "ws": "^6.0.0"
   },
