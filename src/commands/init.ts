@@ -2,7 +2,7 @@ import * as arg from 'arg'
 import * as inquirer from 'inquirer'
 import chalk from 'chalk'
 
-import { BoilerplateType } from '../lib/Project'
+import { BoilerplateType, SceneMetadata } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
 import { warning, loading } from '../utils/logging'
@@ -94,7 +94,7 @@ export async function main() {
     main: 'scene.xml'
   }
 
-  await dcl.init(sceneMeta as DCL.SceneMetadata, boilerplate as BoilerplateType)
+  await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
 
   if (await dcl.project.needsDependencies()) {
     if (await isOnline()) {

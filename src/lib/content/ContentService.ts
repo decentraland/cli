@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 
 import { ContentClient, ParcelInformation } from './ContentClient'
-import { IFile } from '../Project'
+import { IFile, SceneMetadata } from '../Project'
 import { CIDUtils } from './CIDUtils'
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from './ContentUploadRequest'
 import { Coords } from '../../utils/coordinateHelpers'
@@ -56,7 +56,7 @@ export class ContentService extends EventEmitter {
    * @param x
    * @param y
    */
-  async getSceneData(coordinates: Coords): Promise<DCL.SceneMetadata> {
+  async getSceneData(coordinates: Coords): Promise<SceneMetadata> {
     const information: ParcelInformation = await this.getParcelStatus(coordinates)
 
     const sceneFileCID = information.contents[SCENE_FILE]

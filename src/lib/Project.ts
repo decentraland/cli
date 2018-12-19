@@ -20,10 +20,50 @@ export interface IFile {
   size: number
 }
 
+export type DisplaySettings = {
+  title: string
+  favicon?: string
+}
+
+export type ContactSettings = {
+  name: string
+  email: string
+}
+
+export type SceneSettings = {
+  base: string
+  parcels: Array<string>
+  estateId?: number
+}
+
+export type CommunicationsSettings = {
+  type: string
+  signalling: string
+}
+
+export type PolicySettings = {
+  contentRating?: string
+  fly: boolean
+  voiceEnabled: boolean
+  blacklist: Array<string>
+  teleportPosition: string
+}
+
+export type SceneMetadata = {
+  display: DisplaySettings
+  owner: string
+  contact: ContactSettings
+  main: string
+  tags?: Array<string>
+  scene: SceneSettings
+  communications: CommunicationsSettings
+  policy: PolicySettings
+}
+
 export class Project {
   private static MAX_FILE_SIZE = 524300000
   private workingDir: string
-  private sceneFile: DCL.SceneMetadata
+  private sceneFile: SceneMetadata
 
   constructor(workingDir: string) {
     this.workingDir = workingDir
@@ -54,13 +94,13 @@ export class Project {
   /**
    * Returns an object containing the contents of the `scene.json` file.
    */
-  async getSceneFile(): Promise<DCL.SceneMetadata> {
+  async getSceneFile(): Promise<SceneMetadata> {
     if (this.sceneFile) {
       return this.sceneFile
     }
 
     try {
-      this.sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+      this.sceneFile = await readJSON<SceneMetadata>(getSceneFilePath(this.workingDir))
     } catch (e) {
       fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
     }
@@ -132,7 +172,7 @@ export class Project {
    * Creates a new `scene.json` file
    * @param path The path to the directory where the file will be written.
    */
-  writeSceneFile(content: Partial<DCL.SceneMetadata>): Promise<void> {
+  writeSceneFile(content: Partial<SceneMetadata>): Promise<void> {
     return writeJSON(getSceneFilePath(this.workingDir), content)
   }
 
@@ -149,7 +189,7 @@ export class Project {
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file === SCENE_FILE) {
-        const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
+        const sceneFile = await readJSON<SceneMetadata>(getSceneFilePath(src))
         await this.writeSceneFile(sceneFile)
       } else if (file === PACKAGE_FILE) {
         const pkgFile = await readJSON<any>(getPackageFilePath(src))
@@ -362,7 +402,7 @@ export class Project {
    * Fails the execution if one of the parcel data is invalid
    * @param sceneFile The JSON parsed file of scene.json
    */
-  private validateSceneData(sceneFile: DCL.SceneMetadata): void {
+  private validateSceneData(sceneFile: SceneMetadata): void {
     const { base, parcels } = sceneFile.scene
     const parcelSet = new Set(parcels)
 
