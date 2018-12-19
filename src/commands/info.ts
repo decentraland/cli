@@ -1,11 +1,10 @@
+import * as arg from 'arg'
 import chalk from 'chalk'
 
 import { Decentraland, Estate } from '../lib/Decentraland'
 import { formatDictionary } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
-
-import * as arg from 'arg'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl info [target] [options]')}
@@ -48,7 +47,7 @@ function getTargetType(value: string): string {
 }
 
 export async function main() {
-  let args = arg(
+  const args = arg(
     {
       '--help': Boolean,
       '--blockchain': Boolean,

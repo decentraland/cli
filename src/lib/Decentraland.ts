@@ -6,7 +6,6 @@ import { Project, BoilerplateType, IFile } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
-import { getRootPath } from '../utils/project'
 import { ErrorType, fail } from '../utils/errors'
 import { Coords } from '../utils/coordinateHelpers'
 import { API } from './API'
@@ -58,7 +57,7 @@ export class Decentraland extends EventEmitter {
   constructor(args: DecentralandArguments = {}) {
     super()
     this.options = args
-    this.options.workingDir = args.workingDir || getRootPath()
+    this.options.workingDir = args.workingDir
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.ethereum

@@ -10,9 +10,7 @@ import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/c
 
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',
-  TYPESCRIPT_DYNAMIC = 'ts-dynamic',
   ECS = 'ecs',
-  WEBSOCKETS = 'multiplayer',
   STATIC = 'static'
 }
 
@@ -79,14 +77,6 @@ export class Project {
     switch (boilerplateType) {
       case BoilerplateType.TYPESCRIPT_STATIC: {
         await this.copySample('ts-static')
-        break
-      }
-      case BoilerplateType.TYPESCRIPT_DYNAMIC: {
-        await this.copySample('ts-dynamic')
-        break
-      }
-      case BoilerplateType.WEBSOCKETS: {
-        await this.scaffoldWebsockets(websocketServer)
         break
       }
       case BoilerplateType.STATIC: {
