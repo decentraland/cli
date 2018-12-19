@@ -59,7 +59,7 @@ async function main() {
 
   if (subcommand === 'help') {
     const command = args._[1]
-    if (commands.has(command)) {
+    if (commands.has(command) && command !== 'help') {
       try {
         const { help } = await import(`./commands/${command}`)
         console.log(help())
