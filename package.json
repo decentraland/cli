@@ -14,7 +14,8 @@
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "unlock:dev": "node ./scripts/unlockDevDeps.js",
     "release": "node ./scripts/npmPublish.js",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "postinstall": "echo \"declare function arg<T extends arg.Spec>(spec: T, options?: { argv?: string[], permissive?: boolean }): arg.Result<T>;\n$(tail -n +2 node_modules/arg/index.d.ts)\" > node_modules/arg/index.d.ts"
   },
   "lint-staged": {
     "linters": {
@@ -105,7 +106,7 @@
     "dcl-tslint-config-standard": "^1.0.1",
     "decentraland-dapps": "^3.9.1",
     "decentraland-eth": "^8.6.0",
-    "decentraland-rpc": "^3.1.0",
+    "decentraland-rpc": "^3.1.2",
     "decentraland-ui": "1.13.1",
     "git-rev-sync": "^1.11.1",
     "husky": "^1.1.3",
