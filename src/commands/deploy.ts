@@ -25,7 +25,7 @@ export function deploy(vorpal: any) {
     .option('-h, --host <string>', 'Content servert url (default is https://content-service.decentraland.zone).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .option('-hs, --https', 'Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)')
-    .option('-p, --partial', 'deploy the full content')
+    .option('-p, --partial', 'deploy only new content')
     .action(
       wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
