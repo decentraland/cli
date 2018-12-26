@@ -259,6 +259,7 @@ export class Project {
       'node_modules/',
       '*.ts',
       '*.tsx',
+      'Dockerfile',
       'dist/'
     ].join('\n')
     await fs.outputFile(path.join(this.workingDir, DCLIGNORE_FILE), content)

@@ -88,7 +88,7 @@ async function track(eventName: string, properties: any = {}) {
       ...properties,
       os: process.platform,
       nodeVersion: process.version,
-      cliVersion: await getInstalledCLIVersion(),
+      cliVersion: getInstalledCLIVersion(),
       devId
     }
 

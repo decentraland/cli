@@ -38,9 +38,6 @@ describe('init command', async () => {
             tags: []
           }
 
-          console.log(expected)
-          console.log(sceneFile)
-
           expect(sceneFile).to.deep.equal(expected)
           done()
         })

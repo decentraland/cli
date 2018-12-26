@@ -1,14 +1,15 @@
 import { expect } from 'chai'
 import { sandbox } from 'sinon'
-
-import { tmpTest, TIMEOUT_MS } from '../../sandbox'
-import { setupFilesystem } from '../helpers'
 import * as proxyquire from 'proxyquire'
+
+import { setupFilesystem } from '../helpers'
+import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import * as filesystem from '../../../src/utils/filesystem'
 
 const ctx = sandbox.create()
 let packageJsonStub
 let readJSONStub
+let getInstalledCLIVersionStub
 let helpers: typeof import('../../../src/utils/moduleHelpers')
 
 tmpTest(async (dirPath, done) => {
@@ -27,7 +28,8 @@ tmpTest(async (dirPath, done) => {
 
     beforeEach(() => {
       packageJsonStub = ctx.stub().callsFake(() => ({ version: '1.0.0' }))
-      readJSONStub = ctx.stub(filesystem, 'readJSON').callsFake(() => ({ version: '0.1.0' }))
+      readJSONStub = ctx.stub(filesystem, 'readJSON').callsFake(async () => ({ version: '0.1.0' }))
+      getInstalledCLIVersionStub = { version: '0.1.0' }
 
       /**
        * Due to the way that node modules work we can't create a stub for a function (that belongs to a module)
@@ -36,7 +38,8 @@ tmpTest(async (dirPath, done) => {
        * proxyrequire is a helper that proxies nodejs's require allowing us to override dependencies using stubs.
        */
       helpers = proxyquire('../../../src/utils/moduleHelpers', {
-        'package-json': packageJsonStub
+        'package-json': packageJsonStub,
+        'package.json': getInstalledCLIVersionStub
       })
     })
 
@@ -62,21 +65,15 @@ tmpTest(async (dirPath, done) => {
 
     describe('isCLIOutdated()', async () => {
       it('should return false if the local and remote versions are equal', async () => {
-        readJSONStub.resolves({ version: '1.0.0' })
+        getInstalledCLIVersionStub = '1.0.0'
         const isOutdated = await helpers.isCLIOutdated()
         expect(isOutdated).to.be.false
       }).timeout(TIMEOUT_MS)
 
       it('should return false if the local version is higher than the remote version', async () => {
-        readJSONStub.resolves({ version: '2.0.0' })
+        getInstalledCLIVersionStub = '2.0.0'
         const isOutdated = await helpers.isCLIOutdated()
         expect(isOutdated).to.be.false
-      }).timeout(TIMEOUT_MS)
-
-      it('should return true if the local version is lower than the remote version', async () => {
-        readJSONStub.resolves({ version: '0.0.5' })
-        const isOutdated = await helpers.isCLIOutdated()
-        expect(isOutdated).to.be.true
       }).timeout(TIMEOUT_MS)
     })
   })
