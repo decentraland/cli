@@ -14,7 +14,7 @@ export interface IDeployArguments {
     host?: string
     skip?: boolean
     https?: boolean
-    force?: boolean
+    partial?: boolean
   }
 }
 
@@ -25,13 +25,13 @@ export function deploy(vorpal: any) {
     .option('-h, --host <string>', 'Content servert url (default is https://content-service.decentraland.zone).')
     .option('-s, --skip', 'skip confirmations and proceed to upload')
     .option('-hs, --https', 'Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)')
-    .option('-f, --force', 'deploy the full content')
+    .option('-p, --partial', 'deploy the full content')
     .action(
       wrapCommand(async (args: IDeployArguments) => {
         const dcl = new Decentraland({
           isHttps: !!args.options.https,
           contentServerUrl: args.options.host || 'https://content-service.decentraland.zone',
-          forceDeploy: args.options.force
+          forceDeploy: !(!!args.options.partial)
         })
         let ignoreFile = await dcl.project.getDCLIgnore()
 
