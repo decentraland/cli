@@ -9,7 +9,7 @@ import { BoilerplateType } from '../../../src/lib/Project'
 async function expectBasicDCLIgnore(dirPath) {
   const file = await fs.readFile(path.resolve(dirPath, '.dclignore'), 'utf-8')
   expect(file, 'expect .dclignore file to contain base definition').to.equal(
-    `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
+    `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\nDockerfile\ndist/`
   )
 }
 

@@ -1,5 +1,4 @@
 import * as path from 'path'
-import * as fs from 'fs-extra'
 import { expect } from 'chai'
 
 import { tmpTest, TIMEOUT_MS } from '../../sandbox'
@@ -22,7 +21,6 @@ describe('deploy command', async () => {
           })
             .when(/\(.* bytes\)\n/, msg => {
               const file = msg.trim().match(/(\w*\.\w*)/g)
-              console.log(file)
               expect(file.includes('bin/game.js'), 'expect game.js to be listed').to.be.true
               return null
             })
