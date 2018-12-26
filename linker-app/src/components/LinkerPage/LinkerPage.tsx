@@ -39,7 +39,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             </Blockie>
           </p>
           {'isUpdateAuthorized' in base && !base.isUpdateAuthorized ? (
-            <Error>This address doesn't either own this LAND or have update permissions.</Error>
+            <Error>Warning! Could not detect whether the wallet owns this LAND or has update permissions.</Error>
           ) : null}
         </React.Fragment>
       )
@@ -76,7 +76,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { error, isConnected, base } = this.props
+    const { error, isConnected } = this.props
     const { x, y } = baseParcel
     return (
       <div className="LinkScenePage">
@@ -94,7 +94,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
         </p>
         <form>
           <div>
-            <Button primary onClick={this.handleSignature} disabled={!isConnected || !!error || !base.isUpdateAuthorized}>
+            <Button primary onClick={this.handleSignature} disabled={!isConnected || !!error}>
               Sign and Deploy
             </Button>
           </div>
