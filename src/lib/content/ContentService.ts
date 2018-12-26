@@ -88,7 +88,7 @@ export class ContentService extends EventEmitter {
       }
       const cid = cidMaps[f.path]
       const uploaded = res[cid]
-      return !!!uploaded
+      return !uploaded
     })
   }
 }
