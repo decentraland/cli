@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 
 import { ContentClient, ParcelInformation } from './ContentClient'
-import { IFile } from '../Project'
+import { IFile, SceneMetadata } from '../Project'
 import { CIDUtils } from './CIDUtils'
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from './ContentUploadRequest'
 import { Coords } from '../../utils/coordinateHelpers'
@@ -62,7 +62,7 @@ export class ContentService extends EventEmitter {
    * @param x
    * @param y
    */
-  async getSceneData(coordinates: Coords): Promise<DCL.SceneMetadata> {
+  async getSceneData(coordinates: Coords): Promise<SceneMetadata> {
     const information: ParcelInformation = await this.getParcelStatus(coordinates)
 
     const sceneFileCID = information.contents[SCENE_FILE]
@@ -80,15 +80,15 @@ export class ContentService extends EventEmitter {
   }
 
   private async filterUploadedContent(files: IFile[], manifest: ContentIdentifier[]): Promise<IFile[]> {
-    const cidMaps = manifest.reduce((map, obj) => (map[obj.name] = obj.cid, map), {})
+    const cidMaps = manifest.reduce((map, obj) => ((map[obj.name] = obj.cid), map), {})
     const res = await this.client.checkContentStatus(Object.values(cidMaps))
     return files.filter(f => {
-      if (f.path === "scene.json") {
+      if (f.path === 'scene.json') {
         return true
       }
       const cid = cidMaps[f.path]
       const uploaded = res[cid]
-      return !(!!uploaded)
+      return !!!uploaded
     })
   }
 }

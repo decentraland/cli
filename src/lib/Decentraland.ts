@@ -2,19 +2,19 @@ import { EventEmitter } from 'events'
 import * as events from 'wildcards'
 import { ethers } from 'ethers'
 
-import { Project, BoilerplateType, IFile } from './Project'
-import { Ethereum, LANDData } from './Ethereum'
-import { LinkerAPI } from './LinkerAPI'
-import { Preview } from './Preview'
-import { getRootPath } from '../utils/project'
-import { ErrorType, fail } from '../utils/errors'
-import { Coords } from '../utils/coordinateHelpers'
-import { API } from './API'
-import { IEthereumDataProvider } from './IEthereumDataProvider'
-import { filterAndFillEmpty } from '../utils/land'
 import { CIDUtils } from './content/CIDUtils'
 import { ContentClient } from './content/ContentClient'
 import { ContentService } from './content/ContentService'
+import { filterAndFillEmpty } from '../utils/land'
+import { Coords } from '../utils/coordinateHelpers'
+import { ErrorType, fail } from '../utils/errors'
+import { getRootPath } from '../utils/project'
+import { Project, BoilerplateType, IFile, SceneMetadata } from './Project'
+import { Ethereum, LANDData } from './Ethereum'
+import { LinkerAPI } from './LinkerAPI'
+import { Preview } from './Preview'
+import { API } from './API'
+import { IEthereumDataProvider } from './IEthereumDataProvider'
 
 export type DecentralandArguments = {
   workingDir?: string
@@ -39,7 +39,7 @@ export type Estate = Parcel & {
 }
 
 export type ParcelMetadata = {
-  scene: DCL.SceneMetadata
+  scene: SceneMetadata
   land: Parcel
 }
 
@@ -80,7 +80,7 @@ export class Decentraland extends EventEmitter {
     events(this.contentService, 'upload:*', this.pipeEvents.bind(this))
   }
 
-  async init(sceneMeta: DCL.SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
+  async init(sceneMeta: SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
     await this.project.writeDclIgnore()
     await this.project.writeSceneFile(sceneMeta)
     await this.project.scaffoldProject(boilerplateType, websocketServer)

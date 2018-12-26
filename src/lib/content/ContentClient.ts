@@ -37,16 +37,17 @@ export class ContentClient {
   async uploadContent(uploadRequest: ContentUploadRequest): Promise<UploadResponse> {
     try {
       const data = uploadRequest.requestContent()
-      const response = await fetch(`${this.contentServerUrl}/mappings`,
-        { method: 'post',
-          headers: Object.assign(data.getHeaders()),
-          body: data })
+      const response = await fetch(`${this.contentServerUrl}/mappings`, {
+        method: 'post',
+        headers: Object.assign(data.getHeaders()),
+        body: data
+      })
 
       if (response.status !== 200) {
         const msg = await response.json()
         return { success: false, errorMessage: msg.error }
       }
-      return { success: true, errorMessage: "" }
+      return { success: true, errorMessage: '' }
     } catch (error) {
       fail(error)
     }
@@ -91,12 +92,12 @@ export class ContentClient {
 
   async checkContentStatus(cids: string[]): Promise<Response> {
     try {
-      const response = await fetch(`${this.contentServerUrl}/content/status`,{
+      const response = await fetch(`${this.contentServerUrl}/content/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ "content": cids })
+        body: JSON.stringify({ content: cids })
       })
       if (response.status >= 400) {
         const msg = await response.json()
@@ -107,5 +108,4 @@ export class ContentClient {
       fail(error)
     }
   }
-
 }
