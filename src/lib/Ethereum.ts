@@ -8,9 +8,9 @@ import { ErrorType, fail } from '../utils/errors'
 import { Coords, getObject } from '../utils/coordinateHelpers'
 import { filterAndFillEmpty } from '../utils/land'
 
-import { abi as manaAbi } from '../../abi/MANAToken.json'
-import { abi as landAbi } from '../../abi/LANDRegistry.json'
-import { abi as estateAbi } from '../../abi/EstateRegistry.json'
+const manaAbi = require('../../abi/MANAToken.json').abi
+const landAbi = require('../../abi/LANDRegistry.json').abi
+const estateAbi = require('../../abi/EstateRegistry.json')
 
 const provider = process.env.RPC_URL || getProvider()
 const providerInstance = new providers.HTTPProvider(provider)

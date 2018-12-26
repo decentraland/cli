@@ -2,27 +2,11 @@ import chalk from 'chalk'
 import * as ora from 'ora'
 
 export function error(message: string): string {
-  return chalk.red(message)
-}
-
-export function comment(message: string): string {
-  return chalk.grey(message)
+  return `${chalk.red('Error:')} ${message}`
 }
 
 export function warning(message: string): string {
-  return chalk.yellow(message)
-}
-
-export function bold(message: string): string {
-  return chalk.bold(message)
-}
-
-export function italic(message: string): string {
-  return chalk.italic(message)
-}
-
-export function positive(message: string): string {
-  return chalk.green(message)
+  return `${chalk.yellow('Warning: ')}${message}`
 }
 
 export function info(message: string) {
@@ -48,12 +32,6 @@ export function loading(message: string) {
     console['log'](message)
   }
   return spinner
-}
-
-export function exit(err: Error, logger: any) {
-  logger.log(error('\n' + err.message + '\n'))
-  if (process.env.DEBUG) logger.log(error(err.stack))
-  process.exit(1)
 }
 
 export function tabulate(spaces: number = 0) {
@@ -87,7 +65,9 @@ export function formatDictionary(
       buf = buf.concat(separator, `${chalk.bold(key)}: `, formatList(item, options, level + 1, 'object'), '\n')
     } else if (typeof item === 'object') {
       const isHidden = isEmpty(item)
-      const content = isHidden ? `: ${italic('No information available')}\n` : `:\n${formatDictionary(item, options, level + 1, 'object')}`
+      const content = isHidden
+        ? `: ${chalk.italic('No information available')}\n`
+        : `:\n${formatDictionary(item, options, level + 1, 'object')}`
       buf = buf.concat(separator, `${chalk.bold(key)}`, content)
     } else if (item) {
       buf = buf.concat(separator, `${chalk.bold(key)}: `, JSON.stringify(item), '\n')
@@ -116,7 +96,7 @@ export function formatList(
       }
     }, '')
   } else {
-    buf = italic('No information available')
+    buf = chalk.italic('No information available')
   }
 
   return buf

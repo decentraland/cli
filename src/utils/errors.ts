@@ -1,4 +1,5 @@
 export enum ErrorType {
+  INIT_ERROR = 'InitError',
   LINKER_ERROR = 'LinkerError',
   ETHEREUM_ERROR = 'EthereumError',
   PROJECT_ERROR = 'ProjectError',
