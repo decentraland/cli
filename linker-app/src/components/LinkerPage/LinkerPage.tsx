@@ -76,7 +76,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { error, isConnected, base } = this.props
+    const { error, isConnected } = this.props
     const { x, y } = baseParcel
     return (
       <div className="LinkScenePage">
