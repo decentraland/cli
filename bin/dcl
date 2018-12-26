@@ -1,8 +1,2 @@
 #!/usr/bin/env node
-
-'use strict'
-
-process.env.NODE_NO_WARNING = true
-
-var cli = require('../dist')
-cli.init()
+require('../dist')

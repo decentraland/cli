@@ -1,4 +1,4 @@
-import { IFile } from "../Project"
+import { IFile } from '../Project'
 
 const FormData = require('form-data')
 
@@ -36,7 +36,7 @@ export class ContentUploadRequest {
     const data = new FormData()
     data.append('metadata', JSON.stringify(this.metadata))
     data.append(this.rootCid, JSON.stringify(this.manifest))
-    this.files.forEach((file) => {
+    this.files.forEach(file => {
       const identifier = this.manifest.find(ci => {
         return ci.name === file.path
       })
