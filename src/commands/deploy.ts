@@ -31,7 +31,7 @@ export function deploy(vorpal: any) {
         const dcl = new Decentraland({
           isHttps: !!args.options.https,
           contentServerUrl: args.options.host || 'https://content-service.decentraland.zone',
-          forceDeploy: !(!!args.options.partial)
+          forceDeploy: !args.options.partial
         })
         let ignoreFile = await dcl.project.getDCLIgnore()
 
