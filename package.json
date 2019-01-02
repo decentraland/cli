@@ -87,7 +87,7 @@
     "chai-as-promised": "^7.1.1",
     "cross-spawn": "^6.0.5",
     "dcl-tslint-config-standard": "^1.0.1",
-    "decentraland-dapps": "^3.9.1",
+    "decentraland-dapps": "^3.10.0",
     "decentraland-eth": "^8.6.0",
     "decentraland-rpc": "^3.1.2",
     "decentraland-ui": "1.13.1",
