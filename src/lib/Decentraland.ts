@@ -103,7 +103,6 @@ export class Decentraland extends EventEmitter {
 
   async deploy(files: IFile[]) {
     await this.project.validateSceneOptions()
-    await this.validateOwnership()
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
     try {
@@ -130,8 +129,14 @@ export class Decentraland extends EventEmitter {
     return new Promise<LinkerResponse>(async (resolve, reject) => {
       const manaContract = await Ethereum.getContractAddress('MANAToken')
       const landContract = await Ethereum.getContractAddress('LANDProxy')
+      const estateContract = await Ethereum.getContractAddress('EstateProxy')
 
-      const linker = new LinkerAPI(this.project, manaContract, landContract)
+      const linker = new LinkerAPI(
+        this.project,
+        manaContract,
+        landContract,
+        estateContract
+      )
 
       events(linker, '*', this.pipeEvents.bind(this))
 
@@ -260,26 +265,7 @@ export class Decentraland extends EventEmitter {
     return this.wallet.getAddress()
   }
 
-  private async getAddressAndSignature(
-    rootCID
-  ): Promise<{ signature: string; address: string }> {
-    if (this.wallet) {
-      const [signature, address] = await Promise.all([
-        this.wallet.signMessage(rootCID),
-        this.wallet.getAddress()
-      ])
-      return { signature, address }
-    }
-
-    const message = await this.link(rootCID)
-    return JSON.parse(message)
-  }
-
-  private pipeEvents(event: string, ...args: any[]) {
-    this.emit(event, ...args)
-  }
-
-  private async validateOwnership() {
+  async validateOwnership() {
     const pOwner = this.wallet
       ? this.wallet.getAddress()
       : this.project.getOwner()
@@ -288,6 +274,22 @@ export class Decentraland extends EventEmitter {
       pOwner
     ])
     return this.ethereum.validateAuthorization(owner, parcels)
+  }
+
+  private async getAddressAndSignature(rootCID): Promise<LinkerResponse> {
+    if (this.wallet) {
+      const [signature, address] = await Promise.all([
+        this.wallet.signMessage(rootCID),
+        this.wallet.getAddress()
+      ])
+      return { signature, address, network: 'mainnet' }
+    }
+
+    return this.link(rootCID)
+  }
+
+  private pipeEvents(event: string, ...args: any[]) {
+    this.emit(event, ...args)
   }
 
   private createWallet(privateKey: string): void {

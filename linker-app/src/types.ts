@@ -4,11 +4,13 @@ import { TransactionState } from 'decentraland-dapps/dist/modules/transaction/re
 
 import { LandState } from './modules/land/reducer'
 import { SignatureState } from './modules/signature/reducer'
+import { AuthorizationState } from './modules/authorization/reducer'
 
 export type RootState = {
   wallet: WalletState
   transaction: TransactionState
   land: LandState
+  authorization: AuthorizationState
   signature: SignatureState
 }
 
@@ -18,6 +20,8 @@ export interface RootDispatch<A = AnyAction> {
   (action: A): A
 }
 
-export type RootMiddleware = (store: MiddlewareAPI<any>) => (next: RootDispatch<AnyAction>) => (action: AnyAction) => any
+export type RootMiddleware = (
+  store: MiddlewareAPI<any>
+) => (next: RootDispatch<AnyAction>) => (action: AnyAction) => any
 
 export type RootReducer = Reducer<RootState>

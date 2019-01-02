@@ -2,9 +2,10 @@ import * as React from 'react'
 import { Address, Blockie, Header, Button } from 'decentraland-ui'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
-import { baseParcel, isDevelopment, rootCID } from '../../modules/config'
+import { baseParcel, isDevelopment, rootCID } from '../../config'
 import Error from '../Error'
 import { LinkerPageProps } from './types'
+import { isUpdateAuthorized } from 'src/modules/authorization/selectors'
 
 export default class LinkScenePage extends React.PureComponent<LinkerPageProps, any> {
   constructor(props) {
@@ -28,7 +29,14 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   renderWalletData() {
-    const { isConnected, wallet, base, isConnecting, onConnectWallet } = this.props
+    const {
+      isConnected,
+      wallet,
+      authorizations,
+      isUpdateAuthorized,
+      isConnecting,
+      onConnectWallet
+    } = this.props
     if (isConnected) {
       return (
         <React.Fragment>
@@ -38,7 +46,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               <Address tooltip strong value={wallet.address} />
             </Blockie>
           </p>
-          {'isUpdateAuthorized' in base && !base.isUpdateAuthorized ? (
+          {authorizations.length > 0 && !isUpdateAuthorized ? (
             <Error>
               Warning! Could not detect whether the wallet owns this LAND or has update permissions.
             </Error>
@@ -98,7 +106,11 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
         </p>
         <form>
           <div>
-            <Button primary onClick={this.handleSignature} disabled={!isConnected || !!error}>
+            <Button
+              primary
+              onClick={this.handleSignature}
+              disabled={!isConnected || !!error || !isUpdateAuthorized}
+            >
               Sign and Deploy
             </Button>
           </div>

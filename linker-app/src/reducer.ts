@@ -4,6 +4,13 @@ import { transactionReducer as transaction } from 'decentraland-dapps/dist/modul
 
 import { landReducer as land } from './modules/land/reducer'
 import { signatureReducer as signature } from './modules/signature/reducer'
+import { authorizationReducer as authorization } from './modules/authorization/reducer'
 import { RootState } from './types'
 
-export const rootReducer = combineReducers<RootState>({ wallet, transaction, land, signature })
+export const rootReducer = combineReducers<RootState>({
+  wallet,
+  transaction,
+  land,
+  signature,
+  authorization
+})

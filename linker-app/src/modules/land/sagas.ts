@@ -1,8 +1,8 @@
-import { call, put, takeEvery, select } from 'redux-saga/effects'
+import { call, put, takeEvery } from 'redux-saga/effects'
 import { contracts } from 'decentraland-eth'
 import { CONNECT_WALLET_SUCCESS } from 'decentraland-dapps/dist/modules/wallet/actions'
 
-import { baseParcel } from '../config'
+import { baseParcel } from '../../config'
 import { LANDRegistry } from '../../contracts'
 import {
   FETCH_LAND_REQUEST,
@@ -12,7 +12,6 @@ import {
   fetchLandRequest
 } from './actions'
 import { getEmptyLandData } from './utils'
-import { getAddress } from 'decentraland-dapps/dist/modules/wallet/selectors'
 
 export function* landSaga() {
   yield takeEvery(FETCH_LAND_REQUEST, handleFetchLandRequest)
@@ -22,18 +21,11 @@ export function* landSaga() {
 function* handleFetchLandRequest(action: FetchLandRequestAction) {
   try {
     const { x, y } = action.payload
-    const address = yield select(getAddress)
-    const assetId = yield call(() => LANDRegistry['encodeTokenId'](x, y))
-    const [data, isUpdateAuthorized] = yield call(() =>
-      Promise.all([
-        LANDRegistry['landData'](x, y),
-        LANDRegistry['isUpdateAuthorized'](address, assetId)
-      ])
-    )
+    const data = yield call(() => LANDRegistry['landData'](x, y))
     const land = data
       ? contracts.LANDRegistry.decodeLandData(data)
       : getEmptyLandData()
-    yield put(fetchLandSuccess({ ...land, isUpdateAuthorized }))
+    yield put(fetchLandSuccess(land))
   } catch (error) {
     yield put(fetchLandFailure(error.message))
   }

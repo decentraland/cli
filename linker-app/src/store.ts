@@ -6,7 +6,7 @@ import { createStorageMiddleware } from 'decentraland-dapps/dist/modules/storage
 
 import { rootReducer } from './reducer'
 import { rootSaga } from './sagas'
-import { isDevelopment } from './modules/config'
+import { isDevelopment } from './config'
 
 const composeEnhancers =
   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
