@@ -4,15 +4,26 @@ import * as fs from 'fs-extra'
 import * as ignore from 'ignore'
 
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
-import { getSceneFilePath, SCENE_FILE, getIgnoreFilePath, DCLIGNORE_FILE, PACKAGE_FILE, getPackageFilePath } from '../utils/project'
+import {
+  getSceneFilePath,
+  SCENE_FILE,
+  getIgnoreFilePath,
+  DCLIGNORE_FILE,
+  PACKAGE_FILE,
+  getPackageFilePath
+} from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
-import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
+import {
+  inBounds,
+  getBounds,
+  getObject,
+  areConnected,
+  Coords
+} from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',
-  TYPESCRIPT_DYNAMIC = 'ts-dynamic',
   ECS = 'ecs',
-  WEBSOCKETS = 'multiplayer',
   STATIC = 'static'
 }
 
@@ -22,10 +33,50 @@ export interface IFile {
   size: number
 }
 
+export type DisplaySettings = {
+  title: string
+  favicon?: string
+}
+
+export type ContactSettings = {
+  name: string
+  email: string
+}
+
+export type SceneSettings = {
+  base: string
+  parcels: Array<string>
+  estateId?: number
+}
+
+export type CommunicationsSettings = {
+  type: string
+  signalling: string
+}
+
+export type PolicySettings = {
+  contentRating?: string
+  fly: boolean
+  voiceEnabled: boolean
+  blacklist: Array<string>
+  teleportPosition: string
+}
+
+export type SceneMetadata = {
+  display: DisplaySettings
+  owner: string
+  contact: ContactSettings
+  main: string
+  tags?: Array<string>
+  scene: SceneSettings
+  communications: CommunicationsSettings
+  policy: PolicySettings
+}
+
 export class Project {
   private static MAX_FILE_SIZE = 524300000
   private workingDir: string
-  private sceneFile: DCL.SceneMetadata
+  private sceneFile: SceneMetadata
 
   constructor(workingDir: string) {
     this.workingDir = workingDir
@@ -56,15 +107,20 @@ export class Project {
   /**
    * Returns an object containing the contents of the `scene.json` file.
    */
-  async getSceneFile(): Promise<DCL.SceneMetadata> {
+  async getSceneFile(): Promise<SceneMetadata> {
     if (this.sceneFile) {
       return this.sceneFile
     }
 
     try {
-      this.sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(this.workingDir))
+      this.sceneFile = await readJSON<SceneMetadata>(
+        getSceneFilePath(this.workingDir)
+      )
     } catch (e) {
-      fail(ErrorType.PROJECT_ERROR, `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`)
+      fail(
+        ErrorType.PROJECT_ERROR,
+        `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`
+      )
     }
 
     return this.sceneFile
@@ -79,14 +135,6 @@ export class Project {
     switch (boilerplateType) {
       case BoilerplateType.TYPESCRIPT_STATIC: {
         await this.copySample('ts-static')
-        break
-      }
-      case BoilerplateType.TYPESCRIPT_DYNAMIC: {
-        await this.copySample('ts-dynamic')
-        break
-      }
-      case BoilerplateType.WEBSOCKETS: {
-        await this.scaffoldWebsockets(websocketServer)
         break
       }
       case BoilerplateType.STATIC: {
@@ -108,7 +156,8 @@ export class Project {
     const hasPackageFile = files.some(file => file === 'package.json')
     const nodeModulesPath = path.resolve(this.workingDir, 'node_modules')
     const hasNodeModulesFolder = await fs.pathExists(nodeModulesPath)
-    const isNodeModulesEmpty = (await this.getAllFilePaths(nodeModulesPath)).length === 0
+    const isNodeModulesEmpty =
+      (await this.getAllFilePaths(nodeModulesPath)).length === 0
 
     if (hasPackageFile && (!hasNodeModulesFolder || isNodeModulesEmpty)) {
       return true
@@ -142,7 +191,7 @@ export class Project {
    * Creates a new `scene.json` file
    * @param path The path to the directory where the file will be written.
    */
-  writeSceneFile(content: Partial<DCL.SceneMetadata>): Promise<void> {
+  writeSceneFile(content: Partial<SceneMetadata>): Promise<void> {
     return writeJSON(getSceneFilePath(this.workingDir), content)
   }
 
@@ -159,7 +208,7 @@ export class Project {
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file === SCENE_FILE) {
-        const sceneFile = await readJSON<DCL.SceneMetadata>(getSceneFilePath(src))
+        const sceneFile = await readJSON<SceneMetadata>(getSceneFilePath(src))
         await this.writeSceneFile(sceneFile)
       } else if (file === PACKAGE_FILE) {
         const pkgFile = await readJSON<any>(getPackageFilePath(src))
@@ -193,7 +242,10 @@ export class Project {
   async getOwner(): Promise<string> {
     const { owner } = await this.getSceneFile()
     if (!owner) {
-      fail(ErrorType.PROJECT_ERROR, `Missing owner attribute at scene.json. Owner attribute is required for deploying`)
+      fail(
+        ErrorType.PROJECT_ERROR,
+        `Missing owner attribute at scene.json. Owner attribute is required for deploying`
+      )
     }
     return owner.toLowerCase()
   }
@@ -229,6 +281,7 @@ export class Project {
       'node_modules/',
       '*.ts',
       '*.tsx',
+      'Dockerfile',
       'dist/'
     ].join('\n')
     await fs.outputFile(path.join(this.workingDir, DCLIGNORE_FILE), content)
@@ -254,11 +307,17 @@ export class Project {
 
     if (!this.isWebSocket(sceneFile.main)) {
       if (!this.isValidMainFormat(sceneFile.main)) {
-        fail(ErrorType.PROJECT_ERROR, `Main scene format file (${sceneFile.main}) is not a supported format`)
+        fail(
+          ErrorType.PROJECT_ERROR,
+          `Main scene format file (${sceneFile.main}) is not a supported format`
+        )
       }
 
       if (sceneFile.main !== null && !(await this.fileExists(sceneFile.main))) {
-        fail(ErrorType.PROJECT_ERROR, `Main scene file ${sceneFile.main} is missing`)
+        fail(
+          ErrorType.PROJECT_ERROR,
+          `Main scene file ${sceneFile.main} is missing`
+        )
       }
     }
   }
@@ -312,12 +371,21 @@ export class Project {
 
       if (stat.size > Project.MAX_FILE_SIZE) {
         // MAX_FILE_SIZE is an arbitrary file size
-        fail(ErrorType.UPLOAD_ERROR, `Maximum file size exceeded: '${file}' is larger than ${Project.MAX_FILE_SIZE} bytes`)
+        fail(
+          ErrorType.UPLOAD_ERROR,
+          `Maximum file size exceeded: '${file}' is larger than ${
+            Project.MAX_FILE_SIZE
+          } bytes`
+        )
       }
 
       const content = await fs.readFile(filePath)
 
-      data.push({ path: file.replace(/\\/g, '/'), content: Buffer.from(content), size: stat.size })
+      data.push({
+        path: file.replace(/\\/g, '/'),
+        content: Buffer.from(content),
+        size: stat.size
+      })
     }
 
     return data
@@ -372,24 +440,36 @@ export class Project {
    * Fails the execution if one of the parcel data is invalid
    * @param sceneFile The JSON parsed file of scene.json
    */
-  private validateSceneData(sceneFile: DCL.SceneMetadata): void {
+  private validateSceneData(sceneFile: SceneMetadata): void {
     const { base, parcels } = sceneFile.scene
     const parcelSet = new Set(parcels)
 
     if (!base) {
-      fail(ErrorType.PROJECT_ERROR, 'Missing scene base attribute at scene.json')
+      fail(
+        ErrorType.PROJECT_ERROR,
+        'Missing scene base attribute at scene.json'
+      )
     }
 
     if (!parcels) {
-      fail(ErrorType.PROJECT_ERROR, 'Missing scene parcels attribute at scene.json')
+      fail(
+        ErrorType.PROJECT_ERROR,
+        'Missing scene parcels attribute at scene.json'
+      )
     }
 
     if (parcelSet.size < parcels.length) {
-      fail(ErrorType.PROJECT_ERROR, 'There are duplicated parcels at scene.json')
+      fail(
+        ErrorType.PROJECT_ERROR,
+        'There are duplicated parcels at scene.json'
+      )
     }
 
     if (!parcelSet.has(base)) {
-      fail(ErrorType.PROJECT_ERROR, `Your base parcel ${base} should be included on parcels attribute at scene.json`)
+      fail(
+        ErrorType.PROJECT_ERROR,
+        `Your base parcel ${base} should be included on parcels attribute at scene.json`
+      )
     }
 
     const objParcels = parcels.map(getObject)
@@ -398,11 +478,17 @@ export class Project {
         return
       }
       const { minX, maxX } = getBounds()
-      fail(ErrorType.PROJECT_ERROR, `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`)
+      fail(
+        ErrorType.PROJECT_ERROR,
+        `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`
+      )
     })
 
     if (!areConnected(objParcels)) {
-      fail(ErrorType.PROJECT_ERROR, 'Parcels described on scene.json are not connected. They should be one next to each other')
+      fail(
+        ErrorType.PROJECT_ERROR,
+        'Parcels described on scene.json are not connected. They should be one next to each other'
+      )
     }
   }
 }

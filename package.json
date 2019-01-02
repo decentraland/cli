@@ -20,7 +20,7 @@
     "linters": {
       "*.ts": [
         "tslint -c tslint.json",
-        "prettier --write",
+        "prettier --single-quote --no-semi --write",
         "git add"
       ]
     },
@@ -28,34 +28,19 @@
       "src/samples/**/*.ts"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/decentraland/cli.git"
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "printWidth": 140
-  },
+  "repository": "decentraland/cli",
   "keywords": [
     "decentraland",
-    "cli"
+    "cli",
+    "dcl",
+    "mana",
+    "land"
   ],
-  "author": "Decentraland",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/decentraland/cli/issues"
-  },
-  "homepage": "https://github.com/decentraland/cli#readme",
-  "bin": {
-    "dcl": "./bin/dcl"
-  },
-  "engines": {
-    "node": ">=8.0.0",
-    "npm": "<=5"
-  },
+  "homepage": "https://github.com/decentraland/cli",
   "dependencies": {
     "analytics-node": "^3.2.0",
+    "arg": "^4.1.0",
     "body-parser": "^1.18.3",
     "chalk": "^2.3.1",
     "chokidar": "^2.0.3",
@@ -77,11 +62,11 @@
     "portfinder": "^1.0.13",
     "request": "^2.88.0",
     "semver": "^5.5.0",
-    "vorpal": "^1.12.0",
     "wildcards": "^1.0.2",
     "ws": "^6.0.0"
   },
   "devDependencies": {
+    "@babel/runtime": "^7.2.0",
     "@types/analytics-node": "0.0.32",
     "@types/chai": "^4.1.2",
     "@types/chalk": "^2.2.0",
@@ -98,15 +83,13 @@
     "@types/react-dom": "^16.0.11",
     "@types/request": "^2.48.1",
     "@types/sinon": "^5.0.5",
-    "@types/uuid": "^3.4.3",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "cpy-cli": "^2.0.0",
     "cross-spawn": "^6.0.5",
     "dcl-tslint-config-standard": "^1.0.1",
-    "decentraland-dapps": "^1.0.5",
-    "decentraland-eth": "4.3.0",
-    "decentraland-rpc": "^3.0.1",
+    "decentraland-dapps": "^3.9.1",
+    "decentraland-eth": "^8.6.0",
+    "decentraland-rpc": "^3.1.2",
     "decentraland-ui": "1.13.1",
     "git-rev-sync": "^1.11.1",
     "husky": "^1.1.3",
@@ -114,7 +97,7 @@
     "mkdirp": "^0.5.1",
     "mocha": "^5.2.0",
     "prettier": "^1.14.0",
-    "proxyquire": "^2.0.1",
+    "proxyquire": "^2.1.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-redux": "^5.0.7",

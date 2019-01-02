@@ -25,7 +25,10 @@ export function buildTypescript(): Promise<void> {
     const child = spawn(npm, ['run', 'watch'], { shell: true })
     child.stdout.pipe(process.stdout)
     child.stdout.on('data', data => {
-      if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
+      if (
+        data.toString().indexOf('The compiler is watching file changes...') !==
+        -1
+      ) {
         return resolve()
       }
     })
@@ -35,26 +38,25 @@ export function buildTypescript(): Promise<void> {
 }
 
 export async function getLatestVersion(name: string): Promise<string> {
-  let pkg: { version: string }
-
   if (!(await isOnline())) {
     return null
   }
 
   try {
-    pkg = await packageJson(name.toLowerCase())
+    const pkg = await packageJson(name.toLowerCase())
+    return pkg.version
   } catch (e) {
     return null
   }
-
-  return pkg.version
 }
 
 export async function getInstalledVersion(name: string): Promise<string> {
   let decentralandApiPkg: { version: string }
 
   try {
-    decentralandApiPkg = await readJSON<{ version: string }>(path.resolve(getNodeModulesPath(getRootPath()), name, 'package.json'))
+    decentralandApiPkg = await readJSON<{ version: string }>(
+      path.resolve(getNodeModulesPath(getRootPath()), name, 'package.json')
+    )
   } catch (e) {
     return null
   }
@@ -62,42 +64,50 @@ export async function getInstalledVersion(name: string): Promise<string> {
   return decentralandApiPkg.version
 }
 
-export async function getOutdatedApi(): Promise<{ package: string; installedVersion: string; latestVersion: string }> {
+export async function getOutdatedApi(): Promise<{
+  package: string
+  installedVersion: string
+  latestVersion: string
+}> {
   const decentralandApiVersion = await getInstalledVersion('decentraland-api')
   const decentralandEcsVersion = await getInstalledVersion('decentraland-ecs')
 
   if (decentralandEcsVersion) {
     const latestVersion = await getLatestVersion('decentraland-ecs')
     if (latestVersion && semver.lt(decentralandEcsVersion, latestVersion)) {
-      return { package: 'decentraland-ecs', installedVersion: decentralandEcsVersion, latestVersion }
+      return {
+        package: 'decentraland-ecs',
+        installedVersion: decentralandEcsVersion,
+        latestVersion
+      }
     }
   } else if (decentralandApiVersion) {
     const latestVersion = await getLatestVersion('decentraland-api')
     if (latestVersion && semver.lt(decentralandApiVersion, latestVersion)) {
-      return { package: 'decentraland-api', installedVersion: decentralandApiVersion, latestVersion }
+      return {
+        package: 'decentraland-api',
+        installedVersion: decentralandApiVersion,
+        latestVersion
+      }
     }
   }
 
   return undefined
 }
 
-export async function getInstalledCLIVersion(): Promise<string> {
-  let pkg: { version: string }
-
-  try {
-    pkg = await readJSON<{ version: string }>(path.resolve(__dirname, '../../package.json'))
-  } catch (e) {
-    return null
-  }
-
-  return pkg.version
+export function getInstalledCLIVersion(): string {
+  return require('../../package').version
 }
 
 export async function isCLIOutdated(): Promise<boolean> {
-  const cliVersion = await getInstalledCLIVersion()
+  const cliVersion = getInstalledCLIVersion()
   const cliVersionLatest = await getLatestVersion('decentraland')
 
-  if (cliVersionLatest && cliVersion && semver.lt(cliVersion, cliVersionLatest)) {
+  if (
+    cliVersionLatest &&
+    cliVersion &&
+    semver.lt(cliVersion, cliVersionLatest)
+  ) {
     return true
   } else {
     return false

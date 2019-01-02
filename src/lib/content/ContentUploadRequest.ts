@@ -1,4 +1,6 @@
-import { IFile } from "../Project"
+import { IFile } from '../Project'
+
+const FormData = require('form-data')
 
 export type RequestMetadata = {
   value: string
@@ -20,7 +22,12 @@ export class ContentUploadRequest {
   manifest: ContentIdentifier[]
   metadata: RequestMetadata
 
-  constructor(_rootCid: string, _files: IFile[], _manifest: ContentIdentifier[], _metadata: RequestMetadata) {
+  constructor(
+    _rootCid: string,
+    _files: IFile[],
+    _manifest: ContentIdentifier[],
+    _metadata: RequestMetadata
+  ) {
     this.rootCid = _rootCid
     this.files = _files
     this.manifest = _manifest
@@ -31,25 +38,19 @@ export class ContentUploadRequest {
    * Generates a formData to sent in a http multipart request
    */
   requestContent(): any {
-    const formData: any = {
-      metadata: JSON.stringify(this.metadata),
-      [this.rootCid] : JSON.stringify(this.manifest)
-    }
-    this.files.forEach((file) => {
+    const data = new FormData()
+    data.append('metadata', JSON.stringify(this.metadata))
+    data.append(this.rootCid, JSON.stringify(this.manifest))
+    this.files.forEach(file => {
       const identifier = this.manifest.find(ci => {
         return ci.name === file.path
       })
-      if (identifier) this.addFileToRequest(identifier, file, formData)
-    })
-    return formData
-  }
-
-  private addFileToRequest(identifier: ContentIdentifier, file: IFile, form: any): void {
-    form[identifier.cid] = {
-      value: file.content,
-      options: {
-        filepath: file.path
+      if (identifier) {
+        data.append(identifier.cid, file.content, {
+          filepath: file.path
+        })
       }
-    }
+    })
+    return data
   }
 }

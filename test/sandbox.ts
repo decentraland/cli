@@ -2,7 +2,8 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as rimraf from 'rimraf'
 
-export const TIMEOUT_MS = process.env.TEST_TIMEOUT || process.env.APPVEYOR ? 10000 : 5000
+export const TIMEOUT_MS =
+  process.env.TEST_TIMEOUT || process.env.APPVEYOR ? 20000 : 10000
 
 export function tmpTest(fn: any) {
   return new Promise(async (resolve, reject) => {

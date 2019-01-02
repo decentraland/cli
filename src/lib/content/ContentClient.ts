@@ -3,7 +3,7 @@ import { fail } from 'assert'
 import { ContentUploadRequest } from './ContentUploadRequest'
 import { Coords } from '../../utils/coordinateHelpers'
 
-import * as request from 'request'
+import * as fetch from 'isomorphic-fetch'
 
 export type ParcelInformation = {
   parcel_id: string
@@ -18,6 +18,11 @@ export type MappingsResponse = {
   errorMessage?: string
 }
 
+export type UploadResponse = {
+  success: boolean
+  errorMessage: string
+}
+
 export class ContentClient {
   contentServerUrl: string
 
@@ -29,21 +34,25 @@ export class ContentClient {
    * Send the content in the request to the conetnt server
    * @param uploadRequest
    */
-  async uploadContent(uploadRequest: ContentUploadRequest): Promise<any> {
-    // TODO: use node-fetch here
-    return new Promise<any>((resolve, reject) => {
-      request.post({ url: `${this.contentServerUrl}/mappings`, formData: uploadRequest.requestContent() }, function optionalCallback(
-        err,
-        httpResponse,
-        body
-      ) {
-        if (err) {
-          fail(err)
-        }
-        const result = httpResponse.toJSON()
-        resolve(result)
+  async uploadContent(
+    uploadRequest: ContentUploadRequest
+  ): Promise<UploadResponse> {
+    try {
+      const data = uploadRequest.requestContent()
+      const response = await fetch(`${this.contentServerUrl}/mappings`, {
+        method: 'post',
+        headers: Object.assign(data.getHeaders()),
+        body: data
       })
-    })
+
+      if (response.status !== 200) {
+        const msg = await response.json()
+        return { success: false, errorMessage: msg.error }
+      }
+      return { success: true, errorMessage: '' }
+    } catch (error) {
+      fail(error)
+    }
   }
 
   /**
@@ -52,23 +61,25 @@ export class ContentClient {
    * @param from
    * @param to
    */
-  async getParcelsInformation(from: Coords, to: Coords): Promise<MappingsResponse> {
-    return new Promise<MappingsResponse>((resolve, reject) => {
-      const params = { nw: `${from.x},${from.y}`, se: `${to.x},${to.y}` }
-      // TODO: use node-fetch here
-      request({ url: `${this.contentServerUrl}/mappings`, qs: params }, function(err, response) {
-        if (err) {
-          fail(err)
-        }
-        const result = response.toJSON()
-        if (result.statusCode === 200) {
-          const body = JSON.parse(result.body)
-          resolve({ ok: true, data: body == null ? [] : body })
-        } else {
-          resolve({ ok: false, data: [], errorMessage: result.body })
-        }
-      })
-    })
+  async getParcelsInformation(
+    from: Coords,
+    to: Coords
+  ): Promise<MappingsResponse> {
+    try {
+      const response = await fetch(
+        `${this.contentServerUrl}/mappings?nw=${from.x},${from.y}&se=${to.x},${
+          to.y
+        }`
+      )
+      if (response.status >= 400) {
+        const msg = await response.json()
+        throw new Error(`Bad response from server: ${msg.error}`)
+      }
+      const content = await response.json()
+      return { ok: true, data: content == null ? [] : content }
+    } catch (error) {
+      fail(error)
+    }
   }
 
   /**
@@ -76,14 +87,34 @@ export class ContentClient {
    * @param cid CID use to identify the file
    */
   async getContent(cid: string): Promise<any> {
-    // TODO: use node-fetch here
-    return new Promise<MappingsResponse>((resolve, reject) => {
-      request({ url: `${this.contentServerUrl}/contents/${cid}` }, function(err, response) {
-        if (err) {
-          fail(err)
-        }
-        resolve((response.toJSON() as any) as MappingsResponse)
+    try {
+      const response = await fetch(`${this.contentServerUrl}/contents/${cid}`)
+      if (response.status >= 400) {
+        const msg = await response.json()
+        throw new Error(`Bad response from server: ${msg.error}`)
+      }
+      return await response.json()
+    } catch (error) {
+      fail(error)
+    }
+  }
+
+  async checkContentStatus(cids: string[]): Promise<Response> {
+    try {
+      const response = await fetch(`${this.contentServerUrl}/content/status`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: cids })
       })
-    })
+      if (response.status >= 400) {
+        const msg = await response.json()
+        throw new Error(`Bad response from server: ${msg.error}`)
+      }
+      return await response.json()
+    } catch (error) {
+      fail(error)
+    }
   }
 }

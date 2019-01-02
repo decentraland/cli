@@ -4,7 +4,13 @@ import { CONNECT_WALLET_SUCCESS } from 'decentraland-dapps/dist/modules/wallet/a
 
 import { baseParcel } from '../config'
 import { LANDRegistry } from '../../contracts'
-import { FETCH_LAND_REQUEST, FetchLandRequestAction, fetchLandSuccess, fetchLandFailure, fetchLandRequest } from './actions'
+import {
+  FETCH_LAND_REQUEST,
+  FetchLandRequestAction,
+  fetchLandSuccess,
+  fetchLandFailure,
+  fetchLandRequest
+} from './actions'
 import { getEmptyLandData } from './utils'
 import { getAddress } from 'decentraland-dapps/dist/modules/wallet/selectors'
 
@@ -19,9 +25,14 @@ function* handleFetchLandRequest(action: FetchLandRequestAction) {
     const address = yield select(getAddress)
     const assetId = yield call(() => LANDRegistry['encodeTokenId'](x, y))
     const [data, isUpdateAuthorized] = yield call(() =>
-      Promise.all([LANDRegistry['landData'](x, y), LANDRegistry['isUpdateAuthorized'](address, assetId)])
+      Promise.all([
+        LANDRegistry['landData'](x, y),
+        LANDRegistry['isUpdateAuthorized'](address, assetId)
+      ])
     )
-    const land = data ? contracts.LANDRegistry.decodeLandData(data) : getEmptyLandData()
+    const land = data
+      ? contracts.LANDRegistry.decodeLandData(data)
+      : getEmptyLandData()
     yield put(fetchLandSuccess({ ...land, isUpdateAuthorized }))
   } catch (error) {
     yield put(fetchLandFailure(error.message))

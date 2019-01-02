@@ -8,17 +8,26 @@ import { rootReducer } from './reducer'
 import { rootSaga } from './sagas'
 import { isDevelopment } from './modules/config'
 
-const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+const composeEnhancers =
+  (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
-const { storageMiddleware, loadStorageMiddleware } = createStorageMiddleware('decentraland-cli')
+const { storageMiddleware, loadStorageMiddleware } = createStorageMiddleware({
+  storageKey: 'decentraland-cli'
+})
 const sagasMiddleware = createSagasMiddleware()
 const transactionMiddleware = createTransactionMiddleware()
 const loggerMiddleware = createLogger({
   collapsed: () => true,
-  predicate: (_: any, action: any) => isDevelopment() || action.type.includes('Failure')
+  predicate: (_: any, action: any) =>
+    isDevelopment() || action.type.includes('Failure')
 })
 
-const middleware = applyMiddleware(loggerMiddleware, storageMiddleware, transactionMiddleware, sagasMiddleware)
+const middleware = applyMiddleware(
+  loggerMiddleware,
+  storageMiddleware,
+  transactionMiddleware,
+  sagasMiddleware
+)
 
 const enhancer = composeEnhancers(middleware)
 const store = createStore(rootReducer, enhancer)

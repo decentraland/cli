@@ -2,19 +2,19 @@ import { EventEmitter } from 'events'
 import * as events from 'wildcards'
 import { ethers } from 'ethers'
 
-import { Project, BoilerplateType, IFile } from './Project'
-import { Ethereum, LANDData } from './Ethereum'
-import { LinkerAPI } from './LinkerAPI'
-import { Preview } from './Preview'
-import { getRootPath } from '../utils/project'
-import { ErrorType, fail } from '../utils/errors'
-import { Coords } from '../utils/coordinateHelpers'
-import { API } from './API'
-import { IEthereumDataProvider } from './IEthereumDataProvider'
-import { filterAndFillEmpty } from '../utils/land'
 import { CIDUtils } from './content/CIDUtils'
 import { ContentClient } from './content/ContentClient'
 import { ContentService } from './content/ContentService'
+import { filterAndFillEmpty } from '../utils/land'
+import { Coords } from '../utils/coordinateHelpers'
+import { ErrorType, fail } from '../utils/errors'
+import { getRootPath } from '../utils/project'
+import { Project, BoilerplateType, IFile, SceneMetadata } from './Project'
+import { Ethereum, LANDData } from './Ethereum'
+import { LinkerAPI } from './LinkerAPI'
+import { Preview } from './Preview'
+import { API } from './API'
+import { IEthereumDataProvider } from './IEthereumDataProvider'
 
 export type DecentralandArguments = {
   workingDir?: string
@@ -24,9 +24,13 @@ export type DecentralandArguments = {
   watch?: boolean
   blockchain?: boolean
   contentServerUrl?: string
+  forceDeploy?: boolean
 }
 
-export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
+export type AddressInfo = {
+  parcels: ({ x: number; y: number } & LANDData)[]
+  estates: ({ id: number } & LANDData)[]
+}
 
 export type Parcel = LANDData & {
   owner: string
@@ -38,7 +42,7 @@ export type Estate = Parcel & {
 }
 
 export type ParcelMetadata = {
-  scene: DCL.SceneMetadata
+  scene: SceneMetadata
   land: Parcel
 }
 
@@ -60,6 +64,7 @@ export class Decentraland extends EventEmitter {
   provider: IEthereumDataProvider
   contentService: ContentService
   wallet: ethers.Wallet
+  forceDeploy: boolean
 
   constructor(args: DecentralandArguments = {}) {
     super()
@@ -68,7 +73,10 @@ export class Decentraland extends EventEmitter {
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.ethereum
-    this.contentService = new ContentService(new ContentClient(args.contentServerUrl))
+    this.contentService = new ContentService(
+      new ContentClient(args.contentServerUrl)
+    )
+    this.forceDeploy = args.forceDeploy || false
 
     if (!this.options.blockchain) {
       this.provider = new API()
@@ -83,7 +91,11 @@ export class Decentraland extends EventEmitter {
     events(this.contentService, 'upload:*', this.pipeEvents.bind(this))
   }
 
-  async init(sceneMeta: DCL.SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
+  async init(
+    sceneMeta: SceneMetadata,
+    boilerplateType: BoilerplateType,
+    websocketServer?: string
+  ) {
     await this.project.writeDclIgnore()
     await this.project.writeSceneFile(sceneMeta)
     await this.project.scaffoldProject(boilerplateType, websocketServer)
@@ -96,7 +108,13 @@ export class Decentraland extends EventEmitter {
 
     try {
       const { signature, address } = await this.getAddressAndSignature(rootCID)
-      const uploadResult = await this.contentService.uploadContent(rootCID, files, signature, address)
+      const uploadResult = await this.contentService.uploadContent(
+        rootCID,
+        files,
+        signature,
+        address,
+        this.forceDeploy
+      )
       if (!uploadResult) {
         fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')
       }
@@ -123,7 +141,11 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(this.options.linkerPort, this.options.isHttps, rootCID)
+        await linker.link(
+          this.options.linkerPort,
+          this.options.isHttps,
+          rootCID
+        )
       } catch (e) {
         reject(e)
       }
@@ -133,7 +155,10 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
-    const preview = new Preview(await this.project.getDCLIgnore(), this.getWatch())
+    const preview = new Preview(
+      await this.project.getDCLIgnore(),
+      this.getWatch()
+    )
 
     events(preview, '*', this.pipeEvents.bind(this))
 
@@ -141,10 +166,17 @@ export class Decentraland extends EventEmitter {
   }
 
   async getAddressInfo(address: string): Promise<AddressInfo> {
-    const [coords, estateIds] = await Promise.all([this.provider.getLandOf(address), this.provider.getEstatesOf(address)])
+    const [coords, estateIds] = await Promise.all([
+      this.provider.getLandOf(address),
+      this.provider.getEstatesOf(address)
+    ])
 
-    const pRequests = Promise.all(coords.map(coord => this.provider.getLandData(coord)))
-    const eRequests = Promise.all(estateIds.map(estateId => this.provider.getEstateData(estateId)))
+    const pRequests = Promise.all(
+      coords.map(coord => this.provider.getLandData(coord))
+    )
+    const eRequests = Promise.all(
+      estateIds.map(estateId => this.provider.getEstateData(estateId))
+    )
 
     const [pData, eData] = await Promise.all([pRequests, eRequests])
 
@@ -206,8 +238,14 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  async getParcelStatus(x: number, y: number): Promise<{ cid?: string; files: FileInfo[] }> {
-    const information = await this.contentService.getParcelStatus({ x: x, y: y })
+  async getParcelStatus(
+    x: number,
+    y: number
+  ): Promise<{ cid?: string; files: FileInfo[] }> {
+    const information = await this.contentService.getParcelStatus({
+      x: x,
+      y: y
+    })
     if (information) {
       const files: FileInfo[] = []
       for (const key in information.contents) {
@@ -222,9 +260,14 @@ export class Decentraland extends EventEmitter {
     return this.wallet.getAddress()
   }
 
-  private async getAddressAndSignature(rootCID): Promise<{ signature: string; address: string }> {
+  private async getAddressAndSignature(
+    rootCID
+  ): Promise<{ signature: string; address: string }> {
     if (this.wallet) {
-      const [signature, address] = await Promise.all([this.wallet.signMessage(rootCID), this.wallet.getAddress()])
+      const [signature, address] = await Promise.all([
+        this.wallet.signMessage(rootCID),
+        this.wallet.getAddress()
+      ])
       return { signature, address }
     }
 
@@ -237,8 +280,13 @@ export class Decentraland extends EventEmitter {
   }
 
   private async validateOwnership() {
-    const pOwner = this.wallet ? this.wallet.getAddress() : this.project.getOwner()
-    const [parcels, owner] = await Promise.all([this.project.getParcels(), pOwner])
+    const pOwner = this.wallet
+      ? this.wallet.getAddress()
+      : this.project.getOwner()
+    const [parcels, owner] = await Promise.all([
+      this.project.getParcels(),
+      pOwner
+    ])
     return this.ethereum.validateAuthorization(owner, parcels)
   }
 

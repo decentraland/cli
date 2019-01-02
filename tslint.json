@@ -1,11 +1,6 @@
 {
   "extends": ["dcl-tslint-config-standard"],
-  "rules": {
-    "quotemark": false,
-    "no-console": true,
-    "ban-types": [true, "Number", "Boolean", "String", "Object"]
-  },
   "linterOptions": {
-    "exclude": ["test/**/*.ts", "linker-app/build/**/*.ts"]
+    "exclude": ["test/**/*.ts"]
   }
 }
