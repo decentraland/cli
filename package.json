@@ -14,14 +14,13 @@
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "unlock:dev": "node ./scripts/unlockDevDeps.js",
     "release": "node ./scripts/npmPublish.js",
-    "precommit": "lint-staged",
-    "postinstall": "echo \"declare function arg<T extends arg.Spec>(spec: T, options?: { argv?: string[], permissive?: boolean }): arg.Result<T>;\n$(tail -n +2 node_modules/arg/index.d.ts)\" > node_modules/arg/index.d.ts"
+    "precommit": "lint-staged"
   },
   "lint-staged": {
     "linters": {
       "*.ts": [
         "tslint -c tslint.json",
-        "prettier --write",
+        "prettier --single-quote --no-semi --write",
         "git add"
       ]
     },
@@ -29,35 +28,19 @@
       "src/samples/**/*.ts"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/decentraland/cli.git"
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "printWidth": 140
-  },
+  "repository": "decentraland/cli",
   "keywords": [
     "decentraland",
-    "cli"
+    "cli",
+    "dcl",
+    "mana",
+    "land"
   ],
-  "author": "Decentraland",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/decentraland/cli/issues"
-  },
-  "homepage": "https://github.com/decentraland/cli#readme",
-  "bin": {
-    "dcl": "./bin/dcl"
-  },
-  "engines": {
-    "node": ">=8.0.0",
-    "npm": "<=5"
-  },
+  "homepage": "https://github.com/decentraland/cli",
   "dependencies": {
     "analytics-node": "^3.2.0",
-    "arg": "^3.0.0",
+    "arg": "^4.1.0",
     "body-parser": "^1.18.3",
     "chalk": "^2.3.1",
     "chokidar": "^2.0.3",

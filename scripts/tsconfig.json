@@ -4,8 +4,6 @@
     "target": "es2017",
     "diagnostics": true,
     "inlineSourceMap": false,
-    "inlineSources": false,
-    "declaration": true,
     "sourceMap": false,
     "moduleResolution": "node",
     "stripInternal": true,
@@ -15,8 +13,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noUnusedLocals": true,
-    "jsx": "react",
-    "jsxFactory": "h",
     "plugins": [
       {
         "name": "tslint-language-service"
