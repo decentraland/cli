@@ -22,10 +22,11 @@ export const getError = createSelector(
 
 export const isUpdateAuthorized = createSelector(
   getData,
-  ({ authorizations }) => {
+  authorizations => {
     if (!authorizations) {
       return
     }
+
     return authorizations.every((a: Authorization) => a.isUpdateAuthorized)
   }
 )

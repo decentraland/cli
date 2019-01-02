@@ -13,7 +13,11 @@ import {
   getError as getLandError
 } from '../../modules/land/selectors'
 import { getData as getSignature } from '../../modules/signature/selectors'
-import { isUpdateAuthorized } from '../../modules/authorization/selectors'
+import {
+  getData as getAuthorizations,
+  isUpdateAuthorized,
+  isLoading as isAuthorizationLoading
+} from '../../modules/authorization/selectors'
 import { signContentRequest } from '../../modules/signature/actions'
 import { RootState } from '../../types'
 import { LinkerPageProps } from './types'
@@ -30,7 +34,9 @@ const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps 
     isConnecting: isConnecting(state),
     error: getLandError(state),
     signed: !!getSignature(state),
-    isUpdateAuthorized: isUpdateAuthorized(state)
+    isUpdateAuthorized: isUpdateAuthorized(state),
+    authorizations: getAuthorizations(state),
+    isAuthorizationLoading: isAuthorizationLoading(state)
   }
 }
 

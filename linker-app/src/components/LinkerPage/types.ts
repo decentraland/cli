@@ -18,6 +18,7 @@ export type LinkerPageProps = {
   signed: boolean
   isUpdateAuthorized: boolean
   authorizations: Authorization[]
+  isAuthorizationLoading: boolean
   onConnectWallet: () => ConnectWalletRequestAction
   onSignContent: (cid: string) => SignContentRequestAction
 }

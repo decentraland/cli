@@ -5,7 +5,7 @@ import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 import { baseParcel, isDevelopment, rootCID } from '../../config'
 import Error from '../Error'
 import { LinkerPageProps } from './types'
-import { isUpdateAuthorized } from 'src/modules/authorization/selectors'
+import { coordsToString } from 'src/modules/land/utils'
 
 export default class LinkScenePage extends React.PureComponent<LinkerPageProps, any> {
   constructor(props) {
@@ -28,6 +28,14 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     return base.name ? `"${base.name}"` : `LAND without name`
   }
 
+  getFormattedUnauthorized() {
+    const { authorizations } = this.props
+    return authorizations
+      .filter(a => !a.isUpdateAuthorized)
+      .map(a => `"${coordsToString(a)}"`)
+      .join(', ')
+  }
+
   renderWalletData() {
     const {
       isConnected,
@@ -46,9 +54,9 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               <Address tooltip strong value={wallet.address} />
             </Blockie>
           </p>
-          {authorizations.length > 0 && !isUpdateAuthorized ? (
+          {authorizations && !isUpdateAuthorized ? (
             <Error>
-              Warning! Could not detect whether the wallet owns this LAND or has update permissions.
+              {`You don't have permissions to update The following LANDs that are part of the scene: ${this.getFormattedUnauthorized()}`}
             </Error>
           ) : null}
         </React.Fragment>
@@ -86,7 +94,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { error, isConnected } = this.props
+    const { error, isConnected, isUpdateAuthorized, isAuthorizationLoading } = this.props
     const { x, y } = baseParcel
     return (
       <div className='LinkScenePage'>
@@ -109,7 +117,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             <Button
               primary
               onClick={this.handleSignature}
-              disabled={!isConnected || !!error || !isUpdateAuthorized}
+              disabled={!isConnected || !!error || isAuthorizationLoading || !isUpdateAuthorized}
             >
               Sign and Deploy
             </Button>

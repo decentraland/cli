@@ -20,7 +20,7 @@ export type AuthorizationState = {
 }
 
 const INITIAL_STATE: AuthorizationState = {
-  data: {},
+  data: [],
   loading: [],
   error: null
 }

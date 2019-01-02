@@ -4,6 +4,8 @@ import { getAddress } from 'decentraland-dapps/dist/modules/wallet/selectors'
 
 import { LANDRegistry, EstateRegistry } from '../../contracts'
 import { parcels } from '../../config'
+import { Coords } from '../land/types'
+import { coordsToString } from '../land/utils'
 import {
   FETCH_AUTHORIZATIONS_REQUEST,
   FetchAuthorizationsRequestAction,
@@ -12,14 +14,13 @@ import {
   fetchAuthorizationsSuccess
 } from './actions'
 import { Authorization } from './types'
-import { Coords } from '../land/types'
 
 export function* authorizationSaga() {
+  yield takeEvery(CONNECT_WALLET_SUCCESS, handleConnectWalletSuccess)
   yield takeEvery(
     FETCH_AUTHORIZATIONS_REQUEST,
     handleFetchAuthorizationsRequest
   )
-  yield takeEvery(CONNECT_WALLET_SUCCESS, handleConnectWalletSuccess)
 }
 
 function* handleFetchAuthorizationsRequest(
@@ -27,7 +28,7 @@ function* handleFetchAuthorizationsRequest(
 ) {
   try {
     const address = yield select(getAddress)
-    const assetIds = new Map<Coords, string>()
+    const assetIds = new Map<string, string>()
 
     const pAuthorizations = []
     for (const parcel of parcels) {
@@ -37,7 +38,7 @@ function* handleFetchAuthorizationsRequest(
           .then(assetId => {
             LANDRegistry['isUpdateAuthorized'](address, assetId)
               .then(isUpdateAuthorized => {
-                assetIds.set(parcel, assetId)
+                assetIds.set(coordsToString(parcel), assetId)
                 resolve({ x, y, isUpdateAuthorized })
               })
               .catch(reject)
@@ -61,19 +62,18 @@ function* handleFetchAuthorizationsRequest(
 
     const pEstateAuthorizations = []
     for (const a of notAllowedAuthorizations) {
-      const { x, y } = a
-      const assetId = assetIds.get({ x, y })
+      const assetId = assetIds.get(coordsToString(a))
       const pAuthorization = new Promise((resolve, reject) => {
         EstateRegistry['getLandEstateId'](assetId)
           .then(estate => {
             if (estate && estate > 0) {
               return EstateRegistry['isUpdateAuthorized'](address, estate).then(
                 isUpdateAuthorized => {
-                  resolve(isUpdateAuthorized)
+                  resolve({ ...a, isUpdateAuthorized })
                 }
               )
             } else {
-              return resolve(false) // If no estate leave authorization in false
+              return resolve(a) // If no estate leave authorization in false
             }
           })
           .catch(reject)

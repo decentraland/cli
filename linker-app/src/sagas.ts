@@ -7,12 +7,12 @@ import { landSaga } from './modules/land/sagas'
 import { signatureSaga } from './modules/signature/sagas'
 import { authorizationSaga } from './modules/authorization/sagas'
 
-import { MANAToken, LANDRegistry } from './contracts'
+import { MANAToken, LANDRegistry, EstateRegistry } from './contracts'
 import { provider } from './config'
 
 const walletSaga = createWalletSaga({
   provider,
-  contracts: [MANAToken, LANDRegistry],
+  contracts: [MANAToken, LANDRegistry, EstateRegistry],
   eth
 })
 
