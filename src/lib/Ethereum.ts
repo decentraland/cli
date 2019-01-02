@@ -15,7 +15,7 @@ import { filterAndFillEmpty } from '../utils/land'
 
 const manaAbi = require('../../abi/MANAToken.json').abi
 const landAbi = require('../../abi/LANDRegistry.json').abi
-const estateAbi = require('../../abi/EstateRegistry.json')
+const estateAbi = require('../../abi/EstateRegistry.json').abi
 
 const provider = process.env.RPC_URL || getProvider()
 const providerInstance = new providers.HTTPProvider(provider)
