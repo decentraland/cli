@@ -4,7 +4,6 @@ import { getAddress } from 'decentraland-dapps/dist/modules/wallet/selectors'
 
 import { LANDRegistry, EstateRegistry } from '../../contracts'
 import { parcels } from '../../config'
-import { Coords } from '../land/types'
 import { coordsToString } from '../land/utils'
 import {
   FETCH_AUTHORIZATIONS_REQUEST,
