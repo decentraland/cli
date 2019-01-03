@@ -38,7 +38,8 @@ export async function main() {
   )
 
   const dcl = new Decentraland({
-    contentServerUrl: args['--host'] || 'https://content-service.decentraland.zone'
+    contentServerUrl:
+      args['--host'] || 'https://content-service.decentraland.zone'
   })
 
   const target = args._[1]

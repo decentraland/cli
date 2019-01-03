@@ -2,12 +2,13 @@ import { ConnectWalletRequestAction } from 'decentraland-dapps/dist/modules/wall
 import { BaseWallet } from 'decentraland-dapps/dist/modules/wallet/types'
 import { Transaction } from 'decentraland-dapps/dist/modules/transaction/types'
 
-import { LAND } from '../../modules/land/types'
+import { LANDMeta } from '../../modules/land/types'
 import { SignContentRequestAction } from '../../modules/signature/actions'
+import { Authorization } from '../../modules/authorization/types'
 
 export type LinkerPageProps = {
   sceneOwner: string
-  base: LAND
+  base: LANDMeta
   wallet: Partial<BaseWallet>
   transaction: Transaction
   isLandLoading: boolean
@@ -15,6 +16,9 @@ export type LinkerPageProps = {
   isConnecting: boolean
   error: string
   signed: boolean
+  isUpdateAuthorized: boolean
+  authorizations: Authorization[]
+  isAuthorizationLoading: boolean
   onConnectWallet: () => ConnectWalletRequestAction
   onSignContent: (cid: string) => SignContentRequestAction
 }

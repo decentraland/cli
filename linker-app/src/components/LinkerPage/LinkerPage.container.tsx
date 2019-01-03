@@ -1,10 +1,23 @@
 import { AnyAction, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { connectWalletRequest } from 'decentraland-dapps/dist/modules/wallet/actions'
-import { getData as getWallet, isConnected, isConnecting } from 'decentraland-dapps/dist/modules/wallet/selectors'
+import {
+  getData as getWallet,
+  isConnected,
+  isConnecting
+} from 'decentraland-dapps/dist/modules/wallet/selectors'
 
-import { isLoading as isLandLoading, getData as getLand, getError as getLandError } from '../../modules/land/selectors'
+import {
+  isLoading as isLandLoading,
+  getData as getLand,
+  getError as getLandError
+} from '../../modules/land/selectors'
 import { getData as getSignature } from '../../modules/signature/selectors'
+import {
+  getData as getAuthorizations,
+  isUpdateAuthorized,
+  isLoading as isAuthorizationLoading
+} from '../../modules/authorization/selectors'
 import { signContentRequest } from '../../modules/signature/actions'
 import { RootState } from '../../types'
 import { LinkerPageProps } from './types'
@@ -20,7 +33,10 @@ const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps 
     isConnected: isConnected(state),
     isConnecting: isConnecting(state),
     error: getLandError(state),
-    signed: !!getSignature(state)
+    signed: !!getSignature(state),
+    isUpdateAuthorized: isUpdateAuthorized(state),
+    authorizations: getAuthorizations(state),
+    isAuthorizationLoading: isAuthorizationLoading(state)
   }
 }
 

@@ -2,9 +2,10 @@ import * as React from 'react'
 import { Address, Blockie, Header, Button } from 'decentraland-ui'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
-import { baseParcel, isDevelopment, rootCID } from '../../modules/config'
+import { baseParcel, isDevelopment, rootCID } from '../../config'
 import Error from '../Error'
 import { LinkerPageProps } from './types'
+import { coordsToString } from 'src/modules/land/utils'
 
 export default class LinkScenePage extends React.PureComponent<LinkerPageProps, any> {
   constructor(props) {
@@ -27,8 +28,23 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     return base.name ? `"${base.name}"` : `LAND without name`
   }
 
+  getFormattedUnauthorized() {
+    const { authorizations } = this.props
+    return authorizations
+      .filter(a => !a.isUpdateAuthorized)
+      .map(a => `"${coordsToString(a)}"`)
+      .join(', ')
+  }
+
   renderWalletData() {
-    const { isConnected, wallet, base, isConnecting, onConnectWallet } = this.props
+    const {
+      isConnected,
+      wallet,
+      authorizations,
+      isUpdateAuthorized,
+      isConnecting,
+      onConnectWallet
+    } = this.props
     if (isConnected) {
       return (
         <React.Fragment>
@@ -38,8 +54,10 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
               <Address tooltip strong value={wallet.address} />
             </Blockie>
           </p>
-          {'isUpdateAuthorized' in base && !base.isUpdateAuthorized ? (
-            <Error>Warning! Could not detect whether the wallet owns this LAND or has update permissions.</Error>
+          {authorizations && !isUpdateAuthorized ? (
+            <Error>
+              {`You don't have permissions to update The following LANDs that are part of the scene: ${this.getFormattedUnauthorized()}`}
+            </Error>
           ) : null}
         </React.Fragment>
       )
@@ -76,16 +94,18 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { error, isConnected } = this.props
+    const { error, isConnected, isUpdateAuthorized, isAuthorizationLoading } = this.props
     const { x, y } = baseParcel
     return (
-      <div className="LinkScenePage">
+      <div className='LinkScenePage'>
         <Navbar />
         <Header>Update LAND data</Header>
         {this.renderWalletData()}
         <img
-          className="map"
-          src={`https://api.decentraland.${isDevelopment() ? 'zone' : 'org'}/v1/parcels/${x}/${y}/map.png`}
+          className='map'
+          src={`https://api.decentraland.${
+            isDevelopment() ? 'zone' : 'org'
+          }/v1/parcels/${x}/${y}/map.png`}
           alt={`Base parcel ${x},${y}`}
         />
         {this.renderLANDinfo()}
@@ -94,7 +114,11 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
         </p>
         <form>
           <div>
-            <Button primary onClick={this.handleSignature} disabled={!isConnected || !!error}>
+            <Button
+              primary
+              onClick={this.handleSignature}
+              disabled={!isConnected || !!error || isAuthorizationLoading || !isUpdateAuthorized}
+            >
               Sign and Deploy
             </Button>
           </div>

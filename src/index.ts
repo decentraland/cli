@@ -53,7 +53,13 @@ async function main() {
   }
 
   if (await isCLIOutdated()) {
-    console.log(warning(`You are running an outdated version of "${chalk.bold('dcl')}", run "${chalk.bold('npm i -g decentraland')}"`))
+    console.log(
+      warning(
+        `You are running an outdated version of "${chalk.bold(
+          'dcl'
+        )}", run "${chalk.bold('npm i -g decentraland')}"`
+      )
+    )
   }
 
   if (subcommand === 'version' || args['--version']) {
@@ -84,10 +90,26 @@ async function main() {
 
   if (!commands.has(subcommand)) {
     if (subcommand.startsWith('-')) {
-      console.error(error(`The "${chalk.bold(subcommand)}" option does not exist, run ${chalk.bold('"dcl help"')} for more info.`))
+      console.error(
+        error(
+          `The "${chalk.bold(
+            subcommand
+          )}" option does not exist, run ${chalk.bold(
+            '"dcl help"'
+          )} for more info.`
+        )
+      )
       process.exit(1)
     }
-    console.error(error(`The "${chalk.bold(subcommand)}" subcommand does not exist, run ${chalk.bold('"dcl help"')} for more info.`))
+    console.error(
+      error(
+        `The "${chalk.bold(
+          subcommand
+        )}" subcommand does not exist, run ${chalk.bold(
+          '"dcl help"'
+        )} for more info.`
+      )
+    )
     process.exit(1)
   }
 
@@ -97,7 +119,11 @@ async function main() {
     await finishPendingTracking()
   } catch (e) {
     console.error(
-      error(`\`${chalk.green(`dcl ${subcommand}`)}\` ${e.message}, run ${chalk.bold(`"dcl help ${subcommand}"`)} for more info.`)
+      error(
+        `\`${chalk.green(`dcl ${subcommand}`)}\` ${e.message}, run ${chalk.bold(
+          `"dcl help ${subcommand}"`
+        )} for more info.`
+      )
     )
     if (process.env.DEBUG) {
       console.log(e)

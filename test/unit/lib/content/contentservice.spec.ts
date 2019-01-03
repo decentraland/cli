@@ -35,10 +35,16 @@ describe('ContentService', () => {
   })
 
   it('should upload all new content', async () => {
-    checkContentStatus = ctx.stub(ContentClient.prototype, 'checkContentStatus').callsFake(() => buildStatusResponse(manifest, false))
-    uploadContent = ctx.stub(ContentClient.prototype, 'uploadContent').callsFake(() => ({ success: true, errorMessage: '' }))
+    checkContentStatus = ctx
+      .stub(ContentClient.prototype, 'checkContentStatus')
+      .callsFake(() => buildStatusResponse(manifest, false))
+    uploadContent = ctx
+      .stub(ContentClient.prototype, 'uploadContent')
+      .callsFake(() => ({ success: true, errorMessage: '' }))
 
-    const service: ContentService = await new ContentService(new ContentClient(fakeContentUrl))
+    const service: ContentService = await new ContentService(
+      new ContentClient(fakeContentUrl)
+    )
     const result = await service.uploadContent(rootCID, files, '', '', false)
 
     expect(result).to.be.true
@@ -46,10 +52,16 @@ describe('ContentService', () => {
   })
 
   it('should Not upload previously uploded content (except scene.json file)', async () => {
-    checkContentStatus = ctx.stub(ContentClient.prototype, 'checkContentStatus').callsFake(() => buildStatusResponse(manifest, true))
-    uploadContent = ctx.stub(ContentClient.prototype, 'uploadContent').callsFake(() => ({ success: true, errorMessage: '' }))
+    checkContentStatus = ctx
+      .stub(ContentClient.prototype, 'checkContentStatus')
+      .callsFake(() => buildStatusResponse(manifest, true))
+    uploadContent = ctx
+      .stub(ContentClient.prototype, 'uploadContent')
+      .callsFake(() => ({ success: true, errorMessage: '' }))
 
-    const service: ContentService = new ContentService(new ContentClient(fakeContentUrl))
+    const service: ContentService = new ContentService(
+      new ContentClient(fakeContentUrl)
+    )
     const result = await service.uploadContent(rootCID, files, '', '', false)
 
     expect(result).to.be.true
@@ -59,10 +71,16 @@ describe('ContentService', () => {
   })
 
   it('should upload all content in fullUpload mode', async () => {
-    checkContentStatus = ctx.stub(ContentClient.prototype, 'checkContentStatus').callsFake(() => buildStatusResponse(manifest, true))
-    uploadContent = ctx.stub(ContentClient.prototype, 'uploadContent').callsFake(() => ({ success: true, errorMessage: '' }))
+    checkContentStatus = ctx
+      .stub(ContentClient.prototype, 'checkContentStatus')
+      .callsFake(() => buildStatusResponse(manifest, true))
+    uploadContent = ctx
+      .stub(ContentClient.prototype, 'uploadContent')
+      .callsFake(() => ({ success: true, errorMessage: '' }))
 
-    const service: ContentService = new ContentService(new ContentClient(fakeContentUrl))
+    const service: ContentService = new ContentService(
+      new ContentClient(fakeContentUrl)
+    )
     const result = await service.uploadContent(rootCID, files, '', '', true)
 
     expect(result).to.be.true
@@ -74,14 +92,19 @@ describe('ContentService', () => {
       .stub(ContentClient.prototype, 'uploadContent')
       .callsFake(() => ({ success: false, errorMessage: 'Something failed' }))
 
-    const service: ContentService = new ContentService(new ContentClient(fakeContentUrl))
+    const service: ContentService = new ContentService(
+      new ContentClient(fakeContentUrl)
+    )
     const result = await service.uploadContent(rootCID, files, '', '', true)
 
     expect(result).to.be.false
   })
 })
 
-function buildStatusResponse(manifest: ContentIdentifier[], uploaded: boolean): any {
+function buildStatusResponse(
+  manifest: ContentIdentifier[],
+  uploaded: boolean
+): any {
   const statusResponse = {}
   manifest.forEach(content => {
     statusResponse[content.cid] = uploaded

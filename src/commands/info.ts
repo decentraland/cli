@@ -18,15 +18,21 @@ export const help = () => `
 
     ${chalk.dim('Examples:')}
 
-    - Get information from the ${chalk.bold('parcel')} located at ${chalk.bold('12, 45')}"
+    - Get information from the ${chalk.bold('parcel')} located at ${chalk.bold(
+  '12, 45'
+)}"
 
       ${chalk.green('$ dcl info -12,40')}
 
-    - Get information from the ${chalk.bold('estate')} with ID "${chalk.bold('5')}" directly from blockchain provider
+    - Get information from the ${chalk.bold('estate')} with ID "${chalk.bold(
+  '5'
+)}" directly from blockchain provider
 
       ${chalk.green('$ dcl info 5 --blockchain')}
 
-    - Get information from the ${chalk.bold('address 0x8bed95d830475691c10281f1fea2c0a0fe51304b')}"
+    - Get information from the ${chalk.bold(
+      'address 0x8bed95d830475691c10281f1fea2c0a0fe51304b'
+    )}"
 
       ${chalk.green('$ dcl info 0x8bed95d830475691c10281f1fea2c0a0fe51304b')}
 `
@@ -69,13 +75,17 @@ export async function main() {
 
   const dcl = new Decentraland({
     blockchain: args['--blockchain'],
-    contentServerUrl: args['--host'] || 'https://content-service.decentraland.zone'
+    contentServerUrl:
+      args['--host'] || 'https://content-service.decentraland.zone'
   })
 
   if (type === 'parcel') {
     const coords = getObject(target)
     Analytics.infoCmd({ type: 'coordinates', target: coords })
-    const [estate, data] = await Promise.all([dcl.getEstateOfParcel(coords), dcl.getParcelInfo(coords)])
+    const [estate, data] = await Promise.all([
+      dcl.getEstateOfParcel(coords),
+      dcl.getParcelInfo(coords)
+    ])
     const output = estate ? { ...data, estate } : data
     logParcel(output)
     return
@@ -93,10 +103,22 @@ export async function main() {
   const { parcels, estates } = await dcl.getAddressInfo(target)
 
   const formattedParcels = parcels.reduce((acc, parcel) => {
-    return { ...acc, [`${parcel.x},${parcel.y}`]: { name: parcel.name, description: parcel.description } }
+    return {
+      ...acc,
+      [`${parcel.x},${parcel.y}`]: {
+        name: parcel.name,
+        description: parcel.description
+      }
+    }
   }, {})
   const formattedEstates = estates.reduce((acc, estate) => {
-    return { ...acc, [`ID ${estate.id.toString()}`]: { name: estate.name, description: estate.description } }
+    return {
+      ...acc,
+      [`ID ${estate.id.toString()}`]: {
+        name: estate.name,
+        description: estate.description
+      }
+    }
   }, {})
 
   if (parcels.length === 0 && estates.length === 0) {

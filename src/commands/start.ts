@@ -4,7 +4,12 @@ import chalk from 'chalk'
 import opn = require('opn')
 
 import { Decentraland } from '../lib/Decentraland'
-import { buildTypescript, installDependencies, isOnline, getOutdatedApi } from '../utils/moduleHelpers'
+import {
+  buildTypescript,
+  installDependencies,
+  isOnline,
+  getOutdatedApi
+} from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { info, loading, error, formatOutdatedMessage } from '../utils/logging'
 import { ErrorType } from '../utils/errors'
@@ -70,7 +75,9 @@ export async function main() {
       await installDependencies(true)
       spinner.succeed()
     } else {
-      const e = new Error('Unable to install dependencies: no internet connection')
+      const e = new Error(
+        'Unable to install dependencies: no internet connection'
+      )
       e.name = ErrorType.PREVIEW_ERROR
       throw e
     }

@@ -80,9 +80,18 @@ describe('Decentraland.init()', () => {
       expect(sceneFile.main).to.equal('bin/game.js')
       await expectBasicDCLIgnore(dirPath)
 
-      expect(await fs.pathExists(path.resolve(dirPath, 'tsconfig.json')), 'expect tsconfig.json folder to exist').to.be.true
-      expect(await fs.pathExists(path.resolve(dirPath, 'src/game.ts')), 'expect src/game.ts folder to exist').to.be.true
-      expect(await fs.pathExists(path.resolve(dirPath, 'package.json')), 'expect package.json folder to exist').to.be.true
+      expect(
+        await fs.pathExists(path.resolve(dirPath, 'tsconfig.json')),
+        'expect tsconfig.json folder to exist'
+      ).to.be.true
+      expect(
+        await fs.pathExists(path.resolve(dirPath, 'src/game.ts')),
+        'expect src/game.ts folder to exist'
+      ).to.be.true
+      expect(
+        await fs.pathExists(path.resolve(dirPath, 'package.json')),
+        'expect package.json folder to exist'
+      ).to.be.true
 
       done()
     })

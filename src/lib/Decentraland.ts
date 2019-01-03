@@ -27,7 +27,10 @@ export type DecentralandArguments = {
   forceDeploy?: boolean
 }
 
-export type AddressInfo = { parcels: ({ x: number; y: number } & LANDData)[]; estates: ({ id: number } & LANDData)[] }
+export type AddressInfo = {
+  parcels: ({ x: number; y: number } & LANDData)[]
+  estates: ({ id: number } & LANDData)[]
+}
 
 export type Parcel = LANDData & {
   owner: string
@@ -48,6 +51,12 @@ export type FileInfo = {
   cid: string
 }
 
+export type LinkerResponse = {
+  address: string
+  signature: string
+  network: string
+}
+
 export class Decentraland extends EventEmitter {
   project: Project
   ethereum: Ethereum
@@ -64,7 +73,9 @@ export class Decentraland extends EventEmitter {
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.ethereum
-    this.contentService = new ContentService(new ContentClient(args.contentServerUrl))
+    this.contentService = new ContentService(
+      new ContentClient(args.contentServerUrl)
+    )
     this.forceDeploy = args.forceDeploy || false
 
     if (!this.options.blockchain) {
@@ -80,7 +91,11 @@ export class Decentraland extends EventEmitter {
     events(this.contentService, 'upload:*', this.pipeEvents.bind(this))
   }
 
-  async init(sceneMeta: SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
+  async init(
+    sceneMeta: SceneMetadata,
+    boilerplateType: BoilerplateType,
+    websocketServer?: string
+  ) {
     await this.project.writeDclIgnore()
     await this.project.writeSceneFile(sceneMeta)
     await this.project.scaffoldProject(boilerplateType, websocketServer)
@@ -88,12 +103,17 @@ export class Decentraland extends EventEmitter {
 
   async deploy(files: IFile[]) {
     await this.project.validateSceneOptions()
-    await this.validateOwnership()
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
     try {
       const { signature, address } = await this.getAddressAndSignature(rootCID)
-      const uploadResult = await this.contentService.uploadContent(rootCID, files, signature, address, this.forceDeploy)
+      const uploadResult = await this.contentService.uploadContent(
+        rootCID,
+        files,
+        signature,
+        address,
+        this.forceDeploy
+      )
       if (!uploadResult) {
         fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')
       }
@@ -102,24 +122,35 @@ export class Decentraland extends EventEmitter {
     }
   }
 
-  async link(rootCID: string): Promise<string> {
+  async link(rootCID: string): Promise<LinkerResponse> {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
 
-    return new Promise<string>(async (resolve, reject) => {
+    return new Promise<LinkerResponse>(async (resolve, reject) => {
       const manaContract = await Ethereum.getContractAddress('MANAToken')
       const landContract = await Ethereum.getContractAddress('LANDProxy')
+      const estateContract = await Ethereum.getContractAddress('EstateProxy')
 
-      const linker = new LinkerAPI(this.project, manaContract, landContract)
+      const linker = new LinkerAPI(
+        this.project,
+        manaContract,
+        landContract,
+        estateContract
+      )
 
       events(linker, '*', this.pipeEvents.bind(this))
 
       linker.on('link:success', async (message: string) => {
-        resolve(message)
+        const response = JSON.parse(message) as LinkerResponse
+        resolve(response)
       })
 
       try {
-        await linker.link(this.options.linkerPort, this.options.isHttps, rootCID)
+        await linker.link(
+          this.options.linkerPort,
+          this.options.isHttps,
+          rootCID
+        )
       } catch (e) {
         reject(e)
       }
@@ -129,7 +160,10 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
-    const preview = new Preview(await this.project.getDCLIgnore(), this.getWatch())
+    const preview = new Preview(
+      await this.project.getDCLIgnore(),
+      this.getWatch()
+    )
 
     events(preview, '*', this.pipeEvents.bind(this))
 
@@ -137,10 +171,17 @@ export class Decentraland extends EventEmitter {
   }
 
   async getAddressInfo(address: string): Promise<AddressInfo> {
-    const [coords, estateIds] = await Promise.all([this.provider.getLandOf(address), this.provider.getEstatesOf(address)])
+    const [coords, estateIds] = await Promise.all([
+      this.provider.getLandOf(address),
+      this.provider.getEstatesOf(address)
+    ])
 
-    const pRequests = Promise.all(coords.map(coord => this.provider.getLandData(coord)))
-    const eRequests = Promise.all(estateIds.map(estateId => this.provider.getEstateData(estateId)))
+    const pRequests = Promise.all(
+      coords.map(coord => this.provider.getLandData(coord))
+    )
+    const eRequests = Promise.all(
+      estateIds.map(estateId => this.provider.getEstateData(estateId))
+    )
 
     const [pData, eData] = await Promise.all([pRequests, eRequests])
 
@@ -202,8 +243,14 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  async getParcelStatus(x: number, y: number): Promise<{ cid?: string; files: FileInfo[] }> {
-    const information = await this.contentService.getParcelStatus({ x: x, y: y })
+  async getParcelStatus(
+    x: number,
+    y: number
+  ): Promise<{ cid?: string; files: FileInfo[] }> {
+    const information = await this.contentService.getParcelStatus({
+      x: x,
+      y: y
+    })
     if (information) {
       const files: FileInfo[] = []
       for (const key in information.contents) {
@@ -218,24 +265,31 @@ export class Decentraland extends EventEmitter {
     return this.wallet.getAddress()
   }
 
-  private async getAddressAndSignature(rootCID): Promise<{ signature: string; address: string }> {
+  async validateOwnership() {
+    const pOwner = this.wallet
+      ? this.wallet.getAddress()
+      : this.project.getOwner()
+    const [parcels, owner] = await Promise.all([
+      this.project.getParcels(),
+      pOwner
+    ])
+    return this.ethereum.validateAuthorization(owner, parcels)
+  }
+
+  private async getAddressAndSignature(rootCID): Promise<LinkerResponse> {
     if (this.wallet) {
-      const [signature, address] = await Promise.all([this.wallet.signMessage(rootCID), this.wallet.getAddress()])
-      return { signature, address }
+      const [signature, address] = await Promise.all([
+        this.wallet.signMessage(rootCID),
+        this.wallet.getAddress()
+      ])
+      return { signature, address, network: 'mainnet' }
     }
 
-    const message = await this.link(rootCID)
-    return JSON.parse(message)
+    return this.link(rootCID)
   }
 
   private pipeEvents(event: string, ...args: any[]) {
     this.emit(event, ...args)
-  }
-
-  private async validateOwnership() {
-    const pOwner = this.wallet ? this.wallet.getAddress() : this.project.getOwner()
-    const [parcels, owner] = await Promise.all([this.project.getParcels(), pOwner])
-    return this.ethereum.validateAuthorization(owner, parcels)
   }
 
   private createWallet(privateKey: string): void {

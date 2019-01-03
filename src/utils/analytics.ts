@@ -4,7 +4,11 @@ import AnalyticsNode = require('analytics-node')
 
 import { isDev } from './env'
 import { getDCLInfo, writeDCLInfo } from './dclinfo'
-import { isOnline, getInstalledCLIVersion, getInstalledVersion } from './moduleHelpers'
+import {
+  isOnline,
+  getInstalledCLIVersion,
+  getInstalledVersion
+} from './moduleHelpers'
 
 // Setup segment.io
 const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
@@ -14,18 +18,30 @@ export const analytics = new AnalyticsNode(WRITE_KEY)
 const ANONYMOUS_DATA_QUESTION = 'Send Anonymous data'
 
 export namespace Analytics {
-  export const sceneCreated = (properties?: any) => trackAsync('Scene created', properties)
-  export const preview = (properties?: any) => trackAsync('Preview started', properties)
-  export const sceneDeploy = (properties?: any) => trackAsync('Scene deploy started', properties)
-  export const sceneDeploySuccess = (properties?: any) => trackAsync('Scene deploy success', properties)
-  export const sceneLink = (properties?: any) => trackAsync('Scene ethereum link started', properties)
-  export const sceneLinkSuccess = (properties?: any) => trackAsync('Scene ethereum link succeeded', properties)
-  export const deploy = (properties?: any) => trackAsync('Scene deploy requested', properties)
-  export const pinRequest = (properties?: any) => trackAsync('Pin requested', properties)
-  export const pinSuccess = (properties?: any) => trackAsync('Pin success', properties)
-  export const infoCmd = (properties?: any) => trackAsync('Info command', properties)
-  export const statusCmd = (properties?: any) => trackAsync('Status command', properties)
-  export const sendData = (shareData: boolean) => trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
+  export const sceneCreated = (properties?: any) =>
+    trackAsync('Scene created', properties)
+  export const preview = (properties?: any) =>
+    trackAsync('Preview started', properties)
+  export const sceneDeploy = (properties?: any) =>
+    trackAsync('Scene deploy started', properties)
+  export const sceneDeploySuccess = (properties?: any) =>
+    trackAsync('Scene deploy success', properties)
+  export const sceneLink = (properties?: any) =>
+    trackAsync('Scene ethereum link started', properties)
+  export const sceneLinkSuccess = (properties?: any) =>
+    trackAsync('Scene ethereum link succeeded', properties)
+  export const deploy = (properties?: any) =>
+    trackAsync('Scene deploy requested', properties)
+  export const pinRequest = (properties?: any) =>
+    trackAsync('Pin requested', properties)
+  export const pinSuccess = (properties?: any) =>
+    trackAsync('Pin success', properties)
+  export const infoCmd = (properties?: any) =>
+    trackAsync('Info command', properties)
+  export const statusCmd = (properties?: any) =>
+    trackAsync('Status command', properties)
+  export const sendData = (shareData: boolean) =>
+    trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
 
   export async function identify(devId: string) {
     analytics.identify({
@@ -38,7 +54,11 @@ export namespace Analytics {
     })
   }
 
-  export async function reportError(type: string, message: string, stackTrace: string) {
+  export async function reportError(
+    type: string,
+    message: string,
+    stackTrace: string
+  ) {
     return track('Error', {
       errorType: type,
       message,

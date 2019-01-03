@@ -30,11 +30,12 @@ function* handleSignContentRequest(action: SignContentRequestAction) {
 
 function* handleSignContentSuccess(action: SignContentSuccessAction) {
   const address = eth.wallet.getAccount()
+  const { label: network } = yield call(() => eth.getNetwork())
   const { signature } = action.payload
 
   try {
     yield call(() => {
-      closeServer(true, JSON.stringify({ signature, address }))
+      closeServer(true, { signature, address, network })
     })
   } catch (error) {
     yield put(signContentFailure(error.message))

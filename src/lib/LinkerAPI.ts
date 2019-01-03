@@ -21,12 +21,19 @@ export class LinkerAPI extends EventEmitter {
   private app = express()
   private landContract: string
   private manaContract: string
+  private estateContract: string
 
-  constructor(project: Project, manaTokenContract: string, landRegistryContract: string) {
+  constructor(
+    project: Project,
+    manaTokenContract: string,
+    landRegistryContract: string,
+    estateRegistryContract: string
+  ) {
     super()
     this.project = project
     this.manaContract = manaTokenContract
     this.landContract = landRegistryContract
+    this.estateContract = estateRegistryContract
   }
 
   link(port: number, isHttps: boolean, rootCID: string) {
@@ -41,7 +48,9 @@ export class LinkerAPI extends EventEmitter {
         }
       }
 
-      const url = `${isHttps ? 'https' : 'http'}://localhost:${resolvedPort}/linker`
+      const url = `${
+        isHttps ? 'https' : 'http'
+      }://localhost:${resolvedPort}/linker`
 
       this.setRoutes(rootCID)
 
@@ -52,19 +61,31 @@ export class LinkerAPI extends EventEmitter {
       const serverHandler = () => this.emit('link:ready', url)
       const eventHandler = () => (e: any) => {
         if (e.errno === 'EADDRINUSE') {
-          reject(new Error(`Port ${resolvedPort} is already in use by another process`))
+          reject(
+            new Error(
+              `Port ${resolvedPort} is already in use by another process`
+            )
+          )
         } else {
           reject(new Error(`Failed to start Linker App: ${e.message}`))
         }
       }
 
       if (isHttps) {
-        const privateKey = await fs.readFile(path.resolve(__dirname, '../certs/localhost.key'), 'utf-8')
-        const certificate = await fs.readFile(path.resolve(__dirname, '../certs/localhost.crt'), 'utf-8')
+        const privateKey = await fs.readFile(
+          path.resolve(__dirname, '../certs/localhost.key'),
+          'utf-8'
+        )
+        const certificate = await fs.readFile(
+          path.resolve(__dirname, '../certs/localhost.crt'),
+          'utf-8'
+        )
         const credentials = { key: privateKey, cert: certificate }
 
         const httpsServer = https.createServer(credentials, this.app)
-        httpsServer.listen(resolvedPort, serverHandler).on('error', eventHandler)
+        httpsServer
+          .listen(resolvedPort, serverHandler)
+          .on('error', eventHandler)
       } else {
         this.app.listen(resolvedPort, serverHandler).on('error', eventHandler)
       }
@@ -73,7 +94,9 @@ export class LinkerAPI extends EventEmitter {
 
   private setRoutes(rootCID: string) {
     this.app.get('/linker.js', (req, res) => {
-      res.sendFile(path.resolve(__dirname, '../../linker-app/build/src/index.js'))
+      res.sendFile(
+        path.resolve(__dirname, '../../linker-app/build/src/index.js')
+      )
     })
 
     this.app.get('/linker', async (req, res) => {
@@ -81,7 +104,6 @@ export class LinkerAPI extends EventEmitter {
 
       const baseParcel = await this.project.getParcelCoordinates()
       const parcels = await this.project.getParcels()
-      const owner = await this.project.getOwner()
 
       res.write(`
         <head>
@@ -92,9 +114,16 @@ export class LinkerAPI extends EventEmitter {
         </head>
         <body>
           <div id="main">
-            <script src="linker.js" env=${process.env.DCL_ENV} mana-contract=${this.manaContract} land-contract=${this.landContract}
-              base-parcel=${JSON.stringify(baseParcel)} parcels=${JSON.stringify(parcels)}
-              owner=${owner} provider=${getProvider()} root-cid=${rootCID}></script>
+            <script src="linker.js"
+              env=${process.env.DCL_ENV}
+              mana-contract=${this.manaContract}
+              land-contract=${this.landContract}
+              estate-contract=${this.estateContract}
+              base-parcel=${JSON.stringify(baseParcel)}
+              parcels=${JSON.stringify(parcels)}
+              provider=${getProvider()}
+              root-cid=${rootCID}>
+            </script>
           </div>
         </body>
       `)
@@ -103,12 +132,18 @@ export class LinkerAPI extends EventEmitter {
     })
 
     this.app.get('/css/styles.css', (req, res) => {
-      const filePath = path.resolve(__dirname, '../css/decentraland-ui-styles.css')
+      const filePath = path.resolve(
+        __dirname,
+        '../css/decentraland-ui-styles.css'
+      )
       res.sendFile(filePath)
     })
 
     this.app.get('/css/dark-theme.css', (req, res) => {
-      const filePath = path.resolve(__dirname, '../css/decentraland-ui-dark-theme.css')
+      const filePath = path.resolve(
+        __dirname,
+        '../css/decentraland-ui-dark-theme.css'
+      )
       res.sendFile(filePath)
     })
 

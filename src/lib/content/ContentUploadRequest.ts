@@ -22,7 +22,12 @@ export class ContentUploadRequest {
   manifest: ContentIdentifier[]
   metadata: RequestMetadata
 
-  constructor(_rootCid: string, _files: IFile[], _manifest: ContentIdentifier[], _metadata: RequestMetadata) {
+  constructor(
+    _rootCid: string,
+    _files: IFile[],
+    _manifest: ContentIdentifier[],
+    _metadata: RequestMetadata
+  ) {
     this.rootCid = _rootCid
     this.files = _files
     this.manifest = _manifest

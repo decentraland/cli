@@ -48,7 +48,8 @@ export async function main() {
 
   const dcl = new Decentraland({
     isHttps: args['--https'],
-    contentServerUrl: args['--host'] || 'https://content-service.decentraland.zone',
+    contentServerUrl:
+      args['--host'] || 'https://content-service.decentraland.zone',
     workingDir: args._[2],
     forceDeploy: !args['--partial']
   })
@@ -57,7 +58,9 @@ export async function main() {
 
   dcl.on('link:ready', url => {
     Analytics.sceneLink()
-    console.log(chalk.bold('You need to sign the content before the deployment:'))
+    console.log(
+      chalk.bold('You need to sign the content before the deployment:')
+    )
     const linkerMsg = loading(`Signing app ready at ${url}`)
 
     setTimeout(() => {
@@ -93,11 +96,15 @@ export async function main() {
   }
 
   if (args['--https']) {
-    console.log(warning(`Using self signed certificate to support ledger wallet`))
+    console.log(
+      warning(`Using self signed certificate to support ledger wallet`)
+    )
   }
 
   if (ignoreFile === null) {
-    console.log(warning(`As of version 1.1.0 all deployments require a .dclignore file`))
+    console.log(
+      warning(`As of version 1.1.0 all deployments require a .dclignore file`)
+    )
     info(`Generating .dclignore file with default values`)
     ignoreFile = await dcl.project.writeDclIgnore()
   }
@@ -114,7 +121,10 @@ export async function main() {
   }, 0)
 
   if (files.length > MAX_FILE_COUNT) {
-    fail(ErrorType.DEPLOY_ERROR, `You cannot upload more than ${MAX_FILE_COUNT} files per scene.`)
+    fail(
+      ErrorType.DEPLOY_ERROR,
+      `You cannot upload more than ${MAX_FILE_COUNT} files per scene.`
+    )
   }
 
   console.log('') // new line to keep things clean
@@ -124,7 +134,9 @@ export async function main() {
       type: 'confirm',
       name: 'continue',
       default: true,
-      message: `You are about to upload ${files.length} files (${totalSize} bytes). Do you want to continue?`
+      message: `You are about to upload ${
+        files.length
+      } files (${totalSize} bytes). Do you want to continue?`
     })
 
     if (!results.continue) {

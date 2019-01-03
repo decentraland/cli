@@ -2,7 +2,11 @@ import { expect } from 'chai'
 
 import { CIDUtils } from '../../../../src/lib/content/CIDUtils'
 import { Project, IFile } from '../../../../src/lib/Project'
-import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from '../../../../src/lib/content/ContentUploadRequest'
+import {
+  ContentUploadRequest,
+  RequestMetadata,
+  ContentIdentifier
+} from '../../../../src/lib/content/ContentUploadRequest'
 import { string } from 'prop-types'
 
 const dataFolderPath = 'test/unit/resources/data'
@@ -14,10 +18,17 @@ describe('ContentUploadRequest', () => {
     const project: Project = new Project(dataFolderPath)
     const files: IFile[] = await project.getFiles()
     const rootCID: string = await CIDUtils.getFilesComposedCID(files)
-    const manifest: ContentIdentifier[] = await CIDUtils.getIdentifiersForIndividualFile(files)
+    const manifest: ContentIdentifier[] = await CIDUtils.getIdentifiersForIndividualFile(
+      files
+    )
     const metadata: RequestMetadata = buildMetadata(rootCID)
 
-    const uploadRequest: ContentUploadRequest = new ContentUploadRequest(rootCID, files, manifest, metadata)
+    const uploadRequest: ContentUploadRequest = new ContentUploadRequest(
+      rootCID,
+      files,
+      manifest,
+      metadata
+    )
 
     const form = exctractContent(uploadRequest.requestContent())
     expect(form.get('metadata')).to.be.equals(JSON.stringify(metadata))
@@ -30,7 +41,14 @@ describe('ContentUploadRequest', () => {
 })
 
 function buildMetadata(rootCID: string): RequestMetadata {
-  return { value: rootCID, signature: '', pubKey: '', validityType: 1, validity: new Date(), sequence: 1 }
+  return {
+    value: rootCID,
+    signature: '',
+    pubKey: '',
+    validityType: 1,
+    validity: new Date(),
+    sequence: 1
+  }
 }
 
 function exctractContent(f): Map<string, string> {
