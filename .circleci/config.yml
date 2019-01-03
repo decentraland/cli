@@ -1,43 +1,86 @@
 version: 2
 jobs:
-  build:
+  install:
+    install:
     docker:
-      - image: circleci/node:8-browsers
+      - image: circleci/node:10
+    working_directory: ~/repo
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run: npm install
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Installing Dependencies
+          command: npm install
       - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - node_modules
-      - run: npm run build
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+
+  build:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/repo
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Compiling Binaries
+          command: npm run build
+
+
   test:
     docker:
-      - image: circleci/node:8-browsers
+      - image: circleci/node:10
+    working_directory: ~/repo
     steps:
       - checkout
-      - run: npm test
+      - attach_workspace:
+          at: .
+      - run:
+          name: Running Tests
+          command: npm test
+
   release:
     docker:
-      - image: circleci/node:8-browsers
+      - image: circleci/node:10
+    working_directory: ~/repo
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run: npm run unlock:dev
       - run: npm shrinkwrap
       - run: npm run release
-workflows:
-  version: 2
-  build-test-release:
+
     jobs:
-      - build
+      - install:
+          filters:
+            tags:
+              only: /.*/
+      - build:
+          requires:
+            - install
+          filters:
+            tags:
+              only: /.*/
       - test:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
       - release:
           requires:
             - test
           filters:
             tags:
               only: /.*/
+Terms
