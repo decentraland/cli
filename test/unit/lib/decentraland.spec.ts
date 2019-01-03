@@ -37,21 +37,41 @@ describe('Decentraland', () => {
 
   const addFilesResult = beforeEach(() => {
     // Ethereum stubs
-    validateAuthorizationStub = ctx.stub(Ethereum.prototype, 'validateAuthorization').callsFake(() => undefined)
+    validateAuthorizationStub = ctx
+      .stub(Ethereum.prototype, 'validateAuthorization')
+      .callsFake(() => undefined)
 
     // Project stubs
-    ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
-    validateSceneOptionsStub = ctx.stub(Project.prototype, 'validateSceneOptions').callsFake(() => undefined)
-    ctx.stub(Project.prototype, 'getParcelCoordinates').callsFake(() => ({ x: 0, y: 0 }))
-    getOwnerStub = ctx.stub(Project.prototype, 'getOwner').callsFake(() => address)
-    getParcelsStub = ctx.stub(Project.prototype, 'getParcels').callsFake(() => ({ x: 0, y: 0 }))
-    getFilesStub = ctx.stub(Project.prototype, 'getFiles').callsFake(() => [{ path: '/tmp/myFile.txt', content: null }])
+    ctx
+      .stub(Project.prototype, 'validateExistingProject')
+      .callsFake(() => undefined)
+    validateSceneOptionsStub = ctx
+      .stub(Project.prototype, 'validateSceneOptions')
+      .callsFake(() => undefined)
+    ctx
+      .stub(Project.prototype, 'getParcelCoordinates')
+      .callsFake(() => ({ x: 0, y: 0 }))
+    getOwnerStub = ctx
+      .stub(Project.prototype, 'getOwner')
+      .callsFake(() => address)
+    getParcelsStub = ctx
+      .stub(Project.prototype, 'getParcels')
+      .callsFake(() => ({ x: 0, y: 0 }))
+    getFilesStub = ctx
+      .stub(Project.prototype, 'getFiles')
+      .callsFake(() => [{ path: '/tmp/myFile.txt', content: null }])
 
     // ContentServicestubs
-    uploadContentStub = ctx.stub(ContentService.prototype, 'uploadContent').callsFake(() => true)
+    uploadContentStub = ctx
+      .stub(ContentService.prototype, 'uploadContent')
+      .callsFake(() => true)
 
     // Decentraland stubs
-    linkStub = ctx.stub(Decentraland.prototype, 'link').callsFake(() => `{"signature":"${projectSignature}","address":"${address}"}`)
+    linkStub = ctx
+      .stub(Decentraland.prototype, 'link')
+      .callsFake(
+        () => `{"signature":"${projectSignature}","address":"${address}"}`
+      )
     // Utils stub
     var stub = ctx.stub(ProjectUtils, 'getRootPath').callsFake(() => '.')
   })
@@ -67,12 +87,16 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(validateAuthorizationStub.called, 'expect Ethereum.validateAuthorization() to be called').to.be.true
-      expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
-      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called').to.be.true
-      expect(getOwnerStub.called, 'expect Project.getOwner() to be called').to.be.true
-      expect(getParcelsStub.called, 'expect Project.getParcels() to be called').to.be.true
-      expect(linkStub.calledBefore(uploadContentStub), 'expect Decentraland.link() to be called').to.be.true
+      expect(getFilesStub.called, 'expect Project.getFiles() to be called').to
+        .be.true
+      expect(
+        validateSceneOptionsStub.called,
+        'expect Project.validateParcelOptions() to be called'
+      ).to.be.true
+      expect(
+        linkStub.calledBefore(uploadContentStub),
+        'expect Decentraland.link() to be called'
+      ).to.be.true
       expect(uploadContentStub.called).to.be.true
     })
   })
