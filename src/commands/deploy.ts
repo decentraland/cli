@@ -16,7 +16,7 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help          Displays complete help
-      -c, --host  [host]  Set content server (default is https://content-service.decentraland.zone)
+      -c, --host  [host]  Set content server (default is https://content.decentraland.today)
       -s, --skip          Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
       -p, --partial       Deploy only new changed files
@@ -49,7 +49,7 @@ export async function main() {
   const dcl = new Decentraland({
     isHttps: args['--https'],
     contentServerUrl:
-      args['--host'] || 'https://content-service.decentraland.zone',
+      args['--host'] || 'https://content.decentraland.today',
     workingDir: args._[2],
     forceDeploy: !args['--partial']
   })
