@@ -12,7 +12,7 @@ import {
   getData as getLand,
   getError as getLandError
 } from '../../modules/land/selectors'
-import { getData as getSignature } from '../../modules/signature/selectors'
+import { getData as getSignature, isSigned } from '../../modules/signature/selectors'
 import {
   getData as getAuthorizations,
   isUpdateAuthorized,
@@ -33,7 +33,8 @@ const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps 
     isConnected: isConnected(state),
     isConnecting: isConnecting(state),
     error: getLandError(state),
-    signed: !!getSignature(state),
+    signature: getSignature(state),
+    signed: isSigned(state),
     isUpdateAuthorized: isUpdateAuthorized(state),
     authorizations: getAuthorizations(state),
     isAuthorizationLoading: isAuthorizationLoading(state)

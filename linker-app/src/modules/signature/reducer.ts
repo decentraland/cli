@@ -1,5 +1,8 @@
 import { Reducer } from 'redux'
-import { loadingReducer, LoadingState } from 'decentraland-dapps/dist/modules/loading/reducer'
+import {
+  loadingReducer,
+  LoadingState
+} from 'decentraland-dapps/dist/modules/loading/reducer'
 
 import {
   SignContentRequestAction,
@@ -10,17 +13,29 @@ import {
   SIGN_CONTENT_FAILURE
 } from './actions'
 
-export type SignatureState = { data: any; loading: LoadingState; error: string | null }
+export type SignatureState = {
+  data: any
+  signed: boolean
+  loading: LoadingState
+  error: string | null
+}
 
 const INITIAL_STATE: SignatureState = {
   data: {},
+  signed: false,
   loading: [],
   error: null
 }
 
-export type SignatureReducerAction = SignContentRequestAction | SignContentSuccessAction | SignContentFailureAction
+export type SignatureReducerAction =
+  | SignContentRequestAction
+  | SignContentSuccessAction
+  | SignContentFailureAction
 
-export const signatureReducer: Reducer<SignatureState> = (state = INITIAL_STATE, action: SignatureReducerAction): SignatureState => {
+export const signatureReducer: Reducer<SignatureState> = (
+  state = INITIAL_STATE,
+  action: SignatureReducerAction
+): SignatureState => {
   switch (action.type) {
     case SIGN_CONTENT_REQUEST:
       return {
@@ -31,6 +46,7 @@ export const signatureReducer: Reducer<SignatureState> = (state = INITIAL_STATE,
       return {
         loading: loadingReducer(state.loading, action),
         data: action.payload.signature,
+        signed: true,
         error: null
       }
     case SIGN_CONTENT_FAILURE:
