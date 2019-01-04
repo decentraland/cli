@@ -3,6 +3,9 @@
   "version": "1.4.0",
   "description": "CLI tool for parcel management.",
   "main": "./dist/index.js",
+  "bin": {
+    "dcl": "./dist/index.js"
+  },
   "scripts": {
     "start": "npm run watch",
     "watch": "decentraland-compiler build.json --watch",
