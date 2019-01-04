@@ -1,9 +1,9 @@
-import { fail } from 'assert'
-
-import { ContentUploadRequest } from './ContentUploadRequest'
-import { Coords } from '../../utils/coordinateHelpers'
-
 import * as fetch from 'isomorphic-fetch'
+
+import { Coords } from '../../utils/coordinateHelpers'
+import { fail, ErrorType } from '../../utils/errors'
+import * as log from '../../utils/logging'
+import { ContentUploadRequest } from './ContentUploadRequest'
 
 export type ParcelInformation = {
   parcel_id: string
@@ -46,12 +46,13 @@ export class ContentClient {
       })
 
       if (response.status !== 200) {
+        log.debug(response.body)
         const msg = await response.json()
         return { success: false, errorMessage: msg.error }
       }
       return { success: true, errorMessage: '' }
     } catch (error) {
-      fail(error)
+      fail(ErrorType.CONTENT_SERVER_ERROR, error.message)
     }
   }
 
@@ -78,7 +79,7 @@ export class ContentClient {
       const content = await response.json()
       return { ok: true, data: content == null ? [] : content }
     } catch (error) {
-      fail(error)
+      fail(ErrorType.CONTENT_SERVER_ERROR, error.message)
     }
   }
 
@@ -88,14 +89,16 @@ export class ContentClient {
    */
   async getContent(cid: string): Promise<any> {
     try {
-      const response = await fetch(`${this.contentServerUrl}/contents/${cid}`)
+      const url = `${this.contentServerUrl}/contents/${cid}`
+      log.debug(url)
+      const response = await fetch(url)
       if (response.status >= 400) {
         const msg = await response.json()
         throw new Error(`Bad response from server: ${msg.error}`)
       }
       return await response.json()
     } catch (error) {
-      fail(error)
+      fail(ErrorType.CONTENT_SERVER_ERROR, error.message)
     }
   }
 
@@ -114,7 +117,7 @@ export class ContentClient {
       }
       return await response.json()
     } catch (error) {
-      fail(error)
+      fail(ErrorType.CONTENT_SERVER_ERROR, error.message)
     }
   }
 }
