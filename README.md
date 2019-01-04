@@ -71,3 +71,7 @@ dcl status 0,0
 `dcl` command should now be available.
 
 For CLI tool development, run `npm run watch` in your terminal (you''ll first need to run the build process at least once) and `npm link` in order to use it anywhere. The CLI will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can define the `LAND_REGISTRY_CONTRACT_ADDRESS` environment variable. You can also use `DCL_ENV=dev` to point to the Ropsten contract. Contract addresses are available [here](https://contracts.decentraland.org/addresses.json).
+
+
+## Copyright info
+This repository is protected with a standard Apache 2 licence. See the terms and conditions in the [LICENCE](https://github.com/decentraland/cli/blob/master/LICENSE) file.
