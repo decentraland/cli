@@ -5,6 +5,11 @@
   "bin": {
     "dcl": "bin/dcl"
   },
+  "files": [
+    "bin",
+    "dist",
+    "abi"
+  ],
   "scripts": {
     "start": "npm run watch",
     "watch": "npm run cli:watch",
