@@ -94,9 +94,7 @@ export class LinkerAPI extends EventEmitter {
 
   private setRoutes(rootCID: string) {
     this.app.get('/linker.js', (req, res) => {
-      res.sendFile(
-        path.resolve(__dirname, '../../linker-app/build/src/index.js')
-      )
+      res.sendFile(path.resolve(__dirname, './linker-app/src/index.js'))
     })
 
     this.app.get('/linker', async (req, res) => {
