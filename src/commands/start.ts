@@ -53,7 +53,7 @@ export async function main() {
 
   const isCi = args['--ci'] || isEnvCi()
 
-  const shouldWatchFiles = args['--no-watch'] && !isCi
+  const shouldWatchFiles = !args['--no-watch'] && !isCi
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),

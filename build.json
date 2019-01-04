@@ -1,11 +1,5 @@
 [
   {
-    "name": "Compile CLI",
-    "kind": "TSC",
-    "config": "./tsconfig.json",
-    "target": "node"
-  },
-  {
     "name": "Compile build scripts",
     "kind": "TSC",
     "config": "./scripts/tsconfig.json",
