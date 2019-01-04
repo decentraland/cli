@@ -13,7 +13,7 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
-      -c, --host        [host]  Set content server (default is https://content-service.decentraland.zone)
+      -c, --host        [host]  Set content server (default is https://content.decentraland.today)
 
     ${chalk.dim('Examples:')}
 
@@ -39,7 +39,7 @@ export async function main() {
 
   const dcl = new Decentraland({
     contentServerUrl:
-      args['--host'] || 'https://content-service.decentraland.zone'
+      args['--host'] || 'https://content.decentraland.today'
   })
 
   const target = args._[1]
