@@ -3,7 +3,7 @@
     "module": "commonjs",
     "target": "es2015",
     "diagnostics": true,
-    "outDir": "build",
+    "outDir": "../dist/linker-app",
     "baseUrl": ".",
     "moduleResolution": "node",
     "stripInternal": true,
