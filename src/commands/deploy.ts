@@ -48,10 +48,10 @@ export async function main() {
 
   const dcl = new Decentraland({
     isHttps: args['--https'],
-    contentServerUrl:
-      args['--host'] || 'https://content.decentraland.today',
+    contentServerUrl: args['--host'] || 'https://content.decentraland.today',
     workingDir: args._[2],
-    forceDeploy: !args['--partial']
+    forceDeploy: !args['--partial'],
+    yes: args['--skip']
   })
 
   let ignoreFile = await dcl.project.getDCLIgnore()

@@ -26,6 +26,7 @@ export type DecentralandArguments = {
   blockchain?: boolean
   contentServerUrl?: string
   forceDeploy?: boolean
+  yes?: boolean
 }
 
 export type AddressInfo = {
@@ -106,7 +107,9 @@ export class Decentraland extends EventEmitter {
     await this.project.validateSceneOptions()
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
-    await this.checkDifferentSceneShape()
+    if (this.options.yes) {
+      await this.checkDifferentSceneShape()
+    }
 
     try {
       const { signature, address } = await this.getAddressAndSignature(rootCID)
@@ -292,7 +295,7 @@ export class Decentraland extends EventEmitter {
         name: 'continue',
         default: true,
         message:
-          'This new scene.json is overlaping an already existing scene. Do you want to continue?'
+          'The scene.json file lists parcels that overlap with an existing scene. Do you wish to overwrite the other scene?'
       })
 
       if (!results.continue) {
