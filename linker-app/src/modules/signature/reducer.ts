@@ -15,14 +15,12 @@ import {
 
 export type SignatureState = {
   data: any
-  signed: boolean
   loading: LoadingState
   error: string | null
 }
 
 const INITIAL_STATE: SignatureState = {
-  data: {},
-  signed: false,
+  data: '',
   loading: [],
   error: null
 }
@@ -46,7 +44,6 @@ export const signatureReducer: Reducer<SignatureState> = (
       return {
         loading: loadingReducer(state.loading, action),
         data: action.payload.signature,
-        signed: true,
         error: null
       }
     case SIGN_CONTENT_FAILURE:

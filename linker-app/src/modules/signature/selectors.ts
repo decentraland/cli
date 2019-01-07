@@ -10,10 +10,6 @@ export const isLoading = createSelector(
   getState,
   state => state.loading.length > 0
 )
-export const isSigned = createSelector(
-  getState,
-  state => state.signed
-)
 export const getError = createSelector(
   getState,
   state => state.error

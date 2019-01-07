@@ -16,7 +16,6 @@ export type LinkerPageProps = {
   isConnecting: boolean
   error: string
   signed: boolean
-  signature: string
   isUpdateAuthorized: boolean
   authorizations: Authorization[]
   isAuthorizationLoading: boolean
