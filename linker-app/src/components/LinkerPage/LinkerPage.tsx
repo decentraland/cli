@@ -124,7 +124,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
           </div>
         </form>
 				{isConnected && signed && <p>
-          Content was succesfully signed and it's being uploaded. Check the CLI for more info.
+          Content was succesfully signed and it's being uploaded. You can close this page and check the CLI for more info.
         </p>}
         {error ? <Error>{error}</Error> : null}
         <style>{`
