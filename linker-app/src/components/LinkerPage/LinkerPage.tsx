@@ -5,7 +5,7 @@ import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 import { baseParcel, isDevelopment, rootCID } from '../../config'
 import Error from '../Error'
 import { LinkerPageProps } from './types'
-import { coordsToString } from 'src/modules/land/utils'
+import { coordsToString } from '../../modules/land/utils'
 
 export default class LinkScenePage extends React.PureComponent<LinkerPageProps, any> {
   constructor(props) {
@@ -94,7 +94,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { error, isConnected, isUpdateAuthorized, isAuthorizationLoading } = this.props
+    const { error, isConnected, isUpdateAuthorized, isAuthorizationLoading, signed } = this.props
     const { x, y } = baseParcel
     return (
       <div className='LinkScenePage'>
@@ -123,6 +123,9 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             </Button>
           </div>
         </form>
+				{isConnected && signed && <p>
+          Content was succesfully signed and it's being uploaded. You can close this page and check the CLI for more info.
+        </p>}
         {error ? <Error>{error}</Error> : null}
         <style>{`
           .LinkScenePage {
