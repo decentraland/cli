@@ -17,7 +17,7 @@ export const help = () => `
 
       -h, --help          Displays complete help
       -c, --host  [host]  Set content server (default is https://content.decentraland.today)
-      -s, --skip          Skip confirmations and proceed to upload
+      -y, --yes          Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
       -p, --partial       Deploy only new changed files
 
@@ -26,6 +26,10 @@ export const help = () => `
     - Deploy a Decentraland Scene project in folder my-project
 
       ${chalk.green('$ dcl deploy my-project')}
+
+    - Deploy a Decentraland Scene from a CI or an automated context
+
+      ${chalk.green('$ dcl deploy -y')}
 
     - Deploy a Decentraland Scene project using a ledger hardware wallet
 
@@ -36,12 +40,12 @@ export async function main() {
   const args = arg({
     '--help': Boolean,
     '--host': String,
-    '--skip': Boolean,
+    '--yes': Boolean,
     '--https': Boolean,
     '--partial': Boolean,
     '-h': '--help',
     '-c': '--host',
-    '-s': '--skip',
+    '-y': '--yes',
     '-l': '--https',
     '-p': '--partial'
   })
@@ -51,7 +55,7 @@ export async function main() {
     contentServerUrl: args['--host'] || 'https://content.decentraland.today',
     workingDir: args._[2],
     forceDeploy: !args['--partial'],
-    yes: args['--skip']
+    yes: args['--yes']
   })
 
   let ignoreFile = await dcl.project.getDCLIgnore()
@@ -129,7 +133,7 @@ export async function main() {
 
   console.log('') // new line to keep things clean
 
-  if (!args['--skip']) {
+  if (!args['--yes']) {
     const results = await inquirer.prompt({
       type: 'confirm',
       name: 'continue',
