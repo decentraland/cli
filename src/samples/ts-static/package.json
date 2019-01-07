@@ -7,10 +7,7 @@
     "build": "decentraland-compiler build.json",
     "watch": "decentraland-compiler build.json --watch"
   },
-  "author": "",
-  "license": "MIT",
   "devDependencies": {
-    "decentraland-api": "latest",
-    "decentraland": "latest"
+    "decentraland-api": "latest"
   }
 }

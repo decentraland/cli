@@ -2,13 +2,10 @@
   "name": "dcl-project",
   "version": "1.0.0",
   "description": "My new Decentraland project",
-  "author": "",
-  "license": "MIT",
   "scripts": {
     "start": "dcl start"
   },
   "devDependencies": {
-    "decentraland-api": "latest",
-    "decentraland": "latest"
+    "decentraland-api": "latest"
   }
 }
