@@ -1,6 +1,12 @@
 import chalk from 'chalk'
 import * as ora from 'ora'
 
+export function debug(message: any): void {
+  if (process.env.DEBUG) {
+    console.log(message)
+  }
+}
+
 export function error(message: string): string {
   return `${chalk.red('Error:')} ${message}`
 }

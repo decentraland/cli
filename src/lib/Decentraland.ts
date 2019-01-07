@@ -1,12 +1,13 @@
 import { EventEmitter } from 'events'
-import * as events from 'wildcards'
 import { ethers } from 'ethers'
+import * as events from 'wildcards'
+import * as inquirer from 'inquirer'
 
 import { CIDUtils } from './content/CIDUtils'
 import { ContentClient } from './content/ContentClient'
 import { ContentService } from './content/ContentService'
 import { filterAndFillEmpty } from '../utils/land'
-import { Coords } from '../utils/coordinateHelpers'
+import { Coords, getObject } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
 import { getRootPath } from '../utils/project'
 import { Project, BoilerplateType, IFile, SceneMetadata } from './Project'
@@ -25,6 +26,7 @@ export type DecentralandArguments = {
   blockchain?: boolean
   contentServerUrl?: string
   forceDeploy?: boolean
+  yes?: boolean
 }
 
 export type AddressInfo = {
@@ -104,6 +106,10 @@ export class Decentraland extends EventEmitter {
   async deploy(files: IFile[]) {
     await this.project.validateSceneOptions()
     const rootCID = await CIDUtils.getFilesComposedCID(files)
+
+    if (this.options.yes) {
+      await this.checkDifferentSceneShape()
+    }
 
     try {
       const { signature, address } = await this.getAddressAndSignature(rootCID)
@@ -274,6 +280,29 @@ export class Decentraland extends EventEmitter {
       pOwner
     ])
     return this.ethereum.validateAuthorization(owner, parcels)
+  }
+  private async checkDifferentSceneShape(): Promise<void> {
+    const newScene = await this.project.getSceneFile()
+    const oldScene = await this.contentService.getSceneData(
+      getObject(newScene.scene.base)
+    )
+    if (
+      newScene.scene.base !== oldScene.scene.base ||
+      newScene.scene.parcels !== oldScene.scene.parcels
+    ) {
+      const results = await inquirer.prompt({
+        type: 'confirm',
+        name: 'continue',
+        default: true,
+        message:
+          'The scene.json file lists parcels that overlap with an existing scene. Do you wish to overwrite the other scene?'
+      })
+
+      if (!results.continue) {
+        console.log('Aborting...')
+        fail(ErrorType.DEPLOY_ERROR, 'Operation aborted.')
+      }
+    }
   }
 
   private async getAddressAndSignature(rootCID): Promise<LinkerResponse> {

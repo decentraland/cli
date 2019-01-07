@@ -2,7 +2,7 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import commands from './commands'
-import { error, warning } from './utils/logging'
+import { error, warning, debug } from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
 import { isCLIOutdated, getInstalledCLIVersion } from './utils/moduleHelpers'
 
@@ -125,9 +125,7 @@ async function main() {
         )} for more info.`
       )
     )
-    if (process.env.DEBUG) {
-      console.log(e)
-    }
+    debug(e)
     await Analytics.reportError(e.name, e.message, e.stack)
     process.exit(1)
   }

@@ -9,6 +9,7 @@ import {
   getInstalledCLIVersion,
   getInstalledVersion
 } from './moduleHelpers'
+import { debug } from './logging'
 
 // Setup segment.io
 const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
@@ -145,9 +146,7 @@ const pendingTracking: Promise<any>[] = []
 function trackAsync(eventName: string, properties: any = {}) {
   const pTracking = track(eventName, properties)
     .then()
-    .catch(e => {
-      if (process.env.DEBUG) console.log(e)
-    })
+    .catch(debug)
   pendingTracking.push(pTracking)
 }
 
