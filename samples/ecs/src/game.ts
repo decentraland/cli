@@ -11,7 +11,7 @@ class RotatorSystem {
       const transform = entity.get(Transform)
 
       // mutate the rotation
-      transform.rotate(Vector3.Up(), dt * 10) 
+      transform.rotate(Vector3.Up(), dt * 10)
     }
   }
 }

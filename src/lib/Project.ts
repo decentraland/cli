@@ -202,7 +202,7 @@ export class Project {
    * @param destination The path to the project root. By default the current woxsrking directory.
    */
   async copySample(project: string) {
-    const src = path.resolve(__dirname, '..', 'samples', project)
+    const src = path.resolve(__dirname, '../..', 'samples', project)
     const files = await fs.readdir(src)
 
     for (let i = 0; i < files.length; i++) {

@@ -20,7 +20,7 @@
     "linker:watch": "decentraland-compiler build.linker.json --watch",
     "scripts:build": "decentraland-compiler build.json",
     "scripts:watch": "decentraland-compiler build.json --watch",
-    "copy:resources": "cp -r src/samples dist && cp -r src/certs dist && cp -r src/css dist",
+    "copy:resources": "cp -r samples dist && cp -r src/certs dist && cp -r src/css dist",
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "unlock:dev": "node ./scripts/unlockDevDeps.js",
