@@ -1,7 +1,7 @@
 {
   "name": "decentraland",
   "version": "1.4.0",
-  "description": "CLI tool for parcel management.",
+  "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "bin/dcl"
   },
@@ -14,8 +14,8 @@
     "start": "npm run watch",
     "watch": "npm run cli:watch",
     "build": "npm run cli:build && npm run linker:build && npm run scripts:build && npm run copy:resources",
-    "cli:watch": "ncc build src/index.ts -o dist --source-map --watch",
-    "cli:build": "ncc build src/index.ts -o dist --source-map --minify",
+    "cli:watch": "ncc build src/index.ts -o dist/cli --source-map --watch",
+    "cli:build": "ncc build src/index.ts -o dist/cli --source-map --minify",
     "linker:build": "decentraland-compiler build.linker.json",
     "linker:watch": "decentraland-compiler build.linker.json --watch",
     "scripts:build": "decentraland-compiler build.json",
