@@ -164,7 +164,10 @@ export class LinkerAPI extends EventEmitter {
       const { ok, reason } = urlParse.parse(req.url, true).query
 
       if (ok === 'true') {
-        this.emit('link:success', reason)
+        console.log(reason)
+        this.emit('link:success', JSON.parse(
+          reason.toString()
+        ) as LinkerResponse)
       }
 
       if (process.env.DEBUG) {

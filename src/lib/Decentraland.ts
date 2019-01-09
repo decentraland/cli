@@ -140,9 +140,8 @@ export class Decentraland extends EventEmitter {
 
       events(linker, '*', this.pipeEvents.bind(this))
 
-      linker.on('link:success', async (message: string) => {
-        const response = JSON.parse(message) as LinkerResponse
-        resolve(response)
+      linker.on('link:success', async (message: LinkerResponse) => {
+        resolve(message)
       })
 
       try {
