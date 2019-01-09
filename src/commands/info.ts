@@ -6,6 +6,8 @@ import { formatDictionary } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
+import { getConfig } from '../config'
+import { config } from 'rx'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl info [target] [options]')}
@@ -14,7 +16,6 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -b, --blockchain          Retrieve information directly from the blockchain instead of Decentraland remote API
-      -c, --host        [host]  Set content server (default is https://content.decentraland.today)
 
     ${chalk.dim('Examples:')}
 
@@ -58,10 +59,8 @@ export async function main() {
     {
       '--help': Boolean,
       '--blockchain': Boolean,
-      '--host': String,
       '-h': '--help',
-      '-b': '--blockchain',
-      '-c': '--host'
+      '-b': '--blockchain'
     },
     { permissive: true }
   )
@@ -73,10 +72,11 @@ export async function main() {
     fail(ErrorType.INFO_ERROR, `Invalid target "${chalk.bold(target)}"`)
   }
 
+  const config = await getConfig(args['--network'])
+
   const dcl = new Decentraland({
     blockchain: args['--blockchain'],
-    contentServerUrl:
-      args['--host'] || 'https://content.decentraland.today'
+    envConfig: config
   })
 
   if (type === 'parcel') {

@@ -2,9 +2,13 @@ import * as path from 'path'
 
 import { readJSON, writeJSON, getUserHome } from './filesystem'
 
-export interface IDCLInfoFile {
+export type DCLInfo = {
   userId: string
   trackStats: boolean
+  MANAToken: string
+  LANDRegistry: string
+  EstateRegistry: string
+  ContentUrl: string
 }
 
 /**
@@ -17,10 +21,10 @@ export function getDCLInfoPath(): string {
 /**
  * Returns the contents of the `.dclinfo` file
  */
-export async function getDCLInfo(): Promise<IDCLInfoFile> {
+export async function getDCLInfo(): Promise<DCLInfo> {
   const filePath = getDCLInfoPath()
   try {
-    const file = await readJSON<IDCLInfoFile>(filePath)
+    const file = await readJSON<DCLInfo>(filePath)
     return file
   } catch (e) {
     return null
@@ -32,9 +36,6 @@ export async function getDCLInfo(): Promise<IDCLInfoFile> {
  * @param userId The individual identifier for the CLI user
  * @param trackStats Whether or not user data should be collected
  */
-export function writeDCLInfo(userId: string, trackStats: boolean) {
-  return writeJSON(getDCLInfoPath(), {
-    userId,
-    trackStats
-  })
+export function writeDCLInfo(dclInfo: DCLInfo) {
+  return writeJSON(getDCLInfoPath(), dclInfo)
 }

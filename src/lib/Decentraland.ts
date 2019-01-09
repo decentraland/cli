@@ -16,6 +16,7 @@ import { LinkerAPI } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
+import { EnvConfig } from 'src/config'
 
 export type DecentralandArguments = {
   workingDir?: string
@@ -24,7 +25,7 @@ export type DecentralandArguments = {
   isHttps?: boolean
   watch?: boolean
   blockchain?: boolean
-  contentServerUrl?: string
+  envConfig?: EnvConfig
   forceDeploy?: boolean
   yes?: boolean
 }
@@ -76,7 +77,7 @@ export class Decentraland extends EventEmitter {
     this.ethereum = new Ethereum()
     this.provider = this.ethereum
     this.contentService = new ContentService(
-      new ContentClient(args.contentServerUrl)
+      new ContentClient(args.envConfig.CONTENT_URL)
     )
     this.forceDeploy = args.forceDeploy || false
 
