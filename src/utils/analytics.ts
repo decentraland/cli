@@ -43,6 +43,8 @@ export namespace Analytics {
     trackAsync('Status command', properties)
   export const sendData = (shareData: boolean) =>
     trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
+  export const sendDataSync = (shareData: boolean) =>
+    track(ANONYMOUS_DATA_QUESTION, { shareData })
 
   export async function identify(devId: string) {
     analytics.identify({
@@ -83,9 +85,9 @@ export namespace Analytics {
 
       if (results.continue) {
         await Analytics.identify(devId)
-        await Analytics.sendData(true)
+        await Analytics.sendDataSync(true)
       } else {
-        await Analytics.sendData(false)
+        await Analytics.sendDataSync(false)
       }
     }
   }

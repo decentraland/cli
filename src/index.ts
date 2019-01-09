@@ -48,7 +48,7 @@ const help = `
 `
 
 async function main() {
-  if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
+  if (!process.argv.includes('--ci') && !process.argv.includes('-c')) {
     await Analytics.requestPermission()
   }
 
