@@ -107,7 +107,7 @@ export class Decentraland extends EventEmitter {
     await this.project.validateSceneOptions()
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
-    if (this.options.yes) {
+    if (!this.options.yes) {
       await this.checkDifferentSceneShape()
     }
 
