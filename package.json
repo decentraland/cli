@@ -1,7 +1,7 @@
 {
   "name": "decentraland",
   "version": "1.4.0",
-  "description": "CLI tool for parcel management.",
+  "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "bin/dcl"
   },
@@ -14,13 +14,13 @@
     "start": "npm run watch",
     "watch": "npm run cli:watch",
     "build": "npm run cli:build && npm run linker:build && npm run scripts:build && npm run copy:resources",
-    "cli:watch": "ncc build src/index.ts -o dist --source-map --watch",
-    "cli:build": "ncc build src/index.ts -o dist --source-map --minify",
+    "cli:watch": "ncc build src/index.ts -o dist/cli --source-map --watch",
+    "cli:build": "ncc build src/index.ts -o dist/cli --source-map --minify",
     "linker:build": "decentraland-compiler build.linker.json",
     "linker:watch": "decentraland-compiler build.linker.json --watch",
     "scripts:build": "decentraland-compiler build.json",
     "scripts:watch": "decentraland-compiler build.json --watch",
-    "copy:resources": "cp -r src/samples dist && cp -r src/certs dist && cp -r src/css dist",
+    "copy:resources": "cp -r samples dist && cp -r src/certs dist && cp -r src/css dist",
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "unlock:dev": "node ./scripts/unlockDevDeps.js",
