@@ -37,6 +37,17 @@ export type LANDData = {
   description: string
 }
 
+export type Network = {
+  id: number
+  name: string
+  label?: string
+}
+
+export enum NETWORKS {
+  mainnet = 'mainnet',
+  ropsten = 'ropsten'
+}
+
 /**
  * Events emitted by this class:
  *

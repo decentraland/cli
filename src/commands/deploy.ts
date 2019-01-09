@@ -5,8 +5,9 @@ import opn = require('opn')
 
 import { loading, info, warning } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
-import { Decentraland } from '../lib/Decentraland'
 import { ErrorType, fail } from '../utils/errors'
+import { Decentraland } from '../lib/Decentraland'
+import { LinkerResponse } from '../lib/LinkerAPI'
 
 const MAX_FILE_COUNT = 100
 
@@ -75,10 +76,20 @@ export async function main() {
       }
     }, 5000)
 
-    dcl.on('link:success', (signature: string) => {
-      Analytics.sceneLinkSuccess()
-      linkerMsg.succeed(`Content succesfully signed. Signature[${signature}]`)
-    })
+    dcl.on(
+      'link:success',
+      ({ address, signature, network }: LinkerResponse) => {
+        Analytics.sceneLinkSuccess()
+        linkerMsg.succeed(`Content succesfully signed.`)
+        console.log(`${chalk.bold('Address:')} ${address}`)
+        console.log(`${chalk.bold('Signature:')} ${signature}`)
+        console.log(
+          `${chalk.bold('Network:')} ${
+            network.label ? `${network.label} (${network.name})` : network.name
+          }`
+        )
+      }
+    )
   })
 
   dcl.on('upload:starting', () => {

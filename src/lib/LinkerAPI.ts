@@ -8,6 +8,13 @@ import * as portfinder from 'portfinder'
 
 import { Project } from './Project'
 import { getProvider } from '../utils/env'
+import { Network } from './Ethereum'
+
+export type LinkerResponse = {
+  address: string
+  signature: string
+  network: Network
+}
 
 /**
  * Events emitted by this class:
