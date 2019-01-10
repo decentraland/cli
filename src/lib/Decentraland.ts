@@ -280,8 +280,9 @@ export class Decentraland extends EventEmitter {
       getObject(newScene.scene.base)
     )
     if (
-      newScene.scene.base !== oldScene.scene.base ||
-      newScene.scene.parcels !== oldScene.scene.parcels
+      oldScene != null &&
+      (newScene.scene.base !== oldScene.scene.base ||
+      newScene.scene.parcels !== oldScene.scene.parcels)
     ) {
       const results = await inquirer.prompt({
         type: 'confirm',
