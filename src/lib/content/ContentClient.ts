@@ -77,7 +77,7 @@ export class ContentClient {
         throw new Error(`Bad response from server: ${msg.error}`)
       }
       const content = await response.json()
-      return { ok: true, data: content == null ? [] : content }
+      return { ok: true, data: (content == null || content.length === 0) ? [] : content }
     } catch (error) {
       fail(ErrorType.CONTENT_SERVER_ERROR, error.message)
     }

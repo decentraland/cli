@@ -92,11 +92,12 @@ export class ContentService extends EventEmitter {
     const information: ParcelInformation = await this.getParcelStatus(
       coordinates
     )
+    if (information != null) {
+      const sceneFileCID = information.contents[SCENE_FILE]
 
-    const sceneFileCID = information.contents[SCENE_FILE]
-
-    if (sceneFileCID) {
-      return this.client.getContent(sceneFileCID)
+      if (sceneFileCID) {
+        return this.client.getContent(sceneFileCID)
+      }
     }
     return null
   }
