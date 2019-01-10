@@ -12,7 +12,7 @@ import { ErrorType, fail } from '../utils/errors'
 import { getRootPath } from '../utils/project'
 import { Project, BoilerplateType, IFile, SceneMetadata } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
-import { LinkerAPI } from './LinkerAPI'
+import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
@@ -51,12 +51,6 @@ export type ParcelMetadata = {
 export type FileInfo = {
   name: string
   cid: string
-}
-
-export type LinkerResponse = {
-  address: string
-  signature: string
-  network: string
 }
 
 export class Decentraland extends EventEmitter {
@@ -107,7 +101,7 @@ export class Decentraland extends EventEmitter {
     await this.project.validateSceneOptions()
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
-    if (this.options.yes) {
+    if (!this.options.yes) {
       await this.checkDifferentSceneShape()
     }
 
@@ -146,9 +140,8 @@ export class Decentraland extends EventEmitter {
 
       events(linker, '*', this.pipeEvents.bind(this))
 
-      linker.on('link:success', async (message: string) => {
-        const response = JSON.parse(message) as LinkerResponse
-        resolve(response)
+      linker.on('link:success', async (message: LinkerResponse) => {
+        resolve(message)
       })
 
       try {
@@ -311,7 +304,7 @@ export class Decentraland extends EventEmitter {
         this.wallet.signMessage(rootCID),
         this.wallet.getAddress()
       ])
-      return { signature, address, network: 'mainnet' }
+      return { signature, address, network: { id: 0, name: 'mainnet' } }
     }
 
     return this.link(rootCID)

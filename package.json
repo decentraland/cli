@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "bin/dcl"
@@ -13,9 +13,10 @@
   "scripts": {
     "start": "npm run watch",
     "watch": "npm run cli:watch",
-    "build": "npm run cli:build && npm run linker:build && npm run scripts:build && npm run copy:resources",
+    "build": "npm run clean && npm run cli:build && npm run linker:build && npm run scripts:build && npm run copy:resources",
+    "clean": "rm -rf dist",
     "cli:watch": "ncc build src/index.ts -o dist/cli --source-map --watch",
-    "cli:build": "ncc build src/index.ts -o dist/cli --source-map --minify",
+    "cli:build": "ncc build src/index.ts -o dist/cli --minify",
     "linker:build": "decentraland-compiler build.linker.json",
     "linker:watch": "decentraland-compiler build.linker.json --watch",
     "scripts:build": "decentraland-compiler build.json",

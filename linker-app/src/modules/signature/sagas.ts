@@ -30,7 +30,7 @@ function* handleSignContentRequest(action: SignContentRequestAction) {
 
 function* handleSignContentSuccess(action: SignContentSuccessAction) {
   const address = eth.wallet.getAccount()
-  const { label: network } = yield call(() => eth.getNetwork())
+  const network = yield call(() => eth.getNetwork())
   const { signature } = action.payload
 
   try {
