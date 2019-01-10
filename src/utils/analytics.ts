@@ -12,7 +12,7 @@ import {
 import { debug } from './logging'
 
 // Setup segment.io
-const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
+const WRITE_KEY = process.env.SEGMENT_KEY || 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
 const SINGLEUSER = 'cli-user'
 export const analytics = new AnalyticsNode(WRITE_KEY)
 
