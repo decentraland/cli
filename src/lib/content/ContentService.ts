@@ -93,12 +93,16 @@ export class ContentService extends EventEmitter {
       coordinates
     )
 
-    const sceneFileCID = information.contents[SCENE_FILE]
-
-    if (sceneFileCID) {
-      return this.client.getContent(sceneFileCID)
+    if (!information) {
+      return null
     }
-    return null
+
+    const sceneFileCID = information.contents[SCENE_FILE]
+    if (!sceneFileCID) {
+      return null
+    }
+
+    return this.client.getContent(sceneFileCID)
   }
 
   private buildMetadata(
