@@ -2,7 +2,7 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import { Decentraland, Estate } from '../lib/Decentraland'
-import { formatDictionary } from '../utils/logging'
+import { formatDictionary, debug } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
@@ -19,7 +19,7 @@ export const help = () => `
     ${chalk.dim('Examples:')}
 
     - Get information from the ${chalk.bold('parcel')} located at ${chalk.bold(
-  '12, 45'
+  '-12, 40'
 )}"
 
       ${chalk.green('$ dcl info -12,40')}
@@ -75,8 +75,7 @@ export async function main() {
 
   const dcl = new Decentraland({
     blockchain: args['--blockchain'],
-    contentServerUrl:
-      args['--host'] || 'https://content.decentraland.org'
+    contentServerUrl: args['--host'] || 'https://content.decentraland.org'
   })
 
   if (type === 'parcel') {
