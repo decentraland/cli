@@ -12,7 +12,7 @@ import {
 import { debug } from './logging'
 
 // Setup segment.io
-const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
+const WRITE_KEY = process.env.SEGMENT_KEY || 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
 const SINGLEUSER = 'cli-user'
 export const analytics = new AnalyticsNode(WRITE_KEY)
 
@@ -78,11 +78,11 @@ export namespace Analytics {
         message: 'Send anonymous usage stats to Decentraland?'
       })
 
-      const devId = uuidv4()
-      await writeDCLInfo(devId, results.continue)
+      const userId = uuidv4()
+      await writeDCLInfo({ userId, trackStats: results.continue })
 
       if (results.continue) {
-        await Analytics.identify(devId)
+        await Analytics.identify(userId)
         await Analytics.sendData(true)
       } else {
         await Analytics.sendData(false)

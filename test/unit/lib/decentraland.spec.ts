@@ -24,9 +24,6 @@ const ctx = sandbox.create()
 
 describe('Decentraland', () => {
   let validateSceneOptionsStub
-  let getOwnerStub
-  let getParcelsStub
-  let validateAuthorizationStub
   let getFilesStub
   let linkStub
   let uploadContentStub
@@ -35,12 +32,7 @@ describe('Decentraland', () => {
   const projectSignature =
     '0x9adcd58e1d65aeb9d92cb25f59a1f9d1c19d9935534c91e59057135b2ecf020e3e56476788cee00bd4a8aa62602af307851276ee4b97be4832fbc541b24f0d141c'
 
-  const addFilesResult = beforeEach(() => {
-    // Ethereum stubs
-    validateAuthorizationStub = ctx
-      .stub(Ethereum.prototype, 'validateAuthorization')
-      .callsFake(() => undefined)
-
+  beforeEach(() => {
     // Project stubs
     ctx
       .stub(Project.prototype, 'validateExistingProject')
@@ -50,28 +42,24 @@ describe('Decentraland', () => {
       .callsFake(() => undefined)
     ctx
       .stub(Project.prototype, 'getParcelCoordinates')
-      .callsFake(() => ({ x: 0, y: 0 }))
-    getOwnerStub = ctx
-      .stub(Project.prototype, 'getOwner')
-      .callsFake(() => address)
-    getParcelsStub = ctx
-      .stub(Project.prototype, 'getParcels')
-      .callsFake(() => ({ x: 0, y: 0 }))
+      .callsFake(async () => ({ x: 0, y: 0 }))
     getFilesStub = ctx
       .stub(Project.prototype, 'getFiles')
-      .callsFake(() => [{ path: '/tmp/myFile.txt', content: null }])
+      .callsFake(async () => [
+        { path: '/tmp/myFile.txt', content: null, size: null }
+      ])
 
     // ContentServicestubs
     uploadContentStub = ctx
       .stub(ContentService.prototype, 'uploadContent')
-      .callsFake(() => true)
+      .callsFake(async () => true)
 
     // Decentraland stubs
-    linkStub = ctx
-      .stub(Decentraland.prototype, 'link')
-      .callsFake(
-        () => `{"signature":"${projectSignature}","address":"${address}"}`
-      )
+    linkStub = ctx.stub(Decentraland.prototype, 'link').callsFake(async () => ({
+      signature: projectSignature,
+      address,
+      network: 'mainnet'
+    }))
     // Utils stub
     var stub = ctx.stub(ProjectUtils, 'getRootPath').callsFake(() => '.')
   })
@@ -83,7 +71,7 @@ describe('Decentraland', () => {
 
   describe('deploy()', () => {
     it('should call all the necessary APIs', async () => {
-      const dcl = new Decentraland()
+      const dcl = new Decentraland({ yes: true })
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 

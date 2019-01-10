@@ -5,10 +5,11 @@ import { readJSON, writeJSON, getUserHome } from './filesystem'
 export type DCLInfo = {
   userId: string
   trackStats: boolean
-  MANAToken: string
-  LANDRegistry: string
-  EstateRegistry: string
-  ContentUrl: string
+  MANAToken?: string
+  LANDRegistry?: string
+  EstateRegistry?: string
+  contentUrl?: string
+  segmentKey?: string
 }
 
 /**

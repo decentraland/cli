@@ -5,8 +5,9 @@ import opn = require('opn')
 
 import { loading, info, warning } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
-import { Decentraland } from '../lib/Decentraland'
 import { ErrorType, fail } from '../utils/errors'
+import { Decentraland } from '../lib/Decentraland'
+import { LinkerResponse } from '../lib/LinkerAPI'
 
 const MAX_FILE_COUNT = 100
 
@@ -16,7 +17,7 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help          Displays complete help
-      -c, --host  [host]  Set content server (default is https://content.decentraland.today)
+      -c, --host  [host]  Set content server (default is https://content.decentraland.org)
       -y, --yes          Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
       -p, --partial       Deploy only new changed files
@@ -52,7 +53,6 @@ export async function main() {
 
   const dcl = new Decentraland({
     isHttps: args['--https'],
-    contentServerUrl: args['--host'] || 'https://content.decentraland.today',
     workingDir: args._[2],
     forceDeploy: !args['--partial'],
     yes: args['--yes']
@@ -75,10 +75,20 @@ export async function main() {
       }
     }, 5000)
 
-    dcl.on('link:success', (signature: string) => {
-      Analytics.sceneLinkSuccess()
-      linkerMsg.succeed(`Content succesfully signed. Signature[${signature}]`)
-    })
+    dcl.on(
+      'link:success',
+      ({ address, signature, network }: LinkerResponse) => {
+        Analytics.sceneLinkSuccess()
+        linkerMsg.succeed(`Content succesfully signed.`)
+        console.log(`${chalk.bold('Address:')} ${address}`)
+        console.log(`${chalk.bold('Signature:')} ${signature}`)
+        console.log(
+          `${chalk.bold('Network:')} ${
+            network.label ? `${network.label} (${network.name})` : network.name
+          }`
+        )
+      }
+    )
   })
 
   dcl.on('upload:starting', () => {

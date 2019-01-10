@@ -7,7 +7,6 @@ import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
 import { getConfig } from '../config'
-import { config } from 'rx'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl info [target] [options]')}

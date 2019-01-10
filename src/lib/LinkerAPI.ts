@@ -8,6 +8,13 @@ import * as portfinder from 'portfinder'
 
 import { Project } from './Project'
 import { getProvider } from '../utils/env'
+import { Network } from './Ethereum'
+
+export type LinkerResponse = {
+  address: string
+  signature: string
+  network: Network
+}
 
 /**
  * Events emitted by this class:
@@ -157,7 +164,10 @@ export class LinkerAPI extends EventEmitter {
       const { ok, reason } = urlParse.parse(req.url, true).query
 
       if (ok === 'true') {
-        this.emit('link:success', reason)
+        console.log(reason)
+        this.emit('link:success', JSON.parse(
+          reason.toString()
+        ) as LinkerResponse)
       }
 
       if (process.env.DEBUG) {
