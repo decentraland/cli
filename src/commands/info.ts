@@ -95,6 +95,10 @@ export async function main() {
     { permissive: true }
   )
 
+  if (!args._[1]) {
+    fail(ErrorType.INFO_ERROR, 'Please provide a target to retrieve data')
+  }
+
   const target = getTarget(args._)
   debug(`Parsed target: ${target}`)
   const type = getTargetType(target)
