@@ -18,7 +18,7 @@ export const help = () => `
 
       -h, --help          Displays complete help
       -c, --host  [host]  Set content server (default is https://content.decentraland.org)
-      -y, --yes          Skip confirmations and proceed to upload
+      -y, --yes           Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
       -p, --partial       Deploy only new changed files
 
