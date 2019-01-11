@@ -162,5 +162,5 @@ export async function main() {
 
   await dcl.deploy(files)
   Analytics.sceneDeploySuccess()
-  console.log(chalk.green(`\nDeployment complete!`))
+  return console.log(chalk.green(`\nDeployment complete!`))
 }
