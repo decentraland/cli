@@ -6,7 +6,6 @@ import { formatDictionary } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
-import { getConfig } from '../config'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl info [target] [options]')}
@@ -71,11 +70,8 @@ export async function main() {
     fail(ErrorType.INFO_ERROR, `Invalid target "${chalk.bold(target)}"`)
   }
 
-  const config = await getConfig(args['--network'])
-
   const dcl = new Decentraland({
-    blockchain: args['--blockchain'],
-    envConfig: config
+    blockchain: args['--blockchain']
   })
 
   if (type === 'parcel') {
