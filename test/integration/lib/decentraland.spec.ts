@@ -4,7 +4,7 @@ import * as path from 'path'
 
 import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import { Decentraland } from '../../../src/lib/Decentraland'
-import { BoilerplateType } from '../../../src/lib/Project'
+import { BoilerplateType, SceneMetadata } from '../../../src/lib/Project'
 
 async function expectBasicDCLIgnore(dirPath) {
   const file = await fs.readFile(path.resolve(dirPath, '.dclignore'), 'utf-8')
@@ -23,10 +23,8 @@ describe('Decentraland.init()', () => {
       const scenePath = path.resolve(dirPath, 'scene.json')
 
       await dcl.init(
-        {
-          main: 'scene.xml'
-        },
-        'static' as any
+        { main: 'scene.xml' } as SceneMetadata,
+        BoilerplateType.STATIC
       )
 
       const sceneFile = await fs.readJson(scenePath)
@@ -46,10 +44,8 @@ describe('Decentraland.init()', () => {
       const scenePath = path.resolve(dirPath, 'scene.json')
 
       await dcl.init(
-        {
-          main: 'scene.xml'
-        },
-        'ts-static' as any
+        { main: 'scene.xml' } as SceneMetadata,
+        BoilerplateType.TYPESCRIPT_STATIC
       )
 
       const sceneFile = await fs.readJson(scenePath)
@@ -68,12 +64,7 @@ describe('Decentraland.init()', () => {
 
       const scenePath = path.resolve(dirPath, 'scene.json')
 
-      await dcl.init(
-        {
-          main: '???'
-        },
-        BoilerplateType.ECS
-      )
+      await dcl.init({ main: '???' } as SceneMetadata, BoilerplateType.ECS)
 
       const sceneFile = await fs.readJson(scenePath)
 
