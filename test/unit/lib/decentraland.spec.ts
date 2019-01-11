@@ -58,7 +58,7 @@ describe('Decentraland', () => {
     linkStub = ctx.stub(Decentraland.prototype, 'link').callsFake(async () => ({
       signature: projectSignature,
       address,
-      network: 'mainnet'
+      network: { id: 0, name: 'mainnet' }
     }))
     // Utils stub
     var stub = ctx.stub(ProjectUtils, 'getRootPath').callsFake(() => '.')
