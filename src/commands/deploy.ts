@@ -17,8 +17,7 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help          Displays complete help
-      -c, --host  [host]  Set content server (default is https://content.decentraland.org)
-      -y, --yes          Skip confirmations and proceed to upload
+      -y, --yes           Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
       -p, --partial       Deploy only new changed files
 
@@ -40,12 +39,10 @@ export const help = () => `
 export async function main() {
   const args = arg({
     '--help': Boolean,
-    '--host': String,
     '--yes': Boolean,
     '--https': Boolean,
     '--partial': Boolean,
     '-h': '--help',
-    '-c': '--host',
     '-y': '--yes',
     '-l': '--https',
     '-p': '--partial'

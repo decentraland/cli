@@ -13,7 +13,6 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
-      -c, --host        [host]  Set content server (default is https://content.decentraland.org)
 
     ${chalk.dim('Examples:')}
 
@@ -30,9 +29,7 @@ export async function main() {
   const args = arg(
     {
       '--help': Boolean,
-      '--host': String,
-      '-h': '--help',
-      '-c': '--host'
+      '-h': '--help'
     },
     { permissive: true }
   )
