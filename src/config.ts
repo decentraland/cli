@@ -11,6 +11,7 @@ export type DCLInfo = {
   LANDRegistry?: string
   EstateRegistry?: string
   contentUrl?: string
+  dclApiUrl?: string
   segmentKey?: string
 }
 
@@ -98,6 +99,9 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
     contentUrl: isMainnet
       ? 'https://content.decentraland.org'
       : 'https://content.decentraland.zone',
+    dclApiUrl: isMainnet
+      ? 'https://api.decentraland.org/v1'
+      : 'https://api.decentraland.zone/v1',
     segmentKey: 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
   }
 }

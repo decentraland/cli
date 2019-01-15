@@ -196,9 +196,9 @@ export class Decentraland extends EventEmitter {
       this.provider.getLandOwner(coords)
     ])
 
-    const estateProxyAddress = await Ethereum.getContractAddress('EstateProxy')
+    const { EstateRegistry } = getConfig()
 
-    if (blockchainOwner !== estateProxyAddress) {
+    if (blockchainOwner !== EstateRegistry) {
       return { scene, land: { ...land, owner: blockchainOwner } }
     }
 
