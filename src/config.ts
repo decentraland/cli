@@ -101,7 +101,7 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
       : '0x124bf28a423b2ca80b3846c3aa0eb944fe7ebb95',
     contentUrl: isMainnet
       ? 'https://content.decentraland.org'
-      : 'https://content.decentraland.today',
+      : 'https://content.decentraland.zone',
     segmentKey: 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
   }
 }

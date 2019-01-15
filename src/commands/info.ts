@@ -2,7 +2,7 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import { Decentraland, Estate } from '../lib/Decentraland'
-import { formatDictionary } from '../utils/logging'
+import { formatDictionary, debug } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
@@ -18,7 +18,7 @@ export const help = () => `
     ${chalk.dim('Examples:')}
 
     - Get information from the ${chalk.bold('parcel')} located at ${chalk.bold(
-  '12, 45'
+  '-12, 40'
 )}"
 
       ${chalk.green('$ dcl info -12,40')}
@@ -36,12 +36,41 @@ export const help = () => `
       ${chalk.green('$ dcl info 0x8bed95d830475691c10281f1fea2c0a0fe51304b')}
 `
 
+function getTarget(args) {
+  const args1 = parseInt(args[1], 10)
+  if (Number.isInteger(args1) && args1 < 0) {
+    let coords = '-'
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === '-,') {
+        coords += ','
+        continue
+      }
+
+      const uint = args[i].substring(1)
+      if (!Number.isInteger(parseInt(uint, 10))) {
+        continue
+      }
+
+      if (args[i - 1] === '--') {
+        coords += `-${uint}`
+        continue
+      }
+
+      coords += uint
+    }
+    return coords
+  }
+
+  return args[1]
+}
+
 function getTargetType(value: string): string {
   if (isValid(value)) {
     return 'parcel'
   }
 
-  if (Number.isInteger(parseInt(value, 10))) {
+  const id = parseInt(value, 10)
+  if (Number.isInteger(id) && id > 0) {
     return 'estate'
   }
 
@@ -63,7 +92,12 @@ export async function main() {
     { permissive: true }
   )
 
-  const target = args._[1]
+  if (!args._[1]) {
+    fail(ErrorType.INFO_ERROR, 'Please provide a target to retrieve data')
+  }
+
+  const target = getTarget(args._)
+  debug(`Parsed target: ${target}`)
   const type = getTargetType(target)
 
   if (!type) {
