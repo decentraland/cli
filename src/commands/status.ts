@@ -6,6 +6,7 @@ import { formatList } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { isValid, getObject } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
+import { parseTarget } from '../utils/land'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl status [target] [options]')}
@@ -20,7 +21,7 @@ export const help = () => `
 
       ${chalk.green('$ dcl status')}
 
-    - Get Decentraland Scene information of the parcel ${chalk.bold('12, 45')}"
+    - Get Decentraland Scene information of the parcel ${chalk.bold('-12, 40')}"
 
       ${chalk.green('$ dcl status -12,40')}
 `
@@ -36,7 +37,7 @@ export async function main() {
 
   const dcl = new Decentraland()
 
-  const target = args._[1]
+  const target = parseTarget(args._)
   let coords
 
   if (target) {

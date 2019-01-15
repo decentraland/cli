@@ -6,6 +6,7 @@ import { formatDictionary, debug } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
+import { parseTarget } from '../utils/land'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl info [target] [options]')}
@@ -35,34 +36,6 @@ export const help = () => `
 
       ${chalk.green('$ dcl info 0x8bed95d830475691c10281f1fea2c0a0fe51304b')}
 `
-
-function getTarget(args) {
-  const args1 = parseInt(args[1], 10)
-  if (Number.isInteger(args1) && args1 < 0) {
-    let coords = '-'
-    for (let i = 0; i < args.length; i++) {
-      if (args[i] === '-,') {
-        coords += ','
-        continue
-      }
-
-      const uint = args[i].substring(1)
-      if (!Number.isInteger(parseInt(uint, 10))) {
-        continue
-      }
-
-      if (args[i - 1] === '--') {
-        coords += `-${uint}`
-        continue
-      }
-
-      coords += uint
-    }
-    return coords
-  }
-
-  return args[1]
-}
 
 function getTargetType(value: string): string {
   if (isValid(value)) {
@@ -96,7 +69,7 @@ export async function main() {
     fail(ErrorType.INFO_ERROR, 'Please provide a target to retrieve data')
   }
 
-  const target = getTarget(args._)
+  const target = parseTarget(args._)
   debug(`Parsed target: ${target}`)
   const type = getTargetType(target)
 
