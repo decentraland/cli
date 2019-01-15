@@ -11,8 +11,10 @@ const args = arg(
   {
     '--help': Boolean,
     '--version': Boolean,
+    '--network': String,
     '-h': '--help',
-    '-v': '--version'
+    '-v': '--version',
+    '-n': '--network'
   },
   {
     permissive: true
@@ -50,7 +52,7 @@ const help = `
 
 async function main() {
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
-    await loadConfig()
+    await loadConfig(args['--network'])
     await Analytics.requestPermission()
   }
 

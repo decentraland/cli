@@ -3,7 +3,7 @@ import { contracts } from 'decentraland-eth'
 import { CONNECT_WALLET_SUCCESS } from 'decentraland-dapps/dist/modules/wallet/actions'
 
 import { baseParcel } from '../../config'
-import { LANDRegistry } from '../../contracts'
+import { getLandContract } from '../../contracts'
 import {
   FETCH_LAND_REQUEST,
   FetchLandRequestAction,
@@ -19,6 +19,7 @@ export function* landSaga() {
 }
 
 function* handleFetchLandRequest(action: FetchLandRequestAction) {
+  const LANDRegistry = getLandContract()
   try {
     const { x, y } = action.payload
     const data = yield call(() => LANDRegistry['landData'](x, y))

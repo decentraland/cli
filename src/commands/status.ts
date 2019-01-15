@@ -13,6 +13,10 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
+      -n, --network       Choose between ${chalk.bold(
+        'mainnet'
+      )} and ${chalk.bold('ropsten')} (default 'mainnet')
+
 
     ${chalk.dim('Examples:')}
 
@@ -29,7 +33,9 @@ export async function main() {
   const args = arg(
     {
       '--help': Boolean,
-      '-h': '--help'
+      '--network': String,
+      '-h': '--help',
+      '-n': '--network'
     },
     { permissive: true }
   )

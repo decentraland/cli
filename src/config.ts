@@ -16,6 +16,7 @@ export type DCLInfo = {
   segmentKey?: string
 }
 
+let networkFlag = null
 let config: DCLInfo = null
 
 /**
@@ -55,7 +56,8 @@ export async function writeDCLInfo(newInfo: DCLInfo) {
 /**
  * Reads `.dclinfo` file and loads it in-memory to be sync-obtained with `getDCLInfo()` function
  */
-export async function loadConfig(): Promise<DCLInfo> {
+export async function loadConfig(network: string): Promise<DCLInfo> {
+  networkFlag = network
   config = await readDCLInfo()
   return config
 }
@@ -67,12 +69,18 @@ export function getDCLInfo(): DCLInfo {
   return config
 }
 
-export function getConfig(network?: string): DCLInfo {
+export function getConfig(network: string = networkFlag): DCLInfo {
   const envConfig = getEnvConfig()
   const dclInfoConfig = getDclInfoConfig()
   const defaultConfig = getDefaultConfig(network)
   const config = { ...defaultConfig, ...dclInfoConfig, ...envConfig } as DCLInfo
   return config
+}
+
+export function getCustomConfig(): Partial<DCLInfo> {
+  const envConfig = getEnvConfig()
+  const dclInfoConfig = getDclInfoConfig()
+  return { ...dclInfoConfig, ...envConfig }
 }
 
 function getDefaultConfig(network: string): Partial<DCLInfo> {

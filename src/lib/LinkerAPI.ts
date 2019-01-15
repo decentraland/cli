@@ -7,8 +7,8 @@ import * as express from 'express'
 import * as portfinder from 'portfinder'
 
 import { Project } from './Project'
-import { getProvider } from '../utils/env'
 import { Network } from './Ethereum'
+import { getCustomConfig } from 'src/config'
 
 export type LinkerResponse = {
   address: string
@@ -26,21 +26,10 @@ export type LinkerResponse = {
 export class LinkerAPI extends EventEmitter {
   private project: Project
   private app = express()
-  private landContract: string
-  private manaContract: string
-  private estateContract: string
 
-  constructor(
-    project: Project,
-    manaTokenContract: string,
-    landRegistryContract: string,
-    estateRegistryContract: string
-  ) {
+  constructor(project: Project) {
     super()
     this.project = project
-    this.manaContract = manaTokenContract
-    this.landContract = landRegistryContract
-    this.estateContract = estateRegistryContract
   }
 
   link(port: number, isHttps: boolean, rootCID: string) {
@@ -110,6 +99,8 @@ export class LinkerAPI extends EventEmitter {
       const baseParcel = await this.project.getParcelCoordinates()
       const parcels = await this.project.getParcels()
 
+      const { MANAToken, LANDRegistry, EstateRegistry } = getCustomConfig()
+
       res.write(`
         <head>
           <title>Link scene</title>
@@ -120,13 +111,12 @@ export class LinkerAPI extends EventEmitter {
         <body>
           <div id="main">
             <script src="linker.js"
-              env=${process.env.DCL_ENV}
-              mana-contract=${this.manaContract}
-              land-contract=${this.landContract}
-              estate-contract=${this.estateContract}
+              env=${process.env.DEBUG ? 'dev' : 'prod'}
+              ${MANAToken ? `mana-token=${MANAToken}` : null}
+              ${LANDRegistry ? `land-registry=${LANDRegistry}` : null}
+              ${EstateRegistry ? `estate-registry=${EstateRegistry}` : null}
               base-parcel=${JSON.stringify(baseParcel)}
               parcels=${JSON.stringify(parcels)}
-              provider=${getProvider()}
               root-cid=${rootCID}>
             </script>
           </div>

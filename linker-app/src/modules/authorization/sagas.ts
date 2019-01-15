@@ -2,7 +2,7 @@ import { call, put, takeEvery, select } from 'redux-saga/effects'
 import { CONNECT_WALLET_SUCCESS } from 'decentraland-dapps/dist/modules/wallet/actions'
 import { getAddress } from 'decentraland-dapps/dist/modules/wallet/selectors'
 
-import { LANDRegistry, EstateRegistry } from '../../contracts'
+import { getLandContract, getEstateContract } from '../../contracts'
 import { parcels } from '../../config'
 import { coordsToString } from '../land/utils'
 import {
@@ -25,6 +25,9 @@ export function* authorizationSaga() {
 function* handleFetchAuthorizationsRequest(
   action: FetchAuthorizationsRequestAction
 ) {
+  const LANDRegistry = getLandContract()
+  const EstateRegistry = getEstateContract()
+
   try {
     const address = yield select(getAddress)
     const assetIds = new Map<string, string>()
