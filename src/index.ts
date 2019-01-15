@@ -7,6 +7,7 @@ import { finishPendingTracking, Analytics } from './utils/analytics'
 import { isCLIOutdated, getInstalledCLIVersion } from './utils/moduleHelpers'
 import { loadConfig } from './config'
 
+debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 const args = arg(
   {
     '--help': Boolean,
@@ -20,8 +21,10 @@ const args = arg(
     permissive: true
   }
 )
+debug(`Parsed args: ${JSON.stringify(args)}`)
 
 const subcommand = args._[0]
+debug(`Selected command ${chalk.bold(subcommand)}`)
 
 const help = `
   ${chalk.bold('Decentraland CLI')}
@@ -77,7 +80,7 @@ async function main() {
   }
 
   if (subcommand === 'help' || args['--help']) {
-    const command = args._[1]
+    const command = subcommand === 'help' ? args._[1] : subcommand
     if (commands.has(command) && command !== 'help') {
       try {
         const { help } = await import(`./commands/${command}`)
@@ -136,3 +139,8 @@ async function main() {
 }
 
 main()
+  .then(() => process.exit(0))
+  .catch(err => {
+    console.error(err)
+    process.exit(1)
+  })
