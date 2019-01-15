@@ -10,6 +10,7 @@ import { filterAndFillEmpty } from '../utils/land'
 import { Coords, getObject } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
 import { getRootPath } from '../utils/project'
+import { DCLInfo, getConfig } from '../config'
 import { Project, BoilerplateType, IFile, SceneMetadata } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI, LinkerResponse } from './LinkerAPI'
@@ -24,7 +25,7 @@ export type DecentralandArguments = {
   isHttps?: boolean
   watch?: boolean
   blockchain?: boolean
-  contentServerUrl?: string
+  config?: DCLInfo
   forceDeploy?: boolean
   yes?: boolean
 }
@@ -60,23 +61,18 @@ export class Decentraland extends EventEmitter {
   provider: IEthereumDataProvider
   contentService: ContentService
   wallet: ethers.Wallet
-  forceDeploy: boolean
 
   constructor(args: DecentralandArguments = {}) {
     super()
     this.options = args
-    this.options.workingDir = args.workingDir || getRootPath()
+    this.options.config = this.options.config || getConfig()
+    this.options.workingDir = this.options.workingDir || getRootPath()
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
-    this.provider = this.ethereum
+    this.provider = this.options.blockchain ? this.ethereum : new API()
     this.contentService = new ContentService(
-      new ContentClient(args.contentServerUrl)
+      new ContentClient(this.options.config.contentUrl)
     )
-    this.forceDeploy = args.forceDeploy || false
-
-    if (!this.options.blockchain) {
-      this.provider = new API()
-    }
 
     if (process.env.DCL_PRIVATE_KEY) {
       this.createWallet(process.env.DCL_PRIVATE_KEY)
@@ -112,7 +108,7 @@ export class Decentraland extends EventEmitter {
         files,
         signature,
         address,
-        this.forceDeploy
+        this.options.forceDeploy
       )
       if (!uploadResult) {
         fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')

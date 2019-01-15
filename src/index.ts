@@ -5,6 +5,7 @@ import commands from './commands'
 import { error, warning, debug } from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
 import { isCLIOutdated, getInstalledCLIVersion } from './utils/moduleHelpers'
+import { loadConfig } from './config'
 
 debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 const args = arg(
@@ -52,6 +53,7 @@ const help = `
 
 async function main() {
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
+    await loadConfig()
     await Analytics.requestPermission()
   }
 

@@ -1,5 +1,0 @@
-diff a/src/commands/info.ts b/src/commands/info.ts	(rejected hunks)
-@@ -76,2 +78 @@ export async function main() {
--    contentServerUrl:
--      args['--host'] || 'https://content.decentraland.org'
-+    contentServerUrl: args['--host'] || 'https://content.decentraland.org'

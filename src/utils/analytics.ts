@@ -3,18 +3,18 @@ import * as inquirer from 'inquirer'
 import AnalyticsNode = require('analytics-node')
 
 import { isDev } from './env'
-import { getDCLInfo, writeDCLInfo } from './dclinfo'
+import { createDCLInfo, getConfig } from '../config'
 import {
   isOnline,
   getInstalledCLIVersion,
   getInstalledVersion
 } from './moduleHelpers'
 import { debug } from './logging'
+import chalk from 'chalk'
 
 // Setup segment.io
-const WRITE_KEY = process.env.SEGMENT_KEY || 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
 const SINGLEUSER = 'cli-user'
-export const analytics = new AnalyticsNode(WRITE_KEY)
+export let analytics = null
 
 const ANONYMOUS_DATA_QUESTION = 'Send Anonymous data'
 
@@ -68,9 +68,9 @@ export namespace Analytics {
   }
 
   export async function requestPermission() {
-    const dclinfo = await getDCLInfo()
-
-    if (!dclinfo) {
+    const { fileExists, userId, segmentKey } = getConfig()
+    analytics = new AnalyticsNode(segmentKey)
+    if (!fileExists) {
       const results = await inquirer.prompt({
         type: 'confirm',
         name: 'continue',
@@ -78,11 +78,12 @@ export namespace Analytics {
         message: 'Send anonymous usage stats to Decentraland?'
       })
 
-      const devId = uuidv4()
-      await writeDCLInfo(devId, results.continue)
+      const newUserId = uuidv4()
+      await createDCLInfo({ userId: newUserId, trackStats: results.continue })
+      debug(`${chalk.bold('.dclinfo')} file created`)
 
       if (results.continue) {
-        await Analytics.identify(devId)
+        await Analytics.identify(userId)
         await Analytics.sendData(true)
       } else {
         await Analytics.sendData(false)
@@ -97,23 +98,23 @@ export namespace Analytics {
  * @param properties Any object containing serializable data
  */
 async function track(eventName: string, properties: any = {}) {
+  const { userId, trackStats } = getConfig()
+
   if (isDev || !(await isOnline())) {
     return
   }
 
-  return new Promise(async (resolve, reject) => {
-    const dclinfo = await getDCLInfo()
+  return new Promise(async resolve => {
     const dclApiVersion = await getInstalledVersion('decentraland-api')
-    const devId = dclinfo ? dclinfo.userId : null
     const newProperties = {
       ...properties,
       os: process.platform,
       nodeVersion: process.version,
       cliVersion: getInstalledCLIVersion(),
-      devId
+      devId: userId
     }
 
-    let shouldTrack = dclinfo ? dclinfo.trackStats : true
+    let shouldTrack = trackStats || true
     shouldTrack = shouldTrack || eventName === ANONYMOUS_DATA_QUESTION
 
     if (!shouldTrack) {

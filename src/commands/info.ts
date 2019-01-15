@@ -14,7 +14,6 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -b, --blockchain          Retrieve information directly from the blockchain instead of Decentraland remote API
-      -c, --host        [host]  Set content server (default is https://content.decentraland.org)
 
     ${chalk.dim('Examples:')}
 
@@ -87,10 +86,8 @@ export async function main() {
     {
       '--help': Boolean,
       '--blockchain': Boolean,
-      '--host': String,
       '-h': '--help',
-      '-b': '--blockchain',
-      '-c': '--host'
+      '-b': '--blockchain'
     },
     { permissive: true }
   )
@@ -108,8 +105,7 @@ export async function main() {
   }
 
   const dcl = new Decentraland({
-    blockchain: args['--blockchain'],
-    contentServerUrl: args['--host'] || 'https://content.decentraland.org'
+    blockchain: args['--blockchain']
   })
 
   if (type === 'parcel') {
