@@ -14,7 +14,7 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -b, --blockchain          Retrieve information directly from the blockchain instead of Decentraland remote API
-      -n, --network       Choose between ${chalk.bold(
+      -n, --network             Choose between ${chalk.bold(
         'mainnet'
       )} and ${chalk.bold('ropsten')} (default 'mainnet')
 
