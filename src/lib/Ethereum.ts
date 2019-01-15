@@ -11,7 +11,7 @@ import { getProvider } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
 import { Coords, getObject } from '../utils/coordinateHelpers'
 import { filterAndFillEmpty } from '../utils/land'
-import { getConfig } from 'src/config'
+import { getConfig } from '../config'
 
 const manaAbi = require('../../abi/MANAToken.json').abi
 const landAbi = require('../../abi/LANDRegistry.json').abi
