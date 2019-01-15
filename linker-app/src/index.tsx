@@ -24,8 +24,8 @@ function getNetwork() {
 
 (async () => {
   const net = await getNetwork()
-  const { store } = await import('./store')
   setNetwork(net === '1' ? 'mainnet' : 'ropsten')
+  const { store } = await import('./store')
   ReactDOM.render(
     <Provider store={store}>
       <WalletProvider>

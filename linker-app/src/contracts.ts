@@ -25,7 +25,7 @@ export function getLandContract() {
     const address = document.currentScript
       ? document.currentScript.getAttribute('land-registry')
       : isRopsten()
-      ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75bs'
+      ? '0x7a73483784ab79257bb11b96fd62a2c3ae4fb75b'
       : '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d'
     contractInstances.land = new contracts.LANDRegistry(address)
   }
