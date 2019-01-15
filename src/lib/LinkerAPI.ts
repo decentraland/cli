@@ -8,7 +8,7 @@ import * as portfinder from 'portfinder'
 
 import { Project } from './Project'
 import { Network } from './Ethereum'
-import { getCustomConfig } from 'src/config'
+import { getCustomConfig } from '../config'
 
 export type LinkerResponse = {
   address: string
