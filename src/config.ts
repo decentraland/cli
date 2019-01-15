@@ -1,7 +1,5 @@
-import chalk from 'chalk'
 import * as path from 'path'
 
-import { fail, ErrorType } from './utils/errors'
 import { readJSON, writeJSON, getUserHome } from './utils/filesystem'
 import { removeEmptyKeys } from './utils'
 
@@ -84,17 +82,7 @@ export function getCustomConfig(): Partial<DCLInfo> {
 }
 
 function getDefaultConfig(network: string): Partial<DCLInfo> {
-  const isMainnet = !network || network === 'mainnet'
-
-  if (!network && !isMainnet && network !== 'ropsten') {
-    fail(
-      ErrorType.PROJECT_ERROR,
-      `The only available values for ${chalk.bold(
-        `'--network'`
-      )} are ${chalk.bold(`'mainnet'`)} or ${chalk.bold(`'ropsten'`)}`
-    )
-  }
-
+  const isMainnet = network === 'mainnet'
   return {
     userId: null,
     trackStats: false,

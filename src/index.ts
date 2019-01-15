@@ -55,7 +55,19 @@ const help = `
 
 async function main() {
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
-    await loadConfig(args['--network'])
+    const network = args['--network']
+    if (network && network !== 'mainnet' && network !== 'ropsten') {
+      console.error(
+        error(
+          `The only available values for ${chalk.bold(
+            `'--network'`
+          )} are ${chalk.bold(`'mainnet'`)} or ${chalk.bold(`'ropsten'`)}`
+        )
+      )
+      process.exit(1)
+    }
+
+    await loadConfig(network || 'mainnet')
     await Analytics.requestPermission()
   }
 
