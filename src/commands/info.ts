@@ -15,6 +15,10 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -b, --blockchain          Retrieve information directly from the blockchain instead of Decentraland remote API
+      -n, --network             Choose between ${chalk.bold(
+        'mainnet'
+      )} and ${chalk.bold('ropsten')} (default 'mainnet')
+
 
     ${chalk.dim('Examples:')}
 
@@ -59,8 +63,10 @@ export async function main() {
     {
       '--help': Boolean,
       '--blockchain': Boolean,
+      '--network': String,
       '-h': '--help',
-      '-b': '--blockchain'
+      '-b': '--blockchain',
+      '-n': '--network'
     },
     { permissive: true }
   )

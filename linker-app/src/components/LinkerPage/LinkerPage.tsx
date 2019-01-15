@@ -2,12 +2,15 @@ import * as React from 'react'
 import { Address, Blockie, Header, Button } from 'decentraland-ui'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
-import { baseParcel, isDevelopment, rootCID } from '../../config'
+import { baseParcel, rootCID, isRopsten } from '../../config'
 import Error from '../Error'
 import { LinkerPageProps } from './types'
 import { coordsToString } from '../../modules/land/utils'
 
-export default class LinkScenePage extends React.PureComponent<LinkerPageProps, any> {
+export default class LinkScenePage extends React.PureComponent<
+  LinkerPageProps,
+  any
+> {
   constructor(props) {
     super(props)
   }
@@ -67,7 +70,12 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
       <React.Fragment>
         {isConnecting ? null : <p>Could not find any wallet</p>}
         <p>
-          <Button primary onClick={onConnectWallet} loading={isConnecting} disabled={isConnecting}>
+          <Button
+            primary
+            onClick={onConnectWallet}
+            loading={isConnecting}
+            disabled={isConnecting}
+          >
             Reconnect{' '}
           </Button>
         </p>
@@ -94,7 +102,13 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
   }
 
   render() {
-    const { error, isConnected, isUpdateAuthorized, isAuthorizationLoading, signed } = this.props
+    const {
+      error,
+      isConnected,
+      isUpdateAuthorized,
+      isAuthorizationLoading,
+      signed
+    } = this.props
     const { x, y } = baseParcel
     return (
       <div className='LinkScenePage'>
@@ -104,7 +118,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
         <img
           className='map'
           src={`https://api.decentraland.${
-            isDevelopment() ? 'zone' : 'org'
+            isRopsten() ? 'zone' : 'org'
           }/v1/parcels/${x}/${y}/map.png`}
           alt={`Base parcel ${x},${y}`}
         />
@@ -117,15 +131,23 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             <Button
               primary
               onClick={this.handleSignature}
-              disabled={!isConnected || !!error || isAuthorizationLoading || !isUpdateAuthorized}
+              disabled={
+                !isConnected ||
+                !!error ||
+                isAuthorizationLoading ||
+                !isUpdateAuthorized
+              }
             >
               Sign and Deploy
             </Button>
           </div>
         </form>
-				{isConnected && signed && <p>
-          Content was succesfully signed and it's being uploaded. You can close this page and check the CLI for more info.
-        </p>}
+        {isConnected && signed && (
+          <p>
+            Content was succesfully signed and it's being uploaded. You can
+            close this page and check the CLI for more info.
+          </p>
+        )}
         {error ? <Error>{error}</Error> : null}
         <style>{`
           .LinkScenePage {
@@ -138,7 +160,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             color: white;
           }
         `}</style>
-        {isDevelopment() ? (
+        {isRopsten() ? (
           <style>{`
             body:before {
               content: 'Using Ropsten test network';

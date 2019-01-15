@@ -1,7 +1,5 @@
-import chalk from 'chalk'
 import * as path from 'path'
 
-import { fail, ErrorType } from './utils/errors'
 import { readJSON, writeJSON, getUserHome } from './utils/filesystem'
 import { removeEmptyKeys } from './utils'
 
@@ -13,9 +11,11 @@ export type DCLInfo = {
   LANDRegistry?: string
   EstateRegistry?: string
   contentUrl?: string
+  dclApiUrl?: string
   segmentKey?: string
 }
 
+let networkFlag = null
 let config: DCLInfo = null
 
 /**
@@ -55,7 +55,8 @@ export async function writeDCLInfo(newInfo: DCLInfo) {
 /**
  * Reads `.dclinfo` file and loads it in-memory to be sync-obtained with `getDCLInfo()` function
  */
-export async function loadConfig(): Promise<DCLInfo> {
+export async function loadConfig(network: string): Promise<DCLInfo> {
+  networkFlag = network
   config = await readDCLInfo()
   return config
 }
@@ -67,7 +68,7 @@ export function getDCLInfo(): DCLInfo {
   return config
 }
 
-export function getConfig(network?: string): DCLInfo {
+export function getConfig(network: string = networkFlag): DCLInfo {
   const envConfig = getEnvConfig()
   const dclInfoConfig = getDclInfoConfig()
   const defaultConfig = getDefaultConfig(network)
@@ -75,18 +76,14 @@ export function getConfig(network?: string): DCLInfo {
   return config
 }
 
+export function getCustomConfig(): Partial<DCLInfo> {
+  const envConfig = getEnvConfig()
+  const dclInfoConfig = getDclInfoConfig()
+  return { ...dclInfoConfig, ...envConfig }
+}
+
 function getDefaultConfig(network: string): Partial<DCLInfo> {
-  const isMainnet = !network || network === 'mainnet'
-
-  if (!network && !isMainnet && network !== 'ropsten') {
-    fail(
-      ErrorType.PROJECT_ERROR,
-      `The only available values for ${chalk.bold(
-        `'--network'`
-      )} are ${chalk.bold(`'mainnet'`)} or ${chalk.bold(`'ropsten'`)}`
-    )
-  }
-
+  const isMainnet = network === 'mainnet'
   return {
     userId: null,
     trackStats: false,
@@ -102,6 +99,9 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
     contentUrl: isMainnet
       ? 'https://content.decentraland.org'
       : 'https://content.decentraland.zone',
+    dclApiUrl: isMainnet
+      ? 'https://api.decentraland.org/v1'
+      : 'https://api.decentraland.zone/v1',
     segmentKey: 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
   }
 }
