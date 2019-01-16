@@ -4,8 +4,14 @@ import chalk from 'chalk'
 import commands from './commands'
 import { error, warning, debug } from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
-import { isCLIOutdated, getInstalledCLIVersion } from './utils/moduleHelpers'
+import {
+  isCLIOutdated,
+  getInstalledCLIVersion,
+  isStableVersion
+} from './utils/moduleHelpers'
 import { loadConfig } from './config'
+
+delete require.cache[require.resolve('../package.json')]
 
 debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 const args = arg(
@@ -71,7 +77,7 @@ async function main() {
     await Analytics.requestPermission()
   }
 
-  if (await isCLIOutdated()) {
+  if (isStableVersion() && (await isCLIOutdated())) {
     console.log(
       warning(
         `You are running an outdated version of "${chalk.bold(

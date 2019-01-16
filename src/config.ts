@@ -2,6 +2,7 @@ import * as path from 'path'
 
 import { readJSON, writeJSON, getUserHome } from './utils/filesystem'
 import { removeEmptyKeys } from './utils'
+import { isStableVersion } from './utils/moduleHelpers'
 
 export type DCLInfo = {
   fileExists?: boolean
@@ -102,7 +103,9 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
     dclApiUrl: isMainnet
       ? 'https://api.decentraland.org/v1'
       : 'https://api.decentraland.zone/v1',
-    segmentKey: 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
+    segmentKey: isStableVersion()
+      ? 'mjCV5Dc4VAKXLJAH5g7LyHyW1jrIR3to'
+      : 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
   }
 }
 
