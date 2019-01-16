@@ -271,7 +271,9 @@ export class Decentraland extends EventEmitter {
         newScene.scene.parcels !== oldScene.scene.parcels)
     ) {
       console.log(
-        warning('Deploying this scene will override any other overlaped one')
+        warning(
+          'Deploying this scene will override and break any overlapping scenes'
+        )
       )
       const results = await inquirer.prompt({
         type: 'confirm',
