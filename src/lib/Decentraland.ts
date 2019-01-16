@@ -11,6 +11,7 @@ import { Coords, getObject } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
 import { getRootPath } from '../utils/project'
 import { DCLInfo, getConfig } from '../config'
+import { warning } from '../utils/logging'
 import { Project, BoilerplateType, IFile, SceneMetadata } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI, LinkerResponse } from './LinkerAPI'
@@ -269,6 +270,9 @@ export class Decentraland extends EventEmitter {
       (newScene.scene.base !== oldScene.scene.base ||
         newScene.scene.parcels !== oldScene.scene.parcels)
     ) {
+      console.log(
+        warning('Deploying this scene will override any other overlaped one')
+      )
       const results = await inquirer.prompt({
         type: 'confirm',
         name: 'continue',
