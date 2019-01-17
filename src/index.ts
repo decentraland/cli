@@ -7,11 +7,10 @@ import { finishPendingTracking, Analytics } from './utils/analytics'
 import {
   isCLIOutdated,
   getInstalledCLIVersion,
-  isStableVersion
+  isStableVersion,
+  setVersion
 } from './utils/moduleHelpers'
 import { loadConfig } from './config'
-
-delete require.cache[require.resolve('../package.json')]
 
 debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 const args = arg(
@@ -59,7 +58,8 @@ const help = `
       ${chalk.green('$ dcl help deploy')}
 `
 
-async function main() {
+export async function main(version: string) {
+  setVersion(version)
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
     const network = args['--network']
     if (network && network !== 'mainnet' && network !== 'ropsten') {
@@ -155,10 +155,3 @@ async function main() {
     process.exit(1)
   }
 }
-
-main()
-  .then(() => process.exit(0))
-  .catch(err => {
-    console.error(err)
-    process.exit(1)
-  })

@@ -8,6 +8,11 @@ import { readJSON } from '../utils/filesystem'
 import { getRootPath, getNodeModulesPath } from '../utils/project'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
+let version = null
+
+export function setVersion(v: string) {
+  version = v
+}
 
 export function installDependencies(silent: boolean = false): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -96,7 +101,7 @@ export async function getOutdatedApi(): Promise<{
 }
 
 export function getInstalledCLIVersion(): string {
-  return require('../../package').version
+  return version
 }
 
 export function isStableVersion(): boolean {
