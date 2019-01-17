@@ -101,7 +101,7 @@ export async function getOutdatedApi(): Promise<{
 }
 
 export function getInstalledCLIVersion(): string {
-  return version
+  return version || require('../../package.json').version
 }
 
 export function isStableVersion(): boolean {
