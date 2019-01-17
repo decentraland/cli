@@ -12,6 +12,7 @@ import {
 } from './utils/moduleHelpers'
 import { loadConfig } from './config'
 
+debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
 debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 const args = arg(
   {
