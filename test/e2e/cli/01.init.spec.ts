@@ -2,6 +2,7 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import { expect } from 'chai'
 
+import { SceneMetadata } from '../../../src/lib/Project'
 import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import Commando, { Response } from './Commando'
 
@@ -39,30 +40,12 @@ describe('init command', async () => {
             '.dclignore should exist'
           ).to.be.true
 
-          const sceneFileJson = await fs.readFile(
-            path.resolve(dirPath, 'scene.json')
-          )
-          const sceneFile = JSON.parse(sceneFileJson.toString())
-
-          const expected = {
-            display: { title: 'interactive-text', favicon: 'favicon_asset' },
-            contact: { name: 'king of the bongo', email: '' },
-            owner: '',
-            scene: { parcels: ['0,0'], base: '0,0' },
-            communications: {
-              type: 'webrtc',
-              signalling: 'https://signalling-01.decentraland.org'
-            },
-            policy: {
-              contentRating: 'E',
-              fly: true,
-              voiceEnabled: true,
-              blacklist: [],
-              teleportPosition: ''
-            },
-            main: 'bin/game.js',
-            tags: []
-          }
+          const [sceneFile, expected]: SceneMetadata[] = await Promise.all([
+            fs.readJson(path.resolve(dirPath, 'scene.json')),
+            fs.readJson(
+              path.resolve(__dirname, '../../../samples/ecs/scene.json')
+            )
+          ])
 
           expect(sceneFile).to.deep.equal(expected)
           done()
