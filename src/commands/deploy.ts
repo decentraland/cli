@@ -59,9 +59,7 @@ export async function main() {
 
   dcl.on('link:ready', url => {
     Analytics.sceneLink()
-    console.log(
-      chalk.bold('You need to sign the content before the deployment:')
-    )
+    console.log(chalk.bold('You need to sign the content before the deployment:'))
     const linkerMsg = loading(`Signing app ready at ${url}`)
 
     setTimeout(() => {
@@ -72,20 +70,17 @@ export async function main() {
       }
     }, 5000)
 
-    dcl.on(
-      'link:success',
-      ({ address, signature, network }: LinkerResponse) => {
-        Analytics.sceneLinkSuccess()
-        linkerMsg.succeed(`Content succesfully signed.`)
-        console.log(`${chalk.bold('Address:')} ${address}`)
-        console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(
-          `${chalk.bold('Network:')} ${
-            network.label ? `${network.label} (${network.name})` : network.name
-          }`
-        )
-      }
-    )
+    dcl.on('link:success', ({ address, signature, network }: LinkerResponse) => {
+      Analytics.sceneLinkSuccess()
+      linkerMsg.succeed(`Content succesfully signed.`)
+      console.log(`${chalk.bold('Address:')} ${address}`)
+      console.log(`${chalk.bold('Signature:')} ${signature}`)
+      console.log(
+        `${chalk.bold('Network:')} ${
+          network.label ? `${network.label} (${network.name})` : network.name
+        }`
+      )
+    })
   })
 
   dcl.on('upload:starting', () => {
@@ -107,15 +102,11 @@ export async function main() {
   }
 
   if (args['--https']) {
-    console.log(
-      warning(`Using self signed certificate to support ledger wallet`)
-    )
+    console.log(warning(`Using self signed certificate to support ledger wallet`))
   }
 
   if (ignoreFile === null) {
-    console.log(
-      warning(`As of version 1.1.0 all deployments require a .dclignore file`)
-    )
+    console.log(warning(`As of version 1.1.0 all deployments require a .dclignore file`))
     info(`Generating .dclignore file with default values`)
     ignoreFile = await dcl.project.writeDclIgnore()
   }
@@ -132,10 +123,7 @@ export async function main() {
   }, 0)
 
   if (files.length > MAX_FILE_COUNT) {
-    fail(
-      ErrorType.DEPLOY_ERROR,
-      `You cannot upload more than ${MAX_FILE_COUNT} files per scene.`
-    )
+    fail(ErrorType.DEPLOY_ERROR, `You cannot upload more than ${MAX_FILE_COUNT} files per scene.`)
   }
 
   console.log('') // new line to keep things clean

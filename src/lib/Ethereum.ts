@@ -1,10 +1,5 @@
 import { EventEmitter } from 'events'
-import {
-  RequestManager,
-  ContractFactory,
-  providers,
-  Contract
-} from 'eth-connect'
+import { RequestManager, ContractFactory, providers, Contract } from 'eth-connect'
 
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { ErrorType, fail } from '../utils/errors'
@@ -87,10 +82,7 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
       }
       return Promise.all(requests)
     } catch (e) {
-      fail(
-        ErrorType.ETHEREUM_ERROR,
-        `Unable to fetch Estate IDs of owner: ${e.message}`
-      )
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate IDs of owner: ${e.message}`)
     }
   }
 
@@ -133,26 +125,19 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
   }
 
   async validateAuthorization(owner: string, parcels: Coords[]) {
-    const validations = parcels.map(parcel =>
-      this.validateAuthorizationOfParcel(owner, parcel)
-    )
+    const validations = parcels.map(parcel => this.validateAuthorizationOfParcel(owner, parcel))
     return Promise.all(validations)
   }
 
   /**
    * It fails if the owner address isn't able to update given parcel (as an owner or operator)
    */
-  async validateAuthorizationOfParcel(
-    owner: string,
-    parcel: Coords
-  ): Promise<void> {
+  async validateAuthorizationOfParcel(owner: string, parcel: Coords): Promise<void> {
     const isLandOperator = await this.isLandOperator(parcel, owner)
     if (!isLandOperator) {
       fail(
         ErrorType.ETHEREUM_ERROR,
-        `Provided address ${owner} is not authorized to update LAND ${
-          parcel.x
-        },${parcel.y}`
+        `Provided address ${owner} is not authorized to update LAND ${parcel.x},${parcel.y}`
       )
     }
   }
@@ -172,16 +157,11 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
         promiseParcels.push(request)
       }
 
-      const parcels = (await Promise.all(promiseParcels)).map(data =>
-        getObject(data)
-      )
+      const parcels = (await Promise.all(promiseParcels)).map(data => getObject(data))
 
       return parcels
     } catch (e) {
-      fail(
-        ErrorType.ETHEREUM_ERROR,
-        `Unable to fetch LANDs of Estate: ${e.message}`
-      )
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LANDs of Estate: ${e.message}`)
     }
   }
 
@@ -193,17 +173,11 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
       const assetId = await landContract['encodeTokenId'](x, y)
       return await contract['getLandEstateId'](assetId)
     } catch (e) {
-      fail(
-        ErrorType.ETHEREUM_ERROR,
-        `Unable to fetch Estate ID of LAND: ${e.message}`
-      )
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate ID of LAND: ${e.message}`)
     }
   }
 
-  private async isLandOperator(
-    coords: Coords,
-    owner: string
-  ): Promise<boolean> {
+  private async isLandOperator(coords: Coords, owner: string): Promise<boolean> {
     const contract = await Ethereum.getContract('LANDRegistry')
 
     const estate = await this.getEstateIdOfLand(coords)
@@ -215,30 +189,18 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     try {
       const { x, y } = coords
       const assetId = await contract['encodeTokenId'](x, y)
-      return await contract['isUpdateAuthorized'](
-        owner.toLowerCase(),
-        assetId.toString()
-      )
+      return await contract['isUpdateAuthorized'](owner.toLowerCase(), assetId.toString())
     } catch (e) {
-      fail(
-        ErrorType.ETHEREUM_ERROR,
-        `Unable to fetch LAND authorization: ${JSON.stringify(e)}`
-      )
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND authorization: ${JSON.stringify(e)}`)
     }
   }
 
-  private async isEstateOperator(
-    estateId: number,
-    owner: string
-  ): Promise<boolean> {
+  private async isEstateOperator(estateId: number, owner: string): Promise<boolean> {
     const contract = await Ethereum.getContract('EstateRegistry')
     try {
       return await contract['isUpdateAuthorized'](owner, estateId)
     } catch (e) {
-      fail(
-        ErrorType.ETHEREUM_ERROR,
-        `Unable to fetch Estate authorization: ${e.message}`
-      )
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate authorization: ${e.message}`)
     }
   }
 

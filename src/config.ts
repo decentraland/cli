@@ -90,9 +90,7 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
   return {
     userId: null,
     trackStats: false,
-    provider: isDevelopment()
-      ? 'https://ropsten.infura.io/'
-      : 'https://mainnet.infura.io/',
+    provider: isDevelopment() ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/',
     MANAToken: isMainnet
       ? '0x0f5d2fb29fb7d3cfee444a200298f468908cc942'
       : '0x2a8fd99c19271f4f04b1b7b9c4f7cf264b626edb',
@@ -105,9 +103,7 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
     contentUrl: isMainnet
       ? 'https://content.decentraland.org'
       : 'https://content.decentraland.zone',
-    dclApiUrl: isMainnet
-      ? 'https://api.decentraland.org/v1'
-      : 'https://api.decentraland.zone/v1',
+    dclApiUrl: isMainnet ? 'https://api.decentraland.org/v1' : 'https://api.decentraland.zone/v1',
     segmentKey:
       isStableVersion() && !isDevelopment()
         ? 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'

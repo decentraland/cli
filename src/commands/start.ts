@@ -75,9 +75,7 @@ export async function main() {
       await installDependencies(true)
       spinner.succeed()
     } else {
-      const e = new Error(
-        'Unable to install dependencies: no internet connection'
-      )
+      const e = new Error('Unable to install dependencies: no internet connection')
       e.name = ErrorType.PREVIEW_ERROR
       throw e
     }

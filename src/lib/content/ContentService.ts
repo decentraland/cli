@@ -3,11 +3,7 @@ import { EventEmitter } from 'events'
 import { ContentClient, ParcelInformation } from './ContentClient'
 import { IFile, SceneMetadata } from '../Project'
 import { CIDUtils } from './CIDUtils'
-import {
-  ContentUploadRequest,
-  RequestMetadata,
-  ContentIdentifier
-} from './ContentUploadRequest'
+import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from './ContentUploadRequest'
 import { Coords } from '../../utils/coordinateHelpers'
 import { fail, ErrorType } from '../../utils/errors'
 
@@ -36,14 +32,8 @@ export class ContentService extends EventEmitter {
     fullUpload: boolean
   ): Promise<boolean> {
     this.emit('upload:starting')
-    const manifest: ContentIdentifier[] = await CIDUtils.getIdentifiersForIndividualFile(
-      content
-    )
-    const metadata: RequestMetadata = await this.buildMetadata(
-      rootCID,
-      contentSignature,
-      address
-    )
+    const manifest: ContentIdentifier[] = await CIDUtils.getIdentifiersForIndividualFile(content)
+    const metadata: RequestMetadata = await this.buildMetadata(rootCID, contentSignature, address)
 
     let uploadContent = content
     if (!fullUpload) {
@@ -68,10 +58,7 @@ export class ContentService extends EventEmitter {
    * @param y
    */
   async getParcelStatus(coordinates: Coords): Promise<ParcelInformation> {
-    const response = await this.client.getParcelsInformation(
-      coordinates,
-      coordinates
-    )
+    const response = await this.client.getParcelsInformation(coordinates, coordinates)
     if (response.ok) {
       return response.data.length > 0 ? response.data[0] : null
     }
@@ -89,9 +76,7 @@ export class ContentService extends EventEmitter {
    * @param y
    */
   async getSceneData(coordinates: Coords): Promise<SceneMetadata> {
-    const information: ParcelInformation = await this.getParcelStatus(
-      coordinates
-    )
+    const information: ParcelInformation = await this.getParcelStatus(coordinates)
 
     if (!information) {
       return null
@@ -105,11 +90,7 @@ export class ContentService extends EventEmitter {
     return this.client.getContent(sceneFileCID)
   }
 
-  private buildMetadata(
-    rootCID: string,
-    signature: string,
-    address: string
-  ): RequestMetadata {
+  private buildMetadata(rootCID: string, signature: string, address: string): RequestMetadata {
     const validity = new Date()
     validity.setMonth(validity.getMonth() + 6)
     return {
@@ -126,10 +107,7 @@ export class ContentService extends EventEmitter {
     files: IFile[],
     manifest: ContentIdentifier[]
   ): Promise<IFile[]> {
-    const cidMaps = manifest.reduce(
-      (map, obj) => ((map[obj.name] = obj.cid), map),
-      {}
-    )
+    const cidMaps = manifest.reduce((map, obj) => ((map[obj.name] = obj.cid), map), {})
     const res = await this.client.checkContentStatus(Object.values(cidMaps))
     return files.filter(f => {
       if (f.path === 'scene.json') {

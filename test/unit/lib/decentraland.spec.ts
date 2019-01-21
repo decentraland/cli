@@ -34,20 +34,14 @@ describe('Decentraland', () => {
 
   beforeEach(() => {
     // Project stubs
-    ctx
-      .stub(Project.prototype, 'validateExistingProject')
-      .callsFake(() => undefined)
+    ctx.stub(Project.prototype, 'validateExistingProject').callsFake(() => undefined)
     validateSceneOptionsStub = ctx
       .stub(Project.prototype, 'validateSceneOptions')
       .callsFake(() => undefined)
-    ctx
-      .stub(Project.prototype, 'getParcelCoordinates')
-      .callsFake(async () => ({ x: 0, y: 0 }))
+    ctx.stub(Project.prototype, 'getParcelCoordinates').callsFake(async () => ({ x: 0, y: 0 }))
     getFilesStub = ctx
       .stub(Project.prototype, 'getFiles')
-      .callsFake(async () => [
-        { path: '/tmp/myFile.txt', content: null, size: null }
-      ])
+      .callsFake(async () => [{ path: '/tmp/myFile.txt', content: null, size: null }])
 
     // ContentServicestubs
     uploadContentStub = ctx
@@ -75,16 +69,11 @@ describe('Decentraland', () => {
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
-      expect(getFilesStub.called, 'expect Project.getFiles() to be called').to
+      expect(getFilesStub.called, 'expect Project.getFiles() to be called').to.be.true
+      expect(validateSceneOptionsStub.called, 'expect Project.validateParcelOptions() to be called')
+        .to.be.true
+      expect(linkStub.calledBefore(uploadContentStub), 'expect Decentraland.link() to be called').to
         .be.true
-      expect(
-        validateSceneOptionsStub.called,
-        'expect Project.validateParcelOptions() to be called'
-      ).to.be.true
-      expect(
-        linkStub.calledBefore(uploadContentStub),
-        'expect Decentraland.link() to be called'
-      ).to.be.true
       expect(uploadContentStub.called).to.be.true
     })
   })

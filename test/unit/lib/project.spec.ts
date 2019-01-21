@@ -17,7 +17,13 @@ describe('Project', () => {
   beforeEach(() => {
     getAllFilePathsStub = ctx
       .stub(Project.prototype, 'getAllFilePaths')
-      .callsFake(() => ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore'])
+      .callsFake(() => [
+        'a.json',
+        'src/b.json',
+        'node_modules/module/a.js',
+        'src/node_modules/module/b.js',
+        '.dclignore'
+      ])
     sceneFileExistsStub = ctx.stub(Project.prototype, 'sceneFileExists').callsFake(() => false)
     readFileStub = ctx.stub(fs, 'readFile').callsFake(path => 'buffer')
     statStub = ctx.stub(fs, 'stat').callsFake(path => ({ size: 1000 }))
@@ -32,7 +38,13 @@ describe('Project', () => {
     it('should return all files', async () => {
       const project = new Project('.')
       const files = await project.getFiles('')
-      const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
+      const expected = [
+        'a.json',
+        'src/b.json',
+        'node_modules/module/a.js',
+        'src/node_modules/module/b.js',
+        '.dclignore'
+      ]
 
       files.forEach((file, i) => {
         expect(file.path).to.eq(expected[i])
@@ -60,7 +72,12 @@ describe('Project', () => {
     it('should ignore . files', async () => {
       const project = new Project('.')
       const files = await project.getFiles('.*')
-      const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js']
+      const expected = [
+        'a.json',
+        'src/b.json',
+        'node_modules/module/a.js',
+        'src/node_modules/module/b.js'
+      ]
 
       files.forEach((file, i) => {
         expect(file.path).to.eq(expected[i])
@@ -76,7 +93,12 @@ describe('Project', () => {
     it('should ignore specific file', async () => {
       const project = new Project('.')
       const files = await project.getFiles('a.json')
-      const expected = ['src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
+      const expected = [
+        'src/b.json',
+        'node_modules/module/a.js',
+        'src/node_modules/module/b.js',
+        '.dclignore'
+      ]
 
       files.forEach((file, i) => {
         expect(file.path).to.eq(expected[i])
@@ -109,13 +131,17 @@ describe('Project', () => {
   describe('validateNewProject()', () => {
     it('should pass if the working directory is not dirty', () => {
       const project = new Project('.')
-      expect(project.validateNewProject(), 'expect validateNewProject not to fail').to.be['fulfilled']
+      expect(project.validateNewProject(), 'expect validateNewProject not to fail').to.be[
+        'fulfilled'
+      ]
     })
 
     it('should fail if the working directory contains a scene.json file', async () => {
       sceneFileExistsStub.callsFake(() => true)
       const project = new Project('.')
-      return expect(project.validateNewProject(), 'expect validateNewProject to fail').to.be['rejectedWith']('Project already exists')
+      return expect(project.validateNewProject(), 'expect validateNewProject to fail').to.be[
+        'rejectedWith'
+      ]('Project already exists')
     })
   })
 
@@ -171,7 +197,7 @@ describe('Project', () => {
       expect(project['isValidMainFormat']('')).to.be.false
       expect(project['isValidMainFormat'](undefined)).to.be.false
     })
-    
+
     it('should return true for null', () => {
       expect(project['isValidMainFormat'](null)).to.be.true
     })

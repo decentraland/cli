@@ -66,9 +66,9 @@ export async function main(version: string) {
     if (network && network !== 'mainnet' && network !== 'ropsten') {
       console.error(
         error(
-          `The only available values for ${chalk.bold(
-            `'--network'`
-          )} are ${chalk.bold(`'mainnet'`)} or ${chalk.bold(`'ropsten'`)}`
+          `The only available values for ${chalk.bold(`'--network'`)} are ${chalk.bold(
+            `'mainnet'`
+          )} or ${chalk.bold(`'ropsten'`)}`
         )
       )
       process.exit(1)
@@ -81,9 +81,9 @@ export async function main(version: string) {
   if (isStableVersion() && (await isCLIOutdated())) {
     console.log(
       warning(
-        `You are running an outdated version of "${chalk.bold(
-          'dcl'
-        )}", run "${chalk.bold('npm i -g decentraland')}"`
+        `You are running an outdated version of "${chalk.bold('dcl')}", run "${chalk.bold(
+          'npm i -g decentraland'
+        )}"`
       )
     )
   }
@@ -118,9 +118,7 @@ export async function main(version: string) {
     if (subcommand.startsWith('-')) {
       console.error(
         error(
-          `The "${chalk.bold(
-            subcommand
-          )}" option does not exist, run ${chalk.bold(
+          `The "${chalk.bold(subcommand)}" option does not exist, run ${chalk.bold(
             '"dcl help"'
           )} for more info.`
         )
@@ -129,9 +127,7 @@ export async function main(version: string) {
     }
     console.error(
       error(
-        `The "${chalk.bold(
-          subcommand
-        )}" subcommand does not exist, run ${chalk.bold(
+        `The "${chalk.bold(subcommand)}" subcommand does not exist, run ${chalk.bold(
           '"dcl help"'
         )} for more info.`
       )

@@ -18,7 +18,11 @@ describe('Ethereum', () => {
   describe('decodeLandData()', () => {
     const eth = new Ethereum()
 
-    expect(eth['decodeLandData']('0,"myLand","my description","QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.deep.equal({
+    expect(
+      eth['decodeLandData'](
+        '0,"myLand","my description","QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"'
+      )
+    ).to.deep.equal({
       version: 0,
       name: 'myLand',
       description: 'my description'
@@ -36,7 +40,9 @@ describe('Ethereum', () => {
       description: null
     })
 
-    expect(eth['decodeLandData']('0,"",,"QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')).to.deep.equal({
+    expect(
+      eth['decodeLandData']('0,"",,"QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"')
+    ).to.deep.equal({
       version: 0,
       name: null,
       description: null

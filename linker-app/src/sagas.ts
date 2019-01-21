@@ -6,11 +6,7 @@ import { landSaga } from './modules/land/sagas'
 import { signatureSaga } from './modules/signature/sagas'
 import { authorizationSaga } from './modules/authorization/sagas'
 
-import {
-  getManaContract,
-  getLandContract,
-  getEstateContract
-} from './contracts'
+import { getManaContract, getLandContract, getEstateContract } from './contracts'
 
 export function rootSaga() {
   const walletSaga = createWalletSaga({

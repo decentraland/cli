@@ -30,14 +30,20 @@ describe('coordinateHelpers', () => {
     })
 
     it('should reject for an invalid set of coordinates', async () => {
-      expect(coordinateHelpers.validate('1,1;1,2')).to.be['rejectedWith']('Invalid coordinate 1,1;1,2')
+      expect(coordinateHelpers.validate('1,1;1,2')).to.be['rejectedWith'](
+        'Invalid coordinate 1,1;1,2'
+      )
       expect(coordinateHelpers.validate('1,')).to.be['rejectedWith']('Invalid coordinate 1,')
       expect(coordinateHelpers.validate('9999')).to.be['rejectedWith']('Invalid coordinate 9999')
-      expect(coordinateHelpers.validate('9,9,9,9')).to.be['rejectedWith']('Invalid coordinate 9,9,9,9')
+      expect(coordinateHelpers.validate('9,9,9,9')).to.be['rejectedWith'](
+        'Invalid coordinate 9,9,9,9'
+      )
       expect(coordinateHelpers.validate('`1,1')).to.be['rejectedWith']('Invalid coordinate `1,1')
       expect(coordinateHelpers.validate(' 1,1')).to.be['rejectedWith']('Invalid coordinate  1,1')
       expect(coordinateHelpers.validate('asd')).to.be['rejectedWith']('Invalid coordinate asd')
-      expect(coordinateHelpers.validate('Infinity,-Infinity')).to.be['rejectedWith']('Invalid coordinate Infinity,-Infinity')
+      expect(coordinateHelpers.validate('Infinity,-Infinity')).to.be['rejectedWith'](
+        'Invalid coordinate Infinity,-Infinity'
+      )
       expect(coordinateHelpers.validate('0,NaN')).to.be['rejectedWith']('Invalid coordinate 0,NaN')
     })
   })
@@ -89,7 +95,11 @@ describe('coordinateHelpers', () => {
 
     it('should parse set of coordinates with negative zeroes', () => {
       expect(coordinateHelpers.parse('-01,01; 01,-01')).to.deep.equal(['-1,1', '1,-1'])
-      expect(coordinateHelpers.parse('-010,-0001; 01,1; 11,1')).to.deep.equal(['-10,-1', '1,1', '11,1'])
+      expect(coordinateHelpers.parse('-010,-0001; 01,1; 11,1')).to.deep.equal([
+        '-10,-1',
+        '1,1',
+        '11,1'
+      ])
       expect(coordinateHelpers.parse('1,1; -0001,010')).to.deep.equal(['1,1', '-1,10'])
       expect(coordinateHelpers.parse('    1,1;   0001,-010  ')).to.deep.equal(['1,1', '1,-10'])
       expect(coordinateHelpers.parse(' 000,-000;   000,-0  ')).to.deep.equal(['0,0', '0,0'])
@@ -101,7 +111,12 @@ describe('coordinateHelpers', () => {
       expect(coordinateHelpers.parse('NaN,NaN')).to.deep.equal(['0,0'])
       expect(coordinateHelpers.parse('Infinity,Infinity')).to.deep.equal(['0,0'])
       expect(coordinateHelpers.parse('-NaN,-Infinity')).to.deep.equal(['0,0'])
-      expect(coordinateHelpers.parse('NaN,1; NaN,-0; -Infinity,Infinity; asd')).to.deep.equal(['0,1', '0,0', '0,0', '0,0'])
+      expect(coordinateHelpers.parse('NaN,1; NaN,-0; -Infinity,Infinity; asd')).to.deep.equal([
+        '0,1',
+        '0,0',
+        '0,0',
+        '0,0'
+      ])
     })
   })
 
@@ -163,7 +178,12 @@ describe('coordinateHelpers', () => {
       expect(result).to.deep.equal(true)
     })
     it('should return false for connected parcels but not all of them', () => {
-      const result = coordinateHelpers.areConnected([{ x: 1, y: 2 }, { x: 1, y: 3 }, { x: 1, y: 5 }, { x: 1, y: 6 }])
+      const result = coordinateHelpers.areConnected([
+        { x: 1, y: 2 },
+        { x: 1, y: 3 },
+        { x: 1, y: 5 },
+        { x: 1, y: 6 }
+      ])
       expect(result).to.deep.equal(false)
     })
   })

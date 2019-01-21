@@ -48,6 +48,11 @@
     "mana",
     "land"
   ],
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 100
+  },
   "license": "Apache-2.0",
   "homepage": "https://github.com/decentraland/cli",
   "devDependencies": {

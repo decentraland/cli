@@ -62,7 +62,12 @@ tmpTest(async (dirPath, done) => {
         const result = await project.getFiles(
           `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
         )
-        expect(result.map(f => f.path)).to.deep.equal(['models/test.fbx', 'scene.json', 'scene.xml', 'test.js'])
+        expect(result.map(f => f.path)).to.deep.equal([
+          'models/test.fbx',
+          'scene.json',
+          'scene.xml',
+          'test.js'
+        ])
       }).timeout(TIMEOUT_MS)
     })
 
