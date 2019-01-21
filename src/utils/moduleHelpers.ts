@@ -30,10 +30,7 @@ export function buildTypescript(): Promise<void> {
     const child = spawn(npm, ['run', 'watch'], { shell: true })
     child.stdout.pipe(process.stdout)
     child.stdout.on('data', data => {
-      if (
-        data.toString().indexOf('The compiler is watching file changes...') !==
-        -1
-      ) {
+      if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
         return resolve()
       }
     })
@@ -112,11 +109,7 @@ export async function isCLIOutdated(): Promise<boolean> {
   const cliVersion = getInstalledCLIVersion()
   const cliVersionLatest = await getLatestVersion('decentraland')
 
-  if (
-    cliVersionLatest &&
-    cliVersion &&
-    semver.lt(cliVersion, cliVersionLatest)
-  ) {
+  if (cliVersionLatest && cliVersion && semver.lt(cliVersion, cliVersionLatest)) {
     return true
   } else {
     return false

@@ -100,9 +100,7 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
     contentUrl: isMainnet
       ? 'https://content.decentraland.org'
       : 'https://content.decentraland.zone',
-    dclApiUrl: isMainnet
-      ? 'https://api.decentraland.org/v1'
-      : 'https://api.decentraland.zone/v1',
+    dclApiUrl: isMainnet ? 'https://api.decentraland.org/v1' : 'https://api.decentraland.zone/v1',
     segmentKey: isStableVersion()
       ? 'mjCV5Dc4VAKXLJAH5g7LyHyW1jrIR3to'
       : 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
@@ -131,13 +129,7 @@ function getDclInfoConfig(): Partial<DCLInfo> {
 }
 
 function getEnvConfig(): Partial<DCLInfo> {
-  const {
-    MANA_TOKEN,
-    LAND_REGISTRY,
-    ESTATE_REGISTRY,
-    CONTENT_URL,
-    SEGMENT_KEY
-  } = process.env
+  const { MANA_TOKEN, LAND_REGISTRY, ESTATE_REGISTRY, CONTENT_URL, SEGMENT_KEY } = process.env
 
   const envConfig = {
     MANAToken: MANA_TOKEN,

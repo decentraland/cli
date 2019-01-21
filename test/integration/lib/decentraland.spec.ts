@@ -22,10 +22,7 @@ describe('Decentraland.init()', () => {
 
       const scenePath = path.resolve(dirPath, 'scene.json')
 
-      await dcl.init(
-        { main: 'scene.xml' } as SceneMetadata,
-        BoilerplateType.STATIC
-      )
+      await dcl.init({ main: 'scene.xml' } as SceneMetadata, BoilerplateType.STATIC)
 
       const sceneFile = await fs.readJson(scenePath)
 
@@ -43,10 +40,7 @@ describe('Decentraland.init()', () => {
 
       const scenePath = path.resolve(dirPath, 'scene.json')
 
-      await dcl.init(
-        { main: 'scene.xml' } as SceneMetadata,
-        BoilerplateType.TYPESCRIPT_STATIC
-      )
+      await dcl.init({ main: 'scene.xml' } as SceneMetadata, BoilerplateType.TYPESCRIPT_STATIC)
 
       const sceneFile = await fs.readJson(scenePath)
 

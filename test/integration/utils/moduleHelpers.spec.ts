@@ -28,9 +28,7 @@ tmpTest(async (dirPath, done) => {
 
     beforeEach(() => {
       packageJsonStub = ctx.stub().callsFake(() => ({ version: '1.0.0' }))
-      readJSONStub = ctx
-        .stub(filesystem, 'readJSON')
-        .callsFake(async () => ({ version: '0.1.0' }))
+      readJSONStub = ctx.stub(filesystem, 'readJSON').callsFake(async () => ({ version: '0.1.0' }))
       getInstalledCLIVersionStub = { version: '0.1.0' }
 
       /**

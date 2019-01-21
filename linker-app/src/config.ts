@@ -8,12 +8,8 @@ export function setNetwork(network: string) {
 }
 
 export const owner = document.currentScript.getAttribute('owner')
-export const baseParcel = JSON.parse(
-  document.currentScript.getAttribute('base-parcel')
-) as Coords
-export const parcels = JSON.parse(
-  document.currentScript.getAttribute('parcels')
-) as Coords[]
+export const baseParcel = JSON.parse(document.currentScript.getAttribute('base-parcel')) as Coords
+export const parcels = JSON.parse(document.currentScript.getAttribute('parcels')) as Coords[]
 export const rootCID = document.currentScript.getAttribute('root-cid')
 
 export function isDevelopment(): boolean {

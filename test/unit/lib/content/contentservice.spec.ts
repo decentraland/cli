@@ -42,9 +42,7 @@ describe('ContentService', () => {
       .stub(ContentClient.prototype, 'uploadContent')
       .callsFake(() => ({ success: true, errorMessage: '' }))
 
-    const service: ContentService = await new ContentService(
-      new ContentClient(fakeContentUrl)
-    )
+    const service: ContentService = await new ContentService(new ContentClient(fakeContentUrl))
     const result = await service.uploadContent(rootCID, files, '', '', false)
 
     expect(result).to.be.true
@@ -59,9 +57,7 @@ describe('ContentService', () => {
       .stub(ContentClient.prototype, 'uploadContent')
       .callsFake(() => ({ success: true, errorMessage: '' }))
 
-    const service: ContentService = new ContentService(
-      new ContentClient(fakeContentUrl)
-    )
+    const service: ContentService = new ContentService(new ContentClient(fakeContentUrl))
     const result = await service.uploadContent(rootCID, files, '', '', false)
 
     expect(result).to.be.true
@@ -78,9 +74,7 @@ describe('ContentService', () => {
       .stub(ContentClient.prototype, 'uploadContent')
       .callsFake(() => ({ success: true, errorMessage: '' }))
 
-    const service: ContentService = new ContentService(
-      new ContentClient(fakeContentUrl)
-    )
+    const service: ContentService = new ContentService(new ContentClient(fakeContentUrl))
     const result = await service.uploadContent(rootCID, files, '', '', true)
 
     expect(result).to.be.true
@@ -92,19 +86,14 @@ describe('ContentService', () => {
       .stub(ContentClient.prototype, 'uploadContent')
       .callsFake(() => ({ success: false, errorMessage: 'Something failed' }))
 
-    const service: ContentService = new ContentService(
-      new ContentClient(fakeContentUrl)
-    )
+    const service: ContentService = new ContentService(new ContentClient(fakeContentUrl))
     const result = await service.uploadContent(rootCID, files, '', '', true)
 
     expect(result).to.be.false
   })
 })
 
-function buildStatusResponse(
-  manifest: ContentIdentifier[],
-  uploaded: boolean
-): any {
+function buildStatusResponse(manifest: ContentIdentifier[], uploaded: boolean): any {
   const statusResponse = {}
   manifest.forEach(content => {
     statusResponse[content.cid] = uploaded

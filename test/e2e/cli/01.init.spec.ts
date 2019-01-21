@@ -42,9 +42,7 @@ describe('init command', async () => {
 
           const [sceneFile, expected]: SceneMetadata[] = await Promise.all([
             fs.readJson(path.resolve(dirPath, 'scene.json')),
-            fs.readJson(
-              path.resolve(__dirname, '../../../samples/ecs/scene.json')
-            )
+            fs.readJson(path.resolve(__dirname, '../../../samples/ecs/scene.json'))
           ])
 
           expect(sceneFile).to.deep.equal(expected)

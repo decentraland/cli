@@ -22,7 +22,7 @@ function getNetwork() {
   })
 }
 
-(async () => {
+;(async () => {
   const net = await getNetwork()
   setNetwork(net === '1' ? 'mainnet' : 'ropsten')
   const { store } = await import('./store')

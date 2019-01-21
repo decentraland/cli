@@ -13,13 +13,7 @@ import {
   getPackageFilePath
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
-import {
-  inBounds,
-  getBounds,
-  getObject,
-  areConnected,
-  Coords
-} from '../utils/coordinateHelpers'
+import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',
@@ -113,9 +107,7 @@ export class Project {
     }
 
     try {
-      this.sceneFile = await readJSON<SceneMetadata>(
-        getSceneFilePath(this.workingDir)
-      )
+      this.sceneFile = await readJSON<SceneMetadata>(getSceneFilePath(this.workingDir))
     } catch (e) {
       fail(
         ErrorType.PROJECT_ERROR,
@@ -156,8 +148,7 @@ export class Project {
     const hasPackageFile = files.some(file => file === 'package.json')
     const nodeModulesPath = path.resolve(this.workingDir, 'node_modules')
     const hasNodeModulesFolder = await fs.pathExists(nodeModulesPath)
-    const isNodeModulesEmpty =
-      (await this.getAllFilePaths(nodeModulesPath)).length === 0
+    const isNodeModulesEmpty = (await this.getAllFilePaths(nodeModulesPath)).length === 0
 
     if (hasPackageFile && (!hasNodeModulesFolder || isNodeModulesEmpty)) {
       return true
@@ -314,10 +305,7 @@ export class Project {
       }
 
       if (sceneFile.main !== null && !(await this.fileExists(sceneFile.main))) {
-        fail(
-          ErrorType.PROJECT_ERROR,
-          `Main scene file ${sceneFile.main} is missing`
-        )
+        fail(ErrorType.PROJECT_ERROR, `Main scene file ${sceneFile.main} is missing`)
       }
     }
   }
@@ -373,9 +361,7 @@ export class Project {
         // MAX_FILE_SIZE is an arbitrary file size
         fail(
           ErrorType.UPLOAD_ERROR,
-          `Maximum file size exceeded: '${file}' is larger than ${
-            Project.MAX_FILE_SIZE
-          } bytes`
+          `Maximum file size exceeded: '${file}' is larger than ${Project.MAX_FILE_SIZE} bytes`
         )
       }
 
@@ -445,24 +431,15 @@ export class Project {
     const parcelSet = new Set(parcels)
 
     if (!base) {
-      fail(
-        ErrorType.PROJECT_ERROR,
-        'Missing scene base attribute at scene.json'
-      )
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene base attribute at scene.json')
     }
 
     if (!parcels) {
-      fail(
-        ErrorType.PROJECT_ERROR,
-        'Missing scene parcels attribute at scene.json'
-      )
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene parcels attribute at scene.json')
     }
 
     if (parcelSet.size < parcels.length) {
-      fail(
-        ErrorType.PROJECT_ERROR,
-        'There are duplicated parcels at scene.json'
-      )
+      fail(ErrorType.PROJECT_ERROR, 'There are duplicated parcels at scene.json')
     }
 
     if (!parcelSet.has(base)) {
