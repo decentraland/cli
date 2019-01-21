@@ -3,11 +3,13 @@ import * as path from 'path'
 import { readJSON, writeJSON, getUserHome } from './utils/filesystem'
 import { removeEmptyKeys } from './utils'
 import { isStableVersion } from './utils/moduleHelpers'
+import { isDevelopment } from './utils/env'
 
 export type DCLInfo = {
   fileExists?: boolean
   userId: string
   trackStats: boolean
+  provider?: string
   MANAToken?: string
   LANDRegistry?: string
   EstateRegistry?: string
@@ -88,6 +90,7 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
   return {
     userId: null,
     trackStats: false,
+    provider: isDevelopment() ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/',
     MANAToken: isMainnet
       ? '0x0f5d2fb29fb7d3cfee444a200298f468908cc942'
       : '0x2a8fd99c19271f4f04b1b7b9c4f7cf264b626edb',
@@ -101,9 +104,10 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
       ? 'https://content.decentraland.org'
       : 'https://content.decentraland.zone',
     dclApiUrl: isMainnet ? 'https://api.decentraland.org/v1' : 'https://api.decentraland.zone/v1',
-    segmentKey: isStableVersion()
-      ? 'mjCV5Dc4VAKXLJAH5g7LyHyW1jrIR3to'
-      : 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
+    segmentKey:
+      isStableVersion() && !isDevelopment()
+        ? 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
+        : 'mjCV5Dc4VAKXLJAH5g7LyHyW1jrIR3to'
   }
 }
 
@@ -129,9 +133,17 @@ function getDclInfoConfig(): Partial<DCLInfo> {
 }
 
 function getEnvConfig(): Partial<DCLInfo> {
-  const { MANA_TOKEN, LAND_REGISTRY, ESTATE_REGISTRY, CONTENT_URL, SEGMENT_KEY } = process.env
+  const {
+    RPC_URL,
+    MANA_TOKEN,
+    LAND_REGISTRY,
+    ESTATE_REGISTRY,
+    CONTENT_URL,
+    SEGMENT_KEY
+  } = process.env
 
   const envConfig = {
+    provider: RPC_URL,
     MANAToken: MANA_TOKEN,
     LANDRegistry: LAND_REGISTRY,
     EstateRegistry: ESTATE_REGISTRY,

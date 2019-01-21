@@ -3,6 +3,7 @@ import * as path from 'path'
 import { expect } from 'chai'
 
 import { SceneMetadata } from '../../../src/lib/Project'
+import { isDebug } from '../../../src/utils/env'
 import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import Commando, { Response } from './Commando'
 
@@ -10,7 +11,7 @@ describe('init command', async () => {
   it('should successfully create a static project', async () => {
     await tmpTest(async (dirPath, done) => {
       new Commando(`node ${path.resolve('bin', 'dcl')} init`, {
-        silent: true,
+        silent: !isDebug(),
         workingDir: dirPath,
         env: { DCL_ENV: 'dev' }
       })

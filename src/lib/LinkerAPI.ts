@@ -9,6 +9,7 @@ import * as portfinder from 'portfinder'
 import { Project } from './Project'
 import { Network } from './Ethereum'
 import { getCustomConfig } from '../config'
+import { isDevelopment } from '../utils/env'
 
 export type LinkerResponse = {
   address: string
@@ -103,7 +104,7 @@ export class LinkerAPI extends EventEmitter {
         <body>
           <div id="main">
             <script src="linker.js"
-              env=${process.env.DEBUG ? 'dev' : 'prod'}
+              env=${isDevelopment() ? 'dev' : 'prod'}
               ${MANAToken ? `mana-token=${MANAToken}` : null}
               ${LANDRegistry ? `land-registry=${LANDRegistry}` : null}
               ${EstateRegistry ? `estate-registry=${EstateRegistry}` : null}
@@ -144,7 +145,7 @@ export class LinkerAPI extends EventEmitter {
         this.emit('link:success', JSON.parse(reason.toString()) as LinkerResponse)
       }
 
-      if (process.env.DEBUG) {
+      if (isDevelopment()) {
         return
       }
       // we can't throw an error for this one, koa will handle and log it

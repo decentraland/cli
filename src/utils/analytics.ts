@@ -2,7 +2,6 @@ import * as uuidv4 from 'uuid/v4'
 import * as inquirer from 'inquirer'
 import AnalyticsNode = require('analytics-node')
 
-import { isDev } from './env'
 import { createDCLInfo, getConfig } from '../config'
 import { isOnline, getInstalledCLIVersion, getInstalledVersion } from './moduleHelpers'
 import { debug } from './logging'
@@ -83,7 +82,7 @@ export namespace Analytics {
 async function track(eventName: string, properties: any = {}) {
   const { userId, trackStats } = getConfig()
 
-  if (isDev || !(await isOnline())) {
+  if (!(await isOnline())) {
     return
   }
 

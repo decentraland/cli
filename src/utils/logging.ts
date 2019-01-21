@@ -1,8 +1,10 @@
 import chalk from 'chalk'
 import * as ora from 'ora'
 
+import { isDebug } from './env'
+
 export function debug(message: any): void {
-  if (process.env.DEBUG) {
+  if (isDebug()) {
     console.log(message)
   }
 }

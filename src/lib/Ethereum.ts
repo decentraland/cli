@@ -2,20 +2,20 @@ import { EventEmitter } from 'events'
 import { RequestManager, ContractFactory, providers, Contract } from 'eth-connect'
 
 import { IEthereumDataProvider } from './IEthereumDataProvider'
-import { getProvider } from '../utils/env'
 import { ErrorType, fail } from '../utils/errors'
 import { Coords, getObject } from '../utils/coordinateHelpers'
 import { filterAndFillEmpty } from '../utils/land'
+import { isDebug } from '../utils/env'
 import { getConfig } from '../config'
 
 const manaAbi = require('../../abi/MANAToken.json').abi
 const landAbi = require('../../abi/LANDRegistry.json').abi
 const estateAbi = require('../../abi/EstateRegistry.json').abi
 
-const provider = process.env.RPC_URL || getProvider()
+const { provider } = getConfig()
 const providerInstance = new providers.HTTPProvider(provider)
 const requestManager = new RequestManager(providerInstance)
-providerInstance.debug = !!process.env.DEBUG
+providerInstance.debug = isDebug()
 
 const manaFactory = new ContractFactory(requestManager, manaAbi)
 const landFactory = new ContractFactory(requestManager, landAbi)
