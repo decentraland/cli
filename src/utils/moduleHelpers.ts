@@ -102,7 +102,7 @@ export function getInstalledCLIVersion(): string {
 }
 
 export function isStableVersion(): boolean {
-  return getInstalledCLIVersion().includes('commit')
+  return !getInstalledCLIVersion().includes('commit')
 }
 
 export async function isCLIOutdated(): Promise<boolean> {
