@@ -5,7 +5,7 @@
   },
   "owner": "",
   "contact": {
-    "name": "king of the bongo",
+    "name": "author-name",
     "email": ""
   },
   "main": "bin/game.js",
