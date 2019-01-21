@@ -1,6 +1,7 @@
 import * as path from 'path'
 import { expect } from 'chai'
 
+import { isDebug } from '../../../src/utils/env'
 import { tmpTest, TIMEOUT_MS } from '../../sandbox'
 import Commando, { Response } from './Commando'
 
@@ -8,14 +9,14 @@ describe('deploy command', async () => {
   it('should display files before upload', async () => {
     await tmpTest(async (dirPath, done) => {
       new Commando(`node ${path.resolve('bin', 'dcl')} init`, {
-        silent: true,
+        silent: isDebug(),
         workingDir: dirPath,
         env: { DCL_ENV: 'dev' }
       })
         .endWhen(/Installing dependencies/)
         .on('end', async () => {
           new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
-            silent: true,
+            silent: isDebug(),
             workingDir: dirPath,
             env: { DCL_ENV: 'dev' }
           })

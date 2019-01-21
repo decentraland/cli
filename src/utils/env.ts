@@ -1,14 +1,14 @@
 import { getOrElse } from '.'
 
-/**
- * Check if CLI is used in development mode.
- */
-export const isDev: boolean = process.env.DCL_ENV === 'dev'
-
 export function isDevelopment() {
   return process.env.NODE_ENV !== 'production'
 }
 
+export function isDebug() {
+  return !!process.env.DEBUG
+}
+
+export const isDev: boolean = process.env.DCL_ENV === 'dev'
 export function getProvider() {
   return isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/'
 }

@@ -5,6 +5,7 @@ import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { ErrorType, fail } from '../utils/errors'
 import { Coords, getObject } from '../utils/coordinateHelpers'
 import { filterAndFillEmpty } from '../utils/land'
+import { isDebug } from '../utils/env'
 import { getConfig } from '../config'
 
 const manaAbi = require('../../abi/MANAToken.json').abi
@@ -14,7 +15,7 @@ const estateAbi = require('../../abi/EstateRegistry.json').abi
 const { provider } = getConfig()
 const providerInstance = new providers.HTTPProvider(provider)
 const requestManager = new RequestManager(providerInstance)
-providerInstance.debug = !!process.env.DEBUG
+providerInstance.debug = isDebug()
 
 const manaFactory = new ContractFactory(requestManager, manaAbi)
 const landFactory = new ContractFactory(requestManager, landAbi)
