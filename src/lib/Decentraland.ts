@@ -71,9 +71,7 @@ export class Decentraland extends EventEmitter {
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.options.blockchain ? this.ethereum : new API()
-    this.contentService = new ContentService(
-      new ContentClient(this.options.config.contentUrl)
-    )
+    this.contentService = new ContentService(new ContentClient(this.options.config.contentUrl))
 
     if (process.env.DCL_PRIVATE_KEY) {
       this.createWallet(process.env.DCL_PRIVATE_KEY)
@@ -84,11 +82,7 @@ export class Decentraland extends EventEmitter {
     events(this.contentService, 'upload:*', this.pipeEvents.bind(this))
   }
 
-  async init(
-    sceneMeta: SceneMetadata,
-    boilerplateType: BoilerplateType,
-    websocketServer?: string
-  ) {
+  async init(sceneMeta: SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
     await this.project.writeDclIgnore()
     await this.project.writeSceneFile(sceneMeta)
     await this.project.scaffoldProject(boilerplateType, websocketServer)
@@ -131,11 +125,7 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(
-          this.options.linkerPort,
-          this.options.isHttps,
-          rootCID
-        )
+        await linker.link(this.options.linkerPort, this.options.isHttps, rootCID)
       } catch (e) {
         reject(e)
       }
@@ -145,10 +135,7 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
-    const preview = new Preview(
-      await this.project.getDCLIgnore(),
-      this.getWatch()
-    )
+    const preview = new Preview(await this.project.getDCLIgnore(), this.getWatch())
 
     events(preview, '*', this.pipeEvents.bind(this))
 
@@ -161,12 +148,8 @@ export class Decentraland extends EventEmitter {
       this.provider.getEstatesOf(address)
     ])
 
-    const pRequests = Promise.all(
-      coords.map(coord => this.provider.getLandData(coord))
-    )
-    const eRequests = Promise.all(
-      estateIds.map(estateId => this.provider.getEstateData(estateId))
-    )
+    const pRequests = Promise.all(coords.map(coord => this.provider.getLandData(coord)))
+    const eRequests = Promise.all(estateIds.map(estateId => this.provider.getEstateData(estateId)))
 
     const [pData, eData] = await Promise.all([pRequests, eRequests])
 
@@ -228,10 +211,7 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  async getParcelStatus(
-    x: number,
-    y: number
-  ): Promise<{ cid?: string; files: FileInfo[] }> {
+  async getParcelStatus(x: number, y: number): Promise<{ cid?: string; files: FileInfo[] }> {
     const information = await this.contentService.getParcelStatus({
       x: x,
       y: y
@@ -251,30 +231,19 @@ export class Decentraland extends EventEmitter {
   }
 
   async validateOwnership() {
-    const pOwner = this.wallet
-      ? this.wallet.getAddress()
-      : this.project.getOwner()
-    const [parcels, owner] = await Promise.all([
-      this.project.getParcels(),
-      pOwner
-    ])
+    const pOwner = this.wallet ? this.wallet.getAddress() : this.project.getOwner()
+    const [parcels, owner] = await Promise.all([this.project.getParcels(), pOwner])
     return this.ethereum.validateAuthorization(owner, parcels)
   }
   private async checkDifferentSceneShape(): Promise<void> {
     const newScene = await this.project.getSceneFile()
-    const oldScene = await this.contentService.getSceneData(
-      getObject(newScene.scene.base)
-    )
+    const oldScene = await this.contentService.getSceneData(getObject(newScene.scene.base))
     if (
       oldScene !== null &&
       (newScene.scene.base !== oldScene.scene.base ||
         newScene.scene.parcels !== oldScene.scene.parcels)
     ) {
-      console.log(
-        warning(
-          'Deploying this scene will override and break any overlapping scenes'
-        )
-      )
+      console.log(warning('Deploying this scene will override and break any overlapping scenes'))
       const results = await inquirer.prompt({
         type: 'confirm',
         name: 'continue',

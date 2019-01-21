@@ -49,9 +49,9 @@ export async function main() {
   if (!Object.values(BoilerplateType).includes(boilerplate)) {
     fail(
       ErrorType.INIT_ERROR,
-      `Invalid boilerplate: "${chalk.bold(
-        boilerplate
-      )}". Supported types are ${chalk.bold(getBoilerplateTypes())}`
+      `Invalid boilerplate: "${chalk.bold(boilerplate)}". Supported types are ${chalk.bold(
+        getBoilerplateTypes()
+      )}`
     )
   }
 
@@ -66,9 +66,7 @@ export async function main() {
     const results = await inquirer.prompt({
       type: 'confirm',
       name: 'continue',
-      message: warning(
-        `Project directory isn't empty. Do you want to continue?`
-      )
+      message: warning(`Project directory isn't empty. Do you want to continue?`)
     })
 
     if (!results.continue) {
@@ -108,10 +106,7 @@ export async function main() {
       await installDependencies(true)
       spinner.succeed('Dependencies installed')
     } else {
-      fail(
-        ErrorType.PREVIEW_ERROR,
-        'Unable to install dependencies: no internet connection'
-      )
+      fail(ErrorType.PREVIEW_ERROR, 'Unable to install dependencies: no internet connection')
     }
   }
 

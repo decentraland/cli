@@ -24,10 +24,7 @@ import { LinkerPageProps } from './types'
 
 import LinkerPage from './LinkerPage'
 
-const mapState = (
-  state: RootState,
-  ownProps: LinkerPageProps
-): LinkerPageProps => {
+const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps => {
   return {
     ...ownProps,
     base: getLand(state),
@@ -43,9 +40,7 @@ const mapState = (
   }
 }
 
-const mapDispatch = (
-  dispatch: Dispatch<AnyAction>
-): Partial<LinkerPageProps> => ({
+const mapDispatch = (dispatch: Dispatch<AnyAction>): Partial<LinkerPageProps> => ({
   onConnectWallet: () => dispatch(connectWalletRequest()),
   onSignContent: (cid: string) => dispatch(signContentRequest(cid))
 })

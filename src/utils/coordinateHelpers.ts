@@ -121,7 +121,11 @@ export function areConnected(parcels: Coords[]): boolean {
   return visited.length === parcels.length
 }
 
-function visitParcel(parcel: Coords, allParcels: Coords[] = [parcel], visited: Coords[] = []): Coords[] {
+function visitParcel(
+  parcel: Coords,
+  allParcels: Coords[] = [parcel],
+  visited: Coords[] = []
+): Coords[] {
   let isVisited = visited.some(visitedParcel => isEqual(visitedParcel, parcel))
   if (!isVisited) {
     visited.push(parcel)
@@ -133,7 +137,8 @@ function visitParcel(parcel: Coords, allParcels: Coords[] = [parcel], visited: C
 
 function getIsNeighbourMatcher(x: number, y: number) {
   return (coords: Coords) =>
-    (coords.x === x && (coords.y + 1 === y || coords.y - 1 === y)) || (coords.y === y && (coords.x + 1 === x || coords.x - 1 === x))
+    (coords.x === x && (coords.y + 1 === y || coords.y - 1 === y)) ||
+    (coords.y === y && (coords.x + 1 === x || coords.x - 1 === x))
 }
 
 function getNeighbours(x: number, y: number, parcels: Coords[]): Coords[] {

@@ -21,14 +21,21 @@ export enum Response {
 
 class Commando extends EventEmitter {
   private proc: ChildProcess
-  private matchers: { pattern: RegExp; response: (mag: string) => string; options: IMatcherOptions }[] = []
+  private matchers: {
+    pattern: RegExp
+    response: (mag: string) => string
+    options: IMatcherOptions
+  }[] = []
 
   constructor(command: string, opts: IOptions = { silent: false, env: {} }) {
     super()
     const parts = command.split(' ')
     const cmd = opts.cmdPath ? path.resolve(opts.cmdPath, parts[0]) : parts[0]
 
-    this.proc = spawn(cmd, parts.slice(1), { env: { ...process.env, ...opts.env }, cwd: opts.workingDir || process.cwd() })
+    this.proc = spawn(cmd, parts.slice(1), {
+      env: { ...process.env, ...opts.env },
+      cwd: opts.workingDir || process.cwd()
+    })
 
     if (!opts.silent) {
       this.proc.stdout.pipe(process.stdout)
@@ -39,12 +46,20 @@ class Commando extends EventEmitter {
     this.proc.on('close', () => this.emit('end'))
   }
 
-  when(pattern: string | RegExp, response: (msg: string) => string, options: IMatcherOptions = { matchMany: false }) {
+  when(
+    pattern: string | RegExp,
+    response: (msg: string) => string,
+    options: IMatcherOptions = { matchMany: false }
+  ) {
     this.matchers.push({ pattern: new RegExp(pattern), response, options })
     return this
   }
 
-  endWhen(pattern: string | RegExp, response: (msg: string) => string = () => null, options: IMatcherOptions = { matchMany: false }) {
+  endWhen(
+    pattern: string | RegExp,
+    response: (msg: string) => string = () => null,
+    options: IMatcherOptions = { matchMany: false }
+  ) {
     const cb = msg => {
       response(msg)
       this.proc.kill()

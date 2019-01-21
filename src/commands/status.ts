@@ -14,9 +14,9 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
-      -n, --network             Choose between ${chalk.bold(
-        'mainnet'
-      )} and ${chalk.bold('ropsten')} (default 'mainnet')
+      -n, --network             Choose between ${chalk.bold('mainnet')} and ${chalk.bold(
+  'ropsten'
+)} (default 'mainnet')
 
 
     ${chalk.dim('Examples:')}

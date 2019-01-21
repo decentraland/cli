@@ -21,7 +21,10 @@ export class CIDUtils {
   static async getIdentifiersForIndividualFile(files: IFile[]): Promise<ContentIdentifier[]> {
     const result: ContentIdentifier[] = []
     for (const file of files) {
-      const fileCID: string = await this.getListCID([{ path: path.basename(file.path), content: file.content, size: file.size }], false)
+      const fileCID: string = await this.getListCID(
+        [{ path: path.basename(file.path), content: file.content, size: file.size }],
+        false
+      )
       result.push({ cid: fileCID, name: file.path })
     }
     return result

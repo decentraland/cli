@@ -21,18 +21,12 @@ describe('deploy command', async () => {
           })
             .when(/\(.* bytes\)\n/, msg => {
               const file = msg.trim().match(/(\w*\.\w*)/g)
-              expect(
-                file.includes('bin/game.js'),
-                'expect game.js to be listed'
-              ).to.be.true
+              expect(file.includes('bin/game.js'), 'expect game.js to be listed').to.be.true
               return null
             })
             .when(/\(.* bytes\)\n/, msg => {
               const file = msg.trim().match(/(\w*\.\w*)/g)
-              expect(
-                file.includes('scene.json'),
-                'expect scene.json to be listed'
-              ).to.be.true
+              expect(file.includes('scene.json'), 'expect scene.json to be listed').to.be.true
               return null
             })
             .when(/You are about to upload/, (msg: string) => {

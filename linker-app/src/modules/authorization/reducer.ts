@@ -1,8 +1,5 @@
 import { Reducer } from 'redux'
-import {
-  loadingReducer,
-  LoadingState
-} from 'decentraland-dapps/dist/modules/loading/reducer'
+import { loadingReducer, LoadingState } from 'decentraland-dapps/dist/modules/loading/reducer'
 
 import {
   FetchAuthorizationsRequestAction,

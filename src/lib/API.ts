@@ -21,10 +21,7 @@ async function request(url) {
     cache.set(url, json)
     return json
   } catch (e) {
-    fail(
-      ErrorType.API_ERROR,
-      `Unable to fetch from Decentraland remote API: ${e.message}`
-    )
+    fail(ErrorType.API_ERROR, `Unable to fetch from Decentraland remote API: ${e.message}`)
   }
 }
 

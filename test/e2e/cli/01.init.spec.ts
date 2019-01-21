@@ -39,9 +39,7 @@ describe('init command', async () => {
             '.dclignore should exist'
           ).to.be.true
 
-          const sceneFileJson = await fs.readFile(
-            path.resolve(dirPath, 'scene.json')
-          )
+          const sceneFileJson = await fs.readFile(path.resolve(dirPath, 'scene.json'))
           const sceneFile = JSON.parse(sceneFileJson.toString())
 
           const expected = {
