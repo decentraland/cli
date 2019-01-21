@@ -22,6 +22,15 @@ function nocache(req, res, next) {
   next()
 }
 
+type MappingsResponse = {
+  parcel_id: string
+  publisher: string
+  root_cid: string
+  contents: Record<string, string>
+  // This mappings field is a backwards compatibility field.
+  mappings: Record<string, string>
+}
+
 /**
  * Events emitted by this class:
  *
@@ -99,7 +108,10 @@ export class Preview extends EventEmitter {
     const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
 
     if (!fs.pathExistsSync(artifactPath)) {
-      fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${dclApiPath} or ${dclEcsPath}, please run: npm install`)
+      fail(
+        ErrorType.PREVIEW_ERROR,
+        `Couldn\'t find ${dclApiPath} or ${dclEcsPath}, please run: npm install`
+      )
     }
 
     this.app.get('/', (req, res) => {
@@ -128,9 +140,15 @@ export class Preview extends EventEmitter {
               mappings[$] = 'contents/' + $
             })
 
-          res.json({
-            mappings
-          })
+          const ret: MappingsResponse = {
+            mappings,
+            contents: mappings,
+            parcel_id: '0,0',
+            publisher: '0x0000000000000000000000000000000000000000',
+            root_cid: 'Qm0000000000000000000000000000000000000000'
+          }
+
+          res.json(ret)
         }
       })
     })
