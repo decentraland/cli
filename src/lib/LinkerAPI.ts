@@ -9,7 +9,7 @@ import * as portfinder from 'portfinder'
 import { Project } from './Project'
 import { Network } from './Ethereum'
 import { getCustomConfig } from '../config'
-import { isDevelopment } from 'src/utils/env'
+import { isDevelopment } from '../utils/env'
 
 export type LinkerResponse = {
   address: string
