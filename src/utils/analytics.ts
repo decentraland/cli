@@ -65,7 +65,7 @@ export namespace Analytics {
       debug(`${chalk.bold('.dclinfo')} file created`)
 
       if (results.continue) {
-        await Analytics.identify(userId)
+        await Analytics.identify(newUserId)
         await Analytics.sendData(true)
       } else {
         await Analytics.sendData(false)
@@ -96,8 +96,7 @@ async function track(eventName: string, properties: any = {}) {
       devId: userId
     }
 
-    let shouldTrack = trackStats || true
-    shouldTrack = shouldTrack || eventName === ANONYMOUS_DATA_QUESTION
+    const shouldTrack = trackStats || eventName === ANONYMOUS_DATA_QUESTION
 
     if (!shouldTrack) {
       resolve()
