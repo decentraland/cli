@@ -50,7 +50,7 @@ export namespace Analytics {
   }
 
   export async function requestPermission() {
-    const { fileExists, userId, segmentKey } = getConfig()
+    const { fileExists, segmentKey } = getConfig()
     analytics = new AnalyticsNode(segmentKey)
     if (!fileExists) {
       const results = await inquirer.prompt({

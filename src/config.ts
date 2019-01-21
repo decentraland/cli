@@ -45,6 +45,7 @@ async function readDCLInfo(): Promise<DCLInfo> {
  * Creates the `.dclinfo` file in the HOME directory
  */
 export function createDCLInfo(dclInfo: DCLInfo) {
+  config = dclInfo
   return writeJSON(getDCLInfoPath(), dclInfo)
 }
 
