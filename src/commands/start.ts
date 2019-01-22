@@ -6,7 +6,7 @@ import opn = require('opn')
 import { Decentraland } from '../lib/Decentraland'
 import { buildTypescript, installDependencies, getOutdatedApi } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
-import { info, error, formatOutdatedMessage } from '../utils/logging'
+import { error, formatOutdatedMessage } from '../utils/logging'
 import { ErrorType, fail } from '../utils/errors'
 import { isEnvCi } from '../utils/env'
 
@@ -82,7 +82,7 @@ export async function main() {
 
     console.log('') // line break
 
-    info(`Preview server is now running`)
+    console.log(`Preview server is now running`)
 
     console.log(chalk.bold('\n  Available on:\n'))
 

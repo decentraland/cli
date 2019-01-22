@@ -3,7 +3,8 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 import opn = require('opn')
 
-import { loading, info, warning } from '../utils/logging'
+import * as spinner from '../utils/spinner'
+import { warning } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { ErrorType, fail } from '../utils/errors'
 import { Decentraland } from '../lib/Decentraland'
@@ -60,7 +61,7 @@ export async function main() {
   dcl.on('link:ready', url => {
     Analytics.sceneLink()
     console.log(chalk.bold('You need to sign the content before the deployment:'))
-    const linkerMsg = loading(`Signing app ready at ${url}`)
+    spinner.create(`Signing app ready at ${url}`)
 
     setTimeout(() => {
       try {
@@ -72,7 +73,7 @@ export async function main() {
 
     dcl.on('link:success', ({ address, signature, network }: LinkerResponse) => {
       Analytics.sceneLinkSuccess()
-      linkerMsg.succeed(`Content succesfully signed.`)
+      spinner.succeed(`Content succesfully signed.`)
       console.log(`${chalk.bold('Address:')} ${address}`)
       console.log(`${chalk.bold('Signature:')} ${signature}`)
       console.log(
@@ -84,15 +85,15 @@ export async function main() {
   })
 
   dcl.on('upload:starting', () => {
-    const uploadMsg = loading(`Uploading content...`)
+    spinner.create(`Uploading content...`)
 
     dcl.on('upload:failed', (error: any) => {
-      uploadMsg.fail('Fail to upload content')
+      spinner.fail('Fail to upload content')
       fail(ErrorType.DEPLOY_ERROR, `Unable ro upload content. ${error}`)
     })
 
     dcl.on('upload:success', () => {
-      uploadMsg.succeed('Content uploaded')
+      spinner.succeed('Content uploaded')
     })
   })
 
@@ -106,8 +107,10 @@ export async function main() {
   }
 
   if (ignoreFile === null) {
-    console.log(warning(`As of version 1.1.0 all deployments require a .dclignore file`))
-    info(`Generating .dclignore file with default values`)
+    console.log(
+      warning(`As of version 1.1.0 all deployments require a ${chalk.bold('.dclignore')} file`)
+    )
+    console.log(`Generating ${chalk.bold('.dclignore')} file with default values`)
     ignoreFile = await dcl.project.writeDclIgnore()
   }
 

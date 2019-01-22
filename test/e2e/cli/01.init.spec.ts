@@ -15,7 +15,7 @@ describe('init command', async () => {
         workingDir: dirPath,
         env: { DCL_ENV: 'dev' }
       })
-        .when(/Send anonymous usage stats to Decentraland?/, () => Response.YES)
+        .when(/Send anonymous usage stats to Decentraland?/, () => Response.NO)
         .endWhen(/Installing dependencies/)
         .on('err', e => console.log(e))
         .on('end', async () => {
