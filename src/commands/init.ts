@@ -5,8 +5,8 @@ import chalk from 'chalk'
 import { BoilerplateType, SceneMetadata } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
-import { warning, loading } from '../utils/logging'
-import { installDependencies, isOnline } from '../utils/moduleHelpers'
+import { warning } from '../utils/logging'
+import { installDependencies } from '../utils/moduleHelpers'
 import { fail, ErrorType } from '../utils/errors'
 
 export const help = () => `
@@ -100,14 +100,10 @@ export async function main() {
 
   await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
 
-  if (await dcl.project.needsDependencies()) {
-    if (await isOnline()) {
-      const spinner = loading('Installing dependencies')
-      await installDependencies(true)
-      spinner.succeed('Dependencies installed')
-    } else {
-      fail(ErrorType.PREVIEW_ERROR, 'Unable to install dependencies: no internet connection')
-    }
+  try {
+    await installDependencies()
+  } catch (error) {
+    fail(ErrorType.INIT_ERROR, error.message)
   }
 
   Analytics.sceneCreated({ boilerplateType: boilerplate })

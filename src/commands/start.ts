@@ -4,15 +4,10 @@ import chalk from 'chalk'
 import opn = require('opn')
 
 import { Decentraland } from '../lib/Decentraland'
-import {
-  buildTypescript,
-  installDependencies,
-  isOnline,
-  getOutdatedApi
-} from '../utils/moduleHelpers'
+import { buildTypescript, installDependencies, getOutdatedApi } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
-import { info, loading, error, formatOutdatedMessage } from '../utils/logging'
-import { ErrorType } from '../utils/errors'
+import { info, error, formatOutdatedMessage } from '../utils/logging'
+import { ErrorType, fail } from '../utils/errors'
 import { isEnvCi } from '../utils/env'
 
 export const help = () => `
@@ -69,16 +64,10 @@ export async function main() {
     console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
   }
 
-  if (await dcl.project.needsDependencies()) {
-    if (await isOnline()) {
-      const spinner = loading('Installing dependencies')
-      await installDependencies(true)
-      spinner.succeed()
-    } else {
-      const e = new Error('Unable to install dependencies: no internet connection')
-      e.name = ErrorType.PREVIEW_ERROR
-      throw e
-    }
+  try {
+    await installDependencies()
+  } catch (error) {
+    fail(ErrorType.PREVIEW_ERROR, error.message)
   }
 
   if (await dcl.project.isTypescriptProject()) {

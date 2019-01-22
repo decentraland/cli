@@ -148,7 +148,6 @@ export async function main(version: string) {
       )
     )
     debug(e)
-    await Analytics.reportError(e.name, e.message, e.stack)
     process.exit(1)
   }
 }
