@@ -53,6 +53,15 @@
     "singleQuote": true,
     "printWidth": 100
   },
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
   "license": "Apache-2.0",
   "homepage": "https://github.com/decentraland/cli",
   "devDependencies": {
@@ -76,6 +85,7 @@
     "@zeit/ncc": "^0.8.1",
     "analytics-node": "^3.2.0",
     "arg": "^4.1.0",
+    "ava": "^1.1.0",
     "body-parser": "^1.18.3",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
