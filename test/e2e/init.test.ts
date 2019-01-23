@@ -1,12 +1,11 @@
 import * as fs from 'fs-extra'
 import * as path from 'path'
-
 import test from 'ava'
 
 import { SceneMetadata } from '../../src/lib/Project'
 import { isDebug } from '../../src/utils/env'
-import Commando, { Response } from './helpers/commando'
-import { tmpTest } from './helpers/sandbox'
+import Commando, { Response } from '../helpers/commando'
+import { tmpTest } from '../helpers/sandbox'
 
 test('E2E - init command', async t => {
   await tmpTest(async (dirPath, done) => {

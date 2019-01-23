@@ -1,9 +1,8 @@
 import * as path from 'path'
-
 import test from 'ava'
 
 import { isDebug } from '../../src/utils/env'
-import Commando, { Response } from './helpers/commando'
+import Commando, { Response } from '../helpers/commando'
 
 test('E2E - deploy command', async t => {
   await new Promise(resolve => {

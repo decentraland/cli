@@ -1,8 +1,8 @@
 import test from 'ava'
 
-import { Project } from '../../../src/lib/Project'
-import { tmpTest } from '../../helpers/sandbox'
-import { setupFilesystem } from '../helpers'
+import { Project } from '../../src/lib/Project'
+import { tmpTest } from '../helpers/sandbox'
+import { setupFilesystem } from './helpers'
 
 test('Integration - Project', async t => {
   await tmpTest(async (dirPath, done) => {

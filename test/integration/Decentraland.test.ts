@@ -1,11 +1,10 @@
 import * as fs from 'fs-extra'
 import * as path from 'path'
-
 import test from 'ava'
 
-import { tmpTest } from '../../helpers/sandbox'
-import { Decentraland } from '../../../src/lib/Decentraland'
-import { BoilerplateType, SceneMetadata } from '../../../src/lib/Project'
+import { tmpTest } from '../helpers/sandbox'
+import { Decentraland } from '../../src/lib/Decentraland'
+import { BoilerplateType, SceneMetadata } from '../../src/lib/Project'
 
 async function isBasicDCLIgnore(dirPath: string): Promise<boolean> {
   const file = await fs.readFile(path.resolve(dirPath, '.dclignore'), 'utf-8')
