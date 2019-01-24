@@ -88,7 +88,7 @@ export async function main() {
     spinner.create(`Uploading content...`)
 
     dcl.on('upload:failed', (error: any) => {
-      spinner.fail('Fail to upload content')
+      spinner.fail('Failed to upload content')
       fail(ErrorType.DEPLOY_ERROR, `Unable ro upload content. ${error}`)
     })
 
