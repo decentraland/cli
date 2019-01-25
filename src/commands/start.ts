@@ -57,7 +57,7 @@ export async function main() {
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),
     watch: shouldWatchFiles,
-    workingDir: process.cwd()
+    workingDir: args._[2] || process.cwd()
   })
 
   Analytics.preview()

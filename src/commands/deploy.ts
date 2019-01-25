@@ -51,7 +51,7 @@ export async function main() {
 
   const dcl = new Decentraland({
     isHttps: args['--https'],
-    workingDir: args._[2],
+    workingDir: args._[2] || process.cwd(),
     forceDeploy: !args['--partial'],
     yes: args['--yes']
   })

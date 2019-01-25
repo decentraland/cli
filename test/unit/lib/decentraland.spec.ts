@@ -63,7 +63,10 @@ describe('Decentraland', () => {
 
   describe('deploy()', () => {
     it('should call all the necessary APIs', async () => {
-      const dcl = new Decentraland({ yes: true })
+      const dcl = new Decentraland({
+        workingDir: process.cwd(),
+        yes: true
+      })
       const files = await dcl.project.getFiles()
       await dcl.deploy(files)
 
