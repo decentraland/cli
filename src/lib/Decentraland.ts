@@ -71,7 +71,7 @@ export class Decentraland extends EventEmitter {
     super()
     this.options = args
     this.options.config = this.options.config || getConfig()
-    console.assert(this.options.workingDir, 'working directory is missing')
+    console.assert(this.options.workingDir, 'Working directory is missing')
     debug(`Working directory: ${chalk.bold(this.options.workingDir)}`)
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()

@@ -1,3 +1,4 @@
+import * as path from 'path'
 import * as inquirer from 'inquirer'
 import * as arg from 'arg'
 import chalk from 'chalk'
@@ -49,9 +50,11 @@ export async function main() {
     '-p': '--partial'
   })
 
+  const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
+
   const dcl = new Decentraland({
     isHttps: args['--https'],
-    workingDir: args._[2] || process.cwd(),
+    workingDir,
     forceDeploy: !args['--partial'],
     yes: args['--yes']
   })
