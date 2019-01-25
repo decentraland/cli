@@ -17,20 +17,27 @@ export function setVersion(v: string) {
   version = v
 }
 
-export async function checkAndInstallDependencies(silent: boolean = isDebug()): Promise<void> {
+export async function checkAndInstallDependencies(
+  workDir?: string,
+  silent: boolean = isDebug()
+): Promise<void> {
   const online = await isOnline()
 
   if (!online) {
     throw new Error('Unable to install dependencies: no internet connection')
   }
 
-  return installDependencies(silent)
+  return installDependencies(workDir, silent)
 }
 
-export async function installDependencies(silent: boolean = isDebug()): Promise<void> {
+export async function installDependencies(
+  workDir?: string,
+  silent: boolean = isDebug()
+): Promise<void> {
   spinner.create('Installing dependencies')
+  const options = workDir ? ['install', workDir] : ['install']
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['install'], { shell: true })
+    const child = spawn(npm, options, { shell: true })
     if (!silent) {
       child.stdout.pipe(process.stdout)
     }
@@ -38,7 +45,13 @@ export async function installDependencies(silent: boolean = isDebug()): Promise<
     child.on('close', code => {
       if (code !== 0) {
         spinner.fail()
-        reject(new Error(`${chalk.bold('npm install')} exited with code ${code}`))
+        reject(
+          new Error(
+            `${chalk.bold(
+              workDir ? `npm install ${workDir}` : `npm install`
+            )} exited with code ${code}. Please try running the command manually`
+          )
+        )
       }
 
       spinner.succeed()

@@ -6,7 +6,7 @@ import { BoilerplateType, SceneMetadata } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
 import { warning } from '../utils/logging'
-import { installDependencies } from '../utils/moduleHelpers'
+import { checkAndInstallDependencies } from '../utils/moduleHelpers'
 import { fail, ErrorType } from '../utils/errors'
 
 export const help = () => `
@@ -101,7 +101,7 @@ export async function main() {
   await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
 
   try {
-    await installDependencies()
+    await checkAndInstallDependencies(args._[2])
   } catch (error) {
     fail(ErrorType.INIT_ERROR, error.message)
   }
