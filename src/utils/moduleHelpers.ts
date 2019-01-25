@@ -8,7 +8,6 @@ import * as packageJson from 'package-json'
 import * as spinner from '../utils/spinner'
 import { readJSON } from '../utils/filesystem'
 import { getNodeModulesPath } from '../utils/project'
-import { isDebug } from './env'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 let version = null
@@ -18,8 +17,8 @@ export function setVersion(v: string) {
 }
 
 export async function checkAndInstallDependencies(
-  workDir?: string,
-  silent: boolean = isDebug()
+  workingDir: string,
+  silent: boolean
 ): Promise<void> {
   const online = await isOnline()
 
@@ -27,13 +26,10 @@ export async function checkAndInstallDependencies(
     throw new Error('Unable to install dependencies: no internet connection')
   }
 
-  return installDependencies(workDir, silent)
+  return installDependencies(workingDir, silent)
 }
 
-export async function installDependencies(
-  workDir?: string,
-  silent: boolean = isDebug()
-): Promise<void> {
+async function installDependencies(workDir: string, silent: boolean): Promise<void> {
   spinner.create('Installing dependencies')
   return new Promise((resolve, reject) => {
     const child = spawn(npm, ['install'], { shell: true, cwd: workDir })
@@ -69,7 +65,13 @@ export function buildTypescript(): Promise<void> {
       }
     })
     child.stderr.pipe(process.stderr)
-    child.on('close', () => resolve())
+    child.on('close', code => {
+      if (code !== 0) {
+        reject(new Error('Error while building the project'))
+      } else {
+        resolve()
+      }
+    })
   })
 }
 
@@ -79,6 +81,7 @@ export async function getLatestVersion(name: string): Promise<string> {
   }
 
   try {
+    // NOTE: this packageJson function should receive the workingDir
     const pkg = await packageJson(name.toLowerCase())
     return pkg.version
   } catch (e) {
@@ -86,12 +89,12 @@ export async function getLatestVersion(name: string): Promise<string> {
   }
 }
 
-export async function getInstalledVersion(name: string): Promise<string> {
+export async function getInstalledVersion(workingDir: string, name: string): Promise<string> {
   let decentralandApiPkg: { version: string }
 
   try {
     decentralandApiPkg = await readJSON<{ version: string }>(
-      path.resolve(getNodeModulesPath(process.cwd()), name, 'package.json')
+      path.resolve(getNodeModulesPath(workingDir), name, 'package.json')
     )
   } catch (e) {
     return null
@@ -100,13 +103,15 @@ export async function getInstalledVersion(name: string): Promise<string> {
   return decentralandApiPkg.version
 }
 
-export async function getOutdatedApi(): Promise<{
+export async function getOutdatedApi(
+  workingDir: string
+): Promise<{
   package: string
   installedVersion: string
   latestVersion: string
 }> {
-  const decentralandApiVersion = await getInstalledVersion('decentraland-api')
-  const decentralandEcsVersion = await getInstalledVersion('decentraland-ecs')
+  const decentralandApiVersion = await getInstalledVersion(workingDir, 'decentraland-api')
+  const decentralandEcsVersion = await getInstalledVersion(workingDir, 'decentraland-ecs')
 
   if (decentralandEcsVersion) {
     const latestVersion = await getLatestVersion('decentraland-ecs')

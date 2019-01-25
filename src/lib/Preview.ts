@@ -13,6 +13,8 @@ import * as ignore from 'ignore'
 
 import { fail, ErrorType } from '../utils/errors'
 
+type Decentraland = import('./Decentraland').Decentraland
+
 function nocache(req, res, next) {
   res.setHeader('Surrogate-Control', 'no-store')
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
@@ -42,18 +44,19 @@ export class Preview extends EventEmitter {
   private ignoredPaths: string
   private watch: boolean
 
-  constructor(ignoredPaths: string, watch: boolean) {
+  constructor(public dcl: Decentraland, ignoredPaths: string, watch: boolean) {
     super()
     this.ignoredPaths = ignoredPaths
     this.watch = watch
   }
 
   async startServer(port: number) {
-    const root = process.cwd()
-
     const relativiseUrl = (url: string) => {
       url = url.replace(/[\/\\]/g, '/')
-      const newRoot = root.replace(/\//g, '/').replace(/\\/g, '/')
+      const newRoot = this.dcl
+        .getWorkingDir()
+        .replace(/\//g, '/')
+        .replace(/\\/g, '/')
       if (newRoot.endsWith('/')) {
         return url.replace(newRoot, '')
       } else {
@@ -74,7 +77,7 @@ export class Preview extends EventEmitter {
     }
 
     if (this.watch) {
-      chokidar.watch(root).on('all', (event, path) => {
+      chokidar.watch(this.dcl.getWorkingDir()).on('all', (event, path) => {
         if (!ig.ignores(path)) {
           this.wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
@@ -120,10 +123,10 @@ export class Preview extends EventEmitter {
 
     this.app.use('/@', express.static(artifactPath))
 
-    this.app.use('/contents/', express.static(root))
+    this.app.use('/contents/', express.static(this.dcl.getWorkingDir()))
 
     this.app.get('/mappings', (req, res) => {
-      glob(root + '/**/*', (err, files) => {
+      glob(this.dcl.getWorkingDir() + '/**/*', (err, files) => {
         if (err) {
           res.status(500)
           res.json(err)
@@ -152,7 +155,7 @@ export class Preview extends EventEmitter {
       })
     })
 
-    this.app.use(express.static(root))
+    this.app.use(express.static(this.dcl.getWorkingDir()))
 
     this.app.use(nocache)
 

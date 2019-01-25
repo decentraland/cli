@@ -83,6 +83,10 @@ export class Decentraland extends EventEmitter {
     events(this.contentService, 'upload:*', this.pipeEvents.bind(this))
   }
 
+  getWorkingDir(): string {
+    return this.options.workingDir
+  }
+
   async init(sceneMeta: SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
     await this.project.writeDclIgnore()
     await this.project.writeSceneFile(sceneMeta)
@@ -136,7 +140,7 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
-    const preview = new Preview(await this.project.getDCLIgnore(), this.getWatch())
+    const preview = new Preview(this, await this.project.getDCLIgnore(), this.getWatch())
 
     events(preview, '*', this.pipeEvents.bind(this))
 
