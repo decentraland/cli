@@ -18,9 +18,8 @@ export function tmpTest(fn: any) {
     try {
       fn(dir, done)
     } catch (e) {
-      rimraf(dir, () => {
-        reject(e)
-      })
+      reject(e)
+      rimraf(dir)
     }
   })
 }
