@@ -1,3 +1,4 @@
+import * as path from 'path'
 import * as arg from 'arg'
 import * as inquirer from 'inquirer'
 import chalk from 'chalk'
@@ -5,8 +6,8 @@ import chalk from 'chalk'
 import { BoilerplateType, SceneMetadata } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
-import { warning, loading } from '../utils/logging'
-import { installDependencies, isOnline } from '../utils/moduleHelpers'
+import { warning } from '../utils/logging'
+import { checkAndInstallDependencies } from '../utils/moduleHelpers'
 import { fail, ErrorType } from '../utils/errors'
 
 export const help = () => `
@@ -45,6 +46,7 @@ export async function main() {
   })
 
   const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
+  const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
 
   if (!Object.values(BoilerplateType).includes(boilerplate)) {
     fail(
@@ -55,9 +57,7 @@ export async function main() {
     )
   }
 
-  const dcl = new Decentraland({
-    workingDir: args._[2]
-  })
+  const dcl = new Decentraland({ workingDir })
 
   await dcl.project.validateNewProject()
   const isEmpty = await dcl.project.isProjectDirEmpty()
@@ -100,14 +100,10 @@ export async function main() {
 
   await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
 
-  if (await dcl.project.needsDependencies()) {
-    if (await isOnline()) {
-      const spinner = loading('Installing dependencies')
-      await installDependencies(true)
-      spinner.succeed('Dependencies installed')
-    } else {
-      fail(ErrorType.PREVIEW_ERROR, 'Unable to install dependencies: no internet connection')
-    }
+  try {
+    await checkAndInstallDependencies(workingDir)
+  } catch (error) {
+    fail(ErrorType.INIT_ERROR, error.message)
   }
 
   Analytics.sceneCreated({ boilerplateType: boilerplate })

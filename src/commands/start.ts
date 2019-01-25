@@ -6,13 +6,12 @@ import opn = require('opn')
 import { Decentraland } from '../lib/Decentraland'
 import {
   buildTypescript,
-  installDependencies,
-  isOnline,
-  getOutdatedApi
+  getOutdatedApi,
+  checkAndInstallDependencies
 } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
-import { info, loading, error, formatOutdatedMessage } from '../utils/logging'
-import { ErrorType } from '../utils/errors'
+import { error, formatOutdatedMessage } from '../utils/logging'
+import { ErrorType, fail } from '../utils/errors'
 import { isEnvCi } from '../utils/env'
 
 export const help = () => `
@@ -69,16 +68,10 @@ export async function main() {
     console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
   }
 
-  if (await dcl.project.needsDependencies()) {
-    if (await isOnline()) {
-      const spinner = loading('Installing dependencies')
-      await installDependencies(true)
-      spinner.succeed()
-    } else {
-      const e = new Error('Unable to install dependencies: no internet connection')
-      e.name = ErrorType.PREVIEW_ERROR
-      throw e
-    }
+  try {
+    await checkAndInstallDependencies(args._[2])
+  } catch (error) {
+    fail(ErrorType.PREVIEW_ERROR, error.message)
   }
 
   if (await dcl.project.isTypescriptProject()) {
@@ -93,7 +86,7 @@ export async function main() {
 
     console.log('') // line break
 
-    info(`Preview server is now running`)
+    console.log(`Preview server is now running`)
 
     console.log(chalk.bold('\n  Available on:\n'))
 

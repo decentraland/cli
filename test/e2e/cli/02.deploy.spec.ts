@@ -9,14 +9,14 @@ describe('deploy command', async () => {
   it('should display files before upload', async () => {
     await tmpTest(async (dirPath, done) => {
       new Commando(`node ${path.resolve('bin', 'dcl')} init`, {
-        silent: isDebug(),
+        silent: !isDebug(),
         workingDir: dirPath,
         env: { DCL_ENV: 'dev' }
       })
         .endWhen(/Installing dependencies/)
         .on('end', async () => {
           new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
-            silent: isDebug(),
+            silent: !isDebug(),
             workingDir: dirPath,
             env: { DCL_ENV: 'dev' }
           })

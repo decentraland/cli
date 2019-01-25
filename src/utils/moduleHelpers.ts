@@ -1,11 +1,14 @@
 import * as path from 'path'
+import chalk from 'chalk'
 import * as semver from 'semver'
 import { spawn } from 'child_process'
 import * as fetch from 'isomorphic-fetch'
 import * as packageJson from 'package-json'
 
+import * as spinner from '../utils/spinner'
 import { readJSON } from '../utils/filesystem'
-import { getRootPath, getNodeModulesPath } from '../utils/project'
+import { getNodeModulesPath } from '../utils/project'
+import { isDebug } from './env'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
 let version = null
@@ -14,14 +17,45 @@ export function setVersion(v: string) {
   version = v
 }
 
-export function installDependencies(silent: boolean = false): Promise<void> {
+export async function checkAndInstallDependencies(
+  workDir?: string,
+  silent: boolean = isDebug()
+): Promise<void> {
+  const online = await isOnline()
+
+  if (!online) {
+    throw new Error('Unable to install dependencies: no internet connection')
+  }
+
+  return installDependencies(workDir, silent)
+}
+
+export async function installDependencies(
+  workDir?: string,
+  silent: boolean = isDebug()
+): Promise<void> {
+  spinner.create('Installing dependencies')
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['install'], { shell: true })
+    const child = spawn(npm, ['install'], { shell: true, cwd: workDir })
     if (!silent) {
       child.stdout.pipe(process.stdout)
-      child.stderr.pipe(process.stderr)
     }
-    child.on('close', () => resolve())
+    child.stderr.pipe(process.stderr)
+    child.on('close', code => {
+      if (code !== 0) {
+        spinner.fail()
+        reject(
+          new Error(
+            `${chalk.bold(
+              `npm install`
+            )} exited with code ${code}. Please try running the command manually`
+          )
+        )
+      }
+
+      spinner.succeed()
+      resolve()
+    })
   })
 }
 
@@ -57,7 +91,7 @@ export async function getInstalledVersion(name: string): Promise<string> {
 
   try {
     decentralandApiPkg = await readJSON<{ version: string }>(
-      path.resolve(getNodeModulesPath(getRootPath()), name, 'package.json')
+      path.resolve(getNodeModulesPath(process.cwd()), name, 'package.json')
     )
   } catch (e) {
     return null
