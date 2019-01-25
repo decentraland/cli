@@ -46,7 +46,7 @@ export async function main() {
   })
 
   const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
-  const workingDir = path.resolve(process.cwd(), args._[1])
+  const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
 
   if (!Object.values(BoilerplateType).includes(boilerplate)) {
     fail(
