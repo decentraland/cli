@@ -35,9 +35,6 @@ function createSandbox() {
     .stub(ContentService.prototype, 'uploadContent')
     .callsFake(async () => true)
 
-  // Utils stub
-  ctx.stub(ProjectUtils, 'getRootPath').callsFake(() => '.')
-
   return {
     ctx,
     validateSceneOptionsStub,
