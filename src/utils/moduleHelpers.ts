@@ -7,7 +7,7 @@ import * as packageJson from 'package-json'
 
 import * as spinner from '../utils/spinner'
 import { readJSON } from '../utils/filesystem'
-import { getRootPath, getNodeModulesPath } from '../utils/project'
+import { getNodeModulesPath } from '../utils/project'
 import { isDebug } from './env'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
@@ -35,9 +35,8 @@ export async function installDependencies(
   silent: boolean = isDebug()
 ): Promise<void> {
   spinner.create('Installing dependencies')
-  const options = workDir ? ['install', workDir] : ['install']
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, options, { shell: true })
+    const child = spawn(npm, ['install'], { shell: true, cwd: workDir })
     if (!silent) {
       child.stdout.pipe(process.stdout)
     }
@@ -48,7 +47,7 @@ export async function installDependencies(
         reject(
           new Error(
             `${chalk.bold(
-              workDir ? `npm install ${workDir}` : `npm install`
+              `npm install`
             )} exited with code ${code}. Please try running the command manually`
           )
         )
@@ -92,7 +91,7 @@ export async function getInstalledVersion(name: string): Promise<string> {
 
   try {
     decentralandApiPkg = await readJSON<{ version: string }>(
-      path.resolve(getNodeModulesPath(getRootPath()), name, 'package.json')
+      path.resolve(getNodeModulesPath(process.cwd()), name, 'package.json')
     )
   } catch (e) {
     return null

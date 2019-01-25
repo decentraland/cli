@@ -54,8 +54,6 @@ describe('Decentraland', () => {
       address,
       network: { id: 0, name: 'mainnet' }
     }))
-    // Utils stub
-    var stub = ctx.stub(ProjectUtils, 'getRootPath').callsFake(() => '.')
   })
 
   afterEach(() => {

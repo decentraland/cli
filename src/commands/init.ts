@@ -1,3 +1,4 @@
+import * as path from 'path'
 import * as arg from 'arg'
 import * as inquirer from 'inquirer'
 import chalk from 'chalk'
@@ -45,6 +46,7 @@ export async function main() {
   })
 
   const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
+  const workingDir = path.resolve(process.cwd(), args._[1])
 
   if (!Object.values(BoilerplateType).includes(boilerplate)) {
     fail(
@@ -55,9 +57,7 @@ export async function main() {
     )
   }
 
-  const dcl = new Decentraland({
-    workingDir: args._[2]
-  })
+  const dcl = new Decentraland({ workingDir })
 
   await dcl.project.validateNewProject()
   const isEmpty = await dcl.project.isProjectDirEmpty()
@@ -101,7 +101,7 @@ export async function main() {
   await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
 
   try {
-    await checkAndInstallDependencies(args._[2])
+    await checkAndInstallDependencies(workingDir)
   } catch (error) {
     fail(ErrorType.INIT_ERROR, error.message)
   }

@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events'
+import chalk from 'chalk'
 import { ethers } from 'ethers'
 import * as events from 'wildcards'
 import * as inquirer from 'inquirer'
@@ -9,9 +10,8 @@ import { ContentService } from './content/ContentService'
 import { filterAndFillEmpty } from '../utils/land'
 import { Coords, getObject } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
-import { getRootPath } from '../utils/project'
 import { DCLInfo, getConfig } from '../config'
-import { warning } from '../utils/logging'
+import { warning, debug } from '../utils/logging'
 import { Project, BoilerplateType, IFile, SceneMetadata } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI, LinkerResponse } from './LinkerAPI'
@@ -67,7 +67,8 @@ export class Decentraland extends EventEmitter {
     super()
     this.options = args
     this.options.config = this.options.config || getConfig()
-    this.options.workingDir = this.options.workingDir || getRootPath()
+    this.options.workingDir = this.options.workingDir || process.cwd()
+    debug(`Working directory: ${chalk.bold(this.options.workingDir)}`)
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.options.blockchain ? this.ethereum : new API()
