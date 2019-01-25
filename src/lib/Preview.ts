@@ -11,7 +11,6 @@ import * as glob from 'glob'
 import * as chokidar from 'chokidar'
 import * as ignore from 'ignore'
 
-import { getRootPath } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 
 function nocache(req, res, next) {
@@ -50,7 +49,7 @@ export class Preview extends EventEmitter {
   }
 
   async startServer(port: number) {
-    const root = getRootPath()
+    const root = process.cwd()
 
     const relativiseUrl = (url: string) => {
       url = url.replace(/[\/\\]/g, '/')

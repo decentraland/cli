@@ -24,6 +24,11 @@
     "copy:resources": "cp -r samples dist && cp -r src/certs dist && cp -r src/css dist",
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "ava",
+    "docker:build": "docker build . -t decentraland-cli",
+    "docker:clean": "docker rm -f decentraland-cli",
+    "docker:run": "docker run -it -p 8080:8080 --name decentraland-cli decentraland-cli",
+    "docker:enter": "docker exec -it decentraland-cli /bin/bash",
+    "docker:start": "npm run docker:clean && npm run docker:run && npm run docker:enter",
     "unlock:dev": "node ./scripts/unlockDevDeps.js",
     "release": "node ./scripts/npmPublish.js",
     "precommit": "lint-staged"
