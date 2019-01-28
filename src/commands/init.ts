@@ -9,6 +9,7 @@ import { Analytics } from '../utils/analytics'
 import { warning } from '../utils/logging'
 import { checkAndInstallDependencies } from '../utils/moduleHelpers'
 import { fail, ErrorType } from '../utils/errors'
+import { isDebug } from '../utils/env'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [path] [options]')}
@@ -101,7 +102,7 @@ export async function main() {
   await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
 
   try {
-    await checkAndInstallDependencies(workingDir)
+    await checkAndInstallDependencies(dcl.getWorkingDir(), !isDebug())
   } catch (error) {
     fail(ErrorType.INIT_ERROR, error.message)
   }

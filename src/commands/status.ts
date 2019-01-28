@@ -41,7 +41,7 @@ export async function main() {
     { permissive: true }
   )
 
-  const dcl = new Decentraland()
+  const dcl = new Decentraland({ workingDir: process.cwd() })
 
   const target = parseTarget(args._)
   let coords

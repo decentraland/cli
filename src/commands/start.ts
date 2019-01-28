@@ -1,3 +1,4 @@
+import * as path from 'path'
 import * as os from 'os'
 import * as arg from 'arg'
 import chalk from 'chalk'
@@ -12,7 +13,7 @@ import {
 import { Analytics } from '../utils/analytics'
 import { error, formatOutdatedMessage } from '../utils/logging'
 import { ErrorType, fail } from '../utils/errors'
-import { isEnvCi } from '../utils/env'
+import { isEnvCi, isDebug } from '../utils/env'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [path] [options]')}
@@ -51,31 +52,31 @@ export async function main() {
   })
 
   const isCi = args['--ci'] || isEnvCi()
-
   const shouldWatchFiles = !args['--no-watch'] && !isCi
+  const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),
     watch: shouldWatchFiles,
-    workingDir: args._[2]
+    workingDir
   })
 
   Analytics.preview()
 
-  const sdkOutdated = await getOutdatedApi()
+  const sdkOutdated = await getOutdatedApi(dcl.getWorkingDir())
 
   if (sdkOutdated) {
     console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
   }
 
   try {
-    await checkAndInstallDependencies(args._[2])
+    await checkAndInstallDependencies(dcl.getWorkingDir(), !isDebug())
   } catch (error) {
     fail(ErrorType.PREVIEW_ERROR, error.message)
   }
 
   if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript()
+    await buildTypescript(workingDir)
   }
 
   dcl.on('preview:ready', port => {

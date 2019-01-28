@@ -41,8 +41,13 @@ export namespace Analytics {
     })
   }
 
-  export async function reportError(type: string, message: string, stackTrace: string) {
-    return track('Error', {
+  export async function reportError(
+    workingDir: string,
+    type: string,
+    message: string,
+    stackTrace: string
+  ) {
+    return track(workingDir, 'Error', {
       errorType: type,
       message,
       stackTrace
@@ -79,7 +84,7 @@ export namespace Analytics {
  * @param eventName The name of the event to be tracked
  * @param properties Any object containing serializable data
  */
-async function track(eventName: string, properties: any = {}) {
+async function track(workingDir: string, eventName: string, properties: any = {}) {
   const { userId, trackStats } = getConfig()
 
   if (!(await isOnline())) {
@@ -87,7 +92,7 @@ async function track(eventName: string, properties: any = {}) {
   }
 
   return new Promise(async resolve => {
-    const dclApiVersion = await getInstalledVersion('decentraland-api')
+    const dclApiVersion = await getInstalledVersion(workingDir, 'decentraland-api')
     const newProperties = {
       ...properties,
       os: process.platform,

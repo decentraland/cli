@@ -20,7 +20,7 @@ import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 
 export type DecentralandArguments = {
-  workingDir?: string
+  workingDir: string
   linkerPort?: number
   previewPort?: number
   isHttps?: boolean
@@ -58,16 +58,20 @@ export type FileInfo = {
 export class Decentraland extends EventEmitter {
   project: Project
   ethereum: Ethereum
-  options: DecentralandArguments = {}
+  options: DecentralandArguments
   provider: IEthereumDataProvider
   contentService: ContentService
   wallet: ethers.Wallet
 
-  constructor(args: DecentralandArguments = {}) {
+  constructor(
+    args: DecentralandArguments = {
+      workingDir: process.cwd()
+    }
+  ) {
     super()
     this.options = args
     this.options.config = this.options.config || getConfig()
-    this.options.workingDir = this.options.workingDir || process.cwd()
+    console.assert(this.options.workingDir, 'Working directory is missing')
     debug(`Working directory: ${chalk.bold(this.options.workingDir)}`)
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
@@ -81,6 +85,10 @@ export class Decentraland extends EventEmitter {
     // Pipe all events
     events(this.ethereum, 'ethereum:*', this.pipeEvents.bind(this))
     events(this.contentService, 'upload:*', this.pipeEvents.bind(this))
+  }
+
+  getWorkingDir(): string {
+    return this.options.workingDir
   }
 
   async init(sceneMeta: SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
@@ -136,7 +144,7 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
-    const preview = new Preview(await this.project.getDCLIgnore(), this.getWatch())
+    const preview = new Preview(this, await this.project.getDCLIgnore(), this.getWatch())
 
     events(preview, '*', this.pipeEvents.bind(this))
 
