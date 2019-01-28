@@ -29,10 +29,14 @@ export async function checkAndInstallDependencies(
   return installDependencies(workingDir, silent)
 }
 
-async function installDependencies(workDir: string, silent: boolean): Promise<void> {
+async function installDependencies(workingDir: string, silent: boolean): Promise<void> {
   spinner.create('Installing dependencies')
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['install'], { shell: true, cwd: workDir })
+    const child = spawn(npm, ['install'], {
+      shell: true,
+      cwd: workingDir,
+      env: { ...process.env, NODE_ENV: '' }
+    })
     if (!silent) {
       child.stdout.pipe(process.stdout)
     }
@@ -57,7 +61,11 @@ async function installDependencies(workDir: string, silent: boolean): Promise<vo
 
 export function buildTypescript(workingDir: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['run', 'watch'], { shell: true, cwd: workingDir })
+    const child = spawn(npm, ['run', 'watch'], {
+      shell: true,
+      cwd: workingDir,
+      env: { ...process.env, NODE_ENV: '' }
+    })
     child.stdout.pipe(process.stdout)
     child.stdout.on('data', data => {
       if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
