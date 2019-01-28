@@ -80,7 +80,8 @@ export async function main() {
   }
 
   const dcl = new Decentraland({
-    blockchain: args['--blockchain']
+    blockchain: args['--blockchain'],
+    workingDir: process.cwd()
   })
 
   if (type === 'parcel') {

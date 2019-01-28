@@ -34,7 +34,7 @@ class Commando extends EventEmitter {
 
     this.proc = spawn(cmd, parts.slice(1), {
       env: { ...process.env, ...opts.env },
-      cwd: opts.workingDir || process.cwd()
+      cwd: opts.workingDir
     })
 
     if (!opts.silent) {

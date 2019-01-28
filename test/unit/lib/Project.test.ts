@@ -130,10 +130,8 @@ test('Unit - Project.validateNewProject() - should pass if the working directory
   const { Project } = createSandbox()
   const project = new Project('.')
 
-  project
-    .validateNewProject()
-    .then(() => t.pass())
-    .catch(() => t.fail())
+  await project.validateNewProject()
+  t.pass()
 })
 
 test('Unit - Project.validateNewProject() - should fail if the working directory contains a scene.json file', async t => {

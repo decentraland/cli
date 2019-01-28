@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "2.2.2",
+  "version": "2.2.5",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "bin/dcl"
