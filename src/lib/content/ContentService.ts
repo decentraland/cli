@@ -96,7 +96,7 @@ export class ContentService extends EventEmitter {
     return {
       value: rootCID,
       signature: signature,
-      pubKey: address,
+      pubKey: address.toLowerCase(),
       validityType: 0,
       validity: validity,
       sequence: 2
