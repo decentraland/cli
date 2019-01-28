@@ -76,7 +76,7 @@ export async function main() {
   }
 
   if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript()
+    await buildTypescript(workingDir)
   }
 
   dcl.on('preview:ready', port => {

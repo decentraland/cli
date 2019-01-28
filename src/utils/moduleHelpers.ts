@@ -55,9 +55,9 @@ async function installDependencies(workDir: string, silent: boolean): Promise<vo
   })
 }
 
-export function buildTypescript(): Promise<void> {
+export function buildTypescript(workingDir: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['run', 'watch'], { shell: true })
+    const child = spawn(npm, ['run', 'watch'], { shell: true, cwd: workingDir })
     child.stdout.pipe(process.stdout)
     child.stdout.on('data', data => {
       if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {

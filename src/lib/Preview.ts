@@ -97,15 +97,15 @@ export class Preview extends EventEmitter {
 
     this.app.use(cors())
 
-    const npmModulesPath = path.resolve('node_modules')
+    const npmModulesPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules')
 
     // TODO: dcl.project.needsDependencies() should do this
     if (!fs.pathExistsSync(npmModulesPath)) {
       fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${npmModulesPath}, please run: npm install`)
     }
 
-    const dclEcsPath = path.resolve('node_modules', 'decentraland-ecs')
-    const dclApiPath = path.resolve('node_modules', 'decentraland-api')
+    const dclEcsPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-ecs')
+    const dclApiPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-api')
 
     const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
 
