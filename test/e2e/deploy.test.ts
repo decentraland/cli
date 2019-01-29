@@ -1,8 +1,13 @@
 import * as path from 'path'
 import test from 'ava'
 
+import * as deploy from '../../src/commands/deploy'
 import { isDebug } from '../../src/utils/env'
 import Commando, { Response } from '../helpers/commando'
+
+test('snapshot - dcl help deploy', t => {
+  t.snapshot(deploy.help())
+})
 
 test('E2E - deploy command', async t => {
   await new Promise(resolve => {
@@ -10,7 +15,7 @@ test('E2E - deploy command', async t => {
     new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
       silent: !isDebug(),
       workingDir: target,
-      env: { DCL_ENV: 'dev' }
+      env: { NODE_ENV: 'development' }
     })
       .when(/\(.* bytes\)\n/, msg => {
         t.true(msg.includes('bin/game.js'), 'expect game.js to be listed')

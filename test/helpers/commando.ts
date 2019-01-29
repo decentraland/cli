@@ -23,12 +23,19 @@ class Commando extends EventEmitter {
   private proc: ChildProcess
   private matchers: {
     pattern: RegExp
-    response: (mag: string) => string
+    response: (mag: string) => any
     options: IMatcherOptions
   }[] = []
+  private promises: Promise<any>[] = []
+  private onDataFn: (string) => void
 
-  constructor(command: string, opts: IOptions = { silent: false, env: {} }) {
+  constructor(
+    command: string,
+    opts: IOptions = { silent: false, env: {} },
+    onDataFn?: (string) => void
+  ) {
     super()
+    this.onDataFn = onDataFn
     const parts = command.split(' ')
     const cmd = opts.cmdPath ? path.resolve(opts.cmdPath, parts[0]) : parts[0]
 
@@ -43,12 +50,15 @@ class Commando extends EventEmitter {
 
     this.proc.stdout.on('data', data => this.onData(data.toString()))
     this.proc.stderr.on('data', data => this.emit('err', data.toString()))
-    this.proc.on('close', () => this.emit('end'))
+    this.proc.on('close', async () => {
+      await Promise.all(this.promises)
+      this.emit('end')
+    })
   }
 
   when(
     pattern: string | RegExp,
-    response: (msg: string) => string,
+    response: (msg: string) => any,
     options: IMatcherOptions = { matchMany: false }
   ) {
     this.matchers.push({ pattern: new RegExp(pattern), response, options })
@@ -57,29 +67,47 @@ class Commando extends EventEmitter {
 
   endWhen(
     pattern: string | RegExp,
-    response: (msg: string) => string = () => null,
+    response?: (msg: string) => any,
     options: IMatcherOptions = { matchMany: false }
   ) {
     const cb = msg => {
-      response(msg)
-      this.proc.kill()
-      return null
+      if (response) {
+        const res = response(msg)
+        if ('then' in response || response.constructor.name === 'AsyncFunction') {
+          this.promises.push(res)
+        }
+      }
+      Promise.all(this.promises).then(() => {
+        this.proc.kill()
+      })
     }
     this.matchers.push({ pattern: new RegExp(pattern), response: cb, options })
     return this
   }
 
   private onData(data: string) {
-    this.matchers.some((match, i) => {
-      if (data.match(match.pattern)) {
-        const res = match.response(data)
-        if (res) {
-          this.proc.stdin.write(res)
-        }
-        if (!match.options.matchMany) {
-          this.matchers.splice(i, 1)
-        }
-        return true
+    if (this.onDataFn) {
+      this.onDataFn(data)
+    }
+
+    this.matchers.forEach((match, i) => {
+      if (!data.match(match.pattern)) {
+        return
+      }
+
+      const res = match.response(data)
+
+      if ('then' in match.response) {
+        this.promises.push(res)
+        return
+      }
+
+      if (res && typeof res === 'string') {
+        this.proc.stdin.write(res)
+      }
+
+      if (!match.options.matchMany) {
+        this.matchers.splice(i, 1)
       }
     })
   }
