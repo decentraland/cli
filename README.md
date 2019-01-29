@@ -1,77 +1,44 @@
-# Decentraland CLI 1.4
+# Decentraland CLI ![Decentraland Logo](src/css/logo.svg)
 
-CLI tool for parcel management.
-
-- [x] Quickly create new projects
-- [x] Compiling scripts
-- [x] Warnings and linting of scenes
-- [x] Hot reloading
-- [x] Sign and upload scenes to Decentraland Content Server (scene deploying)
-- [x] Query parcel/estate/address info
-- [x] Query deployment status
-- [ ] Optimizing objects, textures
-- [ ] Generating bundles of assets
-- [ ] Test framework for scripting
-
-## Requirements
-
-- [NodeJS v8 and above](https://nodejs.org)
-- [Python 2.7](https://www.python.org/downloads)
-
-## Documentation
-
-Installation details for each platform can be found on the [Documentation](https://docs.decentraland.org/getting-started/installation-guide)
+[![Build Status](https://circleci.com/gh/decentraland/cli.svg?&style=shield)](https://circleci.com/gh/decentraland/workflows/cli)
+[![chat on Discord](https://img.shields.io/discord/417796904760639509.svg?logo=discord)](https://discordapp.com/invite/9EcuFgC)
 
 ## Usage
 
-### Initialize new Decentraland project **from working directory**:
+To install the latest version of `dcl` (Decentraland CLI), run this command:
 
 ```bash
-dcl init
+npm install -g decentraland
 ```
 
-### Start local development server and serve your scene:
-If you're using a remote server you should use the CI flag (this disable analytics reporting, browser opening and files hot-reloading)
+See more details at [Decentraland docs](https://docs.decentraland.org/getting-started/installation-guide).
 
-```bash
-dcl start
-dcl start --ci # Remote server
-```
+## Documentation
 
-### Deploy scene to Content server and the Ethereum Blockchain:
-If you're a ledger user you must use HTTPs flag to support the hardware wallet connection.
+For details on how to use Decentraland developer tools, check our [documentation site](https://docs.decentraland.org)
 
-```bash
-dcl deploy
-dcl deploy --https # Ledger users
-```
+## Contributing
 
-### Check parcel/estate/address information:
+1. [Fork](https://help.github.com/articles/fork-a-repo/) this repository to your own GitHub account and then [clone](https://help.github.com/articles/cloning-a-repository/) it to your local device.
+2.  Install dependencies with `npm install`.
+3.  Build the project by running `npm run build`.
+4.  Link the CLI with: `npm link`. The `dcl` command should now be available.
+5.  You can run tests with `npm test`
 
-```bash
-dcl info 0,0 # Parcels
-dcl info 0x9abdcb8825696cc2ef3a0a955f99850418847f5d # Addresses
-dcl info 52 # Estates
-```
+**NOTE:** you can set the environment variable `DEBUG=true` to see all debugging info
 
-### Check LAND deployment status:
+## Configuration
 
-```bash
-dcl status 0,0
-```
+`dcl` can be configured in several ways to adapt it to another environment other than the default one. To do this you have to either set environment variables or change your `~/.dclinfo` file:
 
-## Building
-
-1.  Clone the repo: `git clone https://github.com/decentraland/cli.git`
-2.  Go into the CLI directory: `cd cli`
-3.  Run `npm install`
-4.  Build the project by running `npm run build`
-4.  Link the CLI with: `npm link`
-
-`dcl` command should now be available.
-
-For CLI tool development, run `npm run watch` in your terminal (you''ll first need to run the build process at least once) and `npm link` in order to use it anywhere. The CLI will use the mainnet address for the LANDProxy contract by default. If you want to change it, you can define the `LAND_REGISTRY_CONTRACT_ADDRESS` environment variable. You can also use `DCL_ENV=dev` to point to the Ropsten contract. Contract addresses are available [here](https://contracts.decentraland.org/addresses.json).
-
+|Variable name|Enviroment variable|`~/.dclinfo`|
+| - | :--: | :-: |
+|Provider|RPC_URL|-|
+|MANA Token Contract|MANA_TOKEN|MANAToken|
+|LAND Registry Contract|LAND_REGISTRY|LANDRegistry|
+|Estate Registry Contract|ESTATE_REGISTRY|EstateRegistry|
+|Content Server URL|CONTENT_URL|contentUrl|
+|Segment API key|SEGMENT_KEY|segmentKey|
 
 ## Copyright info
 This repository is protected with a standard Apache 2 license. See the terms and conditions in the [LICENSE](https://github.com/decentraland/cli/blob/master/LICENSE) file.
