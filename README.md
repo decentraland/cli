@@ -15,7 +15,7 @@ See more details at [Decentraland docs](https://docs.decentraland.org/getting-st
 
 ## Documentation
 
-For details on how to use Decentraland developer tools, check our (documentation site)[https://docs.decentraland.org]
+For details on how to use Decentraland developer tools, check our [documentation site](https://docs.decentraland.org)
 
 ## Contributing
 
