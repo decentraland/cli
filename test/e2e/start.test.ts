@@ -78,7 +78,6 @@ function startProject(dirPath, t: ExecutionContext, done) {
       t.true(nodeModulesExists)
       t.true(ecsModuleExists)
 
-      console.log('almost finishing')
       done()
     })
 }
