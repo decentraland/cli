@@ -7,7 +7,7 @@ import { isDebug } from '../../src/utils/env'
 import Commando, { Response } from '../helpers/commando'
 import { tmpTest } from '../helpers/sandbox'
 
-function initProject(dirPath) {
+function initProject(dirPath): Promise<void> {
   return new Promise((resolve, reject) => {
     new Commando(`node ${path.resolve('bin', 'dcl')} init`, {
       silent: !isDebug(),
@@ -46,6 +46,18 @@ function statusProject(): Promise<string> {
       data => (allData += data)
     ).on('end', async () => {
       resolve(allData)
+    })
+  })
+}
+
+function deployProject(dirPath): Promise<void> {
+  return new Promise(resolve => {
+    new Commando(`node ${path.resolve('bin', 'dcl')} deploy --yes`, {
+      silent: !isDebug(),
+      workingDir: dirPath,
+      env: { NODE_ENV: 'development', DCL_PRIVATE_KEY: process.env.CI_DCL_PRIVATE_KEY }
+    }).on('end', async () => {
+      resolve()
     })
   })
 }
@@ -114,9 +126,9 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
       t.is(Buffer.compare(snapshotModified, imageModified), 0)
 
       const statusBefore = await statusProject()
-      // TODO deploy
+      await deployProject(dirPath)
       const statusAfter = await statusProject()
-      // t.not(statusBefore, statusAfter)
+      t.not(statusBefore, statusAfter)
 
       await startCmd.end()
       browser.close()
