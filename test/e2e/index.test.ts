@@ -74,6 +74,10 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
     return t.pass()
   }
 
+  if (!process.env.CI_DCL_PRIVATE_KEY) {
+    return t.fail('Missing CI_DCL_PRIVATE_KEY for full CI test')
+  }
+
   let browser: puppeteer.Browser
 
   try {
