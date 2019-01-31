@@ -7,7 +7,7 @@ import { ContentUploadRequest } from './ContentUploadRequest'
 
 export type ParcelInformation = {
   parcel_id: string
-  content: ContentElement[]
+  contents: ContentElement[]
   root_cid: string
   publisher: string
 }

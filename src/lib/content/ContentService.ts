@@ -82,12 +82,14 @@ export class ContentService extends EventEmitter {
       return null
     }
 
-    const sceneFileCID = information.content[SCENE_FILE]
-    if (!sceneFileCID) {
+    const sceneFile = information.contents.find(c => {
+      return c.file === SCENE_FILE
+    })
+    if (!sceneFile) {
       return null
     }
 
-    return this.client.getContent(sceneFileCID)
+    return this.client.getContent(sceneFile.hash)
   }
 
   private buildMetadata(rootCID: string, signature: string, address: string): RequestMetadata {
