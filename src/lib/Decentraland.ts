@@ -227,8 +227,8 @@ export class Decentraland extends EventEmitter {
     })
     if (information) {
       const files: FileInfo[] = []
-      for (const key in information.contents) {
-        files.push({ name: key, cid: information.contents[key] })
+      for (const elem of information.content) {
+        files.push({ name: elem.file, cid: elem.hash })
       }
       return { cid: information.root_cid, files: files }
     }

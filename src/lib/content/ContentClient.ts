@@ -7,9 +7,14 @@ import { ContentUploadRequest } from './ContentUploadRequest'
 
 export type ParcelInformation = {
   parcel_id: string
-  contents: Map<string, string>
+  content: ContentElement[]
   root_cid: string
   publisher: string
+}
+
+export type ContentElement = {
+  file: string
+  hash: string
 }
 
 export type MappingsResponse = {

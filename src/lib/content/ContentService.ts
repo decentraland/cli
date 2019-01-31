@@ -82,7 +82,7 @@ export class ContentService extends EventEmitter {
       return null
     }
 
-    const sceneFileCID = information.contents[SCENE_FILE]
+    const sceneFileCID = information.content[SCENE_FILE]
     if (!sceneFileCID) {
       return null
     }
