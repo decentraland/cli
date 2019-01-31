@@ -51,8 +51,9 @@ function statusProject(): Promise<string> {
 }
 
 function deployProject(dirPath): Promise<void> {
+  console.log(process.env.CI_DCL_PRIVATE_KEY)
   return new Promise(resolve => {
-    new Commando(`node ${path.resolve('bin', 'dcl')} deploy --yes`, {
+    new Commando(`node ${path.resolve('bin', 'dcl')} deploy --yes --network ropsten`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development', DCL_PRIVATE_KEY: process.env.CI_DCL_PRIVATE_KEY }
@@ -105,11 +106,17 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
         path: path.resolve(dirPath, 'dcl-preview.png')
       })
 
+      browser.close()
       t.is(Buffer.compare(snapshotPreview, imagePreview), 0)
+
+      // With this random content we can change the CID and verify successful deployment
+      const randomString = Math.random()
+        .toString(36)
+        .substring(7)
 
       // Asset that hotreloading changes preview
       // TODO also tests websockets
-      gameFile = gameFile.replace('spawnCube(5, 1, 5)', 'spawnCube(5, 5, 5)')
+      gameFile = gameFile.replace('spawnCube(5, 1, 5)', `spawnCube(5, 5, 5) // ${randomString}`)
       await fs.writeFile(path.resolve(dirPath, 'src', 'game.ts'), gameFile, {
         encoding: 'utf8'
       })
@@ -120,7 +127,7 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
       )
       const imageModified = await page.screenshot({
         encoding: 'binary',
-        path: path.resolve(dirPath, path.resolve(__dirname, './snapshots/dcl-preview-modified.png'))
+        path: path.resolve(dirPath, path.resolve(dirPath, './snapshots/dcl-preview-modified.png'))
       })
 
       t.is(Buffer.compare(snapshotModified, imageModified), 0)
@@ -131,7 +138,6 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
       t.not(statusBefore, statusAfter)
 
       await startCmd.end()
-      browser.close()
       done()
     })
   } catch (error) {

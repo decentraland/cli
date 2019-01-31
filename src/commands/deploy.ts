@@ -22,6 +22,9 @@ export const help = () => `
       -y, --yes           Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
       -p, --partial       Deploy only new changed files
+      -n, --network       Choose between ${chalk.bold('mainnet')} and ${chalk.bold(
+  'ropsten'
+)} (default 'mainnet') only available with env ${chalk.bold('DCL_PRIVATE_KEY')}
 
     ${chalk.dim('Examples:')}
 
@@ -39,7 +42,7 @@ export const help = () => `
 `
 
 export async function main() {
-  const args = arg({
+  const argOps = {
     '--help': Boolean,
     '--yes': Boolean,
     '--https': Boolean,
@@ -48,7 +51,10 @@ export async function main() {
     '-y': '--yes',
     '-l': '--https',
     '-p': '--partial'
-  })
+  }
+  const args = process.env.DCL_PRIVATE_KEY
+    ? arg({ ...argOps, '--network': String, '-n': '--network' })
+    : arg(argOps)
 
   const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
 
