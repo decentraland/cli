@@ -19,4 +19,4 @@ test_script:
   - node --version
   - npm --version
   # run tests
-  - npm run test:ci
+  - npm run test:win

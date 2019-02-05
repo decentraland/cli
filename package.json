@@ -25,6 +25,7 @@
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava --match='!*snapshot*'",
     "test:ci": "npm test -- -v --fail-fast --match='!*E2E*' --match='!*Decentraland.deploy()*'",
+    "test:win": "npm test -- -v --fail-fast",
     "docker:build": "docker build . -t decentraland-cli",
     "docker:clean": "docker rm -f decentraland-cli",
     "docker:run": "docker run -it -p 8080:8080 --name decentraland-cli decentraland-cli",
