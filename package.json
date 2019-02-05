@@ -24,7 +24,7 @@
     "copy:resources": "cp -r samples dist && cp -r src/certs dist && cp -r src/css dist",
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava",
-    "test:ci": "npm test -- -v --fail-fast",
+    "test:ci": "npm test -- -v --fail-fast --match='!*E2E*'",
     "docker:build": "docker build . -t decentraland-cli",
     "docker:clean": "docker rm -f decentraland-cli",
     "docker:run": "docker run -it -p 8080:8080 --name decentraland-cli decentraland-cli",
