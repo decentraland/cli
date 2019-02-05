@@ -46,7 +46,7 @@ function createSandbox() {
 
 test('Unit - Decentraland.deploy() - should call all the necessary APIs', async t => {
   const { validateSceneOptionsStub, getFilesStub, linkStub, uploadContentStub } = createSandbox()
-  const dcl = new Decentraland({ yes: true })
+  const dcl = new Decentraland({ workingDir: null, yes: true })
   const files = await dcl.project.getFiles()
   await dcl.deploy(files)
 
