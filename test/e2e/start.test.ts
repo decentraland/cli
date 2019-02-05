@@ -55,31 +55,16 @@ function initProject(dirPath, t: ExecutionContext) {
   })
 }
 
-function startProject(dirPath, t: ExecutionContext, done) {
-  new Commando(`node ${path.resolve('bin', 'dcl')} start --ci`, {
-    silent: !isDebug(),
-    workingDir: dirPath,
-    env: { NODE_ENV: 'development' }
+function startProject(dirPath): Promise<Commando> {
+  return new Promise(resolve => {
+    const command = new Commando(`node ${path.resolve('bin', 'dcl')} start --no-browser -p 8001`, {
+      silent: !isDebug(),
+      workingDir: dirPath,
+      env: { NODE_ENV: 'development' }
+    }).when(/to exit/, async () => {
+      resolve(command)
+    })
   })
-    .endWhen(/to exit/, async () => {
-      const response = await fetch(`http://localhost:8000`)
-      const body = await response.text()
-      t.snapshot(body)
-    })
-    .on('err', e => console.log(e))
-    .on('end', async () => {
-      const [gameCompiledExists, nodeModulesExists, ecsModuleExists] = await Promise.all([
-        fs.pathExists(path.resolve(dirPath, 'bin', 'game.js')),
-        fs.pathExists(path.resolve(dirPath, 'node_modules')),
-        fs.pathExists(path.resolve(dirPath, 'node_modules', 'decentraland-ecs'))
-      ])
-
-      t.true(gameCompiledExists)
-      t.true(nodeModulesExists)
-      t.true(ecsModuleExists)
-
-      done()
-    })
 }
 
 test('E2E - init && start command', async t => {
@@ -87,6 +72,20 @@ test('E2E - init && start command', async t => {
     // We init project without installing dependencies so we test
     // that `dcl start` automatically install dependencies as well
     await initProject(dirPath, t)
-    await startProject(dirPath, t, done)
+    const startCmd = await startProject(dirPath)
+    const response = await fetch(`http://localhost:8001`)
+    const body = await response.text()
+    t.snapshot(body)
+    const [gameCompiledExists, nodeModulesExists, ecsModuleExists] = await Promise.all([
+      fs.pathExists(path.resolve(dirPath, 'bin', 'game.js')),
+      fs.pathExists(path.resolve(dirPath, 'node_modules')),
+      fs.pathExists(path.resolve(dirPath, 'node_modules', 'decentraland-ecs'))
+    ])
+
+    t.true(gameCompiledExists)
+    t.true(nodeModulesExists)
+    t.true(ecsModuleExists)
+    startCmd.end()
+    done()
   })
 })

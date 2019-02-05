@@ -51,7 +51,6 @@ function statusProject(): Promise<string> {
 }
 
 function deployProject(dirPath): Promise<void> {
-  console.log(process.env.CI_DCL_PRIVATE_KEY)
   return new Promise(resolve => {
     new Commando(`node ${path.resolve('bin', 'dcl')} deploy --yes --network ropsten`, {
       silent: !isDebug(),
@@ -70,12 +69,8 @@ function sleep(ms: number): Promise<void> {
 }
 
 test('E2E - full new user workflow of CLI (only CI test)', async t => {
-  if (!process.env.CI) {
-    return t.pass()
-  }
-
   if (!process.env.CI_DCL_PRIVATE_KEY) {
-    return t.fail('Missing CI_DCL_PRIVATE_KEY for full CI test')
+    return t.pass('Missing CI_DCL_PRIVATE_KEY for full CI test')
   }
 
   let browser: puppeteer.Browser
@@ -95,7 +90,7 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
 
       const startCmd = await startProject(dirPath)
 
-      browser = await puppeteer.launch({ headless: !isDebug })
+      browser = await puppeteer.launch({ headless: !isDebug() })
 
       // Assert if preview shows the cube
       const page = await browser.newPage()
