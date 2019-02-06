@@ -96,7 +96,7 @@ async function track(eventName: string, properties: any = {}, workingDir?: strin
   }
 
   return new Promise(async resolve => {
-    const dclApiVersion = await getInstalledVersion(workingDir, 'decentraland-ecs')
+    const dclApiVersion = await getInstalledVersion(workingDir, 'decentraland-api')
     const newProperties = {
       ...properties,
       os: process.platform,
