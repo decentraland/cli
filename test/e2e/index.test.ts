@@ -105,7 +105,6 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
         path: path.resolve(dirPath, 'dcl-preview.png')
       })
 
-      browser.close()
       t.is(Buffer.compare(snapshotPreview, imagePreview), 0)
 
       // With this random content we can change the CID and verify successful deployment
@@ -113,7 +112,7 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
         .toString(36)
         .substring(7)
 
-      // Asset that hotreloading changes preview
+      // Assert that hotreloading changes preview
       // TODO also tests websockets
       gameFile = gameFile.replace('spawnCube(5, 1, 5)', `spawnCube(5, 5, 5) // ${randomString}`)
       await fs.writeFile(path.resolve(dirPath, 'src', 'game.ts'), gameFile, {
@@ -121,22 +120,28 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
       })
       await page.reload()
       await page.waitForSelector('#main-canvas')
-      const snapshotModified = await fs.readFile(
-        path.resolve(__dirname, './snapshots/dcl-preview-modified.png')
-      )
+      const [snapshotModified1, snapshotModified2] = await Promise.all([
+        fs.readFile(path.resolve(__dirname, './snapshots/dcl-preview-modified.1.png')),
+        fs.readFile(path.resolve(__dirname, './snapshots/dcl-preview-modified.2.png'))
+      ])
+
       const imageModified = await page.screenshot({
         encoding: 'binary',
-        path: path.resolve(dirPath, path.resolve(dirPath, './snapshots/dcl-preview-modified.png'))
+        path: path.resolve(dirPath, 'dcl-preview-modified.png')
       })
 
-      t.is(Buffer.compare(snapshotModified, imageModified), 0)
+      startCmd.end()
+      browser.close()
+      t.true(
+        Buffer.compare(snapshotModified1, imageModified) === 0 ||
+          Buffer.compare(snapshotModified2, imageModified) === 0
+      )
 
       const statusBefore = await statusProject()
       await deployProject(dirPath)
       const statusAfter = await statusProject()
       t.not(statusBefore, statusAfter)
 
-      await startCmd.end()
       done()
     })
   } catch (error) {
