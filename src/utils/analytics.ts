@@ -47,11 +47,15 @@ export namespace Analytics {
     message: string,
     stackTrace: string
   ) {
-    return track(workingDir, 'Error', {
-      errorType: type,
-      message,
-      stackTrace
-    })
+    return track(
+      'Error',
+      {
+        errorType: type,
+        message,
+        stackTrace
+      },
+      workingDir
+    )
   }
 
   export async function requestPermission() {
@@ -84,7 +88,7 @@ export namespace Analytics {
  * @param eventName The name of the event to be tracked
  * @param properties Any object containing serializable data
  */
-async function track(workingDir: string, eventName: string, properties: any = {}) {
+async function track(eventName: string, properties: any = {}, workingDir?: string) {
   const { userId, trackStats } = getConfig()
 
   if (!(await isOnline())) {

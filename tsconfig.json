@@ -15,6 +15,6 @@
     "plugins": [{ "name": "tslint-language-service" }],
     "lib": ["es2017", "dom"]
   },
-  "exclude": ["dist", "node_modules", "**/*.spec.ts", "samples/*"],
+  "exclude": ["dist", "node_modules", "**/*.test.ts", "samples/*"],
   "include": ["src/**/*"]
 }

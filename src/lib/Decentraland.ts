@@ -285,7 +285,13 @@ export class Decentraland extends EventEmitter {
   }
 
   private createWallet(privateKey: string): void {
-    if (privateKey.length !== 64) {
+    let length = 64
+
+    if (privateKey.startsWith('0x')) {
+      length = 66
+    }
+
+    if (privateKey.length !== length) {
       fail(ErrorType.DEPLOY_ERROR, 'Addresses should be 64 characters length.')
     }
 
