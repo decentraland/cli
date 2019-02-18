@@ -5,7 +5,7 @@ yarn-lock.json
 build.json
 tsconfig.json
 tslint.json
-node_modules/
+node_modules
 *.ts
 *.tsx
 Dockerfile

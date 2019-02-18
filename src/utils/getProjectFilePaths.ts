@@ -3,10 +3,12 @@ import * as fs from 'fs-extra'
 import * as ignore from 'ignore'
 
 export default async function getProjectFilePaths(
-  dir: string = process.cwd(),
+  dir: string,
   ignoreFileContent?: string
 ): Promise<string[]> {
-  const fileNames = await fs.readdir(dir)
+  const fileNames = (ignore as any)()
+    .add(ignoreFileContent)
+    .filter(await fs.readdir(dir)) as string[]
   const filePaths = fileNames.map(fileName => path.resolve(dir, fileName))
   const stats = await Promise.all(filePaths.map(filePath => fs.stat(filePath)))
 
@@ -30,14 +32,10 @@ export default async function getProjectFilePaths(
     }
   })
 
-  const result = (ignore as any)()
-    .add(ignoreFileContent)
-    .filter(files)
-
   const pResults = (await Promise.all(pendingPromises)).reduce((acc: string[], r) => {
     acc.push(...r)
     return acc
   }, [])
 
-  return [...result, ...pResults]
+  return [...files, ...pResults]
 }
