@@ -11,7 +11,7 @@ test('snapshot - dcl help deploy', t => {
 
 test('E2E - deploy command', async t => {
   await new Promise(resolve => {
-    const target = path.join(__dirname, 'fixtures/ecs-compiled')
+    const target = path.join(__dirname, '../fixtures/ecs-compiled')
     new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
       silent: !isDebug(),
       workingDir: target,
@@ -26,7 +26,7 @@ test('E2E - deploy command', async t => {
         return null
       })
       .when(/You are about to upload/, (msg: string) => {
-        t.true(msg.includes('You are about to upload 2 files'))
+        t.true(msg.includes('You are about to upload 3 files'))
         return Response.NO
       })
       .on('end', async () => {
