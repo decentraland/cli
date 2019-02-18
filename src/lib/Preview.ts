@@ -23,7 +23,7 @@ function nocache(req, res, next) {
   next()
 }
 
-type MappingsResponse = {
+export type MappingsFile = {
   parcel_id: string
   publisher: string
   root_cid: string
@@ -157,7 +157,7 @@ export class Preview extends EventEmitter {
               mappings[$] = 'contents/' + $
             })
 
-          const ret: MappingsResponse = {
+          const ret: MappingsFile = {
             mappings,
             contents: mappings,
             parcel_id: '0,0',
