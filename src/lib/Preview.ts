@@ -124,17 +124,13 @@ export class Preview extends EventEmitter {
 
       const htmlPath = path.resolve(artifactPath, 'artifacts/preview.html')
 
-      if (!ethConnectExists) {
-        return res.sendFile(htmlPath)
-      }
-
       const html = await fs.readFile(htmlPath, {
         encoding: 'utf8'
       })
 
       const response = html.replace(
-        'src="/@/artifacts/preview.js"',
-        `src="/@/artifacts/preview.js" ethConnectExists="${ethConnectExists}"`
+        '<script src="/@/artifacts/preview.js"></script>',
+        `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="/@/artifacts/preview.js"></script>`
       )
 
       res.send(response)
