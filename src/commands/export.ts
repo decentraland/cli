@@ -6,7 +6,7 @@ import chalk from 'chalk'
 import * as spinner from '../utils/spinner'
 import { fail, ErrorType } from '../utils/errors'
 import getProjectFilePaths from '../utils/getProjectFilePaths'
-import { MappingsFile } from 'src/lib/Preview'
+import getDummyMappings from '../utils/getDummyMappings'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl export [path]')}
@@ -62,22 +62,11 @@ export async function main() {
     `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="preview.js"></script>`
   )
 
-  const mappings = filePaths.reduce((acc, f) => {
-    acc[f] = f
-    return acc
-  }, {}) as Record<string, string>
-
-  const mappingsFile: MappingsFile = {
-    mappings,
-    contents: mappings,
-    parcel_id: '0,0',
-    publisher: '0x0000000000000000000000000000000000000000',
-    root_cid: 'Qm0000000000000000000000000000000000000000'
-  }
+  const mappings = getDummyMappings(filePaths)
 
   await Promise.all([
     fs.writeFile(path.resolve(exportDir, 'index.html'), html, 'utf-8'),
-    fs.writeFile(path.resolve(exportDir, 'mappings'), JSON.stringify(mappingsFile), 'utf-8'),
+    fs.writeFile(path.resolve(exportDir, 'mappings'), JSON.stringify(mappings), 'utf-8'),
     fs.copy(
       path.resolve(artifactPath, 'artifacts/preview.js'),
       path.resolve(exportDir, 'preview.js')
