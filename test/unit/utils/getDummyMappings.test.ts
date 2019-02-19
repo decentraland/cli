@@ -8,10 +8,16 @@ test('Unit - getDummyMappings() - should calculate mappings for outside of DCL',
       'bin/game.js': 'bin/game.js',
       'scene.json': 'scene.json'
     },
-    contents: {
-      'bin/game.js': 'bin/game.js',
-      'scene.json': 'scene.json'
-    },
+    contents: [
+      {
+        file: 'scene.json',
+        hash: 'scene.json'
+      },
+      {
+        file: 'bin/game.js',
+        hash: 'bin/game.js'
+      }
+    ],
     parcel_id: '0,0',
     publisher: '0x0000000000000000000000000000000000000000',
     root_cid: 'Qm0000000000000000000000000000000000000000'
