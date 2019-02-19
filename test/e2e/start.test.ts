@@ -6,6 +6,7 @@ import * as fetch from 'isomorphic-fetch'
 import { SceneMetadata } from '../../src/lib/Project'
 import * as start from '../../src/commands/start'
 import { isDebug } from '../../src/utils/env'
+import pathsExistOnDir from '../../src/utils/pathsExistOnDir'
 import Commando, { Response } from '../helpers/commando'
 import { tmpTest } from '../helpers/sandbox'
 
@@ -30,12 +31,12 @@ function initProject(dirPath, t: ExecutionContext) {
           packageExists,
           nodeModulesExists,
           dclIgnoreExists
-        ] = await Promise.all([
-          fs.pathExists(path.resolve(dirPath, 'src', 'game.ts')),
-          fs.pathExists(path.resolve(dirPath, 'scene.json')),
-          fs.pathExists(path.resolve(dirPath, 'package.json')),
-          fs.pathExists(path.resolve(dirPath, 'node_modules')),
-          fs.pathExists(path.resolve(dirPath, '.dclignore'))
+        ] = await pathsExistOnDir(dirPath, [
+          'src/game.ts',
+          'scene.json',
+          'package.json',
+          'node_modules',
+          '.dclignore'
         ])
 
         t.true(gameExists)
@@ -76,11 +77,10 @@ test('E2E - init && start command', async t => {
     const response = await fetch(`http://localhost:8001`)
     const body = await response.text()
     t.snapshot(body)
-    const [gameCompiledExists, nodeModulesExists, ecsModuleExists] = await Promise.all([
-      fs.pathExists(path.resolve(dirPath, 'bin', 'game.js')),
-      fs.pathExists(path.resolve(dirPath, 'node_modules')),
-      fs.pathExists(path.resolve(dirPath, 'node_modules', 'decentraland-ecs'))
-    ])
+    const [gameCompiledExists, nodeModulesExists, ecsModuleExists] = await pathsExistOnDir(
+      dirPath,
+      ['bin/game.js', 'node_modules', 'node_modules/decentraland-ecs']
+    )
 
     t.true(gameCompiledExists)
     t.true(nodeModulesExists)
