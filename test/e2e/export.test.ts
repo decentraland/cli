@@ -1,36 +1,46 @@
 import * as path from 'path'
 import test from 'ava'
 
-import * as deploy from '../../src/commands/deploy'
+import * as exportCmd from '../../src/commands/export'
 import { isDebug } from '../../src/utils/env'
-import Commando, { Response } from '../helpers/commando'
+import pathsExistOnDir from '../../src/utils/pathsExistOnDir'
+import Commando from '../helpers/commando'
+import sandbox from '../helpers/sandbox'
+import initProject from '../helpers/initProject'
 
 test('snapshot - dcl help export', t => {
-  t.snapshot(deploy.help())
+  t.snapshot(exportCmd.help())
 })
 
-test('E2E - deploy command', async t => {
-  await new Promise(resolve => {
-    const target = path.join(__dirname, '../fixtures/ecs-compiled')
-    new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
+function exportProject(dirPath) {
+  return new Promise((resolve, reject) => {
+    new Commando(`node ${path.resolve('bin', 'dcl')} export`, {
       silent: !isDebug(),
-      workingDir: target,
+      workingDir: dirPath,
       env: { NODE_ENV: 'development' }
     })
-      .when(/\(.* bytes\)\n/, msg => {
-        t.true(msg.includes('bin/game.js'), 'expect game.js to be listed')
-        return null
-      })
-      .when(/\(.* bytes\)\n/, msg => {
-        t.true(msg.includes('scene.json'), 'expect scene.json to be listed')
-        return null
-      })
-      .when(/You are about to upload/, (msg: string) => {
-        t.true(msg.includes('You are about to upload 3 files'))
-        return Response.NO
-      })
+      .endWhen(/Export successful./)
+      .on('err', e => reject(e))
       .on('end', async () => {
         resolve()
       })
+  })
+}
+
+test('E2E - export command', async t => {
+  await sandbox(async (dirPath, done) => {
+    await initProject(dirPath)
+    await exportProject(dirPath)
+    const [htmlExists, mappingsExists, previewExists, sceneExists] = await pathsExistOnDir(
+      path.resolve(dirPath, 'export'),
+      ['index.html', 'mappings', 'preview.js', 'scene.json']
+    )
+
+    t.true(htmlExists)
+    t.true(mappingsExists)
+    t.true(previewExists)
+    t.true(sceneExists)
+
+    done()
   })
 })
