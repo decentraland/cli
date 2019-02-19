@@ -116,9 +116,24 @@ export class Preview extends EventEmitter {
       )
     }
 
-    this.app.get('/', (req, res) => {
+    this.app.get('/', async (req, res) => {
       res.setHeader('Content-Type', 'text/html')
-      res.sendFile(path.resolve(artifactPath, 'artifacts/preview.html'))
+      const ethConnectExists = await fs.pathExists(
+        path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'eth-connect')
+      )
+
+      const htmlPath = path.resolve(artifactPath, 'artifacts/preview.html')
+
+      const html = await fs.readFile(htmlPath, {
+        encoding: 'utf8'
+      })
+
+      const response = html.replace(
+        '<script src="/@/artifacts/preview.js"></script>',
+        `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="/@/artifacts/preview.js"></script>`
+      )
+
+      res.send(response)
     })
 
     this.app.use('/@', express.static(artifactPath))
