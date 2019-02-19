@@ -2,7 +2,7 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import test from 'ava'
 
-import { tmpTest } from '../helpers/sandbox'
+import sandbox from '../helpers/sandbox'
 import { Decentraland } from '../../src/lib/Decentraland'
 import { BoilerplateType, SceneMetadata } from '../../src/lib/Project'
 
@@ -15,7 +15,7 @@ async function isBasicDCLIgnore(dirPath: string): Promise<boolean> {
 }
 
 test('Integration - Decentraland.init() - should successfully create a static project', async t => {
-  await tmpTest(async (dirPath, done) => {
+  await sandbox(async (dirPath, done) => {
     const dcl = new Decentraland({
       workingDir: dirPath
     })
@@ -33,7 +33,7 @@ test('Integration - Decentraland.init() - should successfully create a static pr
 })
 
 test('Integration - Decentraland.init() - should successfully create a static typescript project', async t => {
-  await tmpTest(async (dirPath, done) => {
+  await sandbox(async (dirPath, done) => {
     const dcl = new Decentraland({
       workingDir: dirPath
     })
@@ -51,7 +51,7 @@ test('Integration - Decentraland.init() - should successfully create a static ty
 })
 
 test('Integration - Decentraland.init() - should successfully create a ECS project', async t => {
-  await tmpTest(async (dirPath, done) => {
+  await sandbox(async (dirPath, done) => {
     const dcl = new Decentraland({
       workingDir: dirPath
     })
