@@ -10,7 +10,7 @@ async function isBasicDCLIgnore(dirPath: string): Promise<boolean> {
   const file = await fs.readFile(path.resolve(dirPath, '.dclignore'), 'utf-8')
   return (
     file ===
-    `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\nDockerfile\ndist/`
+    `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\nexport\ntsconfig.json\ntslint.json\nnode_modules\n*.ts\n*.tsx\nDockerfile\ndist`
   )
 }
 

@@ -267,6 +267,7 @@ export class Project {
       'package-lock.json',
       'yarn-lock.json',
       'build.json',
+      'export',
       'tsconfig.json',
       'tslint.json',
       'node_modules',
