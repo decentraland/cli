@@ -1,11 +1,11 @@
 import test from 'ava'
 
 import { Project } from '../../src/lib/Project'
-import { tmpTest } from '../helpers/sandbox'
+import sandbox from '../helpers/sandbox'
 import { setupFilesystem } from './helpers'
 
 test('Integration - Project', async t => {
-  await tmpTest(async (dirPath, done) => {
+  await sandbox(async (dirPath, done) => {
     await setupFilesystem(dirPath, [
       {
         path: '.decentraland/test.js',

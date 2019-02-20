@@ -267,13 +267,14 @@ export class Project {
       'package-lock.json',
       'yarn-lock.json',
       'build.json',
+      'export',
       'tsconfig.json',
       'tslint.json',
-      'node_modules/',
+      'node_modules',
       '*.ts',
       '*.tsx',
       'Dockerfile',
-      'dist/'
+      'dist'
     ].join('\n')
     await fs.outputFile(path.join(this.workingDir, DCLIGNORE_FILE), content)
     return content

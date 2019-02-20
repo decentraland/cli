@@ -5,7 +5,7 @@ import * as puppeteer from 'puppeteer'
 
 import { isDebug } from '../../src/utils/env'
 import Commando, { Response } from '../helpers/commando'
-import { tmpTest } from '../helpers/sandbox'
+import sandbox from '../helpers/sandbox'
 
 function initProject(dirPath): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -76,7 +76,7 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
   let browser: puppeteer.Browser
 
   try {
-    await tmpTest(async (dirPath, done) => {
+    await sandbox(async (dirPath, done) => {
       await initProject(dirPath)
 
       // Remove rotation line

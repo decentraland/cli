@@ -12,6 +12,7 @@ import * as chokidar from 'chokidar'
 import * as ignore from 'ignore'
 
 import { fail, ErrorType } from '../utils/errors'
+import getDummyMappings from '../utils/getDummyMappings'
 
 type Decentraland = import('./Decentraland').Decentraland
 
@@ -21,15 +22,6 @@ function nocache(req, res, next) {
   res.setHeader('Pragma', 'no-cache')
   res.setHeader('Expires', '0')
   next()
-}
-
-type MappingsResponse = {
-  parcel_id: string
-  publisher: string
-  root_cid: string
-  contents: Record<string, string>
-  // This mappings field is a backwards compatibility field.
-  mappings: Record<string, string>
 }
 
 /**
@@ -147,23 +139,12 @@ export class Preview extends EventEmitter {
           res.json(err)
           res.end()
         } else {
-          const mappings: Record<string, string> = {}
-
           files
             .filter($ => !ig.ignores($))
             .filter($ => fs.statSync($).isFile())
             .map(relativiseUrl)
-            .forEach($ => {
-              mappings[$] = 'contents/' + $
-            })
 
-          const ret: MappingsResponse = {
-            mappings,
-            contents: mappings,
-            parcel_id: '0,0',
-            publisher: '0x0000000000000000000000000000000000000000',
-            root_cid: 'Qm0000000000000000000000000000000000000000'
-          }
+          const ret = getDummyMappings(files)
 
           res.json(ret)
         }
