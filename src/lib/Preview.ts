@@ -139,12 +139,8 @@ export class Preview extends EventEmitter {
           res.json(err)
           res.end()
         } else {
-          files
-            .filter($ => !ig.ignores($))
-            .filter($ => fs.statSync($).isFile())
-            .map(relativiseUrl)
-
-          const ret = getDummyMappings(files)
+          const ret = getDummyMappings(files.map(relativiseUrl))
+          ret.contents = ret.contents.map(({ file, hash }) => ({ file, hash: `contents/${hash}` }))
 
           res.json(ret)
         }
