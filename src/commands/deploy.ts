@@ -1,4 +1,5 @@
 import * as path from 'path'
+import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 import * as arg from 'arg'
 import chalk from 'chalk'
@@ -57,6 +58,18 @@ export async function main() {
     : arg(argOps)
 
   const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
+
+  const sceneJson = await fs.readJSON(path.resolve(workingDir, 'scene.json'))
+  const mainPath = path.resolve(workingDir, sceneJson.main)
+
+  if (!(await fs.pathExists(mainPath))) {
+    fail(
+      ErrorType.DEPLOY_ERROR,
+      `Main script ${chalk.bold(mainPath)} does not exist. Make sure you run ${chalk.bold(
+        `"npm run build"`
+      )} before running ${chalk.bold(`"dcl deploy"`)} or ${chalk.bold(`"dcl export"`)}.`
+    )
+  }
 
   const dcl = new Decentraland({
     isHttps: args['--https'],

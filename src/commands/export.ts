@@ -4,7 +4,6 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import * as spinner from '../utils/spinner'
-import { fail, ErrorType } from '../utils/errors'
 import getProjectFilePaths from '../utils/getProjectFilePaths'
 import getDummyMappings from '../utils/getDummyMappings'
 
@@ -23,7 +22,7 @@ export const help = () => `
       ${chalk.green('$ dcl export')}
 `
 
-export async function main() {
+export async function main(): Promise<number> {
   const args = arg({
     '--help': Boolean,
     '-h': '--help',
@@ -31,14 +30,22 @@ export async function main() {
     '-o': '--out'
   })
 
-  if (args._[1]) {
-    fail(ErrorType.INFO_ERROR, 'Please provide a target to retrieve data')
-  }
-
   const workDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
   const exportDir = path.resolve(workDir, args['--out'] || 'export')
 
   spinner.create('Exporting project')
+
+  const sceneJson = await fs.readJSON(path.resolve(workDir, 'scene.json'))
+  const mainPath = path.resolve(workDir, sceneJson.main)
+
+  if (!(await fs.pathExists(mainPath))) {
+    spinner.fail(
+      `Main script ${chalk.bold(mainPath)} does not exist. Make sure you run ${chalk.bold(
+        `"npm run build"`
+      )} before running ${chalk.bold(`"dcl deploy"`)} or ${chalk.bold(`"dcl export"`)}.`
+    )
+    return 1
+  }
 
   if (await fs.pathExists(exportDir)) {
     await fs.remove(exportDir)
@@ -74,4 +81,5 @@ export async function main() {
   ])
 
   spinner.succeed('Export successful.')
+  return 0
 }
