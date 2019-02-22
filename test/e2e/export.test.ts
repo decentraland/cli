@@ -7,6 +7,7 @@ import pathsExistOnDir from '../../src/utils/pathsExistOnDir'
 import Commando from '../helpers/commando'
 import sandbox from '../helpers/sandbox'
 import initProject from '../helpers/initProject'
+import buildProject from '../helpers/buildProject'
 
 test('snapshot - dcl help export', t => {
   t.snapshot(exportCmd.help())
@@ -30,6 +31,7 @@ function exportProject(dirPath) {
 test('E2E - export command', async t => {
   await sandbox(async (dirPath, done) => {
     await initProject(dirPath)
+    await buildProject(dirPath)
     await exportProject(dirPath)
     const [htmlExists, mappingsExists, previewExists, sceneExists] = await pathsExistOnDir(
       path.resolve(dirPath, 'export'),

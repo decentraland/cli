@@ -4,9 +4,11 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import * as spinner from '../utils/spinner'
-import { fail, ErrorType } from '../utils/errors'
 import getProjectFilePaths from '../utils/getProjectFilePaths'
 import getDummyMappings from '../utils/getDummyMappings'
+import isECSProject from '../utils/isECSProject'
+import buildProject from '../utils/buildProject'
+import { warning } from '../utils/logging'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl export [path]')}
@@ -23,7 +25,7 @@ export const help = () => `
       ${chalk.green('$ dcl export')}
 `
 
-export async function main() {
+export async function main(): Promise<number> {
   const args = arg({
     '--help': Boolean,
     '-h': '--help',
@@ -31,12 +33,31 @@ export async function main() {
     '-o': '--out'
   })
 
-  if (args._[1]) {
-    fail(ErrorType.INFO_ERROR, 'Please provide a target to retrieve data')
-  }
-
   const workDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
   const exportDir = path.resolve(workDir, args['--out'] || 'export')
+
+  spinner.create('Checking existance of build')
+
+  const [sceneJson, pkg] = await Promise.all([
+    fs.readJSON(path.resolve(workDir, 'scene.json')),
+    fs.readJSON(path.resolve(workDir, 'package.json'))
+  ])
+
+  const mainPath = path.resolve(workDir, sceneJson.main)
+
+  if (!(await fs.pathExists(mainPath)) && isECSProject(pkg)) {
+    spinner.succeed(warning('No build found'))
+    spinner.create('Building project')
+    try {
+      await buildProject(workDir)
+    } catch (error) {
+      spinner.fail('Could not build the project')
+      throw new Error(error)
+    }
+    spinner.succeed('Project built')
+  } else {
+    spinner.succeed('Build found')
+  }
 
   spinner.create('Exporting project')
 
@@ -74,4 +95,5 @@ export async function main() {
   ])
 
   spinner.succeed('Export successful.')
+  return 0
 }

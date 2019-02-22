@@ -1,10 +1,13 @@
 import * as path from 'path'
+import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 import * as arg from 'arg'
 import chalk from 'chalk'
 import opn = require('opn')
 
 import * as spinner from '../utils/spinner'
+import buildProject from '../utils/buildProject'
+import isECSProject from '../utils/isECSProject'
 import { warning } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { ErrorType, fail } from '../utils/errors'
@@ -57,6 +60,29 @@ export async function main() {
     : arg(argOps)
 
   const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
+
+  spinner.create('Checking existance of build')
+
+  const [sceneJson, pkg] = await Promise.all([
+    fs.readJSON(path.resolve(workingDir, 'scene.json')),
+    fs.readJSON(path.resolve(workingDir, 'package.json'))
+  ])
+
+  const mainPath = path.resolve(workingDir, sceneJson.main)
+
+  if (!(await fs.pathExists(mainPath)) && isECSProject(pkg)) {
+    spinner.succeed(warning('No build found'))
+    spinner.create('Building project')
+    try {
+      await buildProject(workingDir)
+    } catch (error) {
+      spinner.fail('Could not build the project')
+      throw new Error(error)
+    }
+    spinner.succeed('Project built')
+  } else {
+    spinner.succeed('Build found')
+  }
 
   const dcl = new Decentraland({
     isHttps: args['--https'],
