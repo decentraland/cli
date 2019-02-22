@@ -25,11 +25,11 @@ function spawnCube(x: number, y: number, z: number) {
   // create the entity
   const cube = new Entity()
 
-  // set a transform to the entity
-  cube.set(new Transform({ position: new Vector3(x, y, z) }))
+  // add a transform to the entity
+  cube.add(new Transform({ position: new Vector3(x, y, z) }))
 
-  // set a shape to the entity
-  cube.set(new BoxShape())
+  // add a shape to the entity
+  cube.add(new BoxShape())
 
   // add the entity to the engine
   engine.addEntity(cube)
@@ -41,7 +41,7 @@ function spawnCube(x: number, y: number, z: number) {
 
 const cube = spawnCube(5, 1, 5)
 
-cube.set(
+cube.add(
   new OnClick(() => {
     cube.get(Transform).scale.z *= 1.1
     cube.get(Transform).scale.x *= 0.9
