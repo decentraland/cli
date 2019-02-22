@@ -31,5 +31,6 @@ export function succeed(message?: string) {
 
   if (spinner) {
     spinner.succeed(message)
+    spinner = null
   }
 }
