@@ -42,7 +42,7 @@ const help = `
       init                Create a new Decentraland Scene project
       start               Start a local development server for a Decentraland Scene
       deploy              Upload scene to Decentraland
-      export              Export scene to static files (HTML, JS and CSS)
+      export              Export scene to static website format (HTML, JS and CSS)
       info      [args]    Displays information about a LAND, an Estate or an address
       status    [args]    Displays the deployment status of the project or a given LAND
       help      [cmd]     Displays complete help for given command
