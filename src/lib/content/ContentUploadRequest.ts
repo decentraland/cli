@@ -8,7 +8,8 @@ export type RequestMetadata = {
   pubKey: string
   validityType: number
   validity: Date
-  sequence: number
+  sequence: number,
+  timestamp: number
 }
 
 export type ContentIdentifier = {
@@ -21,6 +22,7 @@ export class ContentUploadRequest {
   files: IFile[]
   manifest: ContentIdentifier[]
   metadata: RequestMetadata
+  timestamp: number
 
   constructor(
     _rootCid: string,

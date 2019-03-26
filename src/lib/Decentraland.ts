@@ -18,6 +18,7 @@ import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
+import { number } from 'prop-types';
 
 export type DecentralandArguments = {
   workingDir: string
@@ -106,13 +107,16 @@ export class Decentraland extends EventEmitter {
     }
 
     try {
-      const { signature, address } = await this.getAddressAndSignature(rootCID)
+      const timestamp = this.getEpoch()
+      const messageToSign = `${rootCID}.${timestamp}`
+      const { signature, address } = await this.getAddressAndSignature(messageToSign)
       const uploadResult = await this.contentService.uploadContent(
         rootCID,
         files,
         signature,
         address,
-        this.options.forceDeploy
+        this.options.forceDeploy,
+        timestamp
       )
       if (!uploadResult) {
         fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')
@@ -268,16 +272,16 @@ export class Decentraland extends EventEmitter {
     }
   }
 
-  private async getAddressAndSignature(rootCID): Promise<LinkerResponse> {
+  private async getAddressAndSignature(messageToSign): Promise<LinkerResponse> {
     if (this.wallet) {
       const [signature, address] = await Promise.all([
-        this.wallet.signMessage(rootCID),
+        this.wallet.signMessage(messageToSign),
         this.wallet.getAddress()
       ])
       return { signature, address, network: { id: 0, name: 'mainnet' } }
     }
 
-    return this.link(rootCID)
+    return this.link(messageToSign)
   }
 
   private pipeEvents(event: string, ...args: any[]) {
@@ -296,5 +300,10 @@ export class Decentraland extends EventEmitter {
     }
 
     this.wallet = new ethers.Wallet(privateKey)
+  }
+
+  private getEpoch(): number {
+    var d = new Date();
+   return Math.round(d.getTime() / 1000);
   }
 }
