@@ -18,7 +18,6 @@ import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
-import { number } from 'prop-types';
 
 export type DecentralandArguments = {
   workingDir: string
@@ -303,7 +302,7 @@ export class Decentraland extends EventEmitter {
   }
 
   private getEpoch(): number {
-    var d = new Date();
-   return Math.round(d.getTime() / 1000);
+    const now = new Date()
+    return Math.round(now.getTime() / 1000)
   }
 }
