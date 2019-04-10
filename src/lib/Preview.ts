@@ -100,6 +100,7 @@ export class Preview extends EventEmitter {
     const dclApiPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-api')
 
     const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
+    const unityPath = path.resolve(dclEcsPath, 'unity')
 
     if (!fs.pathExistsSync(artifactPath)) {
       fail(
@@ -129,6 +130,7 @@ export class Preview extends EventEmitter {
     })
 
     this.app.use('/@', express.static(artifactPath))
+    this.app.use('/unity', express.static(unityPath))
 
     this.app.use('/contents/', express.static(this.dcl.getWorkingDir()))
 
