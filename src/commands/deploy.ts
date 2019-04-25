@@ -24,7 +24,7 @@ export const help = () => `
       -h, --help          Displays complete help
       -y, --yes           Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
-      -p, --partial       Deploy only new changed files
+      -f, --force-upload  Upload all files to the content server
       -n, --network       Choose between ${chalk.bold('mainnet')} and ${chalk.bold(
   'ropsten'
 )} (default 'mainnet') only available with env ${chalk.bold('DCL_PRIVATE_KEY')}
@@ -49,11 +49,11 @@ export async function main() {
     '--help': Boolean,
     '--yes': Boolean,
     '--https': Boolean,
-    '--partial': Boolean,
+    '--force-upload': Boolean,
     '-h': '--help',
     '-y': '--yes',
     '-l': '--https',
-    '-p': '--partial'
+    '-f': '--force-upload'
   }
   const args = process.env.DCL_PRIVATE_KEY
     ? arg({ ...argOps, '--network': String, '-n': '--network' })
@@ -87,7 +87,7 @@ export async function main() {
   const dcl = new Decentraland({
     isHttps: args['--https'],
     workingDir,
-    forceDeploy: !args['--partial'],
+    forceDeploy: args['--force-upload'],
     yes: args['--yes']
   })
 
