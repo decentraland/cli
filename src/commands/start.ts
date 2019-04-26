@@ -4,11 +4,15 @@ import chalk from 'chalk'
 import opn = require('opn')
 
 import { Decentraland } from '../lib/Decentraland'
-import { buildTypescript, getOutdatedApi } from '../utils/moduleHelpers'
+import {
+  buildTypescript,
+  getOutdatedApi,
+  checkAndInstallDependencies
+} from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { error, formatOutdatedMessage } from '../utils/logging'
 import { ErrorType, fail } from '../utils/errors'
-import { isEnvCi } from '../utils/env'
+import { isEnvCi, isDebug } from '../utils/env'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [path] [options]')}
@@ -65,8 +69,7 @@ export async function main() {
   }
 
   try {
-    // tslint:disable-next-line: no-commented-out-code
-    // await checkAndInstallDependencies(dcl.getWorkingDir(), !isDebug())
+    await checkAndInstallDependencies(dcl.getWorkingDir(), !isDebug())
   } catch (error) {
     fail(ErrorType.PREVIEW_ERROR, error.message)
   }
