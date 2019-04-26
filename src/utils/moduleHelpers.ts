@@ -39,8 +39,8 @@ async function installDependencies(workingDir: string, silent: boolean): Promise
     })
     if (!silent) {
       child.stdout.pipe(process.stdout)
+      child.stderr.pipe(process.stderr)
     }
-    child.stderr.pipe(process.stderr)
     child.on('close', code => {
       if (code !== 0) {
         spinner.fail()
