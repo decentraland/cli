@@ -1,4 +1,3 @@
-import * as path from 'path'
 import * as os from 'os'
 import * as arg from 'arg'
 import chalk from 'chalk'
@@ -49,7 +48,7 @@ export async function main() {
 
   const isCi = args['--ci'] || isEnvCi()
   const shouldWatchFiles = !args['--no-watch'] && !isCi
-  const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
+  const workingDir = process.cwd()
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),
