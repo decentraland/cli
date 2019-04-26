@@ -1,4 +1,3 @@
-import * as path from 'path'
 import * as arg from 'arg'
 import * as inquirer from 'inquirer'
 import chalk from 'chalk'
@@ -12,7 +11,7 @@ import { fail, ErrorType } from '../utils/errors'
 import { isDebug } from '../utils/env'
 
 export const help = () => `
-  Usage: ${chalk.bold('dcl init [path] [options]')}
+  Usage: ${chalk.bold('dcl init [options]')}
 
     ${chalk.dim('Options:')}
 
@@ -47,7 +46,6 @@ export async function main() {
   })
 
   const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
-  const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
 
   if (!Object.values(BoilerplateType).includes(boilerplate)) {
     fail(
@@ -58,7 +56,7 @@ export async function main() {
     )
   }
 
-  const dcl = new Decentraland({ workingDir })
+  const dcl = new Decentraland({ workingDir: process.cwd() })
 
   await dcl.project.validateNewProject()
   const isEmpty = await dcl.project.isProjectDirEmpty()
