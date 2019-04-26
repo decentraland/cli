@@ -15,7 +15,7 @@ import { ErrorType, fail } from '../utils/errors'
 import { isEnvCi } from '../utils/env'
 
 export const help = () => `
-  Usage: ${chalk.bold('dcl start [path] [options]')}
+  Usage: ${chalk.bold('dcl start [options]')}
 
     ${chalk.dim('Options:')}
 
@@ -27,9 +27,9 @@ export const help = () => `
 
     ${chalk.dim('Examples:')}
 
-    - Start a local development server for a Decentraland Scene on my-project
+    - Start a local development server for a Decentraland Scene at port 3500
 
-      ${chalk.green('$ dcl start my-project')}
+      ${chalk.green('$ dcl start -p 3500')}
 
     - Start a local development server for a Decentraland Scene at a docker container
 
