@@ -62,12 +62,6 @@ function deployProject(dirPath): Promise<void> {
   })
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
-}
-
 test('E2E - full new user workflow of CLI (only CI test)', async t => {
   if (!process.env.CI_DCL_PRIVATE_KEY) {
     return t.pass('Missing CI_DCL_PRIVATE_KEY for full CI test')
@@ -113,7 +107,6 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
         .substring(7)
 
       // Assert that hotreloading changes preview
-      // TODO also tests websockets
       gameFile = gameFile.replace('spawnCube(5, 1, 5)', `spawnCube(5, 5, 5) // ${randomString}`)
       await fs.writeFile(path.resolve(dirPath, 'src', 'game.ts'), gameFile, {
         encoding: 'utf8'
