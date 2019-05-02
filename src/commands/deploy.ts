@@ -14,7 +14,7 @@ import { ErrorType, fail } from '../utils/errors'
 import { Decentraland } from '../lib/Decentraland'
 import { LinkerResponse } from '../lib/LinkerAPI'
 
-const MAX_FILE_COUNT = 100
+const MAX_FILE_COUNT = 300
 
 export const help = () => `
   Usage: ${chalk.bold('dcl deploy [path] [options]')}
