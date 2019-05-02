@@ -1,7 +1,6 @@
 import * as path from 'path'
-import chalk from 'chalk'
-import * as semver from 'semver'
 import { spawn } from 'child_process'
+import * as semver from 'semver'
 import * as fetch from 'isomorphic-fetch'
 import * as packageJson from 'package-json'
 
@@ -16,68 +15,35 @@ export function setVersion(v: string) {
   version = v
 }
 
-export async function checkAndInstallDependencies(
-  workingDir: string,
-  silent: boolean
-): Promise<void> {
-  const online = await isOnline()
-
-  if (!online) {
-    throw new Error('Unable to install dependencies: no internet connection')
-  }
-
-  return installDependencies(workingDir, silent)
-}
-
-async function installDependencies(workingDir: string, silent: boolean): Promise<void> {
-  spinner.create('Installing dependencies')
-  return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['install'], {
-      shell: true,
-      cwd: workingDir,
-      env: { ...process.env, NODE_ENV: '' }
-    })
-    if (!silent) {
-      child.stdout.pipe(process.stdout)
-      child.stderr.pipe(process.stderr)
-    }
-    child.on('close', code => {
-      if (code !== 0) {
-        spinner.fail()
-        reject(
-          new Error(
-            `${chalk.bold(
-              `npm install`
-            )} exited with code ${code}. Please try running the command manually`
-          )
-        )
-      }
-
-      spinner.succeed()
-      resolve()
-    })
-  })
-}
-
-export function buildTypescript(workingDir: string): Promise<void> {
+export function buildTypescript(workingDir: string, silent: boolean): Promise<void> {
+  spinner.create('Building project')
   return new Promise((resolve, reject) => {
     const child = spawn(npm, ['run', 'watch'], {
       shell: true,
       cwd: workingDir,
       env: { ...process.env, NODE_ENV: '' }
     })
-    child.stdout.pipe(process.stdout)
+
+    if (!silent) {
+      child.stdout.pipe(process.stdout)
+      child.stderr.pipe(process.stderr)
+    }
+
     child.stdout.on('data', data => {
       if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
+        spinner.succeed('Project built.')
         return resolve()
       }
     })
-    child.stderr.pipe(process.stderr)
+
     child.on('close', code => {
       if (code !== 0) {
-        reject(new Error('Error while building the project'))
+        const msg = 'Error while building the project'
+        spinner.fail(msg)
+        reject(new Error(msg))
       } else {
-        resolve()
+        spinner.succeed('Project built.')
+        return resolve()
       }
     })
   })

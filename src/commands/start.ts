@@ -4,15 +4,13 @@ import chalk from 'chalk'
 import opn = require('opn')
 
 import { Decentraland } from '../lib/Decentraland'
-import {
-  buildTypescript,
-  getOutdatedApi,
-  checkAndInstallDependencies
-} from '../utils/moduleHelpers'
+import { buildTypescript, getOutdatedApi, isOnline } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { error, formatOutdatedMessage } from '../utils/logging'
-import { ErrorType, fail } from '../utils/errors'
 import { isEnvCi } from '../utils/env'
+import * as spinner from '../utils/spinner'
+import installDependencies from '../project/installDependencies'
+import isECSInstalled from '../project/isECSInstalled'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
@@ -62,20 +60,32 @@ export async function main() {
 
   Analytics.preview()
 
-  const sdkOutdated = await getOutdatedApi(dcl.getWorkingDir())
+  spinner.create('Cheking if SDK is installed')
+  const [sdkOutdated, online, ECSInstalled] = await Promise.all([
+    getOutdatedApi(workingDir),
+    isOnline(),
+    isECSInstalled(workingDir)
+  ])
 
-  if (sdkOutdated) {
+  if (!ECSInstalled) {
+    spinner.info('SDK not found. Installing dependencies...')
+  } else if (sdkOutdated) {
+    spinner.warn(
+      `SDK is outdated, to upgrade to the latest version run the command: ${chalk.bold(
+        'npm install decentraland-ecs@latest'
+      )}`
+    )
     console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
+  } else {
+    spinner.succeed('Latest SDK installation found.')
   }
 
-  try {
-    await checkAndInstallDependencies(dcl.getWorkingDir(), true)
-  } catch (error) {
-    fail(ErrorType.PREVIEW_ERROR, error.message)
+  if (online && !ECSInstalled) {
+    await installDependencies(workingDir, !process.env.DEBUG)
   }
 
   if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript(workingDir)
+    await buildTypescript(workingDir, !process.env.DEBUG)
   }
 
   dcl.on('preview:ready', port => {
