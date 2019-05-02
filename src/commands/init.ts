@@ -6,8 +6,8 @@ import { BoilerplateType, SceneMetadata } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
 import { warning } from '../utils/logging'
-import { checkAndInstallDependencies } from '../utils/moduleHelpers'
 import { fail, ErrorType } from '../utils/errors'
+import installDependencies from '../project/installDependencies'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -99,7 +99,7 @@ export async function main() {
   await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
 
   try {
-    await checkAndInstallDependencies(dcl.getWorkingDir(), true)
+    await installDependencies(dcl.getWorkingDir(), true)
   } catch (error) {
     fail(ErrorType.INIT_ERROR, error.message)
   }
