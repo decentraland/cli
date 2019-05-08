@@ -98,7 +98,7 @@ export class Watcher {
 
   // returns an usable mappings list
   public getMappings() {
-    const contents = []
+    const contents: Array<{ file: string; hash: string }> = []
 
     this.mappings.forEach((hash, file) => contents.push({ file, hash }))
 
