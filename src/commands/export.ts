@@ -8,7 +8,7 @@ import getProjectFilePaths from '../utils/getProjectFilePaths'
 import isECSProject from '../utils/isECSProject'
 import buildProject from '../utils/buildProject'
 import { warning } from '../utils/logging'
-import { Watcher } from 'src/lib/Watcher'
+import { Watcher } from '../lib/Watcher'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl export [path]')}

@@ -5,10 +5,10 @@ import * as glob from 'glob'
 import * as ignore from 'ignore'
 
 import { debouncer } from '../utils/debouncer'
+import { error } from '../utils/logging'
 import { CIDUtils } from './content/CIDUtils'
 import { IFile } from './Project'
 import { resolve } from 'path'
-import { error } from 'src/utils/logging'
 
 type Ignorer = {
   add(path: string | string[]): Ignorer
