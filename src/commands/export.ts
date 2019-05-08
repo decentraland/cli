@@ -5,10 +5,10 @@ import chalk from 'chalk'
 
 import * as spinner from '../utils/spinner'
 import getProjectFilePaths from '../utils/getProjectFilePaths'
-import getDummyMappings from '../utils/getDummyMappings'
 import isECSProject from '../utils/isECSProject'
 import buildProject from '../utils/buildProject'
 import { warning } from '../utils/logging'
+import { Watcher } from 'src/lib/Watcher'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl export [path]')}
@@ -83,7 +83,11 @@ export async function main(): Promise<number> {
     `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="preview.js"></script>`
   )
 
-  const mappings = getDummyMappings(filePaths)
+  const watcher = new Watcher(workDir, ignoreFileContent)
+
+  await watcher.initialMappingsReady
+
+  const mappings = watcher.getMappings()
 
   await Promise.all([
     fs.writeFile(path.resolve(exportDir, 'index.html'), html, 'utf-8'),
