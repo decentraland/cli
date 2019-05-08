@@ -349,7 +349,7 @@ export class Project {
   async getFiles(ignoreFile?: string): Promise<IFile[]> {
     const files = await this.getAllFilePaths()
     const filteredFiles = (ignore as any)()
-      .add(ignoreFile.split(/\n/g).map($ => $.trim()))
+      .add((ignoreFile || '').split(/\n/g).map($ => $.trim()))
       .filter(files)
     let data = []
 
