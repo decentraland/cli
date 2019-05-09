@@ -4,11 +4,10 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import * as spinner from '../utils/spinner'
-import getProjectFilePaths from '../utils/getProjectFilePaths'
-import getDummyMappings from '../utils/getDummyMappings'
 import isECSProject from '../utils/isECSProject'
 import buildProject from '../utils/buildProject'
 import { warning } from '../utils/logging'
+import { Watcher } from '../lib/Watcher'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl export [path]')}
@@ -65,12 +64,9 @@ export async function main(): Promise<number> {
     await fs.remove(exportDir)
   }
 
+  await fs.ensureDir(exportDir)
+
   const ignoreFileContent = await fs.readFile(path.resolve(workDir, '.dclignore'), 'utf-8')
-  const filePaths = await getProjectFilePaths(workDir, ignoreFileContent)
-
-  const promises = filePaths.map(f => fs.copy(path.resolve(workDir, f), path.resolve(exportDir, f)))
-
-  await Promise.all(promises)
 
   const artifactPath = path.resolve(workDir, 'node_modules', 'decentraland-ecs')
   const htmlPath = path.resolve(artifactPath, 'artifacts/preview.html')
@@ -83,9 +79,19 @@ export async function main(): Promise<number> {
     `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="preview.js"></script>`
   )
 
-  const mappings = getDummyMappings(filePaths)
+  const watcher = new Watcher(workDir, ignoreFileContent)
+
+  await watcher.initialMappingsReady
+
+  const mappings = watcher.getMappings()
+
+  const promises = mappings.contents.map(f =>
+    fs.copy(path.resolve(workDir, f.file), path.resolve(exportDir, f.hash))
+  )
 
   await Promise.all([
+    ...promises,
+    fs.copy(path.resolve(workDir, 'scene.json'), path.resolve(exportDir, 'scene.json')),
     fs.writeFile(path.resolve(exportDir, 'index.html'), html, 'utf-8'),
     fs.writeFile(path.resolve(exportDir, 'mappings'), JSON.stringify(mappings), 'utf-8'),
     fs.copy(

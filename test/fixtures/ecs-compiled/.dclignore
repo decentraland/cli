@@ -6,7 +6,7 @@ build.json
 export
 tsconfig.json
 tslint.json
-node_modules
+node_modules/**/*
 *.ts
 *.tsx
 Dockerfile
