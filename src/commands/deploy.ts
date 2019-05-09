@@ -1,15 +1,20 @@
+import * as path from 'path'
+import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 import * as arg from 'arg'
 import chalk from 'chalk'
 import opn = require('opn')
 
-import { loading, info, warning } from '../utils/logging'
+import * as spinner from '../utils/spinner'
+import buildProject from '../utils/buildProject'
+import isECSProject from '../utils/isECSProject'
+import { warning } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { ErrorType, fail } from '../utils/errors'
 import { Decentraland } from '../lib/Decentraland'
 import { LinkerResponse } from '../lib/LinkerAPI'
 
-const MAX_FILE_COUNT = 100
+const MAX_FILE_COUNT = 300
 
 export const help = () => `
   Usage: ${chalk.bold('dcl deploy [path] [options]')}
@@ -17,10 +22,12 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help          Displays complete help
-      -c, --host  [host]  Set content server (default is https://content.decentraland.org)
-      -y, --yes          Skip confirmations and proceed to upload
+      -y, --yes           Skip confirmations and proceed to upload
       -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
-      -p, --partial       Deploy only new changed files
+      -f, --force-upload  Upload all files to the content server
+      -n, --network       Choose between ${chalk.bold('mainnet')} and ${chalk.bold(
+  'ropsten'
+)} (default 'mainnet') only available with env ${chalk.bold('DCL_PRIVATE_KEY')}
 
     ${chalk.dim('Examples:')}
 
@@ -38,24 +45,49 @@ export const help = () => `
 `
 
 export async function main() {
-  const args = arg({
+  const argOps = {
     '--help': Boolean,
-    '--host': String,
     '--yes': Boolean,
     '--https': Boolean,
-    '--partial': Boolean,
+    '--force-upload': Boolean,
     '-h': '--help',
-    '-c': '--host',
     '-y': '--yes',
     '-l': '--https',
-    '-p': '--partial'
-  })
+    '-f': '--force-upload'
+  }
+  const args = process.env.DCL_PRIVATE_KEY
+    ? arg({ ...argOps, '--network': String, '-n': '--network' })
+    : arg(argOps)
+
+  const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
+
+  spinner.create('Checking existance of build')
+
+  const [sceneJson, pkg] = await Promise.all([
+    fs.readJSON(path.resolve(workingDir, 'scene.json')),
+    fs.readJSON(path.resolve(workingDir, 'package.json'))
+  ])
+
+  const mainPath = path.resolve(workingDir, sceneJson.main)
+
+  if (!(await fs.pathExists(mainPath)) && isECSProject(pkg)) {
+    spinner.succeed(warning('No build found'))
+    spinner.create('Building project')
+    try {
+      await buildProject(workingDir)
+    } catch (error) {
+      spinner.fail('Could not build the project')
+      throw new Error(error)
+    }
+    spinner.succeed('Project built')
+  } else {
+    spinner.succeed('Build found')
+  }
 
   const dcl = new Decentraland({
     isHttps: args['--https'],
-    contentServerUrl: args['--host'] || 'https://content.decentraland.org',
-    workingDir: args._[2],
-    forceDeploy: !args['--partial'],
+    workingDir,
+    forceDeploy: args['--force-upload'],
     yes: args['--yes']
   })
 
@@ -63,10 +95,8 @@ export async function main() {
 
   dcl.on('link:ready', url => {
     Analytics.sceneLink()
-    console.log(
-      chalk.bold('You need to sign the content before the deployment:')
-    )
-    const linkerMsg = loading(`Signing app ready at ${url}`)
+    console.log(chalk.bold('You need to sign the content before the deployment:'))
+    spinner.create(`Signing app ready at ${url}`)
 
     setTimeout(() => {
       try {
@@ -76,32 +106,29 @@ export async function main() {
       }
     }, 5000)
 
-    dcl.on(
-      'link:success',
-      ({ address, signature, network }: LinkerResponse) => {
-        Analytics.sceneLinkSuccess()
-        linkerMsg.succeed(`Content succesfully signed.`)
-        console.log(`${chalk.bold('Address:')} ${address}`)
-        console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(
-          `${chalk.bold('Network:')} ${
-            network.label ? `${network.label} (${network.name})` : network.name
-          }`
-        )
-      }
-    )
+    dcl.on('link:success', ({ address, signature, network }: LinkerResponse) => {
+      Analytics.sceneLinkSuccess()
+      spinner.succeed(`Content succesfully signed.`)
+      console.log(`${chalk.bold('Address:')} ${address}`)
+      console.log(`${chalk.bold('Signature:')} ${signature}`)
+      console.log(
+        `${chalk.bold('Network:')} ${
+          network.label ? `${network.label} (${network.name})` : network.name
+        }`
+      )
+    })
   })
 
   dcl.on('upload:starting', () => {
-    const uploadMsg = loading(`Uploading content...`)
+    spinner.create(`Uploading content...`)
 
     dcl.on('upload:failed', (error: any) => {
-      uploadMsg.fail('Fail to upload content')
+      spinner.fail('Failed to upload content')
       fail(ErrorType.DEPLOY_ERROR, `Unable ro upload content. ${error}`)
     })
 
     dcl.on('upload:success', () => {
-      uploadMsg.succeed('Content uploaded')
+      spinner.succeed('Content uploaded')
     })
   })
 
@@ -111,16 +138,14 @@ export async function main() {
   }
 
   if (args['--https']) {
-    console.log(
-      warning(`Using self signed certificate to support ledger wallet`)
-    )
+    console.log(warning(`Using self signed certificate to support ledger wallet`))
   }
 
   if (ignoreFile === null) {
     console.log(
-      warning(`As of version 1.1.0 all deployments require a .dclignore file`)
+      warning(`As of version 1.1.0 all deployments require a ${chalk.bold('.dclignore')} file`)
     )
-    info(`Generating .dclignore file with default values`)
+    console.log(`Generating ${chalk.bold('.dclignore')} file with default values`)
     ignoreFile = await dcl.project.writeDclIgnore()
   }
 
@@ -136,10 +161,7 @@ export async function main() {
   }, 0)
 
   if (files.length > MAX_FILE_COUNT) {
-    fail(
-      ErrorType.DEPLOY_ERROR,
-      `You cannot upload more than ${MAX_FILE_COUNT} files per scene.`
-    )
+    fail(ErrorType.DEPLOY_ERROR, `You cannot upload more than ${MAX_FILE_COUNT} files per scene.`)
   }
 
   console.log('') // new line to keep things clean
@@ -162,5 +184,5 @@ export async function main() {
 
   await dcl.deploy(files)
   Analytics.sceneDeploySuccess()
-  console.log(chalk.green(`\nDeployment complete!`))
+  return console.log(chalk.green(`\nDeployment complete!`))
 }

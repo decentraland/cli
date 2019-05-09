@@ -3,8 +3,9 @@ import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { Coords } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
 import { filterAndFillEmpty } from '../utils/land'
+import { getConfig } from '../config'
 
-const dclApiUrl = 'https://api.decentraland.org/v1'
+const { dclApiUrl } = getConfig()
 
 const cache = new Map<string, any>()
 

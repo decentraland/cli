@@ -5,12 +5,12 @@ import chalk from 'chalk'
 import { BoilerplateType, SceneMetadata } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
-import { warning, loading } from '../utils/logging'
-import { installDependencies, isOnline } from '../utils/moduleHelpers'
+import { warning } from '../utils/logging'
 import { fail, ErrorType } from '../utils/errors'
+import installDependencies from '../project/installDependencies'
 
 export const help = () => `
-  Usage: ${chalk.bold('dcl init [path] [options]')}
+  Usage: ${chalk.bold('dcl init [options]')}
 
     ${chalk.dim('Options:')}
 
@@ -49,15 +49,13 @@ export async function main() {
   if (!Object.values(BoilerplateType).includes(boilerplate)) {
     fail(
       ErrorType.INIT_ERROR,
-      `Invalid boilerplate: "${chalk.bold(
-        boilerplate
-      )}". Supported types are ${chalk.bold(getBoilerplateTypes())}`
+      `Invalid boilerplate: "${chalk.bold(boilerplate)}". Supported types are ${chalk.bold(
+        getBoilerplateTypes()
+      )}`
     )
   }
 
-  const dcl = new Decentraland({
-    workingDir: args._[2]
-  })
+  const dcl = new Decentraland({ workingDir: process.cwd() })
 
   await dcl.project.validateNewProject()
   const isEmpty = await dcl.project.isProjectDirEmpty()
@@ -66,9 +64,7 @@ export async function main() {
     const results = await inquirer.prompt({
       type: 'confirm',
       name: 'continue',
-      message: warning(
-        `Project directory isn't empty. Do you want to continue?`
-      )
+      message: warning(`Project directory isn't empty. Do you want to continue?`)
     })
 
     if (!results.continue) {
@@ -102,17 +98,10 @@ export async function main() {
 
   await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
 
-  if (await dcl.project.needsDependencies()) {
-    if (await isOnline()) {
-      const spinner = loading('Installing dependencies')
-      await installDependencies(true)
-      spinner.succeed('Dependencies installed')
-    } else {
-      fail(
-        ErrorType.PREVIEW_ERROR,
-        'Unable to install dependencies: no internet connection'
-      )
-    }
+  try {
+    await installDependencies(dcl.getWorkingDir(), true)
+  } catch (error) {
+    fail(ErrorType.INIT_ERROR, error.message)
   }
 
   Analytics.sceneCreated({ boilerplateType: boilerplate })

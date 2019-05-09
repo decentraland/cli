@@ -4,21 +4,34 @@ import chalk from 'chalk'
 import commands from './commands'
 import { error, warning, debug } from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
-import { isCLIOutdated, getInstalledCLIVersion } from './utils/moduleHelpers'
+import {
+  isCLIOutdated,
+  getInstalledCLIVersion,
+  isStableVersion,
+  setVersion
+} from './utils/moduleHelpers'
+import { loadConfig } from './config'
+
+debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
+debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 
 const args = arg(
   {
     '--help': Boolean,
     '--version': Boolean,
+    '--network': String,
     '-h': '--help',
-    '-v': '--version'
+    '-v': '--version',
+    '-n': '--network'
   },
   {
     permissive: true
   }
 )
+debug(`Parsed args: ${JSON.stringify(args)}`)
 
 const subcommand = args._[0]
+debug(`Selected command ${chalk.bold(subcommand)}`)
 
 const help = `
   ${chalk.bold('Decentraland CLI')}
@@ -30,6 +43,7 @@ const help = `
       init                Create a new Decentraland Scene project
       start               Start a local development server for a Decentraland Scene
       deploy              Upload scene to Decentraland
+      export              Export scene to static website format (HTML, JS and CSS)
       info      [args]    Displays information about a LAND, an Estate or an address
       status    [args]    Displays the deployment status of the project or a given LAND
       help      [cmd]     Displays complete help for given command
@@ -47,17 +61,31 @@ const help = `
       ${chalk.green('$ dcl help deploy')}
 `
 
-async function main() {
+export async function main(version: string) {
+  setVersion(version)
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
+    const network = args['--network']
+    if (network && network !== 'mainnet' && network !== 'ropsten') {
+      console.error(
+        error(
+          `The only available values for ${chalk.bold(`'--network'`)} are ${chalk.bold(
+            `'mainnet'`
+          )} or ${chalk.bold(`'ropsten'`)}`
+        )
+      )
+      process.exit(1)
+    }
+
+    await loadConfig(network || 'mainnet')
     await Analytics.requestPermission()
   }
 
-  if (await isCLIOutdated()) {
+  if (isStableVersion() && (await isCLIOutdated())) {
     console.log(
       warning(
-        `You are running an outdated version of "${chalk.bold(
-          'dcl'
-        )}", run "${chalk.bold('npm i -g decentraland')}"`
+        `You are running an outdated version of "${chalk.bold('dcl')}", run "${chalk.bold(
+          'npm i -g decentraland'
+        )}"`
       )
     )
   }
@@ -73,7 +101,7 @@ async function main() {
   }
 
   if (subcommand === 'help' || args['--help']) {
-    const command = args._[1]
+    const command = subcommand === 'help' ? args._[1] : subcommand
     if (commands.has(command) && command !== 'help') {
       try {
         const { help } = await import(`./commands/${command}`)
@@ -92,9 +120,7 @@ async function main() {
     if (subcommand.startsWith('-')) {
       console.error(
         error(
-          `The "${chalk.bold(
-            subcommand
-          )}" option does not exist, run ${chalk.bold(
+          `The "${chalk.bold(subcommand)}" option does not exist, run ${chalk.bold(
             '"dcl help"'
           )} for more info.`
         )
@@ -103,9 +129,7 @@ async function main() {
     }
     console.error(
       error(
-        `The "${chalk.bold(
-          subcommand
-        )}" subcommand does not exist, run ${chalk.bold(
+        `The "${chalk.bold(subcommand)}" subcommand does not exist, run ${chalk.bold(
           '"dcl help"'
         )} for more info.`
       )
@@ -126,9 +150,6 @@ async function main() {
       )
     )
     debug(e)
-    await Analytics.reportError(e.name, e.message, e.stack)
     process.exit(1)
   }
 }
-
-main()

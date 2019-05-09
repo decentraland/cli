@@ -4,19 +4,16 @@ import chalk from 'chalk'
 import opn = require('opn')
 
 import { Decentraland } from '../lib/Decentraland'
-import {
-  buildTypescript,
-  installDependencies,
-  isOnline,
-  getOutdatedApi
-} from '../utils/moduleHelpers'
+import { buildTypescript, getOutdatedApi, isOnline } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
-import { info, loading, error, formatOutdatedMessage } from '../utils/logging'
-import { ErrorType } from '../utils/errors'
+import { error, formatOutdatedMessage } from '../utils/logging'
 import { isEnvCi } from '../utils/env'
+import * as spinner from '../utils/spinner'
+import installDependencies from '../project/installDependencies'
+import isECSInstalled from '../project/isECSInstalled'
 
 export const help = () => `
-  Usage: ${chalk.bold('dcl start [path] [options]')}
+  Usage: ${chalk.bold('dcl start [options]')}
 
     ${chalk.dim('Options:')}
 
@@ -28,9 +25,9 @@ export const help = () => `
 
     ${chalk.dim('Examples:')}
 
-    - Start a local development server for a Decentraland Scene on my-project
+    - Start a local development server for a Decentraland Scene at port 3500
 
-      ${chalk.green('$ dcl start my-project')}
+      ${chalk.green('$ dcl start -p 3500')}
 
     - Start a local development server for a Decentraland Scene at a docker container
 
@@ -52,39 +49,43 @@ export async function main() {
   })
 
   const isCi = args['--ci'] || isEnvCi()
-
   const shouldWatchFiles = !args['--no-watch'] && !isCi
+  const workingDir = process.cwd()
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),
     watch: shouldWatchFiles,
-    workingDir: args._[2]
+    workingDir
   })
 
   Analytics.preview()
 
-  const sdkOutdated = await getOutdatedApi()
+  spinner.create('Cheking if SDK is installed')
+  const [sdkOutdated, online, ECSInstalled] = await Promise.all([
+    getOutdatedApi(workingDir),
+    isOnline(),
+    isECSInstalled(workingDir)
+  ])
 
-  if (sdkOutdated) {
+  if (!ECSInstalled) {
+    spinner.info('SDK not found. Installing dependencies...')
+  } else if (sdkOutdated) {
+    spinner.warn(
+      `SDK is outdated, to upgrade to the latest version run the command: ${chalk.bold(
+        'npm install decentraland-ecs@latest'
+      )}`
+    )
     console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
+  } else {
+    spinner.succeed('Latest SDK installation found.')
   }
 
-  if (await dcl.project.needsDependencies()) {
-    if (await isOnline()) {
-      const spinner = loading('Installing dependencies')
-      await installDependencies(true)
-      spinner.succeed()
-    } else {
-      const e = new Error(
-        'Unable to install dependencies: no internet connection'
-      )
-      e.name = ErrorType.PREVIEW_ERROR
-      throw e
-    }
+  if (online && !ECSInstalled) {
+    await installDependencies(workingDir, !process.env.DEBUG)
   }
 
   if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript()
+    await buildTypescript(workingDir, !process.env.DEBUG)
   }
 
   dcl.on('preview:ready', port => {
@@ -95,7 +96,7 @@ export async function main() {
 
     console.log('') // line break
 
-    info(`Preview server is now running`)
+    console.log(`Preview server is now running`)
 
     console.log(chalk.bold('\n  Available on:\n'))
 

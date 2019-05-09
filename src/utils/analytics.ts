@@ -2,47 +2,33 @@ import * as uuidv4 from 'uuid/v4'
 import * as inquirer from 'inquirer'
 import AnalyticsNode = require('analytics-node')
 
-import { isDev } from './env'
-import { getDCLInfo, writeDCLInfo } from './dclinfo'
-import {
-  isOnline,
-  getInstalledCLIVersion,
-  getInstalledVersion
-} from './moduleHelpers'
+import { createDCLInfo, getConfig } from '../config'
+import { isOnline, getInstalledCLIVersion, getInstalledVersion } from './moduleHelpers'
 import { debug } from './logging'
+import chalk from 'chalk'
 
 // Setup segment.io
-const WRITE_KEY = 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
 const SINGLEUSER = 'cli-user'
-export const analytics = new AnalyticsNode(WRITE_KEY)
+export let analytics = null
 
 const ANONYMOUS_DATA_QUESTION = 'Send Anonymous data'
 
 export namespace Analytics {
-  export const sceneCreated = (properties?: any) =>
-    trackAsync('Scene created', properties)
-  export const preview = (properties?: any) =>
-    trackAsync('Preview started', properties)
-  export const sceneDeploy = (properties?: any) =>
-    trackAsync('Scene deploy started', properties)
+  export const sceneCreated = (properties?: any) => trackAsync('Scene created', properties)
+  export const preview = (properties?: any) => trackAsync('Preview started', properties)
+  export const sceneDeploy = (properties?: any) => trackAsync('Scene deploy started', properties)
   export const sceneDeploySuccess = (properties?: any) =>
     trackAsync('Scene deploy success', properties)
   export const sceneLink = (properties?: any) =>
     trackAsync('Scene ethereum link started', properties)
   export const sceneLinkSuccess = (properties?: any) =>
     trackAsync('Scene ethereum link succeeded', properties)
-  export const deploy = (properties?: any) =>
-    trackAsync('Scene deploy requested', properties)
-  export const pinRequest = (properties?: any) =>
-    trackAsync('Pin requested', properties)
-  export const pinSuccess = (properties?: any) =>
-    trackAsync('Pin success', properties)
-  export const infoCmd = (properties?: any) =>
-    trackAsync('Info command', properties)
-  export const statusCmd = (properties?: any) =>
-    trackAsync('Status command', properties)
-  export const sendData = (shareData: boolean) =>
-    trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
+  export const deploy = (properties?: any) => trackAsync('Scene deploy requested', properties)
+  export const pinRequest = (properties?: any) => trackAsync('Pin requested', properties)
+  export const pinSuccess = (properties?: any) => trackAsync('Pin success', properties)
+  export const infoCmd = (properties?: any) => trackAsync('Info command', properties)
+  export const statusCmd = (properties?: any) => trackAsync('Status command', properties)
+  export const sendData = (shareData: boolean) => trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
 
   export async function identify(devId: string) {
     analytics.identify({
@@ -56,21 +42,26 @@ export namespace Analytics {
   }
 
   export async function reportError(
+    workingDir: string,
     type: string,
     message: string,
     stackTrace: string
   ) {
-    return track('Error', {
-      errorType: type,
-      message,
-      stackTrace
-    })
+    return track(
+      'Error',
+      {
+        errorType: type,
+        message,
+        stackTrace
+      },
+      workingDir
+    )
   }
 
   export async function requestPermission() {
-    const dclinfo = await getDCLInfo()
-
-    if (!dclinfo) {
+    const { fileExists, segmentKey } = getConfig()
+    analytics = new AnalyticsNode(segmentKey)
+    if (!fileExists) {
       const results = await inquirer.prompt({
         type: 'confirm',
         name: 'continue',
@@ -78,11 +69,12 @@ export namespace Analytics {
         message: 'Send anonymous usage stats to Decentraland?'
       })
 
-      const devId = uuidv4()
-      await writeDCLInfo(devId, results.continue)
+      const newUserId = uuidv4()
+      await createDCLInfo({ userId: newUserId, trackStats: results.continue })
+      debug(`${chalk.bold('.dclinfo')} file created`)
 
       if (results.continue) {
-        await Analytics.identify(devId)
+        await Analytics.identify(newUserId)
         await Analytics.sendData(true)
       } else {
         await Analytics.sendData(false)
@@ -96,25 +88,24 @@ export namespace Analytics {
  * @param eventName The name of the event to be tracked
  * @param properties Any object containing serializable data
  */
-async function track(eventName: string, properties: any = {}) {
-  if (isDev || !(await isOnline())) {
+async function track(eventName: string, properties: any = {}, workingDir?: string) {
+  const { userId, trackStats } = getConfig()
+
+  if (!(await isOnline())) {
     return
   }
 
-  return new Promise(async (resolve, reject) => {
-    const dclinfo = await getDCLInfo()
-    const dclApiVersion = await getInstalledVersion('decentraland-api')
-    const devId = dclinfo ? dclinfo.userId : null
+  return new Promise(async resolve => {
+    const dclApiVersion = await getInstalledVersion(workingDir, 'decentraland-api')
     const newProperties = {
       ...properties,
       os: process.platform,
       nodeVersion: process.version,
       cliVersion: getInstalledCLIVersion(),
-      devId
+      devId: userId
     }
 
-    let shouldTrack = dclinfo ? dclinfo.trackStats : true
-    shouldTrack = shouldTrack || eventName === ANONYMOUS_DATA_QUESTION
+    const shouldTrack = trackStats || eventName === ANONYMOUS_DATA_QUESTION
 
     if (!shouldTrack) {
       resolve()

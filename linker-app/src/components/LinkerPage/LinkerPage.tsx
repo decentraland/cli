@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Address, Blockie, Header, Button } from 'decentraland-ui'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
-import { baseParcel, isDevelopment, rootCID } from '../../config'
+import { baseParcel, rootCID, isRopsten } from '../../config'
 import Error from '../Error'
 import { LinkerPageProps } from './types'
 import { coordsToString } from '../../modules/land/utils'
@@ -97,14 +97,14 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     const { error, isConnected, isUpdateAuthorized, isAuthorizationLoading, signed } = this.props
     const { x, y } = baseParcel
     return (
-      <div className='LinkScenePage'>
+      <div className={'LinkScenePage'}>
         <Navbar />
         <Header>Update LAND data</Header>
         {this.renderWalletData()}
         <img
-          className='map'
+          className={'map'}
           src={`https://api.decentraland.${
-            isDevelopment() ? 'zone' : 'org'
+            isRopsten() ? 'zone' : 'org'
           }/v1/parcels/${x}/${y}/map.png`}
           alt={`Base parcel ${x},${y}`}
         />
@@ -123,9 +123,12 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             </Button>
           </div>
         </form>
-				{isConnected && signed && <p>
-          Content was succesfully signed and it's being uploaded. You can close this page and check the CLI for more info.
-        </p>}
+        {isConnected && signed && (
+          <p>
+            Content was succesfully signed and it's being uploaded. You can close this page and
+            check the CLI for more info.
+          </p>
+        )}
         {error ? <Error>{error}</Error> : null}
         <style>{`
           .LinkScenePage {
@@ -138,7 +141,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             color: white;
           }
         `}</style>
-        {isDevelopment() ? (
+        {isRopsten() ? (
           <style>{`
             body:before {
               content: 'Using Ropsten test network';

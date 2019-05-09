@@ -34,9 +34,7 @@ export class ContentClient {
    * Send the content in the request to the conetnt server
    * @param uploadRequest
    */
-  async uploadContent(
-    uploadRequest: ContentUploadRequest
-  ): Promise<UploadResponse> {
+  async uploadContent(uploadRequest: ContentUploadRequest): Promise<UploadResponse> {
     try {
       const data = uploadRequest.requestContent()
       const response = await fetch(`${this.contentServerUrl}/mappings`, {
@@ -62,22 +60,17 @@ export class ContentClient {
    * @param from
    * @param to
    */
-  async getParcelsInformation(
-    from: Coords,
-    to: Coords
-  ): Promise<MappingsResponse> {
+  async getParcelsInformation(from: Coords, to: Coords): Promise<MappingsResponse> {
     try {
       const response = await fetch(
-        `${this.contentServerUrl}/mappings?nw=${from.x},${from.y}&se=${to.x},${
-          to.y
-        }`
+        `${this.contentServerUrl}/mappings?nw=${from.x},${from.y}&se=${to.x},${to.y}`
       )
       if (response.status >= 400) {
         const msg = await response.json()
         throw new Error(`Bad response from server: ${msg.error}`)
       }
       const content = await response.json()
-      return { ok: true, data: (content == null || content.length === 0) ? [] : content }
+      return { ok: true, data: content == null || content.length === 0 ? [] : content }
     } catch (error) {
       fail(ErrorType.CONTENT_SERVER_ERROR, error.message)
     }

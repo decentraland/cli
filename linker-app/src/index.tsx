@@ -9,13 +9,29 @@ import { Provider } from 'react-redux'
 import WalletProvider from 'decentraland-dapps/dist/providers/WalletProvider'
 
 import LinkerPage from './components/LinkerPage'
-import { store } from './store'
+import { setNetwork } from './config'
 
-ReactDOM.render(
-  <Provider store={store}>
-    <WalletProvider>
-      <LinkerPage />
-    </WalletProvider>
-  </Provider>,
-  document.getElementById('main')
-)
+function getNetwork() {
+  return new Promise((resolve, reject) => {
+    global['web3'].version.getNetwork((err, netId) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(netId)
+    })
+  })
+}
+
+;(async () => {
+  const net = await getNetwork()
+  setNetwork(net === '1' ? 'mainnet' : 'ropsten')
+  const { store } = await import('./store')
+  ReactDOM.render(
+    <Provider store={store}>
+      <WalletProvider>
+        <LinkerPage />
+      </WalletProvider>
+    </Provider>,
+    document.getElementById('main')
+  )
+})()

@@ -1,39 +1,51 @@
 import * as path from 'path'
-import * as semver from 'semver'
 import { spawn } from 'child_process'
+import * as semver from 'semver'
 import * as fetch from 'isomorphic-fetch'
 import * as packageJson from 'package-json'
 
+import * as spinner from '../utils/spinner'
 import { readJSON } from '../utils/filesystem'
-import { getRootPath, getNodeModulesPath } from '../utils/project'
+import { getNodeModulesPath } from '../utils/project'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
+let version = null
 
-export function installDependencies(silent: boolean = false): Promise<void> {
+export function setVersion(v: string) {
+  version = v
+}
+
+export function buildTypescript(workingDir: string, silent: boolean): Promise<void> {
+  spinner.create('Building project')
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['install'], { shell: true })
+    const child = spawn(npm, ['run', 'watch'], {
+      shell: true,
+      cwd: workingDir,
+      env: { ...process.env, NODE_ENV: '' }
+    })
+
     if (!silent) {
       child.stdout.pipe(process.stdout)
       child.stderr.pipe(process.stderr)
     }
-    child.on('close', () => resolve())
-  })
-}
 
-export function buildTypescript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['run', 'watch'], { shell: true })
-    child.stdout.pipe(process.stdout)
     child.stdout.on('data', data => {
-      if (
-        data.toString().indexOf('The compiler is watching file changes...') !==
-        -1
-      ) {
+      if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
+        spinner.succeed('Project built.')
         return resolve()
       }
     })
-    child.stderr.pipe(process.stderr)
-    child.on('close', () => resolve())
+
+    child.on('close', code => {
+      if (code !== 0) {
+        const msg = 'Error while building the project'
+        spinner.fail(msg)
+        reject(new Error(msg))
+      } else {
+        spinner.succeed('Project built.')
+        return resolve()
+      }
+    })
   })
 }
 
@@ -43,6 +55,7 @@ export async function getLatestVersion(name: string): Promise<string> {
   }
 
   try {
+    // NOTE: this packageJson function should receive the workingDir
     const pkg = await packageJson(name.toLowerCase())
     return pkg.version
   } catch (e) {
@@ -50,12 +63,12 @@ export async function getLatestVersion(name: string): Promise<string> {
   }
 }
 
-export async function getInstalledVersion(name: string): Promise<string> {
+export async function getInstalledVersion(workingDir: string, name: string): Promise<string> {
   let decentralandApiPkg: { version: string }
 
   try {
     decentralandApiPkg = await readJSON<{ version: string }>(
-      path.resolve(getNodeModulesPath(getRootPath()), name, 'package.json')
+      path.resolve(getNodeModulesPath(workingDir), name, 'package.json')
     )
   } catch (e) {
     return null
@@ -64,13 +77,15 @@ export async function getInstalledVersion(name: string): Promise<string> {
   return decentralandApiPkg.version
 }
 
-export async function getOutdatedApi(): Promise<{
+export async function getOutdatedApi(
+  workingDir: string
+): Promise<{
   package: string
   installedVersion: string
   latestVersion: string
 }> {
-  const decentralandApiVersion = await getInstalledVersion('decentraland-api')
-  const decentralandEcsVersion = await getInstalledVersion('decentraland-ecs')
+  const decentralandApiVersion = await getInstalledVersion(workingDir, 'decentraland-api')
+  const decentralandEcsVersion = await getInstalledVersion(workingDir, 'decentraland-ecs')
 
   if (decentralandEcsVersion) {
     const latestVersion = await getLatestVersion('decentraland-ecs')
@@ -96,18 +111,18 @@ export async function getOutdatedApi(): Promise<{
 }
 
 export function getInstalledCLIVersion(): string {
-  return require('../../package').version
+  return version || require('../../package.json').version
+}
+
+export function isStableVersion(): boolean {
+  return !getInstalledCLIVersion().includes('commit')
 }
 
 export async function isCLIOutdated(): Promise<boolean> {
   const cliVersion = getInstalledCLIVersion()
   const cliVersionLatest = await getLatestVersion('decentraland')
 
-  if (
-    cliVersionLatest &&
-    cliVersion &&
-    semver.lt(cliVersion, cliVersionLatest)
-  ) {
+  if (cliVersionLatest && cliVersion && semver.lt(cliVersion, cliVersionLatest)) {
     return true
   } else {
     return false

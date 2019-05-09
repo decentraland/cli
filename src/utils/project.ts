@@ -21,13 +21,6 @@ export function getPackageFilePath(dir: string): string {
 }
 
 /**
- * Returns the path to the current working directory.
- */
-export function getRootPath(): string {
-  return process.cwd()
-}
-
-/**
  * Composes the path to the `.dclignore` file based on the provided path.
  * @param dir The path to the directory containing the .dclignore file.
  */

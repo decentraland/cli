@@ -87,7 +87,11 @@ async function getReleaseTags() {
 console.log(`  pwd: ${process.cwd()}`)
 
 const run = async () => {
-  let branch = process.env.CIRCLE_BRANCH || process.env.BRANCH_NAME || process.env.TRAVIS_BRANCH || (await getBranch())
+  let branch =
+    process.env.CIRCLE_BRANCH ||
+    process.env.BRANCH_NAME ||
+    process.env.TRAVIS_BRANCH ||
+    (await getBranch())
 
   let npmTag: string = null
 
@@ -129,7 +133,9 @@ const run = async () => {
     if (branch === 'master') {
       npmTag = 'next'
     } else {
-      console.log(`! canceling automatic npm publish. It can only be made in master branches or tags`)
+      console.log(
+        `! canceling automatic npm publish. It can only be made in master branches or tags`
+      )
       process.exit(0)
     }
   }
@@ -143,7 +149,9 @@ const run = async () => {
 
   if (npmTag && npmTag in tags) {
     if (semver.gte(tags[npmTag], newVersion)) {
-      console.log(`! This version will be not published as "${npmTag}" because a newer version is set. Publishing as "ci"\n`)
+      console.log(
+        `! This version will be not published as "${npmTag}" because a newer version is set. Publishing as "ci"\n`
+      )
       npmTag = null
     }
   }

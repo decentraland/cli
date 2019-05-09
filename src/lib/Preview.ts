@@ -7,12 +7,12 @@ import * as fs from 'fs-extra'
 import * as portfinder from 'portfinder'
 import * as bodyParser from 'body-parser'
 import * as cors from 'cors'
-import * as glob from 'glob'
-import * as chokidar from 'chokidar'
-import * as ignore from 'ignore'
+import * as spinner from '../utils/spinner'
 
-import { getRootPath } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
+import { Watcher } from './Watcher'
+
+type Decentraland = import('./Decentraland').Decentraland
 
 function nocache(req, res, next) {
   res.setHeader('Surrogate-Control', 'no-store')
@@ -31,30 +31,12 @@ export class Preview extends EventEmitter {
   private app = express()
   private server = createServer(this.app)
   private wss = new WebSocket.Server({ server: this.server })
-  private ignoredPaths: string
-  private watch: boolean
 
-  constructor(ignoredPaths: string, watch: boolean) {
+  constructor(public dcl: Decentraland, private ignoredPaths: string, private watch: boolean) {
     super()
-    this.ignoredPaths = ignoredPaths
-    this.watch = watch
   }
 
   async startServer(port: number) {
-    const root = getRootPath()
-
-    const relativiseUrl = (url: string) => {
-      url = url.replace(/[\/\\]/g, '/')
-      const newRoot = root.replace(/\//g, '/').replace(/\\/g, '/')
-      if (newRoot.endsWith('/')) {
-        return url.replace(newRoot, '')
-      } else {
-        return url.replace(newRoot + '/', '')
-      }
-    }
-
-    const ig = (ignore as any)().add(this.ignoredPaths)
-
     let resolvedPort = port
 
     if (!resolvedPort) {
@@ -65,77 +47,98 @@ export class Preview extends EventEmitter {
       }
     }
 
-    if (this.watch) {
-      chokidar.watch(root).on('all', (event, path) => {
-        if (!ig.ignores(path)) {
-          this.wss.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send('update')
+    const watcher = new Watcher(this.dcl.getWorkingDir(), this.ignoredPaths)
 
-              client.send(
-                JSON.stringify({
-                  type: 'update',
-                  path: relativiseUrl(path)
-                })
-              )
-            }
-          })
+    watcher.onProcessingComplete.push(() => {
+      this.wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send('update')
+
+          client.send(
+            JSON.stringify({
+              type: 'update'
+            })
+          )
         }
       })
+    })
+
+    spinner.create('Hashing files')
+
+    try {
+      await watcher.initialMappingsReady
+      spinner.succeed('Hashing files')
+    } catch (e) {
+      spinner.fail('Hashing files')
+      throw e
+    }
+
+    if (this.watch) {
+      watcher.watch()
     }
 
     this.app.use(cors())
 
-    const npmModulesPath = path.resolve('node_modules')
+    const npmModulesPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules')
 
     // TODO: dcl.project.needsDependencies() should do this
     if (!fs.pathExistsSync(npmModulesPath)) {
       fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${npmModulesPath}, please run: npm install`)
     }
 
-    const dclEcsPath = path.resolve('node_modules', 'decentraland-ecs')
-    const dclApiPath = path.resolve('node_modules', 'decentraland-api')
+    const dclEcsPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-ecs')
+    const dclApiPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-api')
 
     const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
+    const unityPath = path.resolve(dclEcsPath, 'artifacts', 'unity')
 
     if (!fs.pathExistsSync(artifactPath)) {
-      fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${dclApiPath} or ${dclEcsPath}, please run: npm install`)
+      fail(
+        ErrorType.PREVIEW_ERROR,
+        `Couldn\'t find ${dclApiPath} or ${dclEcsPath}, please run: npm install`
+      )
     }
 
-    this.app.get('/', (req, res) => {
+    this.app.get('/', async (req, res) => {
       res.setHeader('Content-Type', 'text/html')
-      res.sendFile(path.resolve(artifactPath, 'artifacts/preview.html'))
+      const ethConnectExists = await fs.pathExists(
+        path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'eth-connect')
+      )
+
+      const htmlPath = path.resolve(artifactPath, 'artifacts/preview.html')
+
+      const html = await fs.readFile(htmlPath, {
+        encoding: 'utf8'
+      })
+
+      const response = html.replace(
+        '<script src="/@/artifacts/preview.js"></script>',
+        `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="/@/artifacts/preview.js"></script>`
+      )
+
+      res.send(response)
     })
 
     this.app.use('/@', express.static(artifactPath))
+    this.app.use('/unity', express.static(unityPath))
 
-    this.app.use('/contents/', express.static(root))
+    this.app.use('/contents/', express.static(this.dcl.getWorkingDir()))
 
     this.app.get('/mappings', (req, res) => {
-      glob(root + '/**/*', (err, files) => {
-        if (err) {
-          res.status(500)
-          res.json(err)
-          res.end()
-        } else {
-          const mappings: Record<string, string> = {}
-
-          files
-            .filter($ => !ig.ignores($))
-            .filter($ => fs.statSync($).isFile())
-            .map(relativiseUrl)
-            .forEach($ => {
-              mappings[$] = 'contents/' + $
-            })
-
-          res.json({
-            mappings
-          })
-        }
-      })
+      res.json(watcher.getMappings())
     })
 
-    this.app.use(express.static(root))
+    this.app.get('/Qm:cid', (req, res) => {
+      const file = watcher.resolveCID('Qm' + req.params.cid)
+
+      if (file) {
+        res.sendFile(file)
+      } else {
+        res.sendStatus(404)
+      }
+    })
+
+    this.app.use(express.static(this.dcl.getWorkingDir()))
 
     this.app.use(nocache)
 

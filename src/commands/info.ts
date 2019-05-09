@@ -2,10 +2,11 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import { Decentraland, Estate } from '../lib/Decentraland'
-import { formatDictionary } from '../utils/logging'
+import { formatDictionary, debug } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
+import { parseTarget } from '../utils/land'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl info [target] [options]')}
@@ -14,13 +15,14 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -b, --blockchain          Retrieve information directly from the blockchain instead of Decentraland remote API
-      -c, --host        [host]  Set content server (default is https://content.decentraland.org)
+      -n, --network             Choose between ${chalk.bold('mainnet')} and ${chalk.bold(
+  'ropsten'
+)} (default 'mainnet')
+
 
     ${chalk.dim('Examples:')}
 
-    - Get information from the ${chalk.bold('parcel')} located at ${chalk.bold(
-  '12, 45'
-)}"
+    - Get information from the ${chalk.bold('parcel')} located at ${chalk.bold('-12, 40')}"
 
       ${chalk.green('$ dcl info -12,40')}
 
@@ -30,9 +32,7 @@ export const help = () => `
 
       ${chalk.green('$ dcl info 5 --blockchain')}
 
-    - Get information from the ${chalk.bold(
-      'address 0x8bed95d830475691c10281f1fea2c0a0fe51304b'
-    )}"
+    - Get information from the ${chalk.bold('address 0x8bed95d830475691c10281f1fea2c0a0fe51304b')}"
 
       ${chalk.green('$ dcl info 0x8bed95d830475691c10281f1fea2c0a0fe51304b')}
 `
@@ -42,7 +42,8 @@ function getTargetType(value: string): string {
     return 'parcel'
   }
 
-  if (Number.isInteger(parseInt(value, 10))) {
+  const id = parseInt(value, 10)
+  if (Number.isInteger(id) && id > 0) {
     return 'estate'
   }
 
@@ -58,15 +59,20 @@ export async function main() {
     {
       '--help': Boolean,
       '--blockchain': Boolean,
-      '--host': String,
+      '--network': String,
       '-h': '--help',
       '-b': '--blockchain',
-      '-c': '--host'
+      '-n': '--network'
     },
     { permissive: true }
   )
 
-  const target = args._[1]
+  if (!args._[1]) {
+    fail(ErrorType.INFO_ERROR, 'Please provide a target to retrieve data')
+  }
+
+  const target = parseTarget(args._)
+  debug(`Parsed target: ${target}`)
   const type = getTargetType(target)
 
   if (!type) {
@@ -75,8 +81,7 @@ export async function main() {
 
   const dcl = new Decentraland({
     blockchain: args['--blockchain'],
-    contentServerUrl:
-      args['--host'] || 'https://content.decentraland.org'
+    workingDir: process.cwd()
   })
 
   if (type === 'parcel') {
