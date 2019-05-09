@@ -1,7 +1,7 @@
-const fs = require('fs')
-const path = require('path')
+import * as fs from 'fs'
+import * as path from 'path'
 
-module.exports = async markdown => {
+export default async markdown => {
   fs.writeFileSync(path.resolve(process.cwd(), 'release.md'), markdown)
   return markdown
 }

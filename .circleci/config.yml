@@ -37,7 +37,7 @@ jobs:
       - run: npm run test:ci
       - run: npm run unlock:dev
       - run: npm shrinkwrap
-      - run: npm run release
+      - run: npm run publish
 
 workflows:
   version: 2

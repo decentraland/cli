@@ -10,3 +10,5 @@ dist
 test-*
 scripts/*.js
 scripts/*.d.ts
+
+scripts/release.md
