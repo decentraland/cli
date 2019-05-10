@@ -101,21 +101,12 @@ export class Preview extends EventEmitter {
 
     this.app.get('/', async (req, res) => {
       res.setHeader('Content-Type', 'text/html')
+
       const ethConnectExists = await fs.pathExists(
         path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'eth-connect')
       )
 
-      const htmlPath = path.resolve(artifactPath, 'artifacts/preview.html')
-
-      const html = await fs.readFile(htmlPath, {
-        encoding: 'utf8'
-      })
-
-      const response = html.replace(
-        '<script src="/@/artifacts/preview.js"></script>',
-        `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="/@/artifacts/preview.js"></script>`
-      )
-
+      const response = await getHTML(artifactPath, !!req.query.UNITY_ENABLED, ethConnectExists)
       res.send(response)
     })
 
@@ -152,6 +143,34 @@ export class Preview extends EventEmitter {
         .on('close', resolve)
         .on('error', reject)
     })
+  }
+}
+
+// TODO remove this when babylon's out of project
+async function getHTML(
+  artifactPath: string,
+  unityEnabled: boolean,
+  ethConnectExists: boolean
+): Promise<string> {
+  if (unityEnabled) {
+    const htmlPath = path.resolve(artifactPath, 'artifacts', 'unity-preview.html')
+    const html = await fs.readFile(htmlPath, {
+      encoding: 'utf8'
+    })
+    return html.replace(
+      '<script src="/@/artifacts/unity/Build/UnityLoader.js"></script>',
+      `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="/@/artifacts/unity/Build/UnityLoader.js"></script>`
+    )
+  } else {
+    const htmlPath = path.resolve(artifactPath, 'artifacts', 'preview.html')
+    const html = await fs.readFile(htmlPath, {
+      encoding: 'utf8'
+    })
+
+    return html.replace(
+      '<script src="/@/artifacts/preview.js"></script>',
+      `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="/@/artifacts/preview.js"></script>`
+    )
   }
 }
 
