@@ -27,18 +27,25 @@ For details on how to use Decentraland developer tools, check our [documentation
 
 **NOTE:** you can set the environment variable `DEBUG=true` to see all debugging info
 
+## Releasing
+We're using [ZEIT release](https://github.com/zeit/release) tool:
+```bash
+npm i -g release
+release minor --hook scripts/release.js # e.g. of minor release
+```
+
 ## Configuration
 
 `dcl` can be configured in several ways to adapt it to another environment other than the default one. To do this you have to either set environment variables or change your `~/.dclinfo` file:
 
-|Variable name|Enviroment variable|`~/.dclinfo`|
-| - | :--: | :-: |
-|Provider|RPC_URL|-|
-|MANA Token Contract|MANA_TOKEN|MANAToken|
-|LAND Registry Contract|LAND_REGISTRY|LANDRegistry|
-|Estate Registry Contract|ESTATE_REGISTRY|EstateRegistry|
-|Content Server URL|CONTENT_URL|contentUrl|
-|Segment API key|SEGMENT_KEY|segmentKey|
+| Variable name            | Enviroment variable |  `~/.dclinfo`  |
+| ------------------------ | :-----------------: | :------------: |
+| Provider                 |       RPC_URL       |       -        |
+| MANA Token Contract      |     MANA_TOKEN      |   MANAToken    |
+| LAND Registry Contract   |    LAND_REGISTRY    |  LANDRegistry  |
+| Estate Registry Contract |   ESTATE_REGISTRY   | EstateRegistry |
+| Content Server URL       |     CONTENT_URL     |   contentUrl   |
+| Segment API key          |     SEGMENT_KEY     |   segmentKey   |
 
 ## Copyright info
 This repository is protected with a standard Apache 2 license. See the terms and conditions in the [LICENSE](https://github.com/decentraland/cli/blob/master/LICENSE) file.
