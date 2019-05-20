@@ -60,7 +60,7 @@ export async function main() {
 
   Analytics.preview()
 
-  spinner.create('Cheking if SDK is installed')
+  spinner.create('Checking if SDK is installed')
   const [sdkOutdated, online, ECSInstalled] = await Promise.all([
     getOutdatedApi(workingDir),
     isOnline(),
