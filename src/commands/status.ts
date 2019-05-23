@@ -72,7 +72,7 @@ function logStatus(files: any[], cid: string, coords: string) {
   } else {
     console.log(`\n  Deployment status for ${coords}:`)
     if (cid) {
-      console.log(`\n    Proyect CID: ${cid}`)
+      console.log(`\n    Project CID: ${cid}`)
     }
     console.log(serializedList)
   }
