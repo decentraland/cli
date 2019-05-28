@@ -13,14 +13,13 @@ test('snapshot - dcl help build', t => {
 })
 
 function buildProject(dirPath) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     new Commando(`node ${path.resolve('bin', 'dcl')} build`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development' }
     })
-      .endWhen(/Export successful./)
-      .on('err', e => reject(e))
+      .endWhen(/Project built/)
       .on('end', async () => {
         resolve()
       })
