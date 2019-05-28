@@ -1,1 +1,10 @@
-export default new Set<String>(['init', 'start', 'deploy', 'info', 'status', 'help', 'export'])
+export default new Set<String>([
+  'init',
+  'build',
+  'start',
+  'deploy',
+  'info',
+  'status',
+  'help',
+  'export'
+])
