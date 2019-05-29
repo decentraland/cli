@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "bin/dcl"
@@ -32,7 +32,7 @@
     "docker:enter": "docker exec -it decentraland-cli /bin/bash",
     "docker:start": "npm run docker:clean && npm run docker:run && npm run docker:enter",
     "unlock:dev": "node ./scripts/unlockDevDeps.js",
-    "release": "node ./scripts/npmPublish.js",
+    "publish": "node ./scripts/npmPublish.js",
     "precommit": "lint-staged"
   },
   "lint-staged": {

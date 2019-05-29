@@ -41,6 +41,7 @@ const help = `
     ${chalk.dim('Commands:')}
 
       init                Create a new Decentraland Scene project
+      build               Build scene
       start               Start a local development server for a Decentraland Scene
       deploy              Upload scene to Decentraland
       export              Export scene to static website format (HTML, JS and CSS)
