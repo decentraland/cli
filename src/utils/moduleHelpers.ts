@@ -15,10 +15,14 @@ export function setVersion(v: string) {
   version = v
 }
 
-export function buildTypescript(workingDir: string, silent: boolean): Promise<void> {
+export function buildTypescript(
+  workingDir: string,
+  silent: boolean,
+  watch: boolean
+): Promise<void> {
   spinner.create('Building project')
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['run', 'watch'], {
+    const child = spawn(npm, ['run', watch ? 'watch' : 'build'], {
       shell: true,
       cwd: workingDir,
       env: { ...process.env, NODE_ENV: '' }

@@ -14,14 +14,13 @@ test('snapshot - dcl help export', t => {
 })
 
 function exportProject(dirPath) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     new Commando(`node ${path.resolve('bin', 'dcl')} export`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development' }
     })
       .endWhen(/Export successful./)
-      .on('err', e => reject(e))
       .on('end', async () => {
         resolve()
       })
