@@ -97,7 +97,7 @@ export class Decentraland extends EventEmitter {
     await this.project.scaffoldProject(boilerplateType, websocketServer)
   }
 
-  async deploy(files: IFile[]) {
+  async deploy(files: IFile[]): Promise<string> {
     await this.project.validateSceneOptions()
     const rootCID = await CIDUtils.getFilesComposedCID(files)
 
@@ -115,11 +115,13 @@ export class Decentraland extends EventEmitter {
         signature,
         address,
         this.options.forceDeploy,
-        timestamp
+        timestamp,
+        getConfig().userId
       )
       if (!uploadResult) {
         fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')
       }
+      return address
     } catch (e) {
       fail(ErrorType.LINKER_ERROR, e.message)
     }

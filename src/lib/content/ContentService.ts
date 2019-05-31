@@ -30,11 +30,18 @@ export class ContentService extends EventEmitter {
     contentSignature: string,
     address: string,
     fullUpload: boolean,
-    timestamp: number
+    timestamp: number,
+    userId: string
   ): Promise<boolean> {
     this.emit('upload:starting')
     const manifest: ContentIdentifier[] = await CIDUtils.getIdentifiersForIndividualFile(content)
-    const metadata: RequestMetadata = await this.buildMetadata(rootCID, contentSignature, address, timestamp)
+    const metadata: RequestMetadata = this.buildMetadata(
+      rootCID,
+      contentSignature,
+      address,
+      timestamp,
+      userId
+    )
 
     let uploadContent = content
     if (!fullUpload) {
@@ -91,17 +98,24 @@ export class ContentService extends EventEmitter {
     return this.client.getContent(sceneFileCID)
   }
 
-  private buildMetadata(rootCID: string, signature: string, address: string, timestamp: number): RequestMetadata {
+  private buildMetadata(
+    rootCID: string,
+    signature: string,
+    address: string,
+    timestamp: number,
+    userId: string
+  ): RequestMetadata {
     const validity = new Date()
     validity.setMonth(validity.getMonth() + 6)
     return {
       value: rootCID,
-      signature: signature,
+      signature,
       pubKey: address.toLowerCase(),
       validityType: 0,
-      validity: validity,
+      validity,
       sequence: 2,
-      timestamp: timestamp
+      timestamp,
+      userId
     }
   }
 

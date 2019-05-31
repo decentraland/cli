@@ -182,7 +182,7 @@ export async function main() {
     }
   }
 
-  await dcl.deploy(files)
-  Analytics.sceneDeploySuccess()
+  const address = await dcl.deploy(files)
+  Analytics.sceneDeploySuccess({ address })
   return console.log(chalk.green(`\nDeployment complete!`))
 }
