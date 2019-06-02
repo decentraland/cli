@@ -21,7 +21,7 @@ import { IEthereumDataProvider } from './IEthereumDataProvider'
 
 export type DecentralandArguments = {
   workingDir: string
-  wallet?: ethers.wallet
+  wallet?: ethers.Wallet
   linkerPort?: number
   previewPort?: number
   isHttps?: boolean
@@ -92,6 +92,12 @@ export class Decentraland extends EventEmitter {
 
   getWorkingDir(): string {
     return this.options.workingDir
+  }
+
+  updateWorkingDir(newWorkingDir: string)
+  {
+    this.options.workingDir = newWorkingDir;
+    this.project = new Project(this.options.workingDir);
   }
 
   async init(sceneMeta: SceneMetadata, boilerplateType: BoilerplateType, websocketServer?: string) {
@@ -292,7 +298,7 @@ export class Decentraland extends EventEmitter {
     this.emit(event, ...args)
   }
 
-  private createWallet(privateKey: string): ethers.wallet {
+  private createWallet(privateKey: string): ethers.Wallet {
     let length = 64
 
     if (privateKey.startsWith('0x')) {
