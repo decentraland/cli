@@ -21,6 +21,7 @@ import { IEthereumDataProvider } from './IEthereumDataProvider'
 
 export type DecentralandArguments = {
   workingDir: string
+  wallet?: ethers.wallet
   linkerPort?: number
   previewPort?: number
   isHttps?: boolean
@@ -78,8 +79,10 @@ export class Decentraland extends EventEmitter {
     this.provider = this.options.blockchain ? this.ethereum : new API()
     this.contentService = new ContentService(new ContentClient(this.options.config.contentUrl))
 
-    if (process.env.DCL_PRIVATE_KEY) {
-      this.createWallet(process.env.DCL_PRIVATE_KEY)
+    if (args.wallet) {
+      this.wallet = args.wallet
+    } else if (process.env.DCL_PRIVATE_KEY) {
+      this.wallet = this.createWallet(process.env.DCL_PRIVATE_KEY)
     }
 
     // Pipe all events
@@ -289,7 +292,7 @@ export class Decentraland extends EventEmitter {
     this.emit(event, ...args)
   }
 
-  private createWallet(privateKey: string): void {
+  private createWallet(privateKey: string): ethers.wallet {
     let length = 64
 
     if (privateKey.startsWith('0x')) {
@@ -300,7 +303,7 @@ export class Decentraland extends EventEmitter {
       fail(ErrorType.DEPLOY_ERROR, 'Addresses should be 64 characters length.')
     }
 
-    this.wallet = new ethers.Wallet(privateKey)
+    return new ethers.Wallet(privateKey)
   }
 
   private getEpoch(): number {
