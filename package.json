@@ -88,7 +88,7 @@
     "@types/react-dom": "^16.0.11",
     "@types/request": "^2.48.1",
     "@types/sinon": "^5.0.5",
-    "@zeit/ncc": "^0.8.1",
+    "@zeit/ncc": "^0.18.5",
     "analytics-node": "^3.2.0",
     "arg": "^4.1.0",
     "ava": "^1.2.1",

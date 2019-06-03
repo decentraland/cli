@@ -67,20 +67,9 @@ export async function main(): Promise<number> {
   await fs.ensureDir(exportDir)
 
   const ignoreFileContent = await fs.readFile(path.resolve(workDir, '.dclignore'), 'utf-8')
-
   const artifactPath = path.resolve(workDir, 'node_modules', 'decentraland-ecs')
-  const htmlPath = path.resolve(artifactPath, 'artifacts/preview.html')
-  const ethConnectExists = await fs.pathExists(path.resolve(workDir, 'node_modules', 'eth-connect'))
-
-  const html = (await fs.readFile(htmlPath, {
-    encoding: 'utf8'
-  })).replace(
-    '<script src="/@/artifacts/preview.js"></script>',
-    `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="preview.js"></script>`
-  )
 
   const watcher = new Watcher(workDir, ignoreFileContent)
-
   await watcher.initialMappingsReady
 
   const mappings = watcher.getMappings()
@@ -91,12 +80,20 @@ export async function main(): Promise<number> {
 
   await Promise.all([
     ...promises,
-    fs.copy(path.resolve(workDir, 'scene.json'), path.resolve(exportDir, 'scene.json')),
-    fs.writeFile(path.resolve(exportDir, 'index.html'), html, 'utf-8'),
     fs.writeFile(path.resolve(exportDir, 'mappings'), JSON.stringify(mappings), 'utf-8'),
+    fs.copy(path.resolve(workDir, 'scene.json'), path.resolve(exportDir, 'scene.json')),
+    fs.copy(
+      path.resolve(artifactPath, 'artifacts/unity'),
+      path.resolve(exportDir, '@/artifacts/unity')
+    ),
+    fs.copy(path.resolve(artifactPath, 'artifacts/unity'), path.resolve(exportDir, 'unity')),
     fs.copy(
       path.resolve(artifactPath, 'artifacts/preview.js'),
-      path.resolve(exportDir, 'preview.js')
+      path.resolve(exportDir, '@/artifacts/preview.js')
+    ),
+    fs.copy(
+      path.resolve(artifactPath, 'artifacts/preview.html'),
+      path.resolve(exportDir, 'index.html')
     )
   ])
 
