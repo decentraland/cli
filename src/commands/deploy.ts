@@ -67,7 +67,7 @@ export async function main() {
   const mainPath = path.resolve(workingDir, sceneJson.main)
 
   if (!(await fs.pathExists(mainPath))) {
-    const errorMsg = `Could not find the build make sure that the ${chalk.bold(
+    const errorMsg = `Could not find the build. Make sure that the ${chalk.bold(
       'main'
     )} file of the ${chalk.bold('scene.json')} exists`
     const pkgPath = path.resolve(workingDir, 'package.json')
