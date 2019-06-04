@@ -63,23 +63,32 @@ export async function main() {
 
   spinner.create('Checking existance of build')
 
-  const [sceneJson, pkg] = await Promise.all([
-    fs.readJSON(path.resolve(workingDir, 'scene.json')),
-    fs.readJSON(path.resolve(workingDir, 'package.json'))
-  ])
-
+  const sceneJson = await fs.readJSON(path.resolve(workingDir, 'scene.json'))
   const mainPath = path.resolve(workingDir, sceneJson.main)
 
-  if (!(await fs.pathExists(mainPath)) && isECSProject(pkg)) {
-    spinner.succeed(warning('No build found'))
-    spinner.create('Building project')
-    try {
-      await buildProject(workingDir)
-    } catch (error) {
-      spinner.fail('Could not build the project')
-      throw new Error(error)
+  if (!(await fs.pathExists(mainPath))) {
+    const errorMsg = `Could not find the build. Make sure that the ${chalk.bold(
+      'main'
+    )} file of the ${chalk.bold('scene.json')} exists`
+    const pkgPath = path.resolve(workingDir, 'package.json')
+    if (!(await fs.pathExists(pkgPath))) {
+      throw new Error(errorMsg)
     }
-    spinner.succeed('Project built')
+
+    const pkg = await fs.readJSON(pkgPath)
+    if (isECSProject(pkg)) {
+      spinner.succeed(`${warning('No build found, triggering ')}${chalk.bold(`"npm run build"`)}`)
+      spinner.create('Building project')
+      try {
+        await buildProject(workingDir)
+      } catch (error) {
+        spinner.fail('Could not build the project')
+        throw new Error(error)
+      }
+      spinner.succeed('Project built')
+    } else {
+      throw new Error(errorMsg)
+    }
   } else {
     spinner.succeed('Build found')
   }
