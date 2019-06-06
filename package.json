@@ -88,11 +88,11 @@
     "@types/react-dom": "^16.0.11",
     "@types/request": "^2.48.1",
     "@types/sinon": "^5.0.5",
+    "@types/ws": "^6.0.1",
     "@zeit/ncc": "^0.18.5",
     "analytics-node": "^3.2.0",
     "arg": "^4.1.0",
     "ava": "^1.2.1",
-    "body-parser": "^1.18.3",
     "chalk": "^2.3.1",
     "chokidar": "^2.0.3",
     "cors": "^2.8.4",
@@ -146,5 +146,7 @@
     "wildcards": "^1.0.2",
     "ws": "^6.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "google-protobuf": "^3.8.0"
+  }
 }
