@@ -4,7 +4,7 @@ import chalk from 'chalk'
 import { Decentraland, Estate } from '../lib/Decentraland'
 import { formatDictionary, debug } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
-import { getObject, isValid } from '../utils/coordinateHelpers'
+import { getObject, getString, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
 import { parseTarget } from '../utils/land'
 
@@ -177,6 +177,11 @@ function logEstate(estate: Estate, id: number = null) {
   console.log('  Estate Metadata:\n')
 
   if (estate) {
-    console.log(formatDictionary(estate, { spacing: 2, padding: 2 }))
+    const estateInfo = { ...estate, parcels: singleLineParcels(estate.parcels) }
+    console.log(formatDictionary(estateInfo, { spacing: 2, padding: 2 }))
   }
+}
+
+function singleLineParcels(parcels: any) {
+  return parcels.map(getString).join('; ')
 }
