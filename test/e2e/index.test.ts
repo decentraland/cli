@@ -107,7 +107,7 @@ test('E2E - full new user workflow of CLI (only CI test)', async t => {
         .substring(7)
 
       // Assert that hotreloading changes preview
-      gameFile = gameFile.replace('spawnCube(5, 1, 5)', `spawnCube(5, 5, 5) // ${randomString}`)
+      gameFile = gameFile.replace('spawnCube(8, 1, 8)', `spawnCube(5, 5, 5) // ${randomString}`)
       await fs.writeFile(path.resolve(dirPath, 'src', 'game.ts'), gameFile, {
         encoding: 'utf8'
       })

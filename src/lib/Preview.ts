@@ -5,7 +5,8 @@ import * as express from 'express'
 import { EventEmitter } from 'events'
 import * as fs from 'fs-extra'
 import * as portfinder from 'portfinder'
-import * as bodyParser from 'body-parser'
+import * as proto from './proto/broker'
+
 import * as cors from 'cors'
 import * as spinner from '../utils/spinner'
 
@@ -120,13 +121,22 @@ export class Preview extends EventEmitter {
     })
 
     this.app.use('/@', express.static(artifactPath))
+
     this.app.use('/unity', express.static(unityPath))
 
     this.app.use('/contents/', express.static(this.dcl.getWorkingDir()))
 
+    this.app.use(nocache)
+
     this.app.get('/mappings', (req, res) => {
       res.json(watcher.getMappings())
     })
+
+    this.app.get('/scene.json', (_, res) => {
+      res.sendFile(path.join(this.dcl.getWorkingDir(), 'scene.json'))
+    })
+
+    this.app.use(express.static(path.join(artifactPath, 'artifacts')))
 
     this.app.get('/Qm:cid', (req, res) => {
       const file = watcher.resolveCID('Qm' + req.params.cid)
@@ -138,11 +148,7 @@ export class Preview extends EventEmitter {
       }
     })
 
-    this.app.use(express.static(this.dcl.getWorkingDir()))
-
-    this.app.use(nocache)
-
-    setUpRendezvous(this.app)
+    setComms(this.wss)
 
     this.emit('preview:ready', resolvedPort)
 
@@ -155,97 +161,74 @@ export class Preview extends EventEmitter {
   }
 }
 
-function setUpRendezvous(app: express.Express) {
-  /**
-   * Store all connections in place
-   */
-  const connections = []
+function setComms(wss: WebSocket.Server) {
+  const connections = new Set<WebSocket>()
+  const topicsPerConnection = new WeakMap<WebSocket, Set<string>>()
+  let connectionCounter = 0
 
-  /**
-   * This middleware sets up Server-Sent Events.
-   */
-  const sse = (req, res, next) => {
-    const connection = {
-      uuid: req.params.uuid,
-      res: res
+  function getTopicList(socket: WebSocket): Set<string> {
+    let set = topicsPerConnection.get(socket)
+    if (!set) {
+      set = new Set()
+      topicsPerConnection.set(socket, set)
     }
-
-    // SSE protocol works by setting the `content-type` to `event-stream`
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive'
-    })
-
-    // Enrich the response object with the ability to send packets
-    res.sseSend = data => {
-      try {
-        res.write('data: ' + JSON.stringify(data) + '\n\n')
-      } catch (e) {
-        connections.splice(connections.indexOf(connection), 1)
-        clearInterval(res.interval)
-      }
-    }
-
-    // Setup an interval to keep the connection alive
-    res.interval = setInterval(() => {
-      res.sseSend({
-        type: 'ping'
-      })
-    }, 5000)
-
-    // Store the connection
-    connections.push(connection)
-
-    next()
+    return set
   }
 
-  app.use(bodyParser.json())
-
-  app.post('/signaling/announce', (req, res) => {
-    const uuid = req.body.uuid
-
-    const packet = {
-      type: 'announce',
-      uuid: uuid
+  wss.on('connection', function connection(ws) {
+    if (ws.protocol !== 'comms') {
+      return
     }
 
-    connections.forEach(c => {
-      // Don't announce to self
-      if (c.uuid !== uuid) {
-        c.res.sseSend(packet)
+    console.log('Acquiring comms connection.')
+
+    connections.add(ws)
+
+    ws.on('message', message => {
+      const data = message as Buffer
+      const msgType = proto.CoordinatorMessage.deserializeBinary(data).getType()
+
+      if (msgType === proto.MessageType.PING) {
+        ws.send(data)
+      } else if (msgType === proto.MessageType.TOPIC) {
+        const topicMessage = proto.TopicMessage.deserializeBinary(data)
+
+        const topic = topicMessage.getTopic()
+
+        const dataMessage = new proto.DataMessage()
+        dataMessage.setType(proto.MessageType.DATA)
+        dataMessage.setBody(topicMessage.getBody_asU8())
+
+        const topicData = dataMessage.serializeBinary()
+
+        // Reliable/unreliable data
+        connections.forEach($ => {
+          if (ws !== $) {
+            if (getTopicList($).has(topic)) {
+              $.send(topicData)
+            }
+          }
+        })
+      } else if (msgType === proto.MessageType.TOPIC_SUBSCRIPTION) {
+        const topicMessage = proto.TopicSubscriptionMessage.deserializeBinary(data)
+        const rawTopics = topicMessage.getTopics_asU8()
+        const topics = Buffer.from(rawTopics).toString('utf8')
+        const set = getTopicList(ws)
+
+        set.clear()
+        topics.split(/\s+/g).forEach($ => set.add($))
       }
     })
 
-    res.sendStatus(200)
-  })
+    ws.on('close', () => connections.delete(ws))
 
-  app.post('/signaling/:uuid/signal', (req, res) => {
-    const uuid = req.params.uuid
+    setTimeout(() => {
+      const welcome = new proto.WelcomeMessage()
+      welcome.setType(proto.MessageType.WELCOME)
+      welcome.setAlias(++connectionCounter)
+      const data = welcome.serializeBinary()
 
-    const packet = {
-      type: 'signal',
-      initiator: req.body.initiator,
-      data: req.body.data,
-      uuid: req.body.uuid
-    }
-
-    let result = false
-
-    connections.forEach(c => {
-      if (c.uuid === uuid) {
-        c.res.sseSend(packet)
-        result = true
-      }
-    })
-
-    res.sendStatus(result ? 200 : 404)
-  })
-
-  app.get('/signaling/:uuid/listen', sse, (_, res) => {
-    // tslint:disable-next-line:semicolon
-    ;(res as any).sseSend({
-      type: 'accept'
-    })
+      ws.send(data)
+    }, 100)
   })
 }
