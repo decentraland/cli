@@ -49,7 +49,9 @@ export async function main() {
   })
 
   const isCi = args['--ci'] || isEnvCi()
-  const shouldWatchFiles = !args['--no-watch'] && !isCi
+  // TODO fix watch
+  // tslint:disable-next-line: no-commented-out-code
+  const shouldWatchFiles = false // !args['--no-watch'] && !isCi
   const workingDir = process.cwd()
 
   const dcl = new Decentraland({
