@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "bin/dcl"
@@ -98,8 +98,8 @@
     "cors": "^2.8.4",
     "cross-spawn": "^6.0.5",
     "dcl-tslint-config-standard": "^1.0.1",
-    "decentraland-dapps": "^3.8.0",
-    "decentraland-eth": "^8.6.0",
+    "decentraland-dapps": "^4.2.0",
+    "decentraland-eth": "^8.16.0",
     "decentraland-rpc": "^3.1.6",
     "decentraland-ui": "1.13.1",
     "docker-names": "^1.0.3",
@@ -124,7 +124,7 @@
     "portfinder": "^1.0.13",
     "prettier": "^1.14.0",
     "proxyquire": "^2.1.0",
-    "puppeteer": "^1.11.0",
+    "puppeteer": "^1.17.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-redux": "^5.0.7",
