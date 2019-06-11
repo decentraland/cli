@@ -48,7 +48,7 @@ export class Preview extends EventEmitter {
       }
     }
 
-    const watcher = new Watcher(this.dcl.getWorkingDir(), this.ignoredPaths || [])
+    const watcher = new Watcher(this.dcl.getWorkingDir(), this.ignoredPaths || '')
 
     watcher.onProcessingComplete.push(() => {
       this.wss.clients.forEach(client => {
