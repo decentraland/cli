@@ -128,8 +128,30 @@ export class Preview extends EventEmitter {
 
     this.app.use(nocache)
 
-    this.app.get('/mappings', (req, res) => {
+    this.app.get('/mappings', (_, res) => {
       res.json(watcher.getMappings())
+    })
+
+    this.app.get('/scenes', async (_, res) => {
+      const mapping = watcher.getMappings()[0]
+      const { parcel_id, root_cid, publisher } = mapping
+      return res.json({ data: [{ parcel_id, root_cid, publisher, scene_cid: '' }] })
+    })
+
+    this.app.get('/parcel_info', (_, res) => {
+      const mapping = watcher.getMappings()[0]
+      const { parcel_id, root_cid, publisher } = mapping
+      return res.json({
+        data: [
+          {
+            parcel_id,
+            root_cid,
+            publisher,
+            scene_cid: '',
+            content: mapping
+          }
+        ]
+      })
     })
 
     this.app.get('/scene.json', (_, res) => {
