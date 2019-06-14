@@ -133,13 +133,13 @@ export class Preview extends EventEmitter {
     })
 
     this.app.get('/scenes', async (_, res) => {
-      const mapping = watcher.getMappings()[0]
+      const mapping = watcher.getMappings()
       const { parcel_id, root_cid, publisher } = mapping
       return res.json({ data: [{ parcel_id, root_cid, publisher, scene_cid: '' }] })
     })
 
     this.app.get('/parcel_info', (_, res) => {
-      const mapping = watcher.getMappings()[0]
+      const mapping = watcher.getMappings()
       const { parcel_id, root_cid, publisher } = mapping
       return res.json({
         data: [
