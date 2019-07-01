@@ -22,7 +22,7 @@ export const help = () => `
 
     ${chalk.dim('Examples:')}
 
-    - Get information from the ${chalk.bold('parcel')} located at ${chalk.bold('-12, 40')}"
+    - Get information from the ${chalk.bold('parcel')} located at "${chalk.bold('-12, 40')}"
 
       ${chalk.green('$ dcl info -12,40')}
 
