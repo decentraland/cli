@@ -201,6 +201,7 @@ function setComms(wss: WebSocket.Server) {
     if (ws.protocol !== 'comms') {
       return
     }
+    const alias = ++connectionCounter
 
     console.log('Acquiring comms connection.')
 
@@ -220,6 +221,7 @@ function setComms(wss: WebSocket.Server) {
         const dataMessage = new proto.DataMessage()
         dataMessage.setType(proto.MessageType.DATA)
         dataMessage.setBody(topicMessage.getBody_asU8())
+        dataMessage.setFromAlias(alias)
 
         const topicData = dataMessage.serializeBinary()
 
@@ -247,7 +249,7 @@ function setComms(wss: WebSocket.Server) {
     setTimeout(() => {
       const welcome = new proto.WelcomeMessage()
       welcome.setType(proto.MessageType.WELCOME)
-      welcome.setAlias(++connectionCounter)
+      welcome.setAlias(alias)
       const data = welcome.serializeBinary()
 
       ws.send(data)
