@@ -19,6 +19,7 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -p, --port        [port]  Select a custom port for the development server
+      -d, --no-debug            Disable debugging panel
       -b, --no-browser          Do not open a new browser window
       -w, --no-watch            Do not open watch for filesystem changes
       -c, --ci                  Run the parcel previewer on a remote unix server
@@ -38,11 +39,13 @@ export async function main() {
   const args = arg({
     '--help': Boolean,
     '--port': String,
+    '--no-debug': Boolean,
     '--no-browser': Boolean,
     '--no-watch': Boolean,
     '--ci': Boolean,
     '-h': '--help',
     '-p': '--port',
+    '-d': '--no-debug',
     '-b': '--no-browser',
     '-w': '--no-watch',
     '-c': '--ci'
@@ -50,6 +53,8 @@ export async function main() {
 
   const isCi = args['--ci'] || isEnvCi()
   // TODO fix watch
+  const debug = !args['--no-debug'] && !isCi
+  const openBrowser = !args['--no-browser'] && !isCi
   // tslint:disable-next-line: no-commented-out-code
   const shouldWatchFiles = false // !args['--no-watch'] && !isCi
   const workingDir = process.cwd()
@@ -93,7 +98,6 @@ export async function main() {
   dcl.on('preview:ready', port => {
     const ifaces = os.networkInterfaces()
 
-    const openBrowser = !args['--no-browser'] && !isCi
     let url = null
 
     console.log('') // line break
@@ -105,7 +109,10 @@ export async function main() {
     Object.keys(ifaces).forEach((dev, i) => {
       ifaces[dev].forEach(details => {
         if (details.family === 'IPv4') {
-          const addr = `http://${details.address}:${port}`
+          let addr = `http://${details.address}:${port}`
+          if (debug) {
+            addr = `${addr}?SCENE_DEBUG_PANEL`
+          }
           if (i === 0) {
             url = addr
           }
