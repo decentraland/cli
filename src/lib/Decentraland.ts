@@ -38,7 +38,8 @@ export type AddressInfo = {
 
 export type Parcel = LANDData & {
   owner: string
-  operators?: string[]
+  operator?: string
+  updateOperator?: string
 }
 
 export type Estate = Parcel & {
@@ -188,10 +189,12 @@ export class Decentraland extends EventEmitter {
   }
 
   async getParcelInfo(coords: Coords): Promise<ParcelMetadata> {
-    const [scene, land, blockchainOwner] = await Promise.all([
+    const [scene, land, blockchainOwner, operator, updateOperator] = await Promise.all([
       this.contentService.getSceneData(coords),
       this.provider.getLandData(coords),
-      this.provider.getLandOwner(coords)
+      this.provider.getLandOwner(coords),
+      this.provider.getLandOperator(coords),
+      this.provider.getLandUpdateOperator(coords)
     ])
 
     const { EstateRegistry } = getConfig()
@@ -202,7 +205,7 @@ export class Decentraland extends EventEmitter {
 
     const estateId = await this.provider.getEstateIdOfLand(coords)
     const owner = await this.provider.getEstateOwner(estateId)
-    return { scene, land: { ...land, owner } }
+    return { scene, land: { ...land, owner, operator, updateOperator } }
   }
 
   async getEstateInfo(estateId: number): Promise<Estate> {
@@ -212,8 +215,10 @@ export class Decentraland extends EventEmitter {
     }
 
     const owner = await this.provider.getEstateOwner(estateId)
+    const operator = await this.provider.getEstateOperator(estateId)
+    const updateOperator = await this.provider.getEstateUpdateOperator(estateId)
     const parcels = await this.provider.getLandOfEstate(estateId)
-    return { ...estate, owner, parcels }
+    return { ...estate, owner, operator, updateOperator, parcels }
   }
 
   async getEstateOfParcel(coords: Coords): Promise<Estate> {
