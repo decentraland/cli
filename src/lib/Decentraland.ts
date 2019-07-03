@@ -200,7 +200,7 @@ export class Decentraland extends EventEmitter {
     const { EstateRegistry } = getConfig()
 
     if (blockchainOwner !== EstateRegistry) {
-      return { scene, land: { ...land, owner: blockchainOwner } }
+      return { scene, land: { ...land, owner: blockchainOwner, operator, updateOperator } }
     }
 
     const estateId = await this.provider.getEstateIdOfLand(coords)
