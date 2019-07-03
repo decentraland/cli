@@ -52,6 +52,24 @@ export class API implements IEthereumDataProvider {
     return json.data.owner
   }
 
+  async getEstateOperator(estateId: number): Promise<string> {
+    const json = await request(`${dclApiUrl}/estates/${estateId}`)
+    if (!json.data) {
+      return
+    }
+
+    return json.data.operator
+  }
+
+  async getEstateUpdateOperator(estateId: number): Promise<string> {
+    const json = await request(`${dclApiUrl}/estates/${estateId}`)
+    if (!json.data) {
+      return
+    }
+
+    return json.data.update_operator
+  }
+
   async getLandOfEstate(estateId: number): Promise<Coords[]> {
     const json = await request(`${dclApiUrl}/estates/${estateId}`)
     if (!json.data) {
@@ -77,6 +95,24 @@ export class API implements IEthereumDataProvider {
     }
 
     return json.data.owner
+  }
+
+  async getLandOperator({ x, y }: Coords): Promise<string> {
+    const json = await request(`${dclApiUrl}/parcels/${x}/${y}`)
+    if (!json.data) {
+      return
+    }
+
+    return json.data.operator
+  }
+
+  async getLandUpdateOperator({ x, y }: Coords): Promise<string> {
+    const json = await request(`${dclApiUrl}/parcels/${x}/${y}`)
+    if (!json.data) {
+      return
+    }
+
+    return json.data.update_operator
   }
 
   async getLandOf(owner: string): Promise<Coords[]> {

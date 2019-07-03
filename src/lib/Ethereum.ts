@@ -116,12 +116,50 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     }
   }
 
+  async getLandOperator({ x, y }: Coords): Promise<string> {
+    const contract = await Ethereum.getContract('LANDRegistry')
+    try {
+      const assetId = await contract['encodeTokenId'](x, y)
+      return await contract['getApproved'](assetId)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND operator: ${e.message}`)
+    }
+  }
+
+  async getLandUpdateOperator({ x, y }: Coords): Promise<string> {
+    const contract = await Ethereum.getContract('LANDRegistry')
+    try {
+      const assetId = await contract['encodeTokenId'](x, y)
+      return await contract['updateOperator'](assetId)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND update operator: ${e.message}`)
+    }
+  }
+
   async getEstateOwner(estateId: number): Promise<string> {
     const contract = await Ethereum.getContract('EstateRegistry')
     try {
       return await contract['ownerOf'](estateId)
     } catch (e) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND owner: ${e.message}`)
+    }
+  }
+
+  async getEstateOperator(estateId: number): Promise<string> {
+    const contract = await Ethereum.getContract('EstateRegistry')
+    try {
+      return await contract['getApproved'](estateId)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate operator: ${e.message}`)
+    }
+  }
+
+  async getEstateUpdateOperator(estateId: number): Promise<string> {
+    const contract = await Ethereum.getContract('EstateRegistry')
+    try {
+      return await contract['updateOperator'](estateId)
+    } catch (e) {
+      fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate update operator: ${e.message}`)
     }
   }
 
