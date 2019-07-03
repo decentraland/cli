@@ -7,6 +7,7 @@ import { Analytics } from '../utils/analytics'
 import { getObject, getString, isValid } from '../utils/coordinateHelpers'
 import { fail, ErrorType } from '../utils/errors'
 import { parseTarget } from '../utils/land'
+import * as spinner from '../utils/spinner'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl info [target] [options]')}
@@ -22,7 +23,7 @@ export const help = () => `
 
     ${chalk.dim('Examples:')}
 
-    - Get information from the ${chalk.bold('parcel')} located at "${chalk.bold('-12, 40')}"
+    - Get information from the ${chalk.bold('LAND')} located at "${chalk.bold('-12, 40')}"
 
       ${chalk.green('$ dcl info -12,40')}
 
@@ -85,6 +86,7 @@ export async function main() {
   })
 
   if (type === 'parcel') {
+    spinner.create(chalk.dim(`Fetching information for LAND ${target}`))
     const coords = getObject(target)
     Analytics.infoCmd({ type: 'coordinates', target: coords })
     const [estate, data] = await Promise.all([
@@ -92,18 +94,22 @@ export async function main() {
       dcl.getParcelInfo(coords)
     ])
     const output = estate ? { ...data, estate } : data
+    spinner.succeed(`Fetched data for LAND ${chalk.bold(target)}`)
     logParcel(output)
     return
   }
 
   if (type === 'estate') {
+    spinner.create(chalk.dim(`Fetching information for Estate ${target}`))
     const estateId = parseInt(target, 10)
     Analytics.infoCmd({ type: 'estate', target: estateId })
     const estate = await dcl.getEstateInfo(estateId)
+    spinner.succeed(`Fetched data for Estate ${chalk.bold(target)}`)
     logEstate(estate, estateId)
     return
   }
 
+  spinner.create(chalk.dim(`Fetching information for address ${target}`))
   Analytics.infoCmd({ type: 'address', target: target })
   const { parcels, estates } = await dcl.getAddressInfo(target)
 
@@ -125,6 +131,8 @@ export async function main() {
       }
     }
   }, {})
+
+  spinner.succeed(`Fetched data for address ${chalk.bold(target)}`)
 
   if (parcels.length === 0 && estates.length === 0) {
     return console.log(chalk.italic('\n  No information available\n'))

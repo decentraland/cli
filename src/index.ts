@@ -2,18 +2,13 @@ import * as arg from 'arg'
 import chalk from 'chalk'
 
 import commands from './commands'
-import { error, warning, debug } from './utils/logging'
+import * as log from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
-import {
-  isCLIOutdated,
-  getInstalledCLIVersion,
-  isStableVersion,
-  setVersion
-} from './utils/moduleHelpers'
+import { getInstalledCLIVersion, setVersion } from './utils/moduleHelpers'
 import { loadConfig } from './config'
 
-debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
-debug(`Provided argv: ${JSON.stringify(process.argv)}`)
+log.debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
+log.debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 
 const args = arg(
   {
@@ -28,10 +23,10 @@ const args = arg(
     permissive: true
   }
 )
-debug(`Parsed args: ${JSON.stringify(args)}`)
+log.debug(`Parsed args: ${JSON.stringify(args)}`)
 
 const subcommand = args._[0]
-debug(`Selected command ${chalk.bold(subcommand)}`)
+log.debug(`Selected command ${chalk.bold(subcommand)}`)
 
 const help = `
   ${chalk.bold('Decentraland CLI')}
@@ -68,7 +63,7 @@ export async function main(version: string) {
     const network = args['--network']
     if (network && network !== 'mainnet' && network !== 'ropsten') {
       console.error(
-        error(
+        log.error(
           `The only available values for ${chalk.bold(`'--network'`)} are ${chalk.bold(
             `'mainnet'`
           )} or ${chalk.bold(`'ropsten'`)}`
@@ -79,16 +74,6 @@ export async function main(version: string) {
 
     await loadConfig(network || 'mainnet')
     await Analytics.requestPermission()
-  }
-
-  if (isStableVersion() && (await isCLIOutdated())) {
-    console.log(
-      warning(
-        `You are running an outdated version of "${chalk.bold('dcl')}", run "${chalk.bold(
-          'npm i -g decentraland'
-        )}"`
-      )
-    )
   }
 
   if (subcommand === 'version' || args['--version']) {
@@ -109,7 +94,7 @@ export async function main(version: string) {
         console.log(help())
         process.exit(0)
       } catch (e) {
-        console.error(error(e.message))
+        console.error(log.error(e.message))
         process.exit(1)
       }
     }
@@ -120,7 +105,7 @@ export async function main(version: string) {
   if (!commands.has(subcommand)) {
     if (subcommand.startsWith('-')) {
       console.error(
-        error(
+        log.error(
           `The "${chalk.bold(subcommand)}" option does not exist, run ${chalk.bold(
             '"dcl help"'
           )} for more info.`
@@ -129,7 +114,7 @@ export async function main(version: string) {
       process.exit(1)
     }
     console.error(
-      error(
+      log.error(
         `The "${chalk.bold(subcommand)}" subcommand does not exist, run ${chalk.bold(
           '"dcl help"'
         )} for more info.`
@@ -144,13 +129,13 @@ export async function main(version: string) {
     await finishPendingTracking()
   } catch (e) {
     console.error(
-      error(
+      log.error(
         `\`${chalk.green(`dcl ${subcommand}`)}\` ${e.message}, run ${chalk.bold(
           `"dcl help ${subcommand}"`
         )} for more info.`
       )
     )
-    debug(e)
+    log.debug(e)
     process.exit(1)
   }
 }
