@@ -4,6 +4,7 @@ export default new Set<String>([
   'start',
   'deploy',
   'info',
+  'ping',
   'status',
   'help',
   'export'

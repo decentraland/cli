@@ -28,6 +28,7 @@ export namespace Analytics {
   export const pinSuccess = (properties?: any) => trackAsync('Pin success', properties)
   export const infoCmd = (properties?: any) => trackAsync('Info command', properties)
   export const statusCmd = (properties?: any) => trackAsync('Status command', properties)
+  export const pingCmd = (properties?: any) => trackAsync('Ping command', properties)
   export const sendData = (shareData: boolean) => trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
 
   export async function identify(devId: string) {
