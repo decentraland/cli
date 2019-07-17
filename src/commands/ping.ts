@@ -37,7 +37,7 @@ function getStatus(pingResponse: LANDPingResponse): string {
   }
 
   if (pingResponse.isNearDecay) {
-    return chalk.yellow('Near to decay')
+    return chalk.yellow('Near decay')
   }
 
   return chalk.green('Active')
