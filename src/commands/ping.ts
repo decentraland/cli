@@ -26,7 +26,7 @@ export const help = () => `
 
       ${chalk.green('$ dcl ping')}
 
-    - Get LAND liveness state of ${chalk.bold('-12, 40')}"
+    - Get LAND liveness state of ${chalk.bold('-12, 40')}
 
       ${chalk.green('$ dcl ping -12, 40')}
 `
