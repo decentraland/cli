@@ -22,7 +22,7 @@ export const help = () => `
 
     ${chalk.dim('Examples:')}
 
-    - Get LAND liveness state of the current project"
+    - Get LAND liveness state of the current project
 
       ${chalk.green('$ dcl ping')}
 
