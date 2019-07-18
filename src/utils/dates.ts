@@ -17,7 +17,7 @@ export function getDurationBetweenDates(d1: Date, d2: Date): number {
 }
 
 /**
- * Changes received date into string dd/mm/yyyy format
+ * Transforms the received date into string dd/mm/yyyy format
  */
 export function formatDate(date: Date): string {
   const year = date.getFullYear()
