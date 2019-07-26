@@ -11,6 +11,7 @@ import { isEnvCi } from '../utils/env'
 import * as spinner from '../utils/spinner'
 import installDependencies from '../project/installDependencies'
 import isECSInstalled from '../project/isECSInstalled'
+import getSceneFile from '../config'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
@@ -95,6 +96,8 @@ export async function main() {
     await buildTypescript(workingDir, !process.env.DEBUG, true)
   }
 
+  const [x, y] = await getSceneBaseCoords()
+
   dcl.on('preview:ready', port => {
     const ifaces = os.networkInterfaces()
 
@@ -109,7 +112,7 @@ export async function main() {
     Object.keys(ifaces).forEach((dev, i) => {
       ifaces[dev].forEach(details => {
         if (details.family === 'IPv4') {
-          let addr = `http://${details.address}:${port}`
+          let addr = `http://${details.address}:${port}?position=${x}%2C${y}`
           if (debug) {
             addr = `${addr}?SCENE_DEBUG_PANEL`
           }
@@ -127,8 +130,20 @@ export async function main() {
 
     if (openBrowser) {
       opn(url)
+        .then()
+        .catch()
     }
   })
 
   await dcl.preview()
+}
+
+async function getSceneBaseCoords() {
+  try {
+    const sceneFile = await getSceneFile()
+    return sceneFile.scene.base.split(',')
+  } catch (e) {
+    console.log(error(`Could not open "scene.json" file`))
+    throw e
+  }
 }
