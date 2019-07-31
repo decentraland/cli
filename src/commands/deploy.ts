@@ -14,8 +14,6 @@ import { ErrorType, fail } from '../utils/errors'
 import { Decentraland } from '../lib/Decentraland'
 import { LinkerResponse } from '../lib/LinkerAPI'
 
-const MAX_FILE_COUNT = 300
-
 export const help = () => `
   Usage: ${chalk.bold('dcl deploy [path] [options]')}
 
@@ -168,10 +166,6 @@ export async function main() {
     console.log(`    ${file.path} (${file.size} bytes)`)
     return size + file.size
   }, 0)
-
-  if (files.length > MAX_FILE_COUNT) {
-    fail(ErrorType.DEPLOY_ERROR, `You cannot upload more than ${MAX_FILE_COUNT} files per scene.`)
-  }
 
   console.log('') // new line to keep things clean
 
