@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events'
 
 import { ContentClient, ParcelInformation } from './ContentClient'
-import { IFile, SceneMetadata } from '../Project'
+import { IFile } from '../Project'
 import { CIDUtils } from './CIDUtils'
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from './ContentUploadRequest'
 import { Coords } from '../../utils/coordinateHelpers'
 import { fail, ErrorType } from '../../utils/errors'
+import { SceneMetadata } from '../../config'
 
 const SCENE_FILE = 'scene.json'
 
