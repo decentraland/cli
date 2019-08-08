@@ -8,20 +8,14 @@ import * as portfinder from 'portfinder'
 import * as proto from './proto/broker'
 
 import * as cors from 'cors'
-import * as spinner from '../utils/spinner'
+import * as glob from 'glob'
+import * as chokidar from 'chokidar'
+import * as ignore from 'ignore'
 
 import { fail, ErrorType } from '../utils/errors'
-import { Watcher } from './Watcher'
+import getDummyMappings from '../utils/getDummyMappings'
 
 type Decentraland = import('./Decentraland').Decentraland
-
-function nocache(req, res, next) {
-  res.setHeader('Surrogate-Control', 'no-store')
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
-  res.setHeader('Pragma', 'no-cache')
-  res.setHeader('Expires', '0')
-  next()
-}
 
 /**
  * Events emitted by this class:
@@ -32,12 +26,31 @@ export class Preview extends EventEmitter {
   private app = express()
   private server = createServer(this.app)
   private wss = new WebSocket.Server({ server: this.server })
+  private ignoredPaths: string
+  private watch: boolean
 
-  constructor(public dcl: Decentraland, private ignoredPaths: string, private watch: boolean) {
+  constructor(public dcl: Decentraland, ignoredPaths: string, watch: boolean) {
     super()
+    this.ignoredPaths = ignoredPaths
+    this.watch = watch
   }
 
   async startServer(port: number) {
+    const relativiseUrl = (url: string) => {
+      url = url.replace(/[\/\\]/g, '/')
+      const newRoot = this.dcl
+        .getWorkingDir()
+        .replace(/\//g, '/')
+        .replace(/\\/g, '/')
+      if (newRoot.endsWith('/')) {
+        return url.replace(newRoot, '')
+      } else {
+        return url.replace(newRoot + '/', '')
+      }
+    }
+
+    const ig = (ignore as any)().add(this.ignoredPaths)
+
     let resolvedPort = port
 
     if (!resolvedPort) {
@@ -48,34 +61,23 @@ export class Preview extends EventEmitter {
       }
     }
 
-    const watcher = new Watcher(this.dcl.getWorkingDir(), this.ignoredPaths || '')
+    if (this.watch) {
+      chokidar.watch(this.dcl.getWorkingDir()).on('all', (event, path) => {
+        if (!ig.ignores(path)) {
+          this.wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send('update')
 
-    watcher.onProcessingComplete.push(() => {
-      this.wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send('update')
-
-          client.send(
-            JSON.stringify({
-              type: 'update'
-            })
-          )
+              client.send(
+                JSON.stringify({
+                  type: 'update',
+                  path: relativiseUrl(path)
+                })
+              )
+            }
+          })
         }
       })
-    })
-
-    spinner.create('Hashing files')
-
-    try {
-      await watcher.initialMappingsReady
-      spinner.succeed('Hashing files')
-    } catch (e) {
-      spinner.fail('Hashing files')
-      throw e
-    }
-
-    if (this.watch) {
-      watcher.watch()
     }
 
     this.app.use(cors())
@@ -126,48 +128,19 @@ export class Preview extends EventEmitter {
 
     this.app.use('/contents/', express.static(this.dcl.getWorkingDir()))
 
-    this.app.use(nocache)
+    this.app.get('/mappings', (req, res) => {
+      glob(this.dcl.getWorkingDir() + '/**/*', (err, files) => {
+        if (err) {
+          res.status(500)
+          res.json(err)
+          res.end()
+        } else {
+          const ret = getDummyMappings(files.map(relativiseUrl))
+          ret.contents = ret.contents.map(({ file, hash }) => ({ file, hash: `contents/${hash}` }))
 
-    this.app.get('/mappings', (_, res) => {
-      res.json(watcher.getMappings())
-    })
-
-    this.app.get('/scenes', async (_, res) => {
-      const mapping = watcher.getMappings()
-      const { parcel_id, root_cid, publisher } = mapping
-      return res.json({ data: [{ parcel_id, root_cid, publisher, scene_cid: '' }] })
-    })
-
-    this.app.get('/parcel_info', (_, res) => {
-      const mapping = watcher.getMappings()
-      const { parcel_id, root_cid, publisher } = mapping
-      return res.json({
-        data: [
-          {
-            parcel_id,
-            root_cid,
-            publisher,
-            scene_cid: '',
-            content: mapping
-          }
-        ]
+          res.json(ret)
+        }
       })
-    })
-
-    this.app.get('/scene.json', (_, res) => {
-      res.sendFile(path.join(this.dcl.getWorkingDir(), 'scene.json'))
-    })
-
-    this.app.use(express.static(path.join(artifactPath, 'artifacts')))
-
-    this.app.get('/Qm:cid', (req, res) => {
-      const file = watcher.resolveCID('Qm' + req.params.cid)
-
-      if (file) {
-        res.sendFile(file)
-      } else {
-        res.sendStatus(404)
-      }
     })
 
     setComms(this.wss)
