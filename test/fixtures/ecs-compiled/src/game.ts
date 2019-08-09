@@ -8,7 +8,7 @@ class RotatorSystem {
     // iterate over the entities of the group
     for (let entity of this.group.entities) {
       // get the Transform component of the entity
-      const transform = entity.get(Transform)
+      const transform = entity.getComponent(Transform)
 
       // mutate the rotation
       transform.rotate(Vector3.Up(), dt * 10)
@@ -25,11 +25,11 @@ function spawnCube(x: number, y: number, z: number) {
   // create the entity
   const cube = new Entity()
 
-  // set a transform to the entity
-  cube.set(new Transform({ position: new Vector3(x, y, z) }))
+  // add a transform to the entity
+  cube.addComponent(new Transform({ position: new Vector3(x, y, z) }))
 
-  // set a shape to the entity
-  cube.set(new BoxShape())
+  // add a shape to the entity
+  cube.addComponent(new BoxShape())
 
   // add the entity to the engine
   engine.addEntity(cube)
@@ -41,10 +41,10 @@ function spawnCube(x: number, y: number, z: number) {
 
 const cube = spawnCube(8, 1, 8)
 
-cube.set(
+cube.addComponent(
   new OnClick(() => {
-    cube.get(Transform).scale.z *= 1.1
-    cube.get(Transform).scale.x *= 0.9
+    cube.getComponent(Transform).scale.z *= 1.1
+    cube.getComponent(Transform).scale.x *= 0.9
 
     spawnCube(Math.random() * 8 + 1, Math.random() * 8, Math.random() * 8 + 1)
   })

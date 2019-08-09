@@ -1,17 +1,17 @@
 import * as path from 'path'
-import { createServer } from 'http'
 import * as WebSocket from 'ws'
-import * as express from 'express'
+import { createServer } from 'http'
 import { EventEmitter } from 'events'
+
+import * as express from 'express'
+import * as cors from 'cors'
 import * as fs from 'fs-extra'
 import * as portfinder from 'portfinder'
-import * as proto from './proto/broker'
-
-import * as cors from 'cors'
 import * as glob from 'glob'
 import * as chokidar from 'chokidar'
 import * as ignore from 'ignore'
 
+import * as proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
 import getDummyMappings from '../utils/getDummyMappings'
 
@@ -62,21 +62,23 @@ export class Preview extends EventEmitter {
     }
 
     if (this.watch) {
-      chokidar.watch(this.dcl.getWorkingDir()).on('all', (event, path) => {
-        if (!ig.ignores(path)) {
-          this.wss.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-              client.send('update')
-
-              client.send(
-                JSON.stringify({
-                  type: 'update',
-                  path: relativiseUrl(path)
-                })
-              )
-            }
-          })
+      chokidar.watch(this.dcl.getWorkingDir()).on('all', (_, path) => {
+        if (ig.ignores(path)) {
+          return
         }
+
+        this.wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send('update')
+
+            client.send(
+              JSON.stringify({
+                type: 'update',
+                path: relativiseUrl(path)
+              })
+            )
+          }
+        })
       })
     }
 
@@ -142,6 +144,12 @@ export class Preview extends EventEmitter {
         }
       })
     })
+
+    this.app.get('/scene.json', (_, res) => {
+      res.sendFile(path.join(this.dcl.getWorkingDir(), 'scene.json'))
+    })
+
+    this.app.use(express.static(path.join(artifactPath, 'artifacts')))
 
     setComms(this.wss)
 
