@@ -53,16 +53,14 @@ export async function main() {
   })
 
   const isCi = args['--ci'] || isEnvCi()
-  // TODO fix watch
   const debug = !args['--no-debug'] && !isCi
   const openBrowser = !args['--no-browser'] && !isCi
-  // tslint:disable-next-line: no-commented-out-code
-  const shouldWatchFiles = false // !args['--no-watch'] && !isCi
+  const watch = !args['--no-watch'] && !isCi
   const workingDir = process.cwd()
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),
-    watch: shouldWatchFiles,
+    watch,
     workingDir
   })
 
@@ -93,7 +91,7 @@ export async function main() {
   }
 
   if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript(workingDir, !process.env.DEBUG, true)
+    await buildTypescript(workingDir, false, true)
   }
 
   const [x, y] = await getSceneBaseCoords()
