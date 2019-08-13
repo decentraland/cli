@@ -27,7 +27,7 @@ jobs:
 
       - run: npm run build
       - run: npm run test:ci
-      - run: npm run publish
+      - run: npm run publish:cli
 
 workflows:
   version: 2

@@ -32,7 +32,7 @@
     "docker:run": "docker run -it -p 8080:8080 --name decentraland-cli decentraland-cli",
     "docker:enter": "docker exec -it decentraland-cli /bin/bash",
     "docker:start": "npm run docker:clean && npm run docker:run && npm run docker:enter",
-    "publish": "node ./scripts/npmPublish.js",
+    "publish:cli": "node ./scripts/npmPublish.js",
     "precommit": "lint-staged"
   },
   "lint-staged": {
