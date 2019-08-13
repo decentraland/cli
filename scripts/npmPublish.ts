@@ -27,6 +27,10 @@ function getVersion(): string {
   return require('../package.json').version
 }
 
+function setVersion(newVersion: string): Promise<string> {
+  return execute(`npm version "${newVersion}" --force --no-git-tag-version --allow-same-version`)
+}
+
 function getSnapshotVersion(): string {
   const commit = git.short()
   const time = new Date()
@@ -71,6 +75,7 @@ async function main() {
   console.log(`New version: ${newVersion}`)
   console.log(`Publishing with tag "${npmTag}"`)
 
+  await setVersion(newVersion)
   await publish([npmTag])
 }
 
