@@ -112,7 +112,7 @@ export async function main() {
         if (details.family === 'IPv4') {
           let addr = `http://${details.address}:${port}?position=${x}%2C${y}`
           if (debug) {
-            addr = `${addr}?SCENE_DEBUG_PANEL`
+            addr = `${addr}&SCENE_DEBUG_PANEL`
           }
           if (i === 0) {
             url = addr
