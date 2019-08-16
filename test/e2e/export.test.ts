@@ -34,7 +34,15 @@ test('E2E - export command', async t => {
     await exportProject(dirPath)
     const [htmlExists, mappingsExists, previewExists, sceneExists] = await pathsExistOnDir(
       path.resolve(dirPath, 'export'),
-      ['index.html', 'mappings', '@/artifacts/preview.js', 'scene.json']
+      [
+        'index.html',
+        'mappings',
+        'preview.js',
+        'scene.json',
+        'bin/game.js',
+        'unity',
+        'images/progress-logo.png'
+      ]
     )
 
     t.true(htmlExists)
