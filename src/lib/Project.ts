@@ -14,7 +14,7 @@ import {
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
-import { SceneMetadata } from '../config'
+import { SceneMetadata } from '../sceneJson/types'
 
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',

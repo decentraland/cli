@@ -8,7 +8,7 @@ import { Analytics } from '../utils/analytics'
 import { warning } from '../utils/logging'
 import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
-import { SceneMetadata } from '../config'
+import { SceneMetadata } from '../sceneJson/types'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}

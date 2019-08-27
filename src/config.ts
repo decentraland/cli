@@ -18,39 +18,8 @@ export type DCLInfo = {
   segmentKey?: string
 }
 
-export type SceneMetadata = {
-  display: {
-    title: string
-    favicon?: string
-  }
-  owner: string
-  contact: {
-    name: string
-    email: string
-  }
-  main: string
-  tags?: Array<string>
-  scene: {
-    base: string
-    parcels: Array<string>
-    estateId?: number
-  }
-  communications: {
-    type: string
-    signalling: string
-  }
-  policy: {
-    contentRating?: string
-    fly: boolean
-    voiceEnabled: boolean
-    blacklist: Array<string>
-    teleportPosition: string
-  }
-}
-
 let networkFlag = null
 let config: DCLInfo = null
-let sceneFile: SceneMetadata
 
 /**
  * Returns the path to the `.dclinfo` file located in the local HOME folder
@@ -101,34 +70,6 @@ export async function loadConfig(network: string): Promise<DCLInfo> {
  */
 export function getDCLInfo(): DCLInfo {
   return config
-}
-
-/**
- * Returns an object containing the contents of the `scene.json` file.
- * @throws if there is no `scene.json` at `process.cwd()` directory
- */
-export default async function getSceneFile(): Promise<SceneMetadata> {
-  if (sceneFile) {
-    return sceneFile
-  }
-
-  const scenePath = path.resolve(process.cwd(), 'scene.json')
-  sceneFile = await readJSON<SceneMetadata>(scenePath)
-  const { base, parcels } = sceneFile.scene
-  const newBase = base.replace(/\ /g, '')
-  const newParcels = parcels.map(coords => coords.replace(/ /g, ''))
-  const newSceneFile = {
-    ...sceneFile,
-    scene: { ...sceneFile.scene, base: newBase, parcels: newParcels }
-  }
-
-  // Save with coords linted (no spaces)
-  if (newBase !== base || newParcels.join(' ') !== parcels.join(' ')) {
-    await writeJSON(scenePath, newSceneFile)
-  }
-
-  sceneFile = newSceneFile
-  return newSceneFile
 }
 
 export function getConfig(network: string = networkFlag): DCLInfo {

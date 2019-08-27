@@ -6,7 +6,7 @@ import { CIDUtils } from './CIDUtils'
 import { ContentUploadRequest, RequestMetadata, ContentIdentifier } from './ContentUploadRequest'
 import { Coords } from '../../utils/coordinateHelpers'
 import { fail, ErrorType } from '../../utils/errors'
-import { SceneMetadata } from '../../config'
+import { SceneMetadata } from '../../sceneJson/types'
 
 const SCENE_FILE = 'scene.json'
 

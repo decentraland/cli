@@ -11,7 +11,8 @@ import { isEnvCi } from '../utils/env'
 import * as spinner from '../utils/spinner'
 import installDependencies from '../project/installDependencies'
 import isECSInstalled from '../project/isECSInstalled'
-import getSceneFile from '../config'
+import { getSceneFile } from '../sceneJson'
+import { lintSceneFile } from '../sceneJson/lintSceneFile'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
@@ -94,6 +95,7 @@ export async function main() {
     await buildTypescript(workingDir, false, true)
   }
 
+  await lintSceneFile(workingDir)
   const [x, y] = await getSceneBaseCoords()
 
   dcl.on('preview:ready', port => {
