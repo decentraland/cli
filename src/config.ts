@@ -111,8 +111,24 @@ export default async function getSceneFile(): Promise<SceneMetadata> {
   if (sceneFile) {
     return sceneFile
   }
-  sceneFile = await readJSON<SceneMetadata>(path.resolve(process.cwd(), 'scene.json'))
-  return sceneFile
+
+  const scenePath = path.resolve(process.cwd(), 'scene.json')
+  sceneFile = await readJSON<SceneMetadata>(scenePath)
+  const { base, parcels } = sceneFile.scene
+  const newBase = base.replace(/\ /g, '')
+  const newParcels = parcels.map(coords => coords.replace(/ /g, ''))
+  const newSceneFile = {
+    ...sceneFile,
+    scene: { ...sceneFile.scene, base: newBase, parcels: newParcels }
+  }
+
+  // Save with coords linted (no spaces)
+  if (newBase !== base || newParcels.join(' ') !== parcels.join(' ')) {
+    await writeJSON(scenePath, newSceneFile)
+  }
+
+  sceneFile = newSceneFile
+  return newSceneFile
 }
 
 export function getConfig(network: string = networkFlag): DCLInfo {
