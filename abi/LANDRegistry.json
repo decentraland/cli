@@ -52,6 +52,29 @@
       "constant": true,
       "inputs": [
         {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "updateManager",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
           "name": "assetId",
           "type": "uint256"
         }
@@ -116,28 +139,6 @@
       ],
       "payable": false,
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "name": "assetId",
-          "type": "uint256"
-        }
-      ],
-      "name": "transferFrom",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -562,6 +563,104 @@
       "inputs": [
         {
           "indexed": true,
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_operator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_caller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "UpdateManager",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_caller",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_deployer",
+          "type": "address"
+        }
+      ],
+      "name": "DeployAuthorized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_caller",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_deployer",
+          "type": "address"
+        }
+      ],
+      "name": "DeployForbidden",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "assetId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "userData",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "name": "operatorData",
+          "type": "bytes"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
           "name": "from",
           "type": "address"
         },
@@ -616,12 +715,12 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "operator",
+          "name": "holder",
           "type": "address"
         },
         {
           "indexed": true,
-          "name": "holder",
+          "name": "operator",
           "type": "address"
         },
         {
@@ -1007,6 +1106,28 @@
       "constant": false,
       "inputs": [
         {
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "name": "assetId",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
           "name": "x",
           "type": "int256"
         },
@@ -1104,6 +1225,28 @@
         }
       ],
       "name": "setUpdateOperator",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "name": "_operator",
+          "type": "address"
+        },
+        {
+          "name": "_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "setUpdateManager",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
