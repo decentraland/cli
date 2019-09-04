@@ -3,7 +3,7 @@
   "version": "3.2.7",
   "description": "Decentraland CLI developer tool.",
   "bin": {
-    "dcl": "bin/dcl"
+    "dcl": "dist/cli.js"
   },
   "files": [
     "bin",
@@ -13,25 +13,19 @@
   "scripts": {
     "start": "npm run watch",
     "watch": "npm run cli:watch",
-    "build": "npm run clean && npm run cli:build && npm run linker:build && npm run scripts:build && npm run copy:resources",
     "clean": "rm -rf dist",
-    "cli:watch": "ncc build src/index.ts -o dist/cli --source-map --watch",
-    "cli:build": "ncc build src/index.ts -o dist/cli --minify",
+    "cli:build": "webpack",
+    "cli:watch": "webpack --watch",
     "linker:build": "decentraland-compiler build.linker.json",
     "linker:watch": "decentraland-compiler build.linker.json --watch",
-    "scripts:build": "decentraland-compiler build.json",
-    "scripts:watch": "decentraland-compiler build.json --watch",
     "copy:resources": "cp -r samples dist && cp -r src/certs dist && cp -r src/css dist",
+    "scripts:build": "decentraland-compiler build.json",
+    "build": "npm run clean && npm run cli:build && npm run linker:build && npm run scripts:build && npm run copy:resources",
     "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava",
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
     "test:ci": "FORCE_COLOR=1 ava -v --fail-fast --match='!*E2E*' --match='!*Decentraland.deploy()*'",
     "test:win": "set FORCE_COLOR=1 ava -v --fail-fast --match=\"!*E2E*\" --match=\"!*Decentraland.deploy()*\"",
-    "docker:build": "docker build . -t decentraland-cli",
-    "docker:clean": "docker rm -f decentraland-cli",
-    "docker:run": "docker run -it -p 8080:8080 --name decentraland-cli decentraland-cli",
-    "docker:enter": "docker exec -it decentraland-cli /bin/bash",
-    "docker:start": "npm run docker:clean && npm run docker:run && npm run docker:enter",
     "publish:cli": "node ./scripts/npmPublish.js",
     "precommit": "lint-staged"
   },
@@ -109,6 +103,7 @@
     "fs-extra": "^7.0.1",
     "git-rev-sync": "^1.11.1",
     "glob": "^7.1.3",
+    "google-protobuf": "^3.8.0",
     "husky": "^1.1.3",
     "ignore": "^4.0.6",
     "inquirer": "^6.2.0",
@@ -136,16 +131,16 @@
     "rimraf": "^2.6.2",
     "semver": "^5.5.0",
     "sinon": "^7.1.1",
+    "ts-loader": "^6.0.4",
     "ts-node": "^4.1.0",
     "tslint": "^5.11.0",
     "tslint-language-service": "^0.9.9",
     "typesafe-actions": "^2.0.4",
-    "typescript": "^3.5.3",
+    "typescript": "^3.6.2",
     "uuid": "^3.3.2",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.7",
     "wildcards": "^1.0.2",
     "ws": "^6.0.0"
-  },
-  "dependencies": {
-    "google-protobuf": "^3.8.0"
   }
 }
