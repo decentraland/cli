@@ -14,7 +14,7 @@ test('E2E - help command', async t => {
   const allDataDclHelpPromise = new Promise(resolve => {
     let allData = ''
     new Commando(
-      `node ${path.resolve('bin', 'dcl')} help`,
+      `node ${path.resolve('dist', 'cli.js')} help`,
       { silent: !isDebug(), workingDir: '.', env: { NODE_ENV: 'development' } },
       data => (allData += data)
     ).on('end', async () => {
@@ -26,7 +26,7 @@ test('E2E - help command', async t => {
   const allDataDclPromise = new Promise(resolve => {
     let allData = ''
     new Commando(
-      `node ${path.resolve('bin', 'dcl')}`,
+      `node ${path.resolve('dist', 'cli.js')}`,
       { silent: !isDebug(), workingDir: '.', env: { NODE_ENV: 'development' } },
       data => (allData += data)
     ).on('end', async () => {

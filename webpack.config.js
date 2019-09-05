@@ -3,6 +3,10 @@ const webpack = require('webpack')
 
 module.exports = {
   target: 'node',
+  node: {
+    __dirname: false,
+    __filename: false
+  },
   plugins: [
     new webpack.BannerPlugin({
       banner: '#!/usr/bin/env node',
@@ -25,7 +29,7 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js']
   },
   output: {
-    filename: 'index.js',
-    path: path.resolve(__dirname, 'dist', 'cli')
+    filename: 'cli.js',
+    path: path.resolve(__dirname, 'dist')
   }
 }
