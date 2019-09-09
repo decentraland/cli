@@ -47,7 +47,7 @@ export async function main() {
 
   const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
 
-  if (!Object.values(BoilerplateType).includes(boilerplate)) {
+  if (!Object.values(BoilerplateType).includes(boilerplate as BoilerplateType)) {
     fail(
       ErrorType.INIT_ERROR,
       `Invalid boilerplate: "${chalk.bold(boilerplate)}". Supported types are ${chalk.bold(

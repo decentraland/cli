@@ -56,7 +56,7 @@ export class Project {
    * @param type
    */
   isValidBoilerplateType(type: string): boolean {
-    return Object.values(BoilerplateType).includes(type)
+    return Object.values(BoilerplateType).includes(type as BoilerplateType)
   }
 
   /**

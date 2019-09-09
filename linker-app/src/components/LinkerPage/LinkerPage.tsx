@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Address, Blockie, Header, Button } from 'decentraland-ui'
 import Navbar from 'decentraland-dapps/dist/containers/Navbar'
 
-import { baseParcel, rootCID, isRopsten } from '../../config'
+import { baseParcel, rootCID, isRopsten, isDebug } from '../../config'
 import Error from '../Error'
 import { LinkerPageProps } from './types'
 import { coordsToString } from '../../modules/land/utils'
@@ -129,7 +129,13 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
             check the CLI for more info.
           </p>
         )}
-        {error ? <Error>{error}</Error> : null}
+        {error ? (
+          isDebug() ? (
+            <Error>{error}</Error>
+          ) : (
+            <Error>There was an unexpected error.</Error>
+          )
+        ) : null}
         <style>{`
           .LinkScenePage {
             text-align: center;

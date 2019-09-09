@@ -15,11 +15,14 @@ test('snapshot - dcl help start', t => {
 
 function startProject(dirPath): Promise<Commando> {
   return new Promise(resolve => {
-    const command = new Commando(`node ${path.resolve('bin', 'dcl')} start --no-browser -p 8001`, {
-      silent: !isDebug(),
-      workingDir: dirPath,
-      env: { NODE_ENV: 'development' }
-    }).when(/to exit/, async () => {
+    const command = new Commando(
+      `node ${path.resolve('dist', 'cli.js')} start --no-browser -p 8001`,
+      {
+        silent: !isDebug(),
+        workingDir: dirPath,
+        env: { NODE_ENV: 'development' }
+      }
+    ).when(/to exit/, async () => {
       resolve(command)
     })
   })

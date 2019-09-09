@@ -13,7 +13,7 @@ test('E2E - info command', async t => {
   await new Promise(resolve => {
     let allData = ''
     new Commando(
-      `node ${path.resolve('bin', 'dcl')} info --network ropsten -35,-130`,
+      `node ${path.resolve('dist', 'cli.js')} info --network ropsten -35,-130`,
       {
         silent: !isDebug(),
         workingDir: '.',

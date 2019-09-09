@@ -1,6 +1,15 @@
 import { getOrElse } from '.'
 
 export function isDevelopment() {
+  if (!process.env.NODE_ENV) {
+    try {
+      require.resolve('decentraland-eth')
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
   return process.env.NODE_ENV !== 'production'
 }
 
