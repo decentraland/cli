@@ -9,7 +9,7 @@ import sandbox from '../helpers/sandbox'
 
 function initProject(dirPath): Promise<void> {
   return new Promise((resolve, reject) => {
-    new Commando(`node ${path.resolve('bin', 'dcl')} init`, {
+    new Commando(`node ${path.resolve('dist', 'cli.js')} init`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development' }
@@ -23,7 +23,7 @@ function initProject(dirPath): Promise<void> {
 
 function startProject(dirPath): Promise<Commando> {
   return new Promise(resolve => {
-    const command = new Commando(`node ${path.resolve('bin', 'dcl')} start --no-browser`, {
+    const command = new Commando(`node ${path.resolve('dist', 'cli.js')} start --no-browser`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development' }
@@ -37,7 +37,7 @@ function statusProject(): Promise<string> {
   return new Promise(resolve => {
     let allData = ''
     new Commando(
-      `node ${path.resolve('bin', 'dcl')} status --network ropsten 0,0`,
+      `node ${path.resolve('dist', 'cli.js')} status --network ropsten 0,0`,
       {
         silent: !isDebug(),
         workingDir: '.',
@@ -52,7 +52,7 @@ function statusProject(): Promise<string> {
 
 function deployProject(dirPath): Promise<void> {
   return new Promise(resolve => {
-    new Commando(`node ${path.resolve('bin', 'dcl')} deploy --yes --network ropsten`, {
+    new Commando(`node ${path.resolve('dist', 'cli.js')} deploy --yes --network ropsten`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development', DCL_PRIVATE_KEY: process.env.CI_DCL_PRIVATE_KEY }

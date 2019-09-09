@@ -4,7 +4,8 @@ import test from 'ava'
 
 import sandbox from '../helpers/sandbox'
 import { Decentraland } from '../../src/lib/Decentraland'
-import { BoilerplateType, SceneMetadata } from '../../src/lib/Project'
+import { BoilerplateType } from '../../src/lib/Project'
+import { SceneMetadata } from '../../src/config'
 
 async function isBasicDCLIgnore(dirPath: string): Promise<boolean> {
   const file = await fs.readFile(path.resolve(dirPath, '.dclignore'), 'utf-8')

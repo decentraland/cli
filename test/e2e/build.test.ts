@@ -14,7 +14,7 @@ test('snapshot - dcl help build', t => {
 
 function buildProject(dirPath) {
   return new Promise(resolve => {
-    new Commando(`node ${path.resolve('bin', 'dcl')} build`, {
+    new Commando(`node ${path.resolve('dist', 'cli.js')} build`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development' }

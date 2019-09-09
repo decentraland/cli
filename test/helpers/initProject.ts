@@ -5,7 +5,7 @@ import { isDebug } from '../../src/utils/env'
 
 export default function initProject(dirPath, installDep = true) {
   return new Promise(resolve => {
-    const cmd = new Commando(`node ${path.resolve('bin', 'dcl')} init`, {
+    const cmd = new Commando(`node ${path.resolve('dist', 'cli.js')} init`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development' }
