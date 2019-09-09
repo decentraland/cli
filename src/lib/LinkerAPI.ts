@@ -9,7 +9,7 @@ import * as portfinder from 'portfinder'
 import { Project } from './Project'
 import { Network } from './Ethereum'
 import { getCustomConfig } from '../config'
-import { isDevelopment } from '../utils/env'
+import { isDevelopment, isDebug } from '../utils/env'
 
 export type LinkerResponse = {
   address: string
@@ -110,6 +110,7 @@ export class LinkerAPI extends EventEmitter {
               ${EstateRegistry ? `estate-registry=${EstateRegistry}` : null}
               base-parcel=${JSON.stringify(baseParcel)}
               parcels=${JSON.stringify(parcels)}
+              debug=${isDebug()}
               root-cid=${rootCID}>
             </script>
           </div>
