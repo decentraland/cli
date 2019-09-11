@@ -73,9 +73,7 @@ export class ContentService extends EventEmitter {
     }
     fail(
       ErrorType.CONTENT_SERVER_ERROR,
-      `Error retrieving parcel ${coordinates.x},${coordinates.y} information: ${
-        response.errorMessage
-      }`
+      `Error retrieving parcel ${coordinates.x},${coordinates.y} information: ${response.errorMessage}`
     )
   }
 

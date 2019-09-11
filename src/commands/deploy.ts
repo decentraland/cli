@@ -13,8 +13,8 @@ import { Analytics } from '../utils/analytics'
 import { ErrorType, fail } from '../utils/errors'
 import { Decentraland } from '../lib/Decentraland'
 import { LinkerResponse } from '../lib/LinkerAPI'
-import { getSceneFile } from 'src/sceneJson'
-import { lintSceneFile } from 'src/sceneJson/lintSceneFile'
+import { getSceneFile } from '../sceneJson'
+import { lintSceneFile } from '../sceneJson/lintSceneFile'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl deploy [path] [options]')}
@@ -64,7 +64,7 @@ export async function main() {
   spinner.create('Checking existance of build')
 
   await lintSceneFile(workingDir)
-  const sceneJson = await getSceneFile()
+  const sceneJson = await getSceneFile(workingDir)
   const mainPath = path.resolve(workingDir, sceneJson.main)
 
   if (!(await fs.pathExists(mainPath))) {
@@ -177,9 +177,7 @@ export async function main() {
       type: 'confirm',
       name: 'continue',
       default: true,
-      message: `You are about to upload ${
-        files.length
-      } files (${totalSize} bytes). Do you want to continue?`
+      message: `You are about to upload ${files.length} files (${totalSize} bytes). Do you want to continue?`
     })
 
     if (!results.continue) {

@@ -42,7 +42,7 @@ export async function main(): Promise<number> {
   spinner.create('Checking existance of build')
 
   await lintSceneFile(workDir)
-  const sceneJson: SceneMetadata = await getSceneFile()
+  const sceneJson: SceneMetadata = await getSceneFile(workDir)
   const mainPath = path.resolve(workDir, sceneJson.main)
 
   if (!(await fs.pathExists(mainPath))) {

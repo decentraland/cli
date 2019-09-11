@@ -140,8 +140,8 @@ export async function main() {
 
 async function getSceneBaseCoords() {
   try {
-    const sceneFile = await getSceneFile()
-    return sceneFile.scene.base.split(',')
+    const sceneFile = await getSceneFile(process.cwd())
+    return sceneFile.scene.base.replace(/\ /g, '').split(',')
   } catch (e) {
     console.log(error(`Could not open "scene.json" file`))
     throw e

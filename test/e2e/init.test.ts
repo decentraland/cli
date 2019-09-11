@@ -2,10 +2,10 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import test from 'ava'
 
-import { SceneMetadata } from '../../src/lib/Project'
 import * as init from '../../src/commands/init'
-import sandbox from '../helpers/sandbox'
 import pathsExistOnDir from '../../src/utils/pathsExistOnDir'
+import { SceneMetadata } from '../../src/sceneJson/types'
+import sandbox from '../helpers/sandbox'
 import initProject from '../helpers/initProject'
 
 test('snapshot - dcl help init', t => {
