@@ -7,7 +7,7 @@ export default async function getProjectFilePaths(
   ignoreFileContent?: string
 ): Promise<string[]> {
   const fileNames = (ignore as any)()
-    .add(ignoreFileContent.split(/\n/g).map($ => $.trim()))
+    .add(ignoreFileContent)
     .filter(await fs.readdir(dir)) as string[]
   const filePaths = fileNames.map(fileName => path.resolve(dir, fileName))
   const stats = await Promise.all(filePaths.map(filePath => fs.stat(filePath)))

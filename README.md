@@ -31,7 +31,6 @@ For details on how to use Decentraland developer tools, check our [documentation
 We're using [ZEIT release](https://github.com/zeit/release) tool:
 ```bash
 npm i -g release
-release minor --hook scripts/release.js # e.g. of minor release
 ```
 
 ## Configuration

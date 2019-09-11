@@ -11,6 +11,7 @@ export const owner = document.currentScript.getAttribute('owner')
 export const baseParcel = JSON.parse(document.currentScript.getAttribute('base-parcel')) as Coords
 export const parcels = JSON.parse(document.currentScript.getAttribute('parcels')) as Coords[]
 export const rootCID = document.currentScript.getAttribute('root-cid')
+export const debug = document.currentScript.getAttribute('debug')
 
 export function isDevelopment(): boolean {
   return env === 'dev'
@@ -18,4 +19,8 @@ export function isDevelopment(): boolean {
 
 export function isRopsten(): boolean {
   return net === 'ropsten'
+}
+
+export function isDebug(): boolean {
+  return debug === 'true'
 }

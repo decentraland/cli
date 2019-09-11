@@ -11,6 +11,8 @@ import { isEnvCi } from '../utils/env'
 import * as spinner from '../utils/spinner'
 import installDependencies from '../project/installDependencies'
 import isECSInstalled from '../project/isECSInstalled'
+import { getSceneFile } from '../sceneJson'
+import { lintSceneFile } from '../sceneJson/lintSceneFile'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
@@ -52,16 +54,14 @@ export async function main() {
   })
 
   const isCi = args['--ci'] || isEnvCi()
-  // TODO fix watch
   const debug = !args['--no-debug'] && !isCi
   const openBrowser = !args['--no-browser'] && !isCi
-  // tslint:disable-next-line: no-commented-out-code
-  const shouldWatchFiles = false // !args['--no-watch'] && !isCi
+  const watch = !args['--no-watch'] && !isCi
   const workingDir = process.cwd()
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),
-    watch: shouldWatchFiles,
+    watch,
     workingDir
   })
 
@@ -92,8 +92,11 @@ export async function main() {
   }
 
   if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript(workingDir, !process.env.DEBUG, true)
+    await buildTypescript(workingDir, false, true)
   }
+
+  await lintSceneFile(workingDir)
+  const [x, y] = await getSceneBaseCoords()
 
   dcl.on('preview:ready', port => {
     const ifaces = os.networkInterfaces()
@@ -109,9 +112,9 @@ export async function main() {
     Object.keys(ifaces).forEach((dev, i) => {
       ifaces[dev].forEach(details => {
         if (details.family === 'IPv4') {
-          let addr = `http://${details.address}:${port}`
+          let addr = `http://${details.address}:${port}?position=${x}%2C${y}`
           if (debug) {
-            addr = `${addr}?SCENE_DEBUG_PANEL`
+            addr = `${addr}&SCENE_DEBUG_PANEL`
           }
           if (i === 0) {
             url = addr
@@ -127,8 +130,20 @@ export async function main() {
 
     if (openBrowser) {
       opn(url)
+        .then()
+        .catch()
     }
   })
 
   await dcl.preview()
+}
+
+async function getSceneBaseCoords() {
+  try {
+    const sceneFile = await getSceneFile(process.cwd())
+    return sceneFile.scene.base.replace(/\ /g, '').split(',')
+  } catch (e) {
+    console.log(error(`Could not open "scene.json" file`))
+    throw e
+  }
 }

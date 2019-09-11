@@ -15,7 +15,7 @@ test('snapshot - dcl help deploy', t => {
 test('E2E - deploy command', async t => {
   await new Promise(resolve => {
     const target = path.join(__dirname, '../fixtures/ecs-compiled')
-    new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
+    new Commando(`node ${path.resolve('dist', 'cli.js')} deploy`, {
       silent: !isDebug(),
       workingDir: target,
       env: { NODE_ENV: 'development' }
@@ -42,7 +42,7 @@ test('E2E - init && deploy - should automatically build', async t => {
   await sandbox(async (dirPath, done) => {
     await initProject(dirPath, true)
     await new Promise(resolve => {
-      new Commando(`node ${path.resolve('bin', 'dcl')} deploy`, {
+      new Commando(`node ${path.resolve('dist', 'cli.js')} deploy`, {
         silent: !isDebug(),
         workingDir: dirPath,
         env: { NODE_ENV: 'development' }

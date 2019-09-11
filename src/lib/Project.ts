@@ -14,6 +14,7 @@ import {
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
+import { SceneMetadata } from '../sceneJson/types'
 
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',
@@ -25,46 +26,6 @@ export interface IFile {
   path: string
   content: Buffer
   size: number
-}
-
-export type DisplaySettings = {
-  title: string
-  favicon?: string
-}
-
-export type ContactSettings = {
-  name: string
-  email: string
-}
-
-export type SceneSettings = {
-  base: string
-  parcels: Array<string>
-  estateId?: number
-}
-
-export type CommunicationsSettings = {
-  type: string
-  signalling: string
-}
-
-export type PolicySettings = {
-  contentRating?: string
-  fly: boolean
-  voiceEnabled: boolean
-  blacklist: Array<string>
-  teleportPosition: string
-}
-
-export type SceneMetadata = {
-  display: DisplaySettings
-  owner: string
-  contact: ContactSettings
-  main: string
-  tags?: Array<string>
-  scene: SceneSettings
-  communications: CommunicationsSettings
-  policy: PolicySettings
 }
 
 export class Project {
@@ -95,7 +56,7 @@ export class Project {
    * @param type
    */
   isValidBoilerplateType(type: string): boolean {
-    return Object.values(BoilerplateType).includes(type)
+    return Object.values(BoilerplateType).includes(type as BoilerplateType)
   }
 
   /**
@@ -193,7 +154,7 @@ export class Project {
    * @param destination The path to the project root. By default the current woxsrking directory.
    */
   async copySample(project: string) {
-    const src = path.resolve(__dirname, '../..', 'samples', project)
+    const src = path.resolve(__dirname, '..', 'samples', project)
     const files = await fs.readdir(src)
 
     for (let i = 0; i < files.length; i++) {

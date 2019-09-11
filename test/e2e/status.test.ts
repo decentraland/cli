@@ -13,7 +13,7 @@ test('E2E - status command', async t => {
   await new Promise(resolve => {
     let allData = ''
     new Commando(
-      `node ${path.resolve('bin', 'dcl')} status --network ropsten -35,-130`,
+      `node ${path.resolve('dist', 'cli.js')} status --network ropsten -35,-130`,
       {
         silent: !isDebug(),
         workingDir: '.',

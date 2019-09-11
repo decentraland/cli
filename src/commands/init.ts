@@ -2,12 +2,13 @@ import * as arg from 'arg'
 import * as inquirer from 'inquirer'
 import chalk from 'chalk'
 
-import { BoilerplateType, SceneMetadata } from '../lib/Project'
+import { BoilerplateType } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
 import { warning } from '../utils/logging'
 import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
+import { SceneMetadata } from '../sceneJson/types'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -46,7 +47,7 @@ export async function main() {
 
   const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
 
-  if (!Object.values(BoilerplateType).includes(boilerplate)) {
+  if (!Object.values(BoilerplateType).includes(boilerplate as BoilerplateType)) {
     fail(
       ErrorType.INIT_ERROR,
       `Invalid boilerplate: "${chalk.bold(boilerplate)}". Supported types are ${chalk.bold(
@@ -72,7 +73,7 @@ export async function main() {
     }
   }
 
-  const sceneMeta = {
+  const sceneMeta: SceneMetadata = {
     display: { title: dcl.project.getRandomName() },
     contact: {
       name: '',
@@ -96,7 +97,7 @@ export async function main() {
     main: 'scene.xml'
   }
 
-  await dcl.init(sceneMeta as SceneMetadata, boilerplate as BoilerplateType)
+  await dcl.init(sceneMeta, boilerplate as BoilerplateType)
 
   try {
     await installDependencies(dcl.getWorkingDir(), true)
