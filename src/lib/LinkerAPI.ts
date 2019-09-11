@@ -34,7 +34,7 @@ export class LinkerAPI extends EventEmitter {
   }
 
   link(port: number, isHttps: boolean, rootCID: string) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (_resolve, reject) => {
       let resolvedPort = port
 
       if (!resolvedPort) {
@@ -64,11 +64,11 @@ export class LinkerAPI extends EventEmitter {
 
       if (isHttps) {
         const privateKey = await fs.readFile(
-          path.resolve(__dirname, '../certs/localhost.key'),
+          path.resolve(__dirname, './certs/localhost.key'),
           'utf-8'
         )
         const certificate = await fs.readFile(
-          path.resolve(__dirname, '../certs/localhost.crt'),
+          path.resolve(__dirname, './certs/localhost.crt'),
           'utf-8'
         )
         const credentials = { key: privateKey, cert: certificate }
@@ -82,11 +82,11 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes(rootCID: string) {
-    this.app.get('/linker.js', (req, res) => {
-      res.sendFile(path.resolve(__dirname, '../linker-app/src/index.js'))
+    this.app.get('/linker.js', (_, res) => {
+      res.sendFile(path.resolve(__dirname, './linker-app/src/index.js'))
     })
 
-    this.app.get('/linker', async (req, res) => {
+    this.app.get('/linker', async (_, res) => {
       res.writeHead(200, 'OK', { 'Content-Type': 'text/html' })
 
       const baseParcel = await this.project.getParcelCoordinates()
@@ -105,9 +105,9 @@ export class LinkerAPI extends EventEmitter {
           <div id="main">
             <script src="linker.js"
               env=${isDevelopment() ? 'dev' : 'prod'}
-              ${MANAToken ? `mana-token=${MANAToken}` : null}
-              ${LANDRegistry ? `land-registry=${LANDRegistry}` : null}
-              ${EstateRegistry ? `estate-registry=${EstateRegistry}` : null}
+              mana-token=${MANAToken}
+              land-registry=${LANDRegistry}
+              estate-registry=${EstateRegistry}
               base-parcel=${JSON.stringify(baseParcel)}
               parcels=${JSON.stringify(parcels)}
               debug=${isDebug()}
@@ -120,18 +120,18 @@ export class LinkerAPI extends EventEmitter {
       res.end()
     })
 
-    this.app.get('/css/styles.css', (req, res) => {
-      const filePath = path.resolve(__dirname, '../css/decentraland-ui-styles.css')
+    this.app.get('/css/styles.css', (_req, res) => {
+      const filePath = path.resolve(__dirname, './css/decentraland-ui-styles.css')
       res.sendFile(filePath)
     })
 
-    this.app.get('/css/dark-theme.css', (req, res) => {
-      const filePath = path.resolve(__dirname, '../css/decentraland-ui-dark-theme.css')
+    this.app.get('/css/dark-theme.css', (_req, res) => {
+      const filePath = path.resolve(__dirname, './css/decentraland-ui-dark-theme.css')
       res.sendFile(filePath)
     })
 
-    this.app.get('/css/logo.svg', (req, res) => {
-      const filePath = path.resolve(__dirname, '../css/logo.svg')
+    this.app.get('/css/logo.svg', (_req, res) => {
+      const filePath = path.resolve(__dirname, './css/logo.svg')
       res.sendFile(filePath)
     })
 

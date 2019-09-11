@@ -18,39 +18,8 @@ export type DCLInfo = {
   segmentKey?: string
 }
 
-export type SceneMetadata = {
-  display: {
-    title: string
-    favicon?: string
-  }
-  owner: string
-  contact: {
-    name: string
-    email: string
-  }
-  main: string
-  tags?: Array<string>
-  scene: {
-    base: string
-    parcels: Array<string>
-    estateId?: number
-  }
-  communications: {
-    type: string
-    signalling: string
-  }
-  policy: {
-    contentRating?: string
-    fly: boolean
-    voiceEnabled: boolean
-    blacklist: Array<string>
-    teleportPosition: string
-  }
-}
-
 let networkFlag = null
 let config: DCLInfo = null
-let sceneFile: SceneMetadata
 
 /**
  * Returns the path to the `.dclinfo` file located in the local HOME folder
@@ -101,18 +70,6 @@ export async function loadConfig(network: string): Promise<DCLInfo> {
  */
 export function getDCLInfo(): DCLInfo {
   return config
-}
-
-/**
- * Returns an object containing the contents of the `scene.json` file.
- * @throws if there is no `scene.json` at `process.cwd()` directory
- */
-export default async function getSceneFile(): Promise<SceneMetadata> {
-  if (sceneFile) {
-    return sceneFile
-  }
-  sceneFile = await readJSON<SceneMetadata>(path.resolve(process.cwd(), 'scene.json'))
-  return sceneFile
 }
 
 export function getConfig(network: string = networkFlag): DCLInfo {

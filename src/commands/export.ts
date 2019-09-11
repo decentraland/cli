@@ -8,7 +8,9 @@ import getProjectFilePaths from '../utils/getProjectFilePaths'
 import getDummyMappings from '../utils/getDummyMappings'
 import buildProject from '../utils/buildProject'
 import { warning, debug } from '../utils/logging'
-import { SceneMetadata } from '../config'
+import { SceneMetadata } from '../sceneJson/types'
+import { lintSceneFile } from '../sceneJson/lintSceneFile'
+import { getSceneFile } from '../sceneJson'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl export [options]')}
@@ -39,7 +41,8 @@ export async function main(): Promise<number> {
 
   spinner.create('Checking existance of build')
 
-  const sceneJson: SceneMetadata = await fs.readJSON(path.resolve(workDir, 'scene.json'))
+  await lintSceneFile(workDir)
+  const sceneJson: SceneMetadata = await getSceneFile(workDir)
   const mainPath = path.resolve(workDir, sceneJson.main)
 
   if (!(await fs.pathExists(mainPath))) {

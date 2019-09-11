@@ -14,7 +14,7 @@ import {
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
-import { SceneMetadata } from '../config'
+import { SceneMetadata } from '../sceneJson/types'
 
 export enum BoilerplateType {
   TYPESCRIPT_STATIC = 'ts-static',
@@ -154,7 +154,7 @@ export class Project {
    * @param destination The path to the project root. By default the current woxsrking directory.
    */
   async copySample(project: string) {
-    const src = path.resolve(__dirname, '../..', 'samples', project)
+    const src = path.resolve(__dirname, '..', 'samples', project)
     const files = await fs.readdir(src)
 
     for (let i = 0; i < files.length; i++) {
