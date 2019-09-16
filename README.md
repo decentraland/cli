@@ -1,4 +1,4 @@
-# Decentraland CLI ![Decentraland Logo](src/css/logo.svg)
+# Decentraland CLI ![Decentraland Logo](css/logo.svg)
 
 [![Build Status](https://circleci.com/gh/decentraland/cli.svg?&style=shield)](https://circleci.com/gh/decentraland/workflows/cli)
 [![chat on Discord](https://img.shields.io/discord/417796904760639509.svg?logo=discord)](https://discordapp.com/invite/9EcuFgC)

@@ -8,20 +8,19 @@
   "files": [
     "bin",
     "dist",
+    "samples",
     "abi"
   ],
   "scripts": {
     "start": "npm run watch",
     "watch": "npm run cli:watch",
-    "clean": "rm -rf dist",
     "cli:build": "webpack",
     "cli:watch": "webpack --watch",
     "linker:build": "decentraland-compiler build.linker.json",
     "linker:watch": "decentraland-compiler build.linker.json --watch",
-    "copy:resources": "cp -r samples dist && cp -r src/certs dist && cp -r src/css dist",
     "scripts:build": "decentraland-compiler build.json",
-    "build": "npm run clean && npm run cli:build && npm run linker:build && npm run scripts:build && npm run copy:resources",
-    "lint": "tslint -e 'src/samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
+    "build": "npm run cli:build && npm run linker:build && npm run scripts:build",
+    "lint": "tslint -e 'samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava",
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
     "test:ci": "FORCE_COLOR=1 ava -v --fail-fast --match='!*E2E*' --match='!*Decentraland.deploy()*'",
@@ -38,7 +37,7 @@
       ]
     },
     "ignore": [
-      "src/samples/**/*.ts"
+      "samples/**/*.ts"
     ]
   },
   "repository": "decentraland/cli",

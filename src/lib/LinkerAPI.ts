@@ -64,11 +64,11 @@ export class LinkerAPI extends EventEmitter {
 
       if (isHttps) {
         const privateKey = await fs.readFile(
-          path.resolve(__dirname, './certs/localhost.key'),
+          path.resolve(__dirname, '../certs/localhost.key'),
           'utf-8'
         )
         const certificate = await fs.readFile(
-          path.resolve(__dirname, './certs/localhost.crt'),
+          path.resolve(__dirname, '../certs/localhost.crt'),
           'utf-8'
         )
         const credentials = { key: privateKey, cert: certificate }
@@ -121,17 +121,17 @@ export class LinkerAPI extends EventEmitter {
     })
 
     this.app.get('/css/styles.css', (_req, res) => {
-      const filePath = path.resolve(__dirname, './css/decentraland-ui-styles.css')
+      const filePath = path.resolve(__dirname, '../css/decentraland-ui-styles.css')
       res.sendFile(filePath)
     })
 
     this.app.get('/css/dark-theme.css', (_req, res) => {
-      const filePath = path.resolve(__dirname, './css/decentraland-ui-dark-theme.css')
+      const filePath = path.resolve(__dirname, '../css/decentraland-ui-dark-theme.css')
       res.sendFile(filePath)
     })
 
     this.app.get('/css/logo.svg', (_req, res) => {
-      const filePath = path.resolve(__dirname, './css/logo.svg')
+      const filePath = path.resolve(__dirname, '../css/logo.svg')
       res.sendFile(filePath)
     })
 
