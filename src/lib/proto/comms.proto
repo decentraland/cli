@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package protocol;
 
+message AuthData {
+    string signature = 1;
+    string identity = 2;
+    string timestamp = 3;
+    string access_token = 4;
+}
+
 enum Category {
      UNKNOWN = 0;
      POSITION = 1;
@@ -29,9 +36,7 @@ message PositionData {
 message ProfileData {
     Category category = 1;
     double time = 2;
-    string avatar_type = 3;
-    string display_name = 4;
-    string public_key = 5;
+    string profile_version = 3;
 }
 
 message ChatData {
