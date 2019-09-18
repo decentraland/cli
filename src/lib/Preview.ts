@@ -164,10 +164,14 @@ export class Preview extends EventEmitter {
   }
 }
 
+const url = require('url')
+
 function setComms(wss: WebSocket.Server) {
   const connections = new Set<WebSocket>()
   const topicsPerConnection = new WeakMap<WebSocket, Set<string>>()
   let connectionCounter = 0
+
+  const aliasToUserId = new Map<number, string>()
 
   function getTopicList(socket: WebSocket): Set<string> {
     let set = topicsPerConnection.get(socket)
@@ -178,11 +182,15 @@ function setComms(wss: WebSocket.Server) {
     return set
   }
 
-  wss.on('connection', function connection(ws) {
+  wss.on('connection', function connection(ws, req) {
     if (ws.protocol !== 'comms') {
       return
     }
     const alias = ++connectionCounter
+
+    const query = url.parse(req.url, true).query
+    const userId = query['identity']
+    aliasToUserId.set(alias, userId)
 
     console.log('Acquiring comms connection.')
 
@@ -199,12 +207,12 @@ function setComms(wss: WebSocket.Server) {
 
         const topic = topicMessage.getTopic()
 
-        const dataMessage = new proto.DataMessage()
-        dataMessage.setType(proto.MessageType.DATA)
-        dataMessage.setBody(topicMessage.getBody_asU8())
-        dataMessage.setFromAlias(alias)
+        const topicFwMessage = new proto.TopicFWMessage()
+        topicFwMessage.setType(proto.MessageType.TOPIC_FW)
+        topicFwMessage.setFromAlias(alias)
+        topicFwMessage.setBody(topicMessage.getBody_asU8())
 
-        const topicData = dataMessage.serializeBinary()
+        const topicData = topicFwMessage.serializeBinary()
 
         // Reliable/unreliable data
         connections.forEach($ => {
@@ -214,10 +222,32 @@ function setComms(wss: WebSocket.Server) {
             }
           }
         })
-      } else if (msgType === proto.MessageType.TOPIC_SUBSCRIPTION) {
-        const topicMessage = proto.TopicSubscriptionMessage.deserializeBinary(data)
-        const rawTopics = topicMessage.getTopics_asU8()
-        const topics = Buffer.from(rawTopics).toString('utf8')
+      } else if (msgType === proto.MessageType.TOPIC_IDENTITY) {
+        const topicMessage = proto.TopicIdentityMessage.deserializeBinary(data)
+
+        const topic = topicMessage.getTopic()
+
+        const topicFwMessage = new proto.TopicIdentityFWMessage()
+        topicFwMessage.setType(proto.MessageType.TOPIC_IDENTITY_FW)
+        topicFwMessage.setFromAlias(alias)
+        topicFwMessage.setIdentity(aliasToUserId.get(alias))
+        topicFwMessage.setRole(proto.Role.CLIENT)
+        topicFwMessage.setBody(topicMessage.getBody_asU8())
+
+        const topicData = topicFwMessage.serializeBinary()
+
+        // Reliable/unreliable data
+        connections.forEach($ => {
+          if (ws !== $) {
+            if (getTopicList($).has(topic)) {
+              $.send(topicData)
+            }
+          }
+        })
+      } else if (msgType === proto.MessageType.SUBSCRIPTION) {
+        const topicMessage = proto.SubscriptionMessage.deserializeBinary(data)
+        const rawTopics = topicMessage.getTopics()
+        const topics = Buffer.from(rawTopics as string).toString('utf8')
         const set = getTopicList(ws)
 
         set.clear()
