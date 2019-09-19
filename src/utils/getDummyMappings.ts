@@ -2,9 +2,9 @@ import { MappingsFile } from 'src/lib/content/types'
 
 export default function getDummyMappings(filePaths: string[]): MappingsFile {
   // In case of Windows
-  filePaths.map(f => f.replace(/\\/g, '/'))
+  const finalPaths = filePaths.map(f => f.replace(/\\/g, '/'))
 
-  const mappings = filePaths.reduce((acc, f) => {
+  const mappings = finalPaths.reduce((acc, f) => {
     acc[f] = f
     return acc
   }, {}) as Record<string, string>
