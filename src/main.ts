@@ -1,11 +1,11 @@
 import * as arg from 'arg'
 import chalk from 'chalk'
 
-import commands from './commands'
 import * as log from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
 import { getInstalledCLIVersion, setVersion } from './utils/moduleHelpers'
 import { loadConfig } from './config'
+import commands from './commands'
 
 log.debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
 log.debug(`Provided argv: ${JSON.stringify(process.argv)}`)

@@ -2,9 +2,9 @@ import chalk from 'chalk'
 
 import { isDebug } from './env'
 
-export function debug(message: any): void {
+export function debug(...messages: any[]): void {
   if (isDebug()) {
-    console.log(message)
+    console.log(...messages)
   }
 }
 
