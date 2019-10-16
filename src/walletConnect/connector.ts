@@ -2,7 +2,7 @@ import { WalletConnect } from '.'
 
 let connector: WalletConnect
 
-export function isWC() {
+export function isWalletConnect() {
   return !!connector
 }
 
