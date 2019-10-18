@@ -1,5 +1,4 @@
 import * as uuidv4 from 'uuid/v4'
-import * as inquirer from 'inquirer'
 import AnalyticsNode = require('analytics-node')
 
 import { createDCLInfo, getConfig } from '../config'
@@ -62,23 +61,19 @@ export namespace Analytics {
     const { fileExists, segmentKey } = getConfig()
     analytics = new AnalyticsNode(segmentKey)
     if (!fileExists) {
-      const results = await inquirer.prompt({
-        type: 'confirm',
-        name: 'continue',
-        default: true,
-        message: 'Send anonymous usage stats to Decentraland?'
-      })
+      console.log(
+        chalk.dim(
+          `Decentraland CLI sends anonymous usage stats to improve their products, if you want to disable it change the configuration at ${chalk.bold(
+            '~/.dclinfo'
+          )}\n`
+        )
+      )
 
       const newUserId = uuidv4()
-      await createDCLInfo({ userId: newUserId, trackStats: results.continue })
+      await createDCLInfo({ userId: newUserId, trackStats: true })
       debug(`${chalk.bold('.dclinfo')} file created`)
-
-      if (results.continue) {
-        await Analytics.identify(newUserId)
-        await Analytics.sendData(true)
-      } else {
-        await Analytics.sendData(false)
-      }
+      await identify(newUserId)
+      sendData(true)
     }
   }
 }
@@ -92,7 +87,7 @@ async function track(eventName: string, properties: any = {}, workingDir?: strin
   const { userId, trackStats } = getConfig()
 
   if (!(await isOnline())) {
-    return
+    return null
   }
 
   return new Promise(async resolve => {
