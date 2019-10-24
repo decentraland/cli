@@ -8,13 +8,16 @@ import opn = require('opn')
 import * as spinner from '../utils/spinner'
 import buildProject from '../utils/buildProject'
 import isECSProject from '../utils/isECSProject'
-import { warning } from '../utils/logging'
+import { warning, debug } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { ErrorType, fail } from '../utils/errors'
 import { Decentraland } from '../lib/Decentraland'
 import { LinkerResponse } from '../lib/LinkerAPI'
-import { getSceneFile } from '../sceneJson'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
+import { getSceneFile } from '../sceneJson'
+import { setWalletConnector } from '../walletConnect/connector'
+import { WalletConnect } from '../walletConnect'
+import { showQR } from '../qrCode'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl deploy [path] [options]')}
@@ -50,10 +53,12 @@ export async function main() {
     '--yes': Boolean,
     '--https': Boolean,
     '--force-upload': Boolean,
+    '--wallet-connect': Boolean,
     '-h': '--help',
     '-y': '--yes',
     '-l': '--https',
-    '-f': '--force-upload'
+    '-f': '--force-upload',
+    '-w': '--wallet-connect'
   }
   const args = process.env.DCL_PRIVATE_KEY
     ? arg({ ...argOps, '--network': String, '-n': '--network' })
@@ -186,7 +191,38 @@ export async function main() {
     }
   }
 
+  if (args['--wallet-connect']) {
+    const walletConnector = new WalletConnect({
+      bridge: 'https://bridge.walletconnect.org'
+    })
+
+    await walletConnector.createSession()
+    const { uri } = walletConnector
+    debug('WalletConnect URI: ', uri)
+
+    console.log('\nScan this QR with your WalletConnect-compatible wallet: \n')
+    await showQR(uri)
+    spinner.create('Waiting for the message to be signed')
+    await connect(walletConnector)
+    setWalletConnector(walletConnector)
+  }
+
   const address = await dcl.deploy(files)
   Analytics.sceneDeploySuccess({ address })
   return console.log(chalk.green(`\nDeployment complete!`))
+}
+
+async function connect(walletConnector: WalletConnect): Promise<void> {
+  return new Promise((resolve, reject) => {
+    walletConnector.on('connect', (error, payload) => {
+      if (error) {
+        reject(error)
+        return
+      }
+
+      const { accounts } = payload.params[0]
+      spinner.succeed(`Wallet connected, using address ${chalk.bold(accounts[0])}`)
+      resolve()
+    })
+  })
 }

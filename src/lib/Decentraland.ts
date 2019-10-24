@@ -19,6 +19,7 @@ import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
+import { isWalletConnect, getWalletConnector } from '../walletConnect/connector'
 
 export type DecentralandArguments = {
   workingDir: string
@@ -286,6 +287,18 @@ export class Decentraland extends EventEmitter {
         this.wallet.getAddress()
       ])
       return { signature, address, network: { id: 0, name: 'mainnet' } }
+    }
+
+    if (isWalletConnect()) {
+      const connector = getWalletConnector()
+      const address = connector.accounts[0]
+      const signature = await connector.signMessage([address, messageToSign])
+      return {
+        signature,
+        address,
+        // TODO support Ropsten and other networks with WC
+        network: { id: connector.networkId, name: 'mainnet' }
+      }
     }
 
     return this.link(messageToSign)

@@ -1,3 +1,5 @@
+// This is needed by the wallet connect connector as of is only ready for both the browser and mobile
+WebSocket = require('ws')
 const fs = require('fs')
 const path = require('path')
 
