@@ -193,7 +193,7 @@ export async function main() {
 
   if (args['--wallet-connect']) {
     const walletConnector = new WalletConnect({
-      bridge: 'https://bridge.walletconnect.org' // Required
+      bridge: 'https://bridge.walletconnect.org'
     })
 
     await walletConnector.createSession()
@@ -215,7 +215,6 @@ export async function main() {
 async function connect(walletConnector: WalletConnect): Promise<void> {
   return new Promise((resolve, reject) => {
     walletConnector.on('connect', (error, payload) => {
-      console.log('connected', error, payload)
       if (error) {
         reject(error)
         return

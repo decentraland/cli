@@ -296,6 +296,7 @@ export class Decentraland extends EventEmitter {
       return {
         signature,
         address,
+        // TODO support Ropsten and other networks with WC
         network: { id: connector.networkId, name: 'mainnet' }
       }
     }
