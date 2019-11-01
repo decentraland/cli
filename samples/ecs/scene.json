@@ -22,7 +22,22 @@
     "contentRating": "E",
     "fly": true,
     "voiceEnabled": true,
-    "blacklist": [],
-    "teleportPosition": ""
-  }
+    "blacklist": []
+  },
+  "spawnPoints": [
+    {
+      "name": "spawn1",
+      "default": true,
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "cameraTarget": {
+        "x": 8,
+        "y": 1,
+        "z": 8
+      }
+    }
+  ]
 }
