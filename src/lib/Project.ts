@@ -17,9 +17,8 @@ import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/c
 import { SceneMetadata } from '../sceneJson/types'
 
 export enum BoilerplateType {
-  TYPESCRIPT_STATIC = 'ts-static',
   ECS = 'ecs',
-  STATIC = 'static'
+  SMART_ITEM = 'smart-item'
 }
 
 export interface IFile {
@@ -82,16 +81,11 @@ export class Project {
   /**
    * Scaffolds a project or fails for an invalid boilerplate type
    * @param boilerplateType `static`, `singleplayer` or `multiplayer`
-   * @param websocketServer Optional websocket server URL
    */
-  async scaffoldProject(boilerplateType: string, websocketServer?: string) {
+  async scaffoldProject(boilerplateType: string) {
     switch (boilerplateType) {
-      case BoilerplateType.TYPESCRIPT_STATIC: {
-        await this.copySample('ts-static')
-        break
-      }
-      case BoilerplateType.STATIC: {
-        await this.copySample('basic-static')
+      case BoilerplateType.SMART_ITEM: {
+        await this.copySample('smart-item')
         break
       }
       case BoilerplateType.ECS: {

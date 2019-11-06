@@ -6,5 +6,6 @@ export default new Set<String>([
   'info',
   'status',
   'help',
-  'export'
+  'export',
+  'pack'
 ])

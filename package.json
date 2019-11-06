@@ -67,6 +67,7 @@
   "devDependencies": {
     "@babel/runtime": "^7.2.0",
     "@types/analytics-node": "0.0.32",
+    "@types/archiver": "^3.0.0",
     "@types/chalk": "^2.2.0",
     "@types/express": "^4.11.1",
     "@types/fs-extra": "^5.0.0",
@@ -86,6 +87,7 @@
     "@walletconnect/types": "^1.0.0-beta.37",
     "@walletconnect/utils": "^1.0.0-beta.37",
     "analytics-node": "^3.2.0",
+    "archiver": "^3.1.1",
     "arg": "^4.1.0",
     "ava": "^1.2.1",
     "chalk": "^2.3.1",
