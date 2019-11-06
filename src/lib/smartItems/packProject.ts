@@ -31,10 +31,11 @@ export async function packProject(files: string[], target: string) {
 
     archive.pipe(output)
 
-    const targetFiles = files.filter(f => !blacklist.includes(f) && f !== '')
+    const targetFiles = files.filter(f => !blacklist.some(bf => f.includes(bf)) && f !== '')
     targetFiles.forEach(f => {
       archive.file(f, { name: f })
     })
+
     return archive.finalize()
   })
 }
