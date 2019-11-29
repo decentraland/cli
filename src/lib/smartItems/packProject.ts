@@ -5,7 +5,7 @@ const blacklist = [
   'item.zip',
   '.dclignore',
   'Dockerfile',
-  'package.json',
+  'tsconfig.json',
   'scene.json',
   'package-lock.json',
   'src/game.ts',
