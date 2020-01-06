@@ -7,5 +7,7 @@ export default new Set<String>([
   'status',
   'help',
   'export',
-  'pack'
+  'pack',
+
+  'create-entity',
 ])

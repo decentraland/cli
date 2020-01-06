@@ -45,6 +45,8 @@ const help = `
       help      [cmd]     Displays complete help for given command
       version             Display current version of dcl
 
+      create-entity       Creates the entity.json file to use the Content Service V3
+
     ${chalk.dim('Options:')}
 
       -h, --help          Displays complete help for used command or subcommand
