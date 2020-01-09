@@ -1,13 +1,13 @@
 import * as path from 'path'
-import * as pull from 'pull-stream'
-import * as CID from 'cids'
-import { MemoryDatastore } from 'interface-datastore'
-import * as imp from 'ipfs-unixfs-engine'
+// import * as pull from 'pull-stream'
+// import * as CID from 'cids'
+// import { MemoryDatastore } from 'interface-datastore'
+// import * as imp from 'ipfs-unixfs-engine'
 
 import { ContentIdentifier } from './ContentUploadRequest'
 import { IFile } from '../Project'
 
-import Importer = imp.Importer
+// import Importer = imp.Importer
 
 /**
  * Utility class to handle the calculation of a IFile CID
@@ -39,27 +39,28 @@ export class CIDUtils {
   }
 
   private static async getListCID(files: IFile[], shareRoot: boolean): Promise<string> {
-    const importer = new Importer(new MemoryDatastore())
-    return new Promise<string>((resolve, reject) => {
-      pull(
-        pull.values(files),
-        pull.asyncMap((file, cb) => {
-          const data = {
-            path: shareRoot ? '/tmp/' + file.path : file.path,
-            content: file.content
-          }
-          cb(null, data)
-        }),
-        importer,
-        pull.onEnd(() =>
-          importer.flush((err, content) => {
-            if (err) {
-              reject(err)
-            }
-            resolve(new CID(content).toBaseEncodedString())
-          })
-        )
-      )
-    })
+      return Promise.resolve("")
+    // const importer = new Importer(new MemoryDatastore())
+    // return new Promise<string>((resolve, reject) => {
+    //   pull(
+    //     pull.values(files),
+    //     pull.asyncMap((file, cb) => {
+    //       const data = {
+    //         path: shareRoot ? '/tmp/' + file.path : file.path,
+    //         content: file.content
+    //       }
+    //       cb(null, data)
+    //     }),
+    //     importer,
+    //     pull.onEnd(() =>
+    //       importer.flush((err, content) => {
+    //         if (err) {
+    //           reject(err)
+    //         }
+    //         resolve(new CID(content).toBaseEncodedString())
+    //       })
+    //     )
+    //   )
+    // })
   }
 }
