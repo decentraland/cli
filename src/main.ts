@@ -39,13 +39,12 @@ const help = `
       build               Build scene
       start               Start a local development server for a Decentraland Scene
       deploy              Upload scene to Decentraland
+      deploy-v3           Upload scene to Decentraland's Content server v3
       export              Export scene to static website format (HTML, JS and CSS)
       info      [args]    Displays information about a LAND, an Estate or an address
       status    [args]    Displays the deployment status of the project or a given LAND
       help      [cmd]     Displays complete help for given command
       version             Display current version of dcl
-
-      create-entity       Creates the entity.json file to use the Content Service V3
 
     ${chalk.dim('Options:')}
 

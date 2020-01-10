@@ -3,11 +3,10 @@ export default new Set<String>([
   'build',
   'start',
   'deploy',
+  'deploy-v3',
   'info',
   'status',
   'help',
   'export',
   'pack',
-
-  'create-entity',
 ])
