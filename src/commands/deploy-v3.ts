@@ -4,7 +4,7 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 
 import FormData = require('form-data')
-import * as fetch from 'isomorphic-fetch'
+import fetch from 'node-fetch'
 import opn = require('opn')
 
 import { isTypescriptProject } from '../project/isTypescriptProject'
