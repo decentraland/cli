@@ -128,7 +128,7 @@ export async function main(): Promise<number> {
 
     // Uploading data
     const contentServerAddress = args['--target'] ? args['--target'] : 'localhost:6969'
-    const contentServerUrl = `http://${contentServerAddress}/entities`
+    const contentServerUrl = `${contentServerAddress}/entities`
     spinner.create(`Uploading data to: ${contentServerUrl}`)
 
     const form = new FormData()
@@ -138,7 +138,11 @@ export async function main(): Promise<number> {
     form.append('entity.json', entityJsonAsBuffer, { filename: 'entity.json' })
     files.forEach((f: IFile) => form.append(f.path, f.content, { filename: f.path }))
 
-    const deployResponse = await fetch(contentServerUrl, { method: 'POST', body: form as any })
+    const deployResponse = await fetch(contentServerUrl, {
+      method: 'POST',
+      body: form as any,
+      headers: { 'x-upload-origin': 'CLI' }
+    })
     if (deployResponse.ok) {
       spinner.succeed('Content uploaded.')
     } else {
