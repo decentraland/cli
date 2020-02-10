@@ -280,7 +280,7 @@ export class Decentraland extends EventEmitter {
     }
   }
 
-  private async getAddressAndSignature(messageToSign): Promise<LinkerResponse> {
+  async getAddressAndSignature(messageToSign): Promise<LinkerResponse> {
     if (this.wallet) {
       const [signature, address] = await Promise.all([
         this.wallet.signMessage(messageToSign),

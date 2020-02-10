@@ -3,6 +3,7 @@ export default new Set<String>([
   'build',
   'start',
   'deploy',
+  'deploy-deprecated',
   'info',
   'status',
   'help',
