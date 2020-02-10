@@ -2,20 +2,20 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import test from 'ava'
 
-import * as deploy from '../../src/commands/deploy'
+import * as deploy_deprecated from '../../src/commands/deploy-deprecated'
 import { isDebug } from '../../src/utils/env'
 import Commando, { Response } from '../helpers/commando'
 import sandbox from '../helpers/sandbox'
 import initProject from '../helpers/initProject'
 
-test('snapshot - dcl help deploy', t => {
-  t.snapshot(deploy.help())
+test('snapshot - dcl help deploy-deprecated', t => {
+  t.snapshot(deploy_deprecated.help())
 })
 
-test('E2E - deploy command', async t => {
+test('E2E - deploy-deprecated command', async t => {
   await new Promise(resolve => {
     const target = path.join(__dirname, '../fixtures/ecs-compiled')
-    new Commando(`node ${path.resolve('dist', 'cli.js')} deploy`, {
+    new Commando(`node ${path.resolve('dist', 'cli.js')} deploy-deprecated`, {
       silent: !isDebug(),
       workingDir: target,
       env: { NODE_ENV: 'development' }
@@ -38,11 +38,11 @@ test('E2E - deploy command', async t => {
   })
 })
 
-test('E2E - init && deploy - should automatically build', async t => {
+test('E2E - init && deploy-deprecated - should automatically build', async t => {
   await sandbox(async (dirPath, done) => {
     await initProject(dirPath, true)
     await new Promise(resolve => {
-      new Commando(`node ${path.resolve('dist', 'cli.js')} deploy`, {
+      new Commando(`node ${path.resolve('dist', 'cli.js')} deploy-deprecated`, {
         silent: !isDebug(),
         workingDir: dirPath,
         env: { NODE_ENV: 'development' }

@@ -1,228 +1,232 @@
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import * as inquirer from 'inquirer'
 import * as arg from 'arg'
 import chalk from 'chalk'
+import * as fs from 'fs-extra'
+import * as path from 'path'
+
+import FormData = require('form-data')
+import fetch from 'node-fetch'
 import opn = require('opn')
 
-import * as spinner from '../utils/spinner'
-import buildProject from '../utils/buildProject'
-import isECSProject from '../utils/isECSProject'
-import { warning, debug } from '../utils/logging'
-import { Analytics } from '../utils/analytics'
-import { ErrorType, fail } from '../utils/errors'
-import { Decentraland } from '../lib/Decentraland'
-import { LinkerResponse } from '../lib/LinkerAPI'
-import { lintSceneFile } from '../sceneJson/lintSceneFile'
+import { isTypescriptProject } from '../project/isTypescriptProject'
 import { getSceneFile } from '../sceneJson'
-import { setWalletConnector } from '../walletConnect/connector'
-import { WalletConnect } from '../walletConnect'
-import { showQR } from '../qrCode'
+import { Decentraland } from '../lib/Decentraland'
+import { IFile } from '../lib/Project'
+import { LinkerResponse } from 'src/lib/LinkerAPI'
+import * as spinner from '../utils/spinner'
+
+const CID = require('cids')
+const multihashing = require('multihashing-async')
 
 export const help = () => `
-  Usage: ${chalk.bold('dcl deploy [path] [options]')}
+  Usage: ${chalk.bold('dcl build [options]')}
 
     ${chalk.dim('Options:')}
 
-      -h, --help          Displays complete help
-      -y, --yes           Skip confirmations and proceed to upload
-      -l, --https         Use self-signed localhost certificate to use HTTPs at linking app (required for ledger users)
-      -f, --force-upload  Upload all files to the content server
-      -n, --network       Choose between ${chalk.bold('mainnet')} and ${chalk.bold(
-  'ropsten'
-)} (default 'mainnet') only available with env ${chalk.bold('DCL_PRIVATE_KEY')}
+      -h, --help                Displays complete help
+      -t, --target              Specifies the address and port for the target content server. Defaults to https://peer.decentraland.org/content
 
-    ${chalk.dim('Examples:')}
+    ${chalk.dim('Example:')}
 
-    - Deploy a Decentraland Scene project in folder my-project
+    - Deploy your scene:
 
-      ${chalk.green('$ dcl deploy my-project')}
+      ${chalk.green('$ dcl deploy')}
 
-    - Deploy a Decentraland Scene from a CI or an automated context
+    - Deploy your scene to a specific content server:
 
-      ${chalk.green('$ dcl deploy -y')}
-
-    - Deploy a Decentraland Scene project using a ledger hardware wallet
-
-      ${chalk.green('$ dcl deploy --https')}
+    ${chalk.green('$ dcl deploy --target my-favorite-content-server.org:2323')}
 `
 
-export async function main() {
-  const argOps = {
+export async function main(): Promise<number> {
+  const args = arg({
     '--help': Boolean,
-    '--yes': Boolean,
-    '--https': Boolean,
-    '--force-upload': Boolean,
-    '--wallet-connect': Boolean,
     '-h': '--help',
-    '-y': '--yes',
-    '-l': '--https',
-    '-f': '--force-upload',
-    '-w': '--wallet-connect'
-  }
-  const args = process.env.DCL_PRIVATE_KEY
-    ? arg({ ...argOps, '--network': String, '-n': '--network' })
-    : arg(argOps)
+    '--target': String,
+    '-t': '--target'
+  })
 
-  const workingDir = args._[1] ? path.resolve(process.cwd(), args._[1]) : process.cwd()
+  const workDir = process.cwd()
 
-  spinner.create('Checking existance of build')
+  if (await isTypescriptProject(workDir)) {
+    spinner.create('Creating deployment structure')
 
-  await lintSceneFile(workingDir)
-  const sceneJson = await getSceneFile(workingDir)
-  const mainPath = path.resolve(workingDir, sceneJson.main)
+    const dcl = new Decentraland({
+      isHttps: args['--https'],
+      workingDir: workDir,
+      forceDeploy: args['--force-upload'],
+      yes: args['--yes']
+    })
 
-  if (!(await fs.pathExists(mainPath))) {
-    const errorMsg = `Could not find the build. Make sure that the ${chalk.bold(
-      'main'
-    )} file of the ${chalk.bold('scene.json')} exists`
-    const pkgPath = path.resolve(workingDir, 'package.json')
-    if (!(await fs.pathExists(pkgPath))) {
-      throw new Error(errorMsg)
+    // Obtain list of files to deploy
+    let originalFilesToIgnore = await dcl.project.getDCLIgnore()
+    if (originalFilesToIgnore === null) {
+      originalFilesToIgnore = await dcl.project.writeDclIgnore()
     }
-
-    const pkg = await fs.readJSON(pkgPath)
-    if (isECSProject(pkg)) {
-      spinner.succeed(`${warning('No build found, triggering ')}${chalk.bold(`"npm run build"`)}`)
-      spinner.create('Building project')
-      try {
-        await buildProject(workingDir)
-      } catch (error) {
-        spinner.fail('Could not build the project')
-        throw new Error(error)
-      }
-      spinner.succeed('Project built')
-    } else {
-      throw new Error(errorMsg)
+    let filesToIgnorePlusEntityJson = originalFilesToIgnore
+    if (!filesToIgnorePlusEntityJson.includes('entity.json')) {
+      filesToIgnorePlusEntityJson = filesToIgnorePlusEntityJson + '\n' + 'entity.json'
     }
-  } else {
-    spinner.succeed('Build found')
-  }
+    const files: IFile[] = await dcl.project.getFiles(filesToIgnorePlusEntityJson)
+    console.log()
+    console.log(`Discovered ${chalk.bold(`${files.length}`)} files.`)
 
-  const dcl = new Decentraland({
-    isHttps: args['--https'],
-    workingDir,
-    forceDeploy: args['--force-upload'],
-    yes: args['--yes']
-  })
-
-  let ignoreFile = await dcl.project.getDCLIgnore()
-
-  dcl.on('link:ready', url => {
-    Analytics.sceneLink()
-    console.log(chalk.bold('You need to sign the content before the deployment:'))
-    spinner.create(`Signing app ready at ${url}`)
-
-    setTimeout(() => {
-      try {
-        opn(url)
-      } catch (e) {
-        console.log(warning(`Unable to open browser automatically`))
-      }
-    }, 5000)
-
-    dcl.on('link:success', ({ address, signature, network }: LinkerResponse) => {
-      Analytics.sceneLinkSuccess()
-      spinner.succeed(`Content succesfully signed.`)
-      console.log(`${chalk.bold('Address:')} ${address}`)
-      console.log(`${chalk.bold('Signature:')} ${signature}`)
-      console.log(
-        `${chalk.bold('Network:')} ${
-          network.label ? `${network.label} (${network.name})` : network.name
-        }`
-      )
-    })
-  })
-
-  dcl.on('upload:starting', () => {
-    spinner.create(`Uploading content...`)
-
-    dcl.on('upload:failed', (error: any) => {
-      spinner.fail('Failed to upload content')
-      fail(ErrorType.DEPLOY_ERROR, `Unable ro upload content. ${error}`)
-    })
-
-    dcl.on('upload:success', () => {
-      spinner.succeed('Content uploaded')
-    })
-  })
-
-  if (process.env.DCL_PRIVATE_KEY) {
-    const publicKey = await dcl.getPublicAddress()
-    console.log(chalk.bold(`Using public address ${publicKey}`))
-  }
-
-  if (args['--https']) {
-    console.log(warning(`Using self signed certificate to support ledger wallet`))
-  }
-
-  if (ignoreFile === null) {
-    console.log(
-      warning(`As of version 1.1.0 all deployments require a ${chalk.bold('.dclignore')} file`)
+    // Calculate hash for each file
+    const contentFiles = await Promise.all(
+      files.map(async iFile => {
+        return {
+          file: iFile.path,
+          hash: await calculateBufferHash(iFile.content)
+        }
+      })
     )
-    console.log(`Generating ${chalk.bold('.dclignore')} file with default values`)
-    ignoreFile = await dcl.project.writeDclIgnore()
-  }
+    console.log(`Hashes calculated.`)
 
-  Analytics.sceneDeploy()
-  await dcl.project.validateExistingProject()
-  const files = await dcl.project.getFiles(ignoreFile)
+    // Create scene.json
+    const sceneJson = await getSceneFile(workDir)
 
-  console.log('\n  Tracked files:\n')
+    let entity: EntityV3 = {
+      type: 'scene',
+      pointers: findPointers(sceneJson),
+      timestamp: Date.now(),
+      content: contentFiles,
+      metadata: sceneJson
+    }
+    let entityJson = JSON.stringify(entity)
+    await fs.outputFile(path.join(workDir, 'entity.json'), entityJson)
 
-  const totalSize = files.reduce((size, file) => {
-    console.log(`    ${file.path} (${file.size} bytes)`)
-    return size + file.size
-  }, 0)
+    let entityJsonAsBuffer = Buffer.from(entityJson)
+    const entityJsonFileHash: string = await calculateBufferHash(entityJsonAsBuffer)
+    console.log(`Entity json created. Entity id: ${chalk.bold(`${entityJsonFileHash}`)}`)
+    spinner.succeed('Deployment structure created.')
 
-  console.log('') // new line to keep things clean
+    dcl.on('link:ready', url => {
+      console.log(chalk.bold('You need to sign the content before the deployment:'))
+      spinner.create(`Signing app ready at ${url}`)
 
-  if (!args['--yes']) {
-    const results = await inquirer.prompt({
-      type: 'confirm',
-      name: 'continue',
-      default: true,
-      message: `You are about to upload ${files.length} files (${totalSize} bytes). Do you want to continue?`
+      setTimeout(() => {
+        try {
+          opn(url)
+        } catch (e) {
+          console.log(`Unable to open browser automatically`)
+        }
+      }, 5000)
+
+      dcl.on('link:success', ({ address, signature, network }: LinkerResponse) => {
+        spinner.succeed(`Content succesfully signed.`)
+        console.log(`${chalk.bold('Address:')} ${address}`)
+        console.log(`${chalk.bold('Signature:')} ${signature}`)
+        console.log(
+          `${chalk.bold('Network:')} ${
+            network.label ? `${network.label} (${network.name})` : network.name
+          }`
+        )
+      })
     })
 
-    if (!results.continue) {
-      console.log('Aborting...')
-      return
+    // Signing message
+    const messageToSign = entityJsonFileHash
+    const { signature, address } = await dcl.getAddressAndSignature(messageToSign)
+
+    // Uploading data
+    const defaultContentServer = 'https://peer.decentraland.org/content'
+    const contentServerAddress = args['--target'] ? args['--target'] : defaultContentServer
+    const contentServerUrl = `${contentServerAddress}/entities`
+
+    // Check if we can avoid to upload some files
+    let availableContentUrl = `${contentServerAddress}/available-content?`
+    let alreadyAvailableContent: { path: string; hash: string }[] = []
+    try {
+      spinner.create(`Checking already available content from: ${availableContentUrl}`)
+      entity.content.forEach(
+        (c: ControllerEntityContent) => (availableContentUrl += `cid=${c.hash}&`)
+      )
+
+      const availableContentResponse = await fetch(availableContentUrl)
+      if (availableContentResponse.ok) {
+        const availableContentResponseJson: {
+          cid: string
+          available: boolean
+        }[] = await availableContentResponse.json()
+        alreadyAvailableContent = availableContentResponseJson
+          .filter(element => element.available)
+          .map(element => {
+            return {
+              path: hash2path(element.cid, entity.content),
+              hash: element.cid
+            }
+          })
+      }
+      spinner.succeed('Content checked.')
+    } catch (error) {
+      spinner.fail(`Could not retrieve already available content: ${error}`)
+    }
+    if (alreadyAvailableContent.length > 0) {
+      console.log(
+        `The following files were already found in the content server and won't be uploaded:`
+      )
+      alreadyAvailableContent.forEach(element => console.log(`  ${element.hash}: ${element.path}`))
+    }
+
+    spinner.create(`Uploading data to: ${contentServerUrl}`)
+
+    const form = new FormData()
+    form.append('entityId', entityJsonFileHash)
+    form.append('ethAddress', address)
+    form.append('signature', signature)
+    form.append('entity.json', entityJsonAsBuffer, { filename: 'entity.json' })
+    files
+      .filter((f: IFile) => !isAlreadyAvailable(f.path, alreadyAvailableContent))
+      .forEach((f: IFile) => form.append(f.path, f.content, { filename: f.path }))
+
+    const deployResponse = await fetch(contentServerUrl, {
+      method: 'POST',
+      body: form as any,
+      headers: { 'x-upload-origin': 'CLI' }
+    })
+    if (deployResponse.ok) {
+      spinner.succeed('Content uploaded.')
+    } else {
+      spinner.fail(`Could not upload content. ${deployResponse.statusText}`)
     }
   }
 
-  if (args['--wallet-connect']) {
-    const walletConnector = new WalletConnect({
-      bridge: 'https://bridge.walletconnect.org'
-    })
-
-    await walletConnector.createSession()
-    const { uri } = walletConnector
-    debug('WalletConnect URI: ', uri)
-
-    console.log('\nScan this QR with your WalletConnect-compatible wallet: \n')
-    await showQR(uri)
-    spinner.create('Waiting for the message to be signed')
-    await connect(walletConnector)
-    setWalletConnector(walletConnector)
-  }
-
-  const address = await dcl.deploy(files)
-  Analytics.sceneDeploySuccess({ address })
-  return console.log(chalk.green(`\nDeployment complete!`))
+  return 0
 }
 
-async function connect(walletConnector: WalletConnect): Promise<void> {
-  return new Promise((resolve, reject) => {
-    walletConnector.on('connect', (error, payload) => {
-      if (error) {
-        reject(error)
-        return
-      }
+function hash2path(hash: string, contentFiles: ControllerEntityContent[]): string {
+  return contentFiles.find(element => element.hash === hash).file
+}
 
-      const { accounts } = payload.params[0]
-      spinner.succeed(`Wallet connected, using address ${chalk.bold(accounts[0])}`)
-      resolve()
-    })
-  })
+function isAlreadyAvailable(
+  path: string,
+  alreadyAvailableContent: { path: string; hash: string }[]
+): boolean {
+  return alreadyAvailableContent.findIndex(element => element.path === path) >= 0
+}
+
+async function calculateBufferHash(buffer: Buffer): Promise<ContentFileHash> {
+  try {
+    const hash = await multihashing(buffer, 'sha2-256')
+    return new CID(0, 'dag-pb', hash).toBaseEncodedString()
+  } catch (e) {
+    console.log('ERROR ', e)
+    return Promise.resolve('')
+  }
+}
+export type ContentFileHash = string
+
+interface EntityV3 {
+  type: string
+  pointers: string[]
+  timestamp: number
+  content?: ControllerEntityContent[]
+  metadata?: any
+}
+
+export type ControllerEntityContent = {
+  file: string
+  hash: string
+}
+
+function findPointers(sceneJson: any): string[] {
+  return sceneJson.scene.parcels
 }

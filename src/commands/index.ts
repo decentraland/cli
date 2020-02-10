@@ -3,10 +3,10 @@ export default new Set<String>([
   'build',
   'start',
   'deploy',
-  'deploy-v3',
+  'deploy-deprecated',
   'info',
   'status',
   'help',
   'export',
-  'pack',
+  'pack'
 ])
