@@ -17,8 +17,8 @@ export function getBounds(): IBounds {
   return {
     minX: -150,
     minY: -150,
-    maxX: 162,
-    maxY: 162
+    maxX: 165,
+    maxY: 165
   }
 }
 
