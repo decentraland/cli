@@ -13,7 +13,6 @@ import {
   getPackageFilePath
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
-import { warning } from '../utils/logging'
 import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
 import { SceneMetadata } from '../sceneJson/types'
 
@@ -387,8 +386,8 @@ export class Project {
     const { base, parcels } = sceneFile.scene
     const parcelSet = new Set(parcels)
 
-    if (base) {
-      console.log(warning('The scene property "base" is deprecated!'))
+    if (!base) {
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene base attribute at scene.json')
     }
 
     if (!parcels) {
