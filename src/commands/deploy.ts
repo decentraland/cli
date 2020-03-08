@@ -23,6 +23,7 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
+      -o, --only-entity         Only build the entity.json file and then exit
       -t, --target              Specifies the address and port for the target content server. Defaults to https://peer.decentraland.org/content
 
     ${chalk.dim('Example:')}
@@ -41,7 +42,9 @@ export async function main(): Promise<number> {
     '--help': Boolean,
     '-h': '--help',
     '--target': String,
-    '-t': '--target'
+    '-t': '--target',
+    '--only-entity': Boolean,
+    '-o': '--only-entity'
   })
 
   const workDir = process.cwd()
@@ -97,6 +100,10 @@ export async function main(): Promise<number> {
     const entityJsonFileHash: string = await calculateBufferHash(entityJsonAsBuffer)
     console.log(`Entity json created. Entity id: ${chalk.bold(`${entityJsonFileHash}`)}`)
     spinner.succeed('Deployment structure created.')
+    
+    if (args['--only-entity']) {
+      process.exit(0)
+    }
 
     dcl.on('link:ready', url => {
       console.log(chalk.bold('You need to sign the content before the deployment:'))
