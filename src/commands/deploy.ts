@@ -1,5 +1,7 @@
 import * as arg from 'arg'
 import chalk from 'chalk'
+import * as fs from 'fs-extra'
+import * as path from 'path'
 import { CatalystClient, DeploymentBuilder } from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
@@ -76,6 +78,9 @@ export async function main(): Promise<number> {
       contentFiles,
       sceneJson
     )
+
+    const entityFile = entityFiles.get(entityId)!!.content
+    await fs.outputFile(path.join(workDir, 'entity.json'), entityFile)
     spinner.succeed('Deployment structure created.')
 
     dcl.on('link:ready', url => {
