@@ -95,6 +95,7 @@
     "chokidar": "^2.0.3",
     "cors": "^2.8.4",
     "cross-spawn": "^6.0.5",
+    "dcl-catalyst-client": "^1.1.0",
     "dcl-tslint-config-standard": "^1.0.1",
     "decentraland-dapps": "3.8.0",
     "decentraland-eth": "^8.6.0",
@@ -149,8 +150,5 @@
     "webpack-cli": "^3.3.7",
     "wildcards": "^1.0.2",
     "ws": "^6.0.0"
-  },
-  "dependencies": {
-    "dcl-catalyst-client": "^1.1.0"
   }
 }

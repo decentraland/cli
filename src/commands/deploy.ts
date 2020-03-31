@@ -19,7 +19,7 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
-      -t, --target              Specifies the address and port for the target content server. Defaults to https://peer.decentraland.org/content
+      -t, --target              Specifies the address and port for the target content server. Defaults to https://peer.decentraland.org
 
     ${chalk.dim('Example:')}
 
@@ -29,7 +29,7 @@ export const help = () => `
 
     - Deploy your scene to a specific content server:
 
-    ${chalk.green('$ dcl deploy --target https://my-favorite-content-server.org:2323/content')}
+    ${chalk.green('$ dcl deploy --target https://my-favorite-content-server.org:2323')}
 `
 
 export async function main(): Promise<number> {
@@ -108,7 +108,7 @@ export async function main(): Promise<number> {
     const authChain = Authenticator.createSimpleAuthChain(entityId, address, signature)
 
     // Uploading data
-    const defaultContentServer = 'https://peer.decentraland.org/content'
+    const defaultContentServer = 'https://peer.decentraland.org'
     const contentServerAddress = args['--target'] ? args['--target'] : defaultContentServer
 
     spinner.create(`Uploading data to: ${contentServerAddress}`)
