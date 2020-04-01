@@ -2,18 +2,16 @@ import { EventEmitter } from 'events'
 import chalk from 'chalk'
 import { ethers } from 'ethers'
 import * as events from 'wildcards'
-import * as inquirer from 'inquirer'
 
-import { CIDUtils } from './content/CIDUtils'
 import { ContentClient } from './content/ContentClient'
 import { ContentService } from './content/ContentService'
 import { filterAndFillEmpty } from '../utils/land'
-import { Coords, getObject } from '../utils/coordinateHelpers'
+import { Coords } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
 import { SceneMetadata } from '../sceneJson/types'
-import { warning, debug } from '../utils/logging'
-import { Project, BoilerplateType, IFile } from './Project'
+import { debug } from '../utils/logging'
+import { Project, BoilerplateType } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
@@ -98,36 +96,6 @@ export class Decentraland extends EventEmitter {
     await this.project.writeDclIgnore()
     await this.project.writeSceneFile(sceneMeta)
     await this.project.scaffoldProject(boilerplateType)
-  }
-
-  async deploy(files: IFile[]): Promise<string> {
-    await this.project.validateSceneOptions()
-    const rootCID = await CIDUtils.getFilesComposedCID(files)
-
-    if (!this.options.yes) {
-      await this.checkDifferentSceneShape()
-    }
-
-    try {
-      const timestamp = this.getEpoch()
-      const messageToSign = `${rootCID}.${timestamp}`
-      const { signature, address } = await this.getAddressAndSignature(messageToSign)
-      const uploadResult = await this.contentService.uploadContent(
-        rootCID,
-        files,
-        signature,
-        address,
-        this.options.forceDeploy,
-        timestamp,
-        getConfig().userId
-      )
-      if (!uploadResult) {
-        fail(ErrorType.UPLOAD_ERROR, 'Fail to upload the content')
-      }
-      return address
-    } catch (e) {
-      fail(ErrorType.LINKER_ERROR, e.message)
-    }
   }
 
   async link(rootCID: string): Promise<LinkerResponse> {
@@ -256,29 +224,6 @@ export class Decentraland extends EventEmitter {
     const [parcels, owner] = await Promise.all([this.project.getParcels(), pOwner])
     return this.ethereum.validateAuthorization(owner, parcels)
   }
-  private async checkDifferentSceneShape(): Promise<void> {
-    const newScene = await this.project.getSceneFile()
-    const oldScene = await this.contentService.getSceneData(getObject(newScene.scene.base))
-    if (
-      oldScene !== null &&
-      (newScene.scene.base !== oldScene.scene.base ||
-        newScene.scene.parcels !== oldScene.scene.parcels)
-    ) {
-      console.log(warning('Deploying this scene will override and break any overlapping scenes'))
-      const results = await inquirer.prompt({
-        type: 'confirm',
-        name: 'continue',
-        default: true,
-        message:
-          'The scene.json file lists parcels that overlap with an existing scene. Do you wish to overwrite the other scene?'
-      })
-
-      if (!results.continue) {
-        console.log('Aborting...')
-        fail(ErrorType.DEPLOY_ERROR, 'Operation aborted.')
-      }
-    }
-  }
 
   async getAddressAndSignature(messageToSign): Promise<LinkerResponse> {
     if (this.wallet) {
@@ -320,10 +265,5 @@ export class Decentraland extends EventEmitter {
     }
 
     this.wallet = new ethers.Wallet(privateKey)
-  }
-
-  private getEpoch(): number {
-    const now = new Date()
-    return Math.round(now.getTime() / 1000)
   }
 }
