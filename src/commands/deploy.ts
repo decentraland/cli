@@ -1,6 +1,6 @@
 import * as arg from 'arg'
 import chalk from 'chalk'
-import { CatalystClient, DeploymentBuilder } from 'dcl-catalyst-client'
+import { ContentClient, DeploymentBuilder } from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
 
@@ -20,7 +20,8 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
-      -t, --target              Specifies the address and port for the target content server. Defaults to https://peer.decentraland.org
+      -t, --target              Specifies the address and port for the target catalyst server. Defaults to peer.decentraland.org
+      -t, --target-content      Specifies the address and port for the target content server. Can't be set together with --target
 
     ${chalk.dim('Example:')}
 
@@ -30,7 +31,7 @@ export const help = () => `
 
     - Deploy your scene to a specific content server:
 
-    ${chalk.green('$ dcl deploy --target https://my-favorite-content-server.org:2323')}
+    ${chalk.green('$ dcl deploy --target my-favorite-catalyst-server.org:2323')}
 `
 
 export async function main(): Promise<number> {
@@ -38,8 +39,14 @@ export async function main(): Promise<number> {
     '--help': Boolean,
     '-h': '--help',
     '--target': String,
-    '-t': '--target'
+    '-t': '--target',
+    '--target-content': String,
+    '-tc': '--target-content'
   })
+
+  if (args['--target'] && args['--target-content']) {
+    throw new Error(`You can't set both the 'target' and 'target-content' arguments.`)
+  }
 
   const workDir = process.cwd()
 
@@ -110,12 +117,19 @@ export async function main(): Promise<number> {
     const authChain = Authenticator.createSimpleAuthChain(entityId, address, signature)
 
     // Uploading data
-    const defaultContentServer = 'https://peer.decentraland.org'
-    const contentServerAddress = args['--target'] ? args['--target'] : defaultContentServer
+    let contentServerAddress: string
+
+    if (args['--target']) {
+      contentServerAddress = args['--target'] + '/content'
+    } else if (args['--target-content']) {
+      contentServerAddress = args['--target-content']
+    } else {
+      contentServerAddress = 'peer.decentraland.org/content'
+    }
 
     spinner.create(`Uploading data to: ${contentServerAddress}`)
     const deployData = { entityId, files: entityFiles, authChain }
-    const catalyst = new CatalystClient(contentServerAddress, 'CLI')
+    const catalyst = new ContentClient(contentServerAddress, 'CLI')
 
     try {
       await catalyst.deployEntity(deployData, false, { timeout: '10m' })
