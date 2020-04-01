@@ -100,7 +100,6 @@
     "decentraland-dapps": "3.8.0",
     "decentraland-eth": "^8.6.0",
     "decentraland-rpc": "^3.1.6",
-    "decentraland-ui": "1.13.1",
     "docker-names": "^1.0.3",
     "eth-connect": "^0.3.0",
     "ethers": "^4.0.12",
@@ -113,7 +112,6 @@
     "ignore": "^4.0.6",
     "inquirer": "^6.2.0",
     "interface-datastore": "^0.6.0",
-    "ipfs-unixfs-engine": "^0.32.4",
     "isomorphic-fetch": "^2.2.1",
     "lint-staged": "^8.0.5",
     "mkdirp": "^0.5.1",
@@ -151,5 +149,8 @@
     "webpack-cli": "^3.3.7",
     "wildcards": "^1.0.2",
     "ws": "^6.0.0"
+  },
+  "dependencies": {
+    "decentraland-ui": "^1.13.1"
   }
 }
