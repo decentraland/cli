@@ -1,8 +1,6 @@
 import { EventEmitter } from 'events'
 
 import { ContentClient, ParcelInformation } from './ContentClient'
-import { IFile } from '../Project'
-import { RequestMetadata, ContentIdentifier } from './ContentUploadRequest'
 import { Coords } from '../../utils/coordinateHelpers'
 import { fail, ErrorType } from '../../utils/errors'
 import { SceneMetadata } from '../../sceneJson/types'
@@ -51,42 +49,5 @@ export class ContentService extends EventEmitter {
     }
 
     return this.client.getContent(sceneFileCID)
-  }
-
-  private buildMetadata(
-    rootCID: string,
-    signature: string,
-    address: string,
-    timestamp: number,
-    userId: string
-  ): RequestMetadata {
-    const validity = new Date()
-    validity.setMonth(validity.getMonth() + 6)
-    return {
-      value: rootCID,
-      signature,
-      pubKey: address.toLowerCase(),
-      validityType: 0,
-      validity,
-      sequence: 2,
-      timestamp,
-      userId
-    }
-  }
-
-  private async filterUploadedContent(
-    files: IFile[],
-    manifest: ContentIdentifier[]
-  ): Promise<IFile[]> {
-    const cidMaps = manifest.reduce((map, obj) => ((map[obj.name] = obj.cid), map), {})
-    const res = await this.client.checkContentStatus(Object.values(cidMaps))
-    return files.filter(f => {
-      if (f.path === 'scene.json') {
-        return true
-      }
-      const cid = cidMaps[f.path]
-      const uploaded = res[cid]
-      return !uploaded
-    })
   }
 }
