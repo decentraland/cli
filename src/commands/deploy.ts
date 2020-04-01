@@ -118,7 +118,7 @@ export async function main(): Promise<number> {
     const catalyst = new CatalystClient(contentServerAddress, 'CLI')
 
     try {
-      await catalyst.deployEntity(deployData, false, { attempts: 3, timeout: '8m' })
+      await catalyst.deployEntity(deployData, false, { timeout: '10m' })
       spinner.succeed('Content uploaded.')
     } catch (error) {
       debug('\n' + error.stack)
