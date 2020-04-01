@@ -1,7 +1,5 @@
 import * as arg from 'arg'
 import chalk from 'chalk'
-import * as fs from 'fs-extra'
-import * as path from 'path'
 import { CatalystClient, DeploymentBuilder } from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
@@ -14,6 +12,7 @@ import { Decentraland } from '../lib/Decentraland'
 import { IFile } from '../lib/Project'
 import { LinkerResponse } from 'src/lib/LinkerAPI'
 import * as spinner from '../utils/spinner'
+import { debug } from '../utils/logging'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -79,8 +78,6 @@ export async function main(): Promise<number> {
       sceneJson
     )
 
-    const entityFile = entityFiles.get(entityId)!!.content
-    await fs.outputFile(path.join(workDir, 'entity.json'), entityFile)
     spinner.succeed('Deployment structure created.')
 
     dcl.on('link:ready', url => {
@@ -124,6 +121,7 @@ export async function main(): Promise<number> {
       await catalyst.deployEntity(deployData, false, { attempts: 3, timeout: '8m' })
       spinner.succeed('Content uploaded.')
     } catch (error) {
+      debug('\n' + error.stack)
       spinner.fail(`Could not upload content. ${error}`)
     }
   }
