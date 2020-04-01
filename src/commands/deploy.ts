@@ -21,7 +21,7 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -t, --target              Specifies the address and port for the target catalyst server. Defaults to peer.decentraland.org
-      -t, --target-content      Specifies the address and port for the target content server. Can't be set together with --target
+      -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
 
     ${chalk.dim('Example:')}
 
