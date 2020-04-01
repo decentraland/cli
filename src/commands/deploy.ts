@@ -120,7 +120,11 @@ export async function main(): Promise<number> {
     let contentServerAddress: string
 
     if (args['--target']) {
-      contentServerAddress = args['--target'] + '/content'
+      let target = args['--target']
+      if (target.endsWith('/')) {
+        target = target.slice(0, -1)
+      }
+      contentServerAddress = target + '/content'
     } else if (args['--target-content']) {
       contentServerAddress = args['--target-content']
     } else {
