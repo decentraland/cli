@@ -106,9 +106,6 @@ export class Preview extends EventEmitter {
 
     this.app.get('/', async (req, res) => {
       res.setHeader('Content-Type', 'text/html')
-      const ethConnectExists = await fs.pathExists(
-        path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'eth-connect')
-      )
 
       const htmlPath = path.resolve(artifactPath, 'artifacts/preview.html')
 
