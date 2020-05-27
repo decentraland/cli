@@ -148,6 +148,8 @@
     "ws": "^6.0.0"
   },
   "dependencies": {
+    "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
+    "decentraland-renderer": "^1.8.21483",
     "decentraland-ui": "^1.13.1"
   }
 }
