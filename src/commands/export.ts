@@ -84,6 +84,10 @@ export async function main(): Promise<number> {
     fs.copy(path.resolve(artifactPath, 'preview.js'), path.resolve(exportDir, 'preview.js')),
     fs.copy(path.resolve(artifactPath, 'unity'), path.resolve(exportDir, 'unity')),
     fs.copy(
+      path.resolve(artifactPath, 'default-profile'),
+      path.resolve(exportDir, 'default-profile')
+    ),
+    fs.copy(
       path.resolve(artifactPath, 'images/progress-logo.png'),
       path.resolve(exportDir, 'images/progress-logo.png')
     )

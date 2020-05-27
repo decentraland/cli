@@ -116,12 +116,7 @@ export class Preview extends EventEmitter {
         encoding: 'utf8'
       })
 
-      const response = html.replace(
-        '<script src="/@/artifacts/preview.js"></script>',
-        `<script>window.avoidWeb3=${!ethConnectExists}</script>\n<script src="/@/artifacts/preview.js"></script>`
-      )
-
-      res.send(response)
+      res.send(html)
     })
 
     this.app.use('/@', express.static(artifactPath))
