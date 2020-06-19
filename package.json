@@ -19,7 +19,8 @@
     "linker:build": "decentraland-compiler build.linker.json",
     "linker:watch": "decentraland-compiler build.linker.json --watch",
     "scripts:build": "decentraland-compiler build.json",
-    "build": "npm run cli:build && npm run linker:build && npm run scripts:build",
+    "build": "npm run cli:build && npm run linker:build && npm run scripts:build && node ./postbuild",
+    "postinstall": "node ./postinstall",
     "lint": "tslint -e 'samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava",
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
@@ -99,6 +100,7 @@
     "decentraland-dapps": "3.8.0",
     "decentraland-eth": "^8.6.0",
     "decentraland-rpc": "^3.1.6",
+    "decentraland-ui": "^1.13.1",
     "docker-names": "^1.0.3",
     "eth-connect": "^0.3.0",
     "ethers": "^4.0.12",
@@ -149,7 +151,6 @@
   },
   "dependencies": {
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
-    "decentraland-renderer": "^1.8.21483",
-    "decentraland-ui": "^1.13.1"
+    "decentraland-renderer": "^1.8.21483"
   }
 }
