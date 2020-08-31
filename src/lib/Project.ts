@@ -229,7 +229,12 @@ export class Project {
       '*.ts',
       '*.tsx',
       'Dockerfile',
-      'dist'
+      'dist',
+      'README.md',
+      '*.blend',
+      '*.fbx',
+      '*.zip',
+      '*.rar',
     ].join('\n')
     await fs.outputFile(path.join(this.workingDir, DCLIGNORE_FILE), content)
     return content
