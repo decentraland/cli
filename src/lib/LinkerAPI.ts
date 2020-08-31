@@ -17,9 +17,6 @@ export type LinkerResponse = {
   network: Network
 }
 
-// Path to the root folder of decentraland-ui. Wrapped in an eval to avoid webpack resolver.
-const uiPath = path.resolve(path.dirname(eval("require.resolve('decentraland-ui')")), '..') // tslint:disable-line
-
 /**
  * Events emitted by this class:
  *
@@ -124,17 +121,17 @@ export class LinkerAPI extends EventEmitter {
     })
 
     this.app.get('/css/styles.css', (_req, res) => {
-      const filePath = path.resolve(uiPath, './lib/styles.css')
+      const filePath = path.resolve(__dirname, './css/styles.css')
       res.sendFile(filePath)
     })
 
     this.app.get('/css/dark-theme.css', (_req, res) => {
-      const filePath = path.resolve(uiPath, './lib/dark-theme.css')
+      const filePath = path.resolve(__dirname, './css/dark-theme.css')
       res.sendFile(filePath)
     })
 
     this.app.get('/css/logo.svg', (_req, res) => {
-      const filePath = path.resolve(uiPath, './static/logo.svg')
+      const filePath = path.resolve(__dirname, './css/logo.svg')
       res.sendFile(filePath)
     })
 
