@@ -25,4 +25,5 @@ export type SceneMetadata = {
     blacklist: Array<string>
     teleportPosition: string
   }
+  requiredPermissions?: string[]
 }
