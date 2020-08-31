@@ -94,6 +94,7 @@ export async function main() {
       blacklist: [],
       teleportPosition: '0,0,0'
     },
+    requiredPermissions: [],
     main: 'scene.xml'
   }
 
