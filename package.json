@@ -20,7 +20,7 @@
     "linker:watch": "decentraland-compiler build.linker.json --watch",
     "scripts:build": "decentraland-compiler build.json",
     "build": "npm run cli:build && npm run linker:build && npm run scripts:build && node ./postbuild",
-    "postinstall": "node ./postinstall || echo 'skip postinstall...'",
+    "postinstall": "node ./postinstall 2> postinstall-error.log || echo 'skip postinstall...'",
     "lint": "tslint -e 'samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava",
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
