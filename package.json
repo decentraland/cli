@@ -95,7 +95,7 @@
     "chokidar": "^2.0.3",
     "cors": "^2.8.4",
     "cross-spawn": "^6.0.5",
-    "dcl-catalyst-client": "^2.1.4",
+    "dcl-catalyst-client": "^1.2.5",
     "dcl-tslint-config-standard": "^1.0.1",
     "decentraland-dapps": "3.8.0",
     "decentraland-eth": "^8.6.0",
