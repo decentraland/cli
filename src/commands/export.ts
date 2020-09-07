@@ -88,8 +88,16 @@ export async function main(): Promise<number> {
       path.resolve(exportDir, 'default-profile')
     ),
     fs.copy(
+      path.resolve(artifactPath, 'images/decentraland-connect'),
+      path.resolve(exportDir, 'images/decentraland-connect')
+    ),
+    fs.copy(
       path.resolve(artifactPath, 'images/progress-logo.png'),
       path.resolve(exportDir, 'images/progress-logo.png')
+    ),
+    fs.copy(
+      path.resolve(artifactPath, 'images/teleport.gif'),
+      path.resolve(exportDir, 'images/teleport.gif')
     )
   ])
 
