@@ -11,6 +11,7 @@ import * as portfinder from 'portfinder'
 import * as glob from 'glob'
 import * as chokidar from 'chokidar'
 import * as ignore from 'ignore'
+import * as url from 'url'
 
 import * as proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
@@ -161,8 +162,6 @@ export class Preview extends EventEmitter {
   }
 }
 
-const url = require('url')
-
 function setDebugRunner(wss: WebSocket.Server) {
   wss.on('connection', ws => {
     if (ws.protocol === 'dcl-scene') {
@@ -218,7 +217,7 @@ function setComms(wss: WebSocket.Server) {
     const alias = ++connectionCounter
 
     const query = url.parse(req.url, true).query
-    const userId = query['identity']
+    const userId = query['identity'] as string
     aliasToUserId.set(alias, userId)
 
     console.log('Acquiring comms connection.')

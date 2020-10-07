@@ -14,8 +14,8 @@ module.exports = {
       raw: true
     })
   ],
-  // dependencies externals
-  externals: ['aws-sdk', 'electron'],
+  // external dependencies
+  externals: ['aws-sdk', 'electron', 'dcl-node-runtime'],
   entry: './src/index.ts',
   module: {
     rules: [
