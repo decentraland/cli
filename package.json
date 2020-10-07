@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "3.4.4",
+  "version": "3.4.5",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "dist/cli.js"
@@ -95,7 +95,7 @@
     "chokidar": "^2.0.3",
     "cors": "^2.8.4",
     "cross-spawn": "^6.0.5",
-    "dcl-catalyst-client": "^2.1.4",
+    "dcl-catalyst-client": "^1.2.5",
     "dcl-tslint-config-standard": "^1.0.1",
     "decentraland-dapps": "3.8.0",
     "decentraland-rpc": "^3.1.6",
