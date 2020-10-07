@@ -16,8 +16,8 @@
     "watch": "npm run cli:watch",
     "cli:build": "webpack",
     "cli:watch": "webpack --watch",
-    "linker:build": "true || decentraland-compiler build.linker.json",
-    "linker:watch": "true || decentraland-compiler build.linker.json --watch",
+    "linker:build": "decentraland-compiler build.linker.json",
+    "linker:watch": "decentraland-compiler build.linker.json --watch",
     "scripts:build": "decentraland-compiler build.json",
     "build": "npm run cli:build && npm run linker:build && npm run scripts:build && node ./postbuild",
     "postinstall": "node ./postinstall 2> postinstall-error.log || echo 'skip postinstall...'",
@@ -151,9 +151,6 @@
   "dependencies": {
     "dcl-node-runtime": "^1.0.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
-    "decentraland-renderer": "^1.8.21483",
-    "fp-future": "^1.0.1",
-    "node-fetch": "^2.6.0",
-    "vm2": "^3.9.2"
+    "decentraland-renderer": "^1.8.21483"
   }
 }
