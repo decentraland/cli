@@ -234,7 +234,7 @@ export class Project {
       '*.blend',
       '*.fbx',
       '*.zip',
-      '*.rar',
+      '*.rar'
     ].join('\n')
     await fs.outputFile(path.join(this.workingDir, DCLIGNORE_FILE), content)
     return content

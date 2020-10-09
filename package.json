@@ -75,7 +75,7 @@
     "@types/glob": "^7.1.1",
     "@types/inquirer": "0.0.36",
     "@types/isomorphic-fetch": "0.0.34",
-    "@types/node": "^10.12.18",
+    "@types/node": "^12.12.55",
     "@types/opn": "^5.1.0",
     "@types/ora": "^1.3.4",
     "@types/puppeteer": "^1.11.2",
@@ -150,6 +150,7 @@
     "ws": "^6.0.0"
   },
   "dependencies": {
+    "dcl-node-runtime": "^1.0.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
     "decentraland-renderer": "^1.8.21483"
   }

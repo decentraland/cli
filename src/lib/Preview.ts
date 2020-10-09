@@ -1,5 +1,6 @@
 import * as path from 'path'
 import * as WebSocket from 'ws'
+import { fork } from 'child_process'
 import { createServer } from 'http'
 import { EventEmitter } from 'events'
 
@@ -10,6 +11,7 @@ import * as portfinder from 'portfinder'
 import * as glob from 'glob'
 import * as chokidar from 'chokidar'
 import * as ignore from 'ignore'
+import * as url from 'url'
 
 import * as proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
@@ -67,11 +69,14 @@ export class Preview extends EventEmitter {
           return
         }
 
-        this.wss.clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send('update')
+        this.wss.clients.forEach(ws => {
+          if (
+            ws.readyState === WebSocket.OPEN &&
+            (!ws.protocol || ws.protocol === 'scene-updates')
+          ) {
+            ws.send('update')
 
-            client.send(
+            ws.send(
               JSON.stringify({
                 type: 'update',
                 path: relativiseUrl(path)
@@ -144,6 +149,7 @@ export class Preview extends EventEmitter {
     this.app.use(express.static(path.join(artifactPath, 'artifacts')))
 
     setComms(this.wss)
+    setDebugRunner(this.wss)
 
     this.emit('preview:ready', resolvedPort)
 
@@ -156,7 +162,37 @@ export class Preview extends EventEmitter {
   }
 }
 
-const url = require('url')
+function setDebugRunner(wss: WebSocket.Server) {
+  wss.on('connection', ws => {
+    if (ws.protocol === 'dcl-scene') {
+      const file = require.resolve('dcl-node-runtime')
+
+      const theFork = fork(file, [], {
+        // enable two way IPC
+        stdio: [0, 1, 2, 'ipc'],
+        cwd: process.cwd()
+      })
+
+      console.log(`> Creating scene fork #` + theFork.pid)
+
+      theFork.on('close', () => {
+        if (ws.readyState === ws.OPEN) {
+          ws.close()
+        }
+      })
+      theFork.on('message', message => {
+        if (ws.readyState === ws.OPEN) {
+          ws.send(message)
+        }
+      })
+      ws.on('message', data => theFork.send(data.toString()))
+      ws.on('close', () => {
+        console.log('> Killing fork #' + theFork.pid)
+        theFork.kill()
+      })
+    }
+  })
+}
 
 function setComms(wss: WebSocket.Server) {
   const connections = new Set<WebSocket>()
@@ -181,7 +217,7 @@ function setComms(wss: WebSocket.Server) {
     const alias = ++connectionCounter
 
     const query = url.parse(req.url, true).query
-    const userId = query['identity']
+    const userId = query['identity'] as string
     aliasToUserId.set(alias, userId)
 
     console.log('Acquiring comms connection.')

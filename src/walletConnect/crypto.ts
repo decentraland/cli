@@ -68,7 +68,7 @@ export async function aesCbcEncrypt(data: Buffer, key: Buffer, iv: Buffer): Prom
   const encoding = 'hex'
   const input: any = data.toString(encoding)
   const cipher = crypto.createCipheriv(AES_ALGORITHM, key, iv)
-  let encrypted = cipher.update(input, encoding, encoding)
+  let encrypted = cipher.update(input, encoding as any, encoding).toString()
   encrypted += cipher.final(encoding)
   const result = new Buffer(encrypted, encoding)
   return result
