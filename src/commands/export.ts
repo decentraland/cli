@@ -47,14 +47,12 @@ export async function main(): Promise<number> {
 
   if (!(await fs.pathExists(mainPath))) {
     spinner.succeed(warning('No build found'))
-    spinner.create('Building project')
     try {
       await buildProject(workDir)
     } catch (error) {
       spinner.fail('Could not build the project')
       throw new Error(error)
     }
-    spinner.succeed('Project built')
   } else {
     spinner.succeed('Build found')
   }

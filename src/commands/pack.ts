@@ -22,14 +22,12 @@ export const help = () => `
 export async function main(): Promise<number> {
   const workDir = process.cwd()
 
-  spinner.create('Building project')
   try {
     await buildSmartItem(workDir)
   } catch (error) {
     spinner.fail('Could not build the project')
     throw new Error(error)
   }
-  spinner.succeed('Project built.')
 
   spinner.create('Packing project')
   const packDir = path.resolve(workDir, 'item.zip')

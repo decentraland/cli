@@ -15,23 +15,18 @@ export function setVersion(v: string) {
   version = v
 }
 
-export function buildTypescript(
-  workingDir: string,
-  silent: boolean,
-  watch: boolean
-): Promise<void> {
-  spinner.create('Building project')
+export function buildTypescript(workingDir: string, watch: boolean): Promise<void> {
+  const command = watch ? 'watch' : 'build'
+  console.log(`Building project using "npm run ${command}"`)
   return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['run', watch ? 'watch' : 'build'], {
+    const child = spawn(npm, ['run', command], {
       shell: true,
       cwd: workingDir,
       env: { ...process.env, NODE_ENV: '' }
     })
 
-    if (!silent) {
-      child.stdout.pipe(process.stdout)
-      child.stderr.pipe(process.stderr)
-    }
+    child.stdout.pipe(process.stdout)
+    child.stderr.pipe(process.stderr)
 
     child.stdout.on('data', data => {
       if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
