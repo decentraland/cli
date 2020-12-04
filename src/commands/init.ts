@@ -101,7 +101,7 @@ export async function main() {
   await dcl.init(sceneMeta, boilerplate as BoilerplateType)
 
   try {
-    await installDependencies(dcl.getWorkingDir(), true)
+    await installDependencies(dcl.getWorkingDir(), false /* silent */)
   } catch (error) {
     fail(ErrorType.INIT_ERROR, error.message)
   }

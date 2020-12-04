@@ -88,11 +88,11 @@ export async function main() {
   }
 
   if (online && !ECSInstalled) {
-    await installDependencies(workingDir, !process.env.DEBUG)
+    await installDependencies(workingDir, false /* silent */)
   }
 
   if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript(workingDir, false, true)
+    await buildTypescript(workingDir, true)
   }
 
   await lintSceneFile(workingDir)

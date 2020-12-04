@@ -30,7 +30,7 @@ export async function main(): Promise<number> {
   const workDir = process.cwd()
 
   if (await isTypescriptProject(workDir)) {
-    await buildTypescript(workDir, false /* silent=false build should always inform errors */, !!args['--watch'])
+    await buildTypescript(workDir, !!args['--watch'])
   }
 
   return 0

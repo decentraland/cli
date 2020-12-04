@@ -13,3 +13,5 @@ scripts/*.d.ts
 
 scripts/release.md
 src/css
+samples/ecs/package-lock.json
+samples/ecs/bin
