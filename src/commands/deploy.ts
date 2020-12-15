@@ -142,6 +142,10 @@ export async function main(): Promise<number> {
       debug('\n' + error.stack)
       spinner.fail(`Could not upload content. ${error}`)
     }
+  } else {
+    console.log(
+      `Could not upload content. Please make sure that your project has a 'tsconfig.json' file.`
+    )
   }
 
   return 0
