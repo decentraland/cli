@@ -146,6 +146,7 @@ export async function main(): Promise<number> {
     console.log(
       `Could not upload content. Please make sure that your project has a 'tsconfig.json' file.`
     )
+    return 1
   }
 
   return 0
