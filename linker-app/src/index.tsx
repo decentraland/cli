@@ -13,18 +13,19 @@ import { setNetwork } from './config'
 
 function getNetwork() {
   return new Promise((resolve, reject) => {
-    global['web3'].version.getNetwork((err, netId) => {
-      if (err) {
-        reject(err)
+    if (window.ethereum) {
+      const id = (window.ethereum as any).chainId
+      if (id){
+        return resolve(id)
       }
-      resolve(netId)
-    })
+    }
+    reject('No network detected')
   })
 }
 
 ;(async () => {
   const net = await getNetwork()
-  setNetwork(net === '1' ? 'mainnet' : 'ropsten')
+  setNetwork(net === '0x1' ? 'mainnet' : 'ropsten')
   const { store } = await import('./store')
   ReactDOM.render(
     <Provider store={store}>
