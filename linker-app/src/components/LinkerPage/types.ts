@@ -1,4 +1,4 @@
-import { ConnectWalletRequestAction } from 'decentraland-dapps/dist/modules/wallet/actions'
+import { EnableWalletRequestAction } from 'decentraland-dapps/dist/modules/wallet/actions'
 import { Wallet } from 'decentraland-dapps/dist/modules/wallet/types'
 import { Transaction } from 'decentraland-dapps/dist/modules/transaction/types'
 
@@ -19,6 +19,6 @@ export type LinkerPageProps = {
   isUpdateAuthorized: boolean
   authorizations: Authorization[]
   isAuthorizationLoading: boolean
-  onConnectWallet: () => ConnectWalletRequestAction
+  onConnectWallet: () => EnableWalletRequestAction
   onSignContent: (cid: string) => SignContentRequestAction
 }
