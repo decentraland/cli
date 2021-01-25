@@ -13,13 +13,11 @@ import { setNetwork } from './config'
 
 function getNetwork() {
   return new Promise((resolve, reject) => {
-    if (window.ethereum) {
-      const id = (window.ethereum as any).chainId
-      if (id){
-        return resolve(id)
-      }
+    if (window.ethereum && 'chainId' in window.ethereum) {
+      resolve((window.ethereum as any).chainId)
+    } else {
+      reject('No network detected')
     }
-    reject('No network detected')
   })
 }
 
