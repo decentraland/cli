@@ -40,7 +40,6 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
       isConnecting,
       onConnectWallet
     } = this.props
-    console.log(this.props)
     if (isConnected) {
       return (
         <React.Fragment>
