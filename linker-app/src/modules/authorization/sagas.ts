@@ -20,8 +20,8 @@ export function* authorizationSaga() {
 }
 
 function* handleFetchAuthorizationsRequest(action: FetchAuthorizationsRequestAction) {
-  const LANDRegistry = getLandContract()
-  const EstateRegistry = getEstateContract()
+  const LANDRegistry = yield call(() => getLandContract())
+  const EstateRegistry = yield call(() => getEstateContract())
 
   try {
     const address = yield select(getAddress)

@@ -17,7 +17,7 @@
     "cli:build": "webpack",
     "cli:watch": "webpack --watch",
     "linker:build": "webpack --config linker-app/webpack.config.js",
-    "linker:watch": "decentraland-compiler build.linker.json --watch",
+    "linker:watch": "webpack --config linker-app/webpack.config.js --watch",
     "scripts:build": "decentraland-compiler build.json",
     "build": "npm run cli:build && npm run linker:build && npm run scripts:build && node ./postbuild",
     "postinstall": "node ./postinstall 2> postinstall-error.log || echo 'skip postinstall...'",
@@ -67,6 +67,8 @@
   "homepage": "https://github.com/decentraland/cli",
   "devDependencies": {
     "@babel/runtime": "^7.2.0",
+    "@ethersproject/contracts": "^5.0.9",
+    "@ethersproject/providers": "^5.0.19",
     "@types/analytics-node": "0.0.32",
     "@types/archiver": "^3.0.0",
     "@types/chalk": "^2.2.0",
@@ -152,6 +154,8 @@
     "ws": "^6.0.0"
   },
   "dependencies": {
+    "@ethersproject/bytes": "^5.0.9",
+    "@ethersproject/strings": "^5.0.8",
     "dcl-node-runtime": "^1.0.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
     "decentraland-renderer": "^1.8.21483"

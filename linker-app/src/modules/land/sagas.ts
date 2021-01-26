@@ -1,5 +1,4 @@
 import { call, put, takeEvery } from 'redux-saga/effects'
-import { contracts } from 'decentraland-eth'
 import { CONNECT_WALLET_SUCCESS } from 'decentraland-dapps/dist/modules/wallet/actions'
 
 import { baseParcel } from '../../config'
@@ -19,11 +18,11 @@ export function* landSaga() {
 }
 
 function* handleFetchLandRequest(action: FetchLandRequestAction) {
-  const LANDRegistry = getLandContract()
+  const LANDRegistry = yield call(() => getLandContract())
   try {
     const { x, y } = action.payload
     const data = yield call(() => LANDRegistry['landData'](x, y))
-    const land = data ? contracts.LANDRegistry.decodeLandData(data) : getEmptyLandData()
+    const land = data ? yield call(() => LANDRegistry.decodeLandData(data)) : getEmptyLandData()
     yield put(fetchLandSuccess(land))
   } catch (error) {
     yield put(fetchLandFailure(error.message))
