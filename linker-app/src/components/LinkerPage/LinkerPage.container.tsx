@@ -1,6 +1,7 @@
 import { AnyAction, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import { connectWalletRequest } from 'decentraland-dapps/dist/modules/wallet/actions'
+import { ProviderType } from 'decentraland-connect'
+import { enableWalletRequest } from 'decentraland-dapps/dist/modules/wallet/actions'
 import {
   getData as getWallet,
   isConnected,
@@ -41,7 +42,7 @@ const mapState = (state: RootState, ownProps: LinkerPageProps): LinkerPageProps 
 }
 
 const mapDispatch = (dispatch: Dispatch<AnyAction>): Partial<LinkerPageProps> => ({
-  onConnectWallet: () => dispatch(connectWalletRequest()),
+  onConnectWallet: () => dispatch(enableWalletRequest(ProviderType.INJECTED)),
   onSignContent: (cid: string) => dispatch(signContentRequest(cid))
 })
 

@@ -18,11 +18,6 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
     onSignContent(rootCID)
   }
 
-  getWalletType() {
-    const { wallet } = this.props
-    return wallet.type === 'node' ? 'MetaMask' : wallet.type
-  }
-
   getLANDname() {
     const { base } = this.props
     return base.name ? `"${base.name}"` : `LAND without name`
@@ -49,7 +44,7 @@ export default class LinkScenePage extends React.PureComponent<LinkerPageProps, 
       return (
         <React.Fragment>
           <p>
-            Using {this.getWalletType()} address: &nbsp;
+            Using address: &nbsp;
             <Blockie scale={3} seed={wallet.address}>
               <Address tooltip strong value={wallet.address} />
             </Blockie>

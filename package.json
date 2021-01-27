@@ -16,8 +16,8 @@
     "watch": "npm run cli:watch",
     "cli:build": "webpack",
     "cli:watch": "webpack --watch",
-    "linker:build": "decentraland-compiler build.linker.json",
-    "linker:watch": "decentraland-compiler build.linker.json --watch",
+    "linker:build": "webpack --config linker-app/webpack.config.js",
+    "linker:watch": "webpack --config linker-app/webpack.config.js --watch",
     "scripts:build": "decentraland-compiler build.json",
     "build": "npm run cli:build && npm run linker:build && npm run scripts:build && node ./postbuild",
     "postinstall": "node ./postinstall 2> postinstall-error.log || echo 'skip postinstall...'",
@@ -67,6 +67,8 @@
   "homepage": "https://github.com/decentraland/cli",
   "devDependencies": {
     "@babel/runtime": "^7.2.0",
+    "@ethersproject/contracts": "^5.0.9",
+    "@ethersproject/providers": "^5.0.19",
     "@types/analytics-node": "0.0.32",
     "@types/archiver": "^3.0.0",
     "@types/chalk": "^2.2.0",
@@ -95,9 +97,10 @@
     "chokidar": "^2.0.3",
     "cors": "^2.8.4",
     "cross-spawn": "^6.0.5",
+    "css-loader": "^5.0.1",
     "dcl-catalyst-client": "^1.2.5",
     "dcl-tslint-config-standard": "^1.0.1",
-    "decentraland-dapps": "3.8.0",
+    "decentraland-dapps": "^8.1.0",
     "decentraland-eth": "^8.6.0",
     "decentraland-rpc": "^3.1.6",
     "decentraland-ui": "^1.13.1",
@@ -143,6 +146,7 @@
     "tslint-language-service": "^0.9.9",
     "typesafe-actions": "^2.0.4",
     "typescript": "^3.6.2",
+    "url-loader": "^4.1.1",
     "uuid": "^3.3.2",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.7",
@@ -150,6 +154,8 @@
     "ws": "^6.0.0"
   },
   "dependencies": {
+    "@ethersproject/bytes": "^5.0.9",
+    "@ethersproject/strings": "^5.0.8",
     "dcl-node-runtime": "^1.0.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
     "decentraland-renderer": "^1.8.21483"
