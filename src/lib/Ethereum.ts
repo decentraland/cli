@@ -244,8 +244,6 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
   }
 
   private decodeLandData(data: string = ''): LANDData {
-    // this logic can also be found in decentraland-eth, but we can't rely on node-hid
-
     if (data === '') {
       return null
     }

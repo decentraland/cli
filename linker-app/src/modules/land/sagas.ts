@@ -51,8 +51,6 @@ function decodeLandData(data = '') {
       }
     }
     default:
-      throw new Error(
-        `Unknown version when trying to decode land data: "${data}" (see https://github.com/decentraland/decentraland-eth/blob/master/docs/land-data.md)`
-      )
+      throw new Error(`Unknown version when trying to decode land data: "${data}"`)
   }
 }
