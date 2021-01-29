@@ -28,10 +28,7 @@ For details on how to use Decentraland developer tools, check our [documentation
 **NOTE:** you can set the environment variable `DEBUG=true` to see all debugging info
 
 ## Releasing
-We're using [ZEIT release](https://github.com/zeit/release) tool:
-```bash
-npm i -g release
-```
+Just update the version on the `package.json` file and merge to master.
 
 ## Configuration
 
