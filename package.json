@@ -156,6 +156,7 @@
   "dependencies": {
     "@ethersproject/bytes": "^5.0.9",
     "@ethersproject/strings": "^5.0.8",
+    "dcl-catalyst-commons": "^2.1.0",
     "dcl-node-runtime": "^1.0.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
     "decentraland-renderer": "^1.8.21483"

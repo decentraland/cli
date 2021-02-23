@@ -13,7 +13,7 @@ export type DCLInfo = {
   MANAToken?: string
   LANDRegistry?: string
   EstateRegistry?: string
-  contentUrl?: string
+  catalystUrl?: string
   dclApiUrl?: string
   segmentKey?: string
 }
@@ -101,10 +101,10 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
     EstateRegistry: isMainnet
       ? '0x959e104e1a4db6317fa58f8295f586e1a978c297'
       : '0x124bf28a423b2ca80b3846c3aa0eb944fe7ebb95',
-    contentUrl: isMainnet
-      ? 'https://content.decentraland.org'
-      : 'https://content.decentraland.zone',
-    dclApiUrl: isMainnet ? 'https://api.decentraland.org/v1' : 'https://api.decentraland.zone/v1',
+    catalystUrl: isMainnet ? 'https://peer.decentraland.org' : 'https://peer.decentraland.zone',
+    dclApiUrl: isMainnet
+      ? 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager'
+      : 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten',
     segmentKey:
       isStableVersion() && !isDevelopment()
         ? 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
@@ -126,7 +126,7 @@ function getDclInfoConfig(): Partial<DCLInfo> {
     MANAToken: dclInfo.MANAToken,
     LANDRegistry: dclInfo.LANDRegistry,
     EstateRegistry: dclInfo.EstateRegistry,
-    contentUrl: dclInfo.contentUrl,
+    catalystUrl: dclInfo.catalystUrl,
     segmentKey: dclInfo.segmentKey
   }
 

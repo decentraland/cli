@@ -3,7 +3,6 @@ import chalk from 'chalk'
 import { ethers } from 'ethers'
 import * as events from 'wildcards'
 
-import { ContentClient } from './content/ContentClient'
 import { ContentService } from './content/ContentService'
 import { filterAndFillEmpty } from '../utils/land'
 import { Coords } from '../utils/coordinateHelpers'
@@ -77,7 +76,7 @@ export class Decentraland extends EventEmitter {
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.options.blockchain ? this.ethereum : new API()
-    this.contentService = new ContentService(new ContentClient(this.options.config.contentUrl))
+    this.contentService = new ContentService(this.options.config.catalystUrl)
 
     if (process.env.DCL_PRIVATE_KEY) {
       this.createWallet(process.env.DCL_PRIVATE_KEY)
@@ -200,19 +199,8 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  async getParcelStatus(x: number, y: number): Promise<{ cid?: string; files: FileInfo[] }> {
-    const information = await this.contentService.getParcelStatus({
-      x: x,
-      y: y
-    })
-    if (information) {
-      const files: FileInfo[] = []
-      for (const key in information.contents) {
-        files.push({ name: key, cid: information.contents[key] })
-      }
-      return { cid: information.root_cid, files: files }
-    }
-    return { files: [] }
+  getParcelStatus(x: number, y: number): Promise<{ cid: string; files: FileInfo[] }> {
+    return this.contentService.getParcelStatus({ x, y })
   }
 
   async getPublicAddress(): Promise<string> {
