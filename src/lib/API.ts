@@ -81,9 +81,9 @@ export class API implements IEthereumDataProvider {
 
   // This is a special case, because some estates have +10000 parcels, and TheGraph doesn't support offsets of more than 5000
   async getLandOfEstate(estateId: number): Promise<Coords[]> {
-    const query = `query GetLandOfEstate($estateId: String!, $lastId: String!) {
+    const query = `query GetLandOfEstate($estateId: String!, $first: Int!, $lastId: String!) {
       estates(where: { id: $estateId }) {
-        parcels (where:{ id_gt: $lastId }, first: 1000, orderBy: id) {
+        parcels (where:{ id_gt: $lastId }, first: $first, orderBy: id) {
           x
           y
           id
@@ -154,7 +154,7 @@ export class API implements IEthereumDataProvider {
 
   async getLandOf(owner: string): Promise<Coords[]> {
     const query = `query GetLandOf($owner: String!, $first: Int!, $lastId: String!) {
-      parcels(where: { owner: $owner, id_gt: $lastId }, first: $first) {
+      parcels(where: { owner: $owner, id_gt: $lastId }, first: $first, orderBy: id) {
         id
         x
         y
@@ -170,7 +170,7 @@ export class API implements IEthereumDataProvider {
 
   async getEstatesOf(owner: string): Promise<number[]> {
     const query = `query GetEstatesOf($owner: String!, $first: Int!, $lastId: String!) {
-      estates(where: { owner: $owner, id_gt: $lastId }, first: $first) {
+      estates(where: { owner: $owner, id_gt: $lastId }, first: $first, orderBy: id) {
         id
       }
     }`
