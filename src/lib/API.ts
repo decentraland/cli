@@ -79,20 +79,24 @@ export class API implements IEthereumDataProvider {
     return response.estates[0].updateOperator
   }
 
+  // This is a special case, because some estates have +10000 parcels, and TheGraph doesn't support offsets of more than 5000
   async getLandOfEstate(estateId: number): Promise<Coords[]> {
-    const query = `query GetLandOfEstate($estateId: String!) {
-      estates(where:{ id: $estateId }) {
-        parcels {
+    const query = `query GetLandOfEstate($estateId: String!, $first: Int!, $lastId: String!) {
+      estates(where: { id: $estateId }) {
+        parcels (where:{ id_gt: $lastId }, first: $first, orderBy: id) {
           x
           y
+          id
         }
       }
     }`
-    type ResultType = { estates: { parcels: { x: string; y: string }[] }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
-      estateId: `${estateId}`
-    })
-    return response.estates[0].parcels.map(parcel => ({
+    type ResultType = { estates: { parcels: { x: string; y: string; id: string }[] }[] }
+    const response = await this.queryGraphPaginated<
+      ResultType,
+      { x: string; y: string; id: string }
+    >(query, { estateId: `${estateId}` }, result => result.estates[0].parcels)
+
+    return response.map(parcel => ({
       x: parseInt(parcel.x, 10),
       y: parseInt(parcel.y, 10)
     }))
@@ -149,29 +153,61 @@ export class API implements IEthereumDataProvider {
   }
 
   async getLandOf(owner: string): Promise<Coords[]> {
-    const query = `query GetLandOf($owner: String!) {
-      parcels(where: { owner: $owner }) {
+    const query = `query GetLandOf($owner: String!, $first: Int!, $lastId: String!) {
+      parcels(where: { owner: $owner, id_gt: $lastId }, first: $first, orderBy: id) {
+        id
         x
         y
       }
     }`
-    type ResultType = { parcels: { x: string; y: string }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
-      owner: owner.toLowerCase()
-    })
-    return response.parcels.map(({ x, y }) => ({ x: parseInt(x, 10), y: parseInt(y, 10) }))
+    type ResultType = { parcels: { x: string; y: string; id: string }[] }
+    const response = await this.queryGraphPaginated<
+      ResultType,
+      { x: string; y: string; id: string }
+    >(query, { owner: owner.toLowerCase() }, result => result.parcels)
+    return response.map(({ x, y }) => ({ x: parseInt(x, 10), y: parseInt(y, 10) }))
   }
 
   async getEstatesOf(owner: string): Promise<number[]> {
-    const query = `query GetEstatesOf($owner: String!) {
-      estates(where: { owner: $owner }) {
+    const query = `query GetEstatesOf($owner: String!, $first: Int!, $lastId: String!) {
+      estates(where: { owner: $owner, id_gt: $lastId }, first: $first, orderBy: id) {
         id
       }
     }`
     type ResultType = { estates: { id: string }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
-      owner: owner.toLowerCase()
-    })
-    return response.estates.map(({ id }) => parseInt(id, 10))
+    const response = await this.queryGraphPaginated<ResultType, { id: string }>(
+      query,
+      { owner: owner.toLowerCase() },
+      result => result.estates
+    )
+    return response.map(({ id }) => parseInt(id, 10))
+  }
+
+  /**
+   * We are making paginated queries to the subgraph, sorting by id and asking for the next ones
+   */
+  private async queryGraphPaginated<QueryResultType, ArrayType extends { id: string }>(
+    query: string,
+    variables: Record<string, any>,
+    extractArray: (queryResult: QueryResultType) => ArrayType[]
+  ): Promise<ArrayType[]> {
+    const pageSize = 1000
+    let lastId = ''
+    let keepGoing = true
+
+    const finalResult: ArrayType[] = []
+    while (keepGoing) {
+      const result = await this.fetcher.queryGraph<QueryResultType>(dclApiUrl, query, {
+        ...variables,
+        first: pageSize,
+        lastId
+      })
+      const array = extractArray(result)
+      keepGoing = array.length === pageSize
+      lastId = array.length > 0 ? array[array.length - 1].id : undefined
+      finalResult.push(...array)
+    }
+
+    return finalResult
   }
 }

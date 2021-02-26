@@ -34,8 +34,12 @@ export class ContentService extends EventEmitter {
    * @param y
    */
   async getSceneData(coordinates: Coords): Promise<SceneMetadata> {
-    const entity = await this.fetchEntity(coordinates)
-    return entity.metadata
+    try {
+      const entity = await this.fetchEntity(coordinates)
+      return entity.metadata
+    } catch {
+      return null
+    }
   }
 
   private async fetchEntity(coordinates: Coords): Promise<Entity> {
