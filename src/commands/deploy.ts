@@ -1,6 +1,6 @@
 import * as arg from 'arg'
 import chalk from 'chalk'
-import { ContentClient, DeploymentBuilder } from 'dcl-catalyst-client'
+import { CatalystClient, ContentAPI, ContentClient, DeploymentBuilder } from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
 
@@ -117,23 +117,25 @@ export async function main(): Promise<number> {
     const authChain = Authenticator.createSimpleAuthChain(entityId, address, signature)
 
     // Uploading data
-    let contentServerAddress: string
+    let catalyst: ContentAPI
 
     if (args['--target']) {
       let target = args['--target']
       if (target.endsWith('/')) {
         target = target.slice(0, -1)
       }
-      contentServerAddress = target + '/content'
+      catalyst = new CatalystClient(target, 'CLI')
+      spinner.create(`Uploading data to: ${target}`)
     } else if (args['--target-content']) {
-      contentServerAddress = args['--target-content']
+      const targetContent = args['--target-content']
+      catalyst = new ContentClient(targetContent, 'CLI')
+      spinner.create(`Uploading data to: ${targetContent}`)
     } else {
-      contentServerAddress = 'peer.decentraland.org/content'
+      catalyst = await CatalystClient.connectedToCatalystIn('mainnet', 'CLI')
+      spinner.create(`Uploading data to a random catalyst on the network`)
     }
 
-    spinner.create(`Uploading data to: ${contentServerAddress}`)
     const deployData = { entityId, files: entityFiles, authChain }
-    const catalyst = new ContentClient(contentServerAddress, 'CLI')
 
     try {
       await catalyst.deployEntity(deployData, false, { timeout: '10m' })
