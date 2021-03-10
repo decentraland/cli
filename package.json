@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "3.4.7",
+  "version": "3.4.8",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "dist/cli.js"
@@ -98,7 +98,7 @@
     "cors": "^2.8.4",
     "cross-spawn": "^6.0.5",
     "css-loader": "^5.0.1",
-    "dcl-catalyst-client": "^1.2.5",
+    "dcl-catalyst-client": "^4.0.0",
     "dcl-tslint-config-standard": "^1.0.1",
     "decentraland-dapps": "^8.1.0",
     "decentraland-eth": "^8.6.0",
@@ -156,9 +156,10 @@
   "dependencies": {
     "@ethersproject/bytes": "^5.0.9",
     "@ethersproject/strings": "^5.0.8",
-    "dcl-catalyst-commons": "^2.1.0",
+    "dcl-catalyst-commons": "^3.0.0",
     "dcl-node-runtime": "^1.0.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
-    "decentraland-renderer": "^1.8.21483"
+    "decentraland-renderer": "^1.8.21483",
+    "global": "^4.4.0"
   }
 }

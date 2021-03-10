@@ -12,7 +12,11 @@ module.exports = {
     new webpack.BannerPlugin({
       banner: '#!/usr/bin/env node',
       raw: true
-    })
+    }),
+    new webpack.ProvidePlugin({
+      window: 'global/window',
+   }),
+
   ],
   // external dependencies
   externals: ['aws-sdk', 'electron', 'dcl-node-runtime'],
