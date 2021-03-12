@@ -125,15 +125,13 @@ export async function main(): Promise<number> {
         target = target.slice(0, -1)
       }
       catalyst = new CatalystClient(target, 'CLI')
-      spinner.create(`Uploading data to: ${target}`)
     } else if (args['--target-content']) {
       const targetContent = args['--target-content']
       catalyst = new ContentClient(targetContent, 'CLI')
-      spinner.create(`Uploading data to: ${targetContent}`)
     } else {
       catalyst = await CatalystClient.connectedToCatalystIn('mainnet', 'CLI')
-      spinner.create(`Uploading data to a random catalyst on the network`)
     }
+    spinner.create(`Uploading data to: ${catalyst.getContentUrl()}`)
 
     const deployData = { entityId, files: entityFiles, authChain }
 
