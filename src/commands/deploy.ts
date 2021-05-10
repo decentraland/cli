@@ -78,13 +78,6 @@ export async function main(): Promise<number> {
     // Create scene.json
     const sceneJson = await getSceneFile(workDir)
 
-    const { entityId, files: entityFiles } = await DeploymentBuilder.buildEntity(
-      EntityType.SCENE,
-      findPointers(sceneJson),
-      contentFiles,
-      sceneJson
-    )
-
     spinner.succeed('Deployment structure created.')
 
     dcl.on('link:ready', url => {
@@ -111,11 +104,6 @@ export async function main(): Promise<number> {
       })
     })
 
-    // Signing message
-    const messageToSign = entityId
-    const { signature, address } = await dcl.getAddressAndSignature(messageToSign)
-    const authChain = Authenticator.createSimpleAuthChain(entityId, address, signature)
-
     // Uploading data
     let catalyst: ContentAPI
 
@@ -132,6 +120,18 @@ export async function main(): Promise<number> {
       catalyst = await CatalystClient.connectedToCatalystIn('mainnet', 'CLI')
     }
     spinner.create(`Uploading data to: ${catalyst.getContentUrl()}`)
+
+    const { entityId, files: entityFiles } = await catalyst.buildEntity({
+      type: EntityType.SCENE,
+      pointers: findPointers(sceneJson),
+      files: contentFiles,
+      metadata: sceneJson
+    })
+
+    // Signing message
+    const messageToSign = entityId
+    const { signature, address } = await dcl.getAddressAndSignature(messageToSign)
+    const authChain = Authenticator.createSimpleAuthChain(entityId, address, signature)
 
     const deployData = { entityId, files: entityFiles, authChain }
 
