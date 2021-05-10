@@ -1,6 +1,6 @@
 import * as arg from 'arg'
 import chalk from 'chalk'
-import { CatalystClient, ContentAPI, ContentClient, DeploymentBuilder } from 'dcl-catalyst-client'
+import { CatalystClient, ContentAPI, ContentClient } from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
 
