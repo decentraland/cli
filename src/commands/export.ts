@@ -76,11 +76,22 @@ export async function main(): Promise<number> {
   const content = await fs.readFile(path.resolve(artifactPath, 'export.html'), 'utf-8')
   const finalContent = content.replace('{{ scene.display.title }}', sceneJson.display.title)
 
+  try {
+    // decentraland-ecs <= 6.6.4
+    await fs.copy(path.resolve(artifactPath, 'unity'), path.resolve(exportDir, 'unity'))
+  } catch {
+    // decentraland-ecs > 6.6.4
+    await fs.copy(
+      path.resolve(artifactPath, 'unity-renderer'),
+      path.resolve(exportDir, 'unity-renderer')
+    )
+  }
+
   await Promise.all([
     fs.writeFile(path.resolve(exportDir, 'index.html'), finalContent, 'utf-8'),
     fs.writeFile(path.resolve(exportDir, 'mappings'), JSON.stringify(mappings), 'utf-8'),
     fs.copy(path.resolve(artifactPath, 'preview.js'), path.resolve(exportDir, 'preview.js')),
-    fs.copy(path.resolve(artifactPath, 'unity'), path.resolve(exportDir, 'unity')),
+
     fs.copy(
       path.resolve(artifactPath, 'default-profile'),
       path.resolve(exportDir, 'default-profile')
