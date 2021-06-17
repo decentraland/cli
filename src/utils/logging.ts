@@ -79,8 +79,10 @@ export function formatList(
         return buf.concat(separator, formatList(list, options, level + 1, 'array'))
       } else if (typeof item === 'object') {
         return buf.concat(separator, formatDictionary(item, options, level + 1, 'array'))
-      } else if (item) {
+      } else if (item !== undefined) {
         return buf.concat(separator, JSON.stringify(item))
+      } else {
+        return buf
       }
     }, '')
   } else {
