@@ -4,7 +4,7 @@
   "description": "My new Decentraland project",
   "scripts": {
     "start": "dcl start",
-    "build": "build-ecs",
+    "build": "build-ecs --production",
     "watch": "build-ecs --watch",
     "deploy:now": "dcl export && now export",
     "ecs:install": "npm install --save-dev decentraland-ecs@latest",
