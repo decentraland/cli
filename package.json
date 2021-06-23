@@ -151,7 +151,7 @@
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.7",
     "wildcards": "^1.0.2",
-    "ws": "^6.0.0"
+    "ws": "^7.4.6"
   },
   "dependencies": {
     "@ethersproject/bytes": "^5.0.9",
