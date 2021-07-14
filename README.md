@@ -3,12 +3,20 @@
 [![Build Status](https://circleci.com/gh/decentraland/cli.svg?&style=shield)](https://circleci.com/gh/decentraland/workflows/cli)
 [![chat on Discord](https://img.shields.io/discord/417796904760639509.svg?logo=discord)](https://discordapp.com/invite/9EcuFgC)
 
+This CLI provides tooling/commands to assist you in the [scenes](https://github.com/decentraland-scenes/Awesome-Repository) development process. Some of the commands will help you scaffold a new scene project, locally start and visualize the scene in order to test it and deploy it to a [content server](https://github.com/decentraland/catalyst/tree/master/content) to be incorporated in your Decentraland parcel.  
+
 ## Usage
 
 To install the latest version of `dcl` (Decentraland CLI), run this command:
 
 ```bash
 npm install -g decentraland
+```
+
+To learn what you can do with the CLI run the following command:
+
+```bash
+dcl --help
 ```
 
 See more details at [Decentraland docs](https://docs.decentraland.org/getting-started/installation-guide).
