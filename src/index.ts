@@ -5,7 +5,7 @@ const path = require('path')
 
 fs.readFile(path.resolve(__dirname, '../package.json'), 'utf8', (err, data) => {
   if (err) {
-    console.error('There was an unexpected error.')
+    console.error('There was an unexpected error.', err)
     process.exit(1)
   }
 
