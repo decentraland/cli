@@ -32,5 +32,6 @@
       }
     }
   ],
-  "requiredPermissions": []
+  "requiredPermissions": [],
+  "featureToggles": {}
 }
