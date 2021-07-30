@@ -1,6 +1,8 @@
 {
   "display": {
-    "title": "interactive-text",
+    "title": "DCL Scene",
+    "description": "My new Decentraland project",
+    "navmapThumbnail": "images/scene-thumbnail.png",
     "favicon": "favicon_asset"
   },
   "owner": "",
@@ -13,16 +15,6 @@
   "scene": {
     "parcels": ["0,0"],
     "base": "0,0"
-  },
-  "communications": {
-    "type": "webrtc",
-    "signalling": "https://signalling-01.decentraland.org"
-  },
-  "policy": {
-    "contentRating": "E",
-    "fly": true,
-    "voiceEnabled": true,
-    "blacklist": []
   },
   "spawnPoints": [
     {
@@ -39,5 +31,7 @@
         "z": 8
       }
     }
-  ]
+  ],
+  "requiredPermissions": [],
+  "featureToggles": {}
 }
