@@ -38,6 +38,7 @@ const help = `
       init                Create a new Decentraland Scene project
       build               Build scene
       start               Start a local development server for a Decentraland Scene
+      install             Install a package and/or sync bundleDependencies
       deploy              Upload scene to a particular Decentraland's Content server
       deploy-deprecated   Upload scene to Decentraland's legacy content server (deprecated).
       export              Export scene to static website format (HTML, JS and CSS)
