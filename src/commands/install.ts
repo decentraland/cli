@@ -1,9 +1,9 @@
+import * as arg from 'arg'
 import chalk from 'chalk'
-import { readJSON } from '../utils/filesystem'
-import getDecentralandLibraries from '../project/decentralandLibraries'
-import * as path from 'path'
+import updateBundleDependenciesField from '../project/updateBundleDependenciesField'
+import { spawn } from 'child_process'
+import { npm } from './../utils/moduleHelpers'
 import * as spinner from '../utils/spinner'
-import * as fs from 'fs-extra'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl install [package]')}
@@ -23,45 +23,44 @@ export const help = () => `
       ${chalk.green('$ dcl install')}
 `
 
-export async function main() {
-  spinner.create('Checking decentraland libraries integrity')
+const spawnNpmInstall = (args: any): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    spinner.create(`npm ${args.join(' ')}`)
 
-  const { decentralandLibraries } = await getDecentralandLibraries(process.cwd())
-  let bundledLibs: string[] = []
-  const packageJsonPath = path.resolve(process.cwd(), 'package.json')
-  const packageJson = await readJSON<{ bundleDependencies: string[] }>(packageJsonPath)
+    const child = spawn(npm, args, {
+      shell: true,
+      cwd: process.cwd(),
+      env: { ...process.env, NODE_ENV: '' }
+    })
 
-  if (packageJson.bundleDependencies instanceof Array) {
-    packageJson.bundleDependencies.forEach(($, ix) => {
-      if (typeof $ === 'string') {
-        bundledLibs.push($)
-      } else {
+    child.stdout.pipe(process.stdout)
+    child.stderr.pipe(process.stderr)
+
+    child.on('close', code => {
+      if (code !== 0) {
         spinner.fail()
-        throw Error(
-          `! Error: package.json .bundleDependencies must be an array of strings. The element number bundleDependencies[${ix}] is not a string.`
+        reject(
+          new Error(
+            `${chalk.bold(
+              `npm ${args.join(' ')}`
+            )} exited with code ${code}. Please try running the command manually`
+          )
         )
+      } else {
+        spinner.succeed()
+        resolve()
       }
     })
-  } else if (packageJson.bundleDependencies) {
-    spinner.fail()
-    throw Error(`! Error: package.json .bundleDependencies must be an array of strings.`)
-  }
+  })
+}
 
-  let missingBundledLibs: string[] = decentralandLibraries
-    .filter($ => !bundledLibs.includes($.name))
-    .map($ => $.name)
-  if (missingBundledLibs.length > 0) {
-    spinner.info('Some decentraland libraries are missing in bundleDependencies.')
+export async function main() {
+  const args = arg({
+    '--help': Boolean,
+    '-h': '--help'
+  })
 
-    for (const lib of missingBundledLibs) {
-      bundledLibs.push(lib)
-    }
+  await spawnNpmInstall(args._)
 
-    packageJson.bundleDependencies = bundledLibs
-    await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
-
-    spinner.succeed(`Decentraland libraries were added to bundleDependencies.\n`)
-  } else {
-    spinner.succeed(`All decentraland dependencies are added in bundleDependencies.\n`)
-  }
+  await updateBundleDependenciesField()
 }

@@ -13,6 +13,7 @@ import installDependencies from '../project/installDependencies'
 import isECSInstalled from '../project/isECSInstalled'
 import { getSceneFile } from '../sceneJson'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
+import updateBundleDependenciesField from '../project/updateBundleDependenciesField'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
@@ -89,6 +90,12 @@ export async function main() {
 
   if (online && !ECSInstalled) {
     await installDependencies(workingDir, false /* silent */)
+  }
+
+  try {
+    await updateBundleDependenciesField()
+  } catch (err) {
+    console.warn(`Unable to update bundle dependencies field.`, err)
   }
 
   if (await dcl.project.isTypescriptProject()) {
