@@ -81,6 +81,7 @@ export class Preview extends EventEmitter {
             ws.send(
               JSON.stringify({
                 type: 'update',
+                cwd: this.dcl.getWorkingDir(),
                 path: relativiseUrl(path)
               })
             )
