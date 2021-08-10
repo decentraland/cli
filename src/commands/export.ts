@@ -1,3 +1,4 @@
+import { MappingsFile } from './../lib/content/types'
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import * as arg from 'arg'
@@ -11,6 +12,8 @@ import { warning, debug } from '../utils/logging'
 import { SceneMetadata } from '../sceneJson/types'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import { getSceneFile } from '../sceneJson'
+
+declare const __non_webpack_require__: typeof require
 
 export const help = () => `
   Usage: ${chalk.bold('dcl export [options]')}
@@ -69,8 +72,44 @@ export async function main(): Promise<number> {
   const promises = filePaths.map(f => fs.copy(path.resolve(workDir, f), path.resolve(exportDir, f)))
   await Promise.all(promises)
 
-  const artifactPath = path.resolve(workDir, 'node_modules', 'decentraland-ecs', 'artifacts')
   const mappings = getDummyMappings(filePaths)
+
+  const dclEcsPath = path.resolve(workDir, 'node_modules', 'decentraland-ecs')
+  const exportSetupPath = path.resolve(dclEcsPath, 'src/setupExport.js')
+  let exportDependencies: any = defaultExport
+
+  if (fs.existsSync(exportSetupPath)) {
+    try {
+      const externalExport = __non_webpack_require__(exportSetupPath)
+      exportDependencies = externalExport
+    } catch (err) {
+      console.log(`${exportSetupPath} found but it couldn't be loaded properly`)
+    }
+  }
+
+  await exportDependencies({
+    workDir,
+    exportDir,
+    mappings,
+    sceneJson
+  })
+
+  spinner.succeed('Export successful.')
+  return 0
+}
+
+async function defaultExport({
+  workDir,
+  exportDir,
+  mappings,
+  sceneJson
+}: {
+  workDir: string
+  exportDir: string
+  mappings: MappingsFile
+  sceneJson: any
+}): Promise<void> {
+  const artifactPath = path.resolve(workDir, 'node_modules', 'decentraland-ecs', 'artifacts')
 
   // Change HTML title name
   const content = await fs.readFile(path.resolve(artifactPath, 'export.html'), 'utf-8')
@@ -90,6 +129,7 @@ export async function main(): Promise<number> {
   await Promise.all([
     fs.writeFile(path.resolve(exportDir, 'index.html'), finalContent, 'utf-8'),
     fs.writeFile(path.resolve(exportDir, 'mappings'), JSON.stringify(mappings), 'utf-8'),
+
     fs.copy(path.resolve(artifactPath, 'preview.js'), path.resolve(exportDir, 'preview.js')),
 
     fs.copy(
@@ -109,7 +149,4 @@ export async function main(): Promise<number> {
       path.resolve(exportDir, 'images/teleport.gif')
     )
   ])
-
-  spinner.succeed('Export successful.')
-  return 0
 }
