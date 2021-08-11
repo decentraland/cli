@@ -13,6 +13,7 @@ import { IFile } from '../lib/Project'
 import { LinkerResponse } from 'src/lib/LinkerAPI'
 import * as spinner from '../utils/spinner'
 import { debug } from '../utils/logging'
+import { checkECSVersions } from '../utils/moduleHelpers'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -41,7 +42,8 @@ export async function main(): Promise<number> {
     '--target': String,
     '-t': '--target',
     '--target-content': String,
-    '-tc': '--target-content'
+    '-tc': '--target-content',
+    '--skip-version-checks': Boolean
   })
 
   if (args['--target'] && args['--target-content']) {
@@ -49,6 +51,11 @@ export async function main(): Promise<number> {
   }
 
   const workDir = process.cwd()
+  const skipVersionCheck = args['--skip-version-checks']
+
+  if (!skipVersionCheck) {
+    await checkECSVersions(workDir)
+  }
 
   if (await isTypescriptProject(workDir)) {
     spinner.create('Creating deployment structure')

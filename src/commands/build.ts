@@ -1,7 +1,7 @@
 import * as arg from 'arg'
 import chalk from 'chalk'
 
-import { buildTypescript } from '../utils/moduleHelpers'
+import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
 import { isTypescriptProject } from '../project/isTypescriptProject'
 
 export const help = () => `
@@ -24,10 +24,16 @@ export async function main(): Promise<number> {
     '--help': Boolean,
     '-h': '--help',
     '--watch': String,
-    '-w': '--watch'
+    '-w': '--watch',
+    '--skip-version-checks': Boolean
   })
 
   const workDir = process.cwd()
+  const skipVersionCheck = args['--skip-version-checks']
+
+  if (!skipVersionCheck) {
+    await checkECSVersions(workDir)
+  }
 
   if (await isTypescriptProject(workDir)) {
     await buildTypescript(workDir, !!args['--watch'])

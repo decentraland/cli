@@ -4,7 +4,7 @@ import chalk from 'chalk'
 import opn = require('opn')
 
 import { Decentraland } from '../lib/Decentraland'
-import { buildTypescript, getOutdatedApi, isOnline } from '../utils/moduleHelpers'
+import { buildTypescript, checkECSVersions, getOutdatedApi, isOnline } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { error, formatOutdatedMessage } from '../utils/logging'
 import { isEnvCi } from '../utils/env'
@@ -46,6 +46,7 @@ export async function main() {
     '--no-browser': Boolean,
     '--no-watch': Boolean,
     '--ci': Boolean,
+    '--skip-version-checks': Boolean,
     '-h': '--help',
     '-p': '--port',
     '-d': '--no-debug',
@@ -59,6 +60,7 @@ export async function main() {
   const openBrowser = !args['--no-browser'] && !isCi
   const watch = !args['--no-watch'] && !isCi
   const workingDir = process.cwd()
+  const skipVersionCheck = args['--skip-version-checks']
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),
@@ -90,6 +92,10 @@ export async function main() {
 
   if (online && !ECSInstalled) {
     await installDependencies(workingDir, false /* silent */)
+  }
+
+  if (!skipVersionCheck) {
+    await checkECSVersions(dcl.getWorkingDir())
   }
 
   try {
