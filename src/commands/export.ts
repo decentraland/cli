@@ -12,6 +12,7 @@ import { warning, debug } from '../utils/logging'
 import { SceneMetadata } from '../sceneJson/types'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import { getSceneFile } from '../sceneJson'
+import { checkECSVersions } from '../utils/moduleHelpers'
 
 declare const __non_webpack_require__: typeof require
 
@@ -35,11 +36,13 @@ export async function main(): Promise<number> {
     '--help': Boolean,
     '-h': '--help',
     '--out': String,
-    '-o': '--out'
+    '-o': '--out',
+    '--skip-version-checks': Boolean
   })
 
   const workDir = process.cwd()
   const exportDir = path.resolve(workDir, args['--out'] || 'export')
+  const skipVersionCheck = args['--skip-version-checks']
   debug(`Using export directory: ${exportDir}`)
 
   spinner.create('Checking existance of build')
@@ -58,6 +61,10 @@ export async function main(): Promise<number> {
     }
   } else {
     spinner.succeed('Build found')
+  }
+
+  if (!skipVersionCheck) {
+    await checkECSVersions(exportDir)
   }
 
   spinner.create('Exporting project')

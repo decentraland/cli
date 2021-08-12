@@ -138,3 +138,43 @@ export function isOnline(): Promise<boolean> {
     }, 4000)
   })
 }
+
+export async function checkECSVersions(workingDir: string) {
+  const ecsPackageJson = await readJSON<{
+    minCliVersion?: string
+    version: string
+  }>(path.resolve(getNodeModulesPath(workingDir), 'decentraland-ecs', 'package.json'))
+
+  const cliPackageJson = await readJSON<{ minEcsVersion?: boolean; version: string }>(
+    path.resolve(__dirname + '../../', 'package.json')
+  )
+
+  if (
+    cliPackageJson.minEcsVersion &&
+    semver.lt(ecsPackageJson.version, cliPackageJson.minEcsVersion)
+  ) {
+    throw new Error(
+      [
+        'This version of decentraland-cli (dcl) requires an ECS version higher than',
+        cliPackageJson.minEcsVersion,
+        'the installed version is',
+        ecsPackageJson.version,
+        'please go to <link> to know more about the versions and upgrade guides'
+      ].join(' ')
+    )
+  }
+  if (
+    ecsPackageJson.minCliVersion &&
+    semver.lt(cliPackageJson.version, ecsPackageJson.minCliVersion)
+  ) {
+    throw new Error(
+      [
+        'This version of decentraland-ecs requires a version of the ECS decentraland-cli (dcl) higher than',
+        ecsPackageJson.minCliVersion,
+        'the installed version is',
+        cliPackageJson.version,
+        'please go to <link> to know more about the versions and upgrade guides'
+      ].join(' ')
+    )
+  }
+}
