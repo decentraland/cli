@@ -26,7 +26,7 @@ export const help = () => `
       -b, --no-browser          Do not open a new browser window
       -w, --no-watch            Do not open watch for filesystem changes
       -c, --ci                  Run the parcel previewer on a remote unix server
-      --web3                    Add &ENABLE_3 to preview URL and first running
+      --web3                    Connects preview to browser wallet to use the associated avatar and account
 
     ${chalk.dim('Examples:')}
 
