@@ -26,6 +26,7 @@ export const help = () => `
       -b, --no-browser          Do not open a new browser window
       -w, --no-watch            Do not open watch for filesystem changes
       -c, --ci                  Run the parcel previewer on a remote unix server
+      --web3                    Connects preview to browser wallet to use the associated avatar and account
 
     ${chalk.dim('Examples:')}
 
@@ -47,6 +48,7 @@ export async function main() {
     '--no-watch': Boolean,
     '--ci': Boolean,
     '--skip-version-checks': Boolean,
+    '--web3': Boolean,
     '-h': '--help',
     '-p': '--port',
     '-d': '--no-debug',
@@ -61,6 +63,7 @@ export async function main() {
   const watch = !args['--no-watch'] && !isCi
   const workingDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
+  const enableWeb3 = args['--web3']
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port'], 10),
@@ -128,6 +131,9 @@ export async function main() {
           let addr = `http://${details.address}:${port}?position=${x}%2C${y}`
           if (debug) {
             addr = `${addr}&SCENE_DEBUG_PANEL`
+          }
+          if (enableWeb3) {
+            addr = `${addr}&ENABLE_WEB3`
           }
           if (i === 0) {
             url = addr
