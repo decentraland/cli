@@ -64,7 +64,7 @@ export async function main(): Promise<number> {
   }
 
   if (!skipVersionCheck) {
-    await checkECSVersions(exportDir)
+    await checkECSVersions(workDir)
   }
 
   spinner.create('Exporting project')
