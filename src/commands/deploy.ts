@@ -14,6 +14,7 @@ import { LinkerResponse } from 'src/lib/LinkerAPI'
 import * as spinner from '../utils/spinner'
 import { debug } from '../utils/logging'
 import { checkECSVersions } from '../utils/moduleHelpers'
+import { Analytics } from '../utils/analytics'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -45,6 +46,8 @@ export async function main(): Promise<number> {
     '-tc': '--target-content',
     '--skip-version-checks': Boolean
   })
+
+  Analytics.deploy()
 
   if (args['--target'] && args['--target-content']) {
     throw new Error(`You can't set both the 'target' and 'target-content' arguments.`)
@@ -149,6 +152,8 @@ export async function main(): Promise<number> {
       debug('\n' + error.stack)
       spinner.fail(`Could not upload content. ${error}`)
     }
+
+    Analytics.sceneDeploySuccess()
   } else {
     console.log(
       `Could not upload content. Please make sure that your project has a 'tsconfig.json' file.`
