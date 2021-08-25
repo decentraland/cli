@@ -148,12 +148,11 @@ export async function main(): Promise<number> {
     try {
       await catalyst.deployEntity(deployData, false, { timeout: '10m' })
       spinner.succeed('Content uploaded.')
+      Analytics.sceneDeploySuccess()
     } catch (error) {
       debug('\n' + error.stack)
       spinner.fail(`Could not upload content. ${error}`)
     }
-
-    Analytics.sceneDeploySuccess()
   } else {
     console.log(
       `Could not upload content. Please make sure that your project has a 'tsconfig.json' file.`
