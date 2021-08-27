@@ -108,7 +108,7 @@ export async function main() {
   }
 
   if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript(workingDir, true)
+    await buildTypescript({ workingDir, watch: true, production: false })
   }
 
   await lintSceneFile(workingDir)

@@ -11,6 +11,7 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -w, --watch               Watch for file changes and build on change
+      -p, --production          Build without sourcemaps
 
     ${chalk.dim('Example:')}
 
@@ -25,7 +26,9 @@ export async function main(): Promise<number> {
     '-h': '--help',
     '--watch': String,
     '-w': '--watch',
-    '--skip-version-checks': Boolean
+    '--skip-version-checks': Boolean,
+    '--production': Boolean,
+    '-p': '--production'
   })
 
   const workDir = process.cwd()
@@ -36,7 +39,11 @@ export async function main(): Promise<number> {
   }
 
   if (await isTypescriptProject(workDir)) {
-    await buildTypescript(workDir, !!args['--watch'])
+    await buildTypescript({
+      workingDir: workDir,
+      watch: !!args['--watch'],
+      production: !!args['--production']
+    })
   }
 
   return 0
