@@ -15,14 +15,23 @@ export function setVersion(v: string) {
   version = v
 }
 
-export function buildTypescript(workingDir: string, watch: boolean): Promise<void> {
+export function buildTypescript({
+  workingDir,
+  watch,
+  production
+}: {
+  workingDir: string
+  watch: boolean
+  production: boolean
+}): Promise<void> {
   const command = watch ? 'watch' : 'build'
+  const NODE_ENV = production ? 'production' : ''
   console.log(`Building project using "npm run ${command}"`)
   return new Promise((resolve, reject) => {
     const child = spawn(npm, ['run', command], {
       shell: true,
       cwd: workingDir,
-      env: { ...process.env, NODE_ENV: '' }
+      env: { ...process.env, NODE_ENV }
     })
 
     child.stdout.pipe(process.stdout)

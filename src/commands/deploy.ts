@@ -13,7 +13,7 @@ import { IFile } from '../lib/Project'
 import { LinkerResponse } from 'src/lib/LinkerAPI'
 import * as spinner from '../utils/spinner'
 import { debug } from '../utils/logging'
-import { checkECSVersions } from '../utils/moduleHelpers'
+import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 
 export const help = () => `
@@ -61,6 +61,13 @@ export async function main(): Promise<number> {
   }
 
   if (await isTypescriptProject(workDir)) {
+    spinner.create('Building scene in production mode')
+    await buildTypescript({
+      workingDir: workDir,
+      watch: false,
+      production: true
+    })
+
     spinner.create('Creating deployment structure')
 
     const dcl = new Decentraland({
