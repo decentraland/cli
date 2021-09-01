@@ -27,6 +27,7 @@ export const help = () => `
       -w, --no-watch            Do not open watch for filesystem changes
       -c, --ci                  Run the parcel previewer on a remote unix server
       --web3                    Connects preview to browser wallet to use the associated avatar and account
+      --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
 
     ${chalk.dim('Examples:')}
 

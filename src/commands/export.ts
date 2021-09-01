@@ -23,6 +23,7 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -o, --out                 Output directory for build (defaults to "export")
+      --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
 
     ${chalk.dim('Example:')}
 
