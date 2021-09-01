@@ -168,7 +168,7 @@ export async function checkECSVersions(workingDir: string) {
         cliPackageJson.minEcsVersion,
         'the installed version is',
         ecsPackageJson.version,
-        'please go to <link> to know more about the versions and upgrade guides'
+        'please go to https://docs.decentraland.org/development-guide/installation-guide/ to know more about the versions and upgrade guides'
       ].join(' ')
     )
   }
@@ -182,7 +182,7 @@ export async function checkECSVersions(workingDir: string) {
         ecsPackageJson.minCliVersion,
         'the installed version is',
         cliPackageJson.version,
-        'please go to <link> to know more about the versions and upgrade guides'
+        'please go to https://docs.decentraland.org/development-guide/installation-guide/ to know more about the versions and upgrade guides'
       ].join(' ')
     )
   }

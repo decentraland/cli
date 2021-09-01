@@ -12,12 +12,13 @@ export const help = () => `
       -h, --help                Displays complete help
       -w, --watch               Watch for file changes and build on change
       -p, --production          Build without sourcemaps
+      --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
 
     ${chalk.dim('Example:')}
 
     - Build your scene:
 
-      ${chalk.green('$ dcl build')}
+    ${chalk.green('$ dcl build')}
 `
 
 export async function main(): Promise<number> {
