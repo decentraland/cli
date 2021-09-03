@@ -63,11 +63,16 @@ export async function main(): Promise<number> {
 
   if (await isTypescriptProject(workDir)) {
     spinner.create('Building scene in production mode')
-    await buildTypescript({
-      workingDir: workDir,
-      watch: false,
-      production: true
-    })
+    try {
+      await buildTypescript({
+        workingDir: workDir,
+        watch: false,
+        production: true
+      })
+      spinner.succeed('Scene built successfully')
+    } catch (error) {
+      spinner.fail(`Build scene in production mode failed. ${error}`)
+    }
 
     spinner.create('Creating deployment structure')
 
