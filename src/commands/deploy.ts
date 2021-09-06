@@ -25,6 +25,7 @@ export const help = () => `
       -t, --target              Specifies the address and port for the target catalyst server. Defaults to peer.decentraland.org
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
+      --skip-build              Skip build before deploy
 
     ${chalk.dim('Example:')}
 
@@ -45,7 +46,8 @@ export async function main(): Promise<number> {
     '-t': '--target',
     '--target-content': String,
     '-tc': '--target-content',
-    '--skip-version-checks': Boolean
+    '--skip-version-checks': Boolean,
+    '--skip-build': Boolean
   })
 
   Analytics.deploy()
@@ -56,6 +58,7 @@ export async function main(): Promise<number> {
 
   const workDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
+  const skipBuild = args['--skip-build']
 
   if (!skipVersionCheck) {
     await checkECSVersions(workDir)
@@ -63,15 +66,17 @@ export async function main(): Promise<number> {
 
   if (await isTypescriptProject(workDir)) {
     spinner.create('Building scene in production mode')
-    try {
-      await buildTypescript({
-        workingDir: workDir,
-        watch: false,
-        production: true
-      })
-      spinner.succeed('Scene built successfully')
-    } catch (error) {
-      spinner.fail(`Build scene in production mode failed. ${error}`)
+    if (!skipBuild) {
+      try {
+        await buildTypescript({
+          workingDir: workDir,
+          watch: false,
+          production: true
+        })
+        spinner.succeed('Scene built successfully')
+      } catch (error) {
+        spinner.fail(`Build scene in production mode failed. ${error}`)
+      }
     }
 
     spinner.create('Creating deployment structure')
