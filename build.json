@@ -1,8 +1,0 @@
-[
-  {
-    "name": "Compile build scripts",
-    "kind": "TSC",
-    "config": "./scripts/tsconfig.json",
-    "target": "node"
-  }
-]

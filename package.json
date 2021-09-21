@@ -18,15 +18,13 @@
     "cli:watch": "webpack --watch",
     "linker:build": "webpack --config linker-app/webpack.config.js",
     "linker:watch": "webpack --config linker-app/webpack.config.js --watch",
-    "scripts:build": "decentraland-compiler build.json",
-    "build": "npm run cli:build && npm run linker:build && npm run scripts:build && node ./postbuild",
+    "build": "npm run cli:build && npm run linker:build && node ./postbuild",
     "postinstall": "node ./postinstall 2> postinstall-error.log || echo 'skip postinstall...'",
     "lint": "tslint -e 'samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava",
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
     "test:ci": "FORCE_COLOR=1 ava -v --fail-fast --match='!*E2E*' --match='!*Decentraland.deploy()*'",
     "test:win": "set FORCE_COLOR=1 ava -v --fail-fast --match=\"!*E2E*\" --match=\"!*Decentraland.deploy()*\"",
-    "publish:cli": "node ./scripts/npmPublish.js",
     "precommit": "lint-staged"
   },
   "lint-staged": {
