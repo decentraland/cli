@@ -35,6 +35,14 @@ jobs:
     needs: [build]
     steps:
       - uses: actions/checkout@master
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - name: install
+        run: npm install
+      - name: build
+        run: npm run build
       - name: Publish
         uses: menduz/oddish-action@master
         with:
