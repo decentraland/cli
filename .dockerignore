@@ -8,5 +8,3 @@ dist
 
 .DS_Store
 test-*
-scripts/*.js
-scripts/*.d.ts

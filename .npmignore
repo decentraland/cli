@@ -9,11 +9,7 @@ tmp/
 linker-app/src/
 test/
 typings/
-scripts/
 src/
-.circleci/
-appveyor.yml
-/build.json
 /tsconfig.json
 /tslint.json
 test-*
