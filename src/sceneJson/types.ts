@@ -14,16 +14,5 @@ export type SceneMetadata = {
     base: string
     parcels: Array<string>
   }
-  communications: {
-    type: string
-    signalling: string
-  }
-  policy: {
-    contentRating?: string
-    fly: boolean
-    voiceEnabled: boolean
-    blacklist: Array<string>
-    teleportPosition: string
-  }
   requiredPermissions?: string[]
 }

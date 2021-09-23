@@ -13,6 +13,8 @@ import { IFile } from '../lib/Project'
 import { LinkerResponse } from 'src/lib/LinkerAPI'
 import * as spinner from '../utils/spinner'
 import { debug } from '../utils/logging'
+import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
+import { Analytics } from '../utils/analytics'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -22,6 +24,8 @@ export const help = () => `
       -h, --help                Displays complete help
       -t, --target              Specifies the address and port for the target catalyst server. Defaults to peer.decentraland.org
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
+      --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
+      --skip-build              Skip build before deploy
 
     ${chalk.dim('Example:')}
 
@@ -41,16 +45,40 @@ export async function main(): Promise<number> {
     '--target': String,
     '-t': '--target',
     '--target-content': String,
-    '-tc': '--target-content'
+    '-tc': '--target-content',
+    '--skip-version-checks': Boolean,
+    '--skip-build': Boolean
   })
+
+  Analytics.deploy()
 
   if (args['--target'] && args['--target-content']) {
     throw new Error(`You can't set both the 'target' and 'target-content' arguments.`)
   }
 
   const workDir = process.cwd()
+  const skipVersionCheck = args['--skip-version-checks']
+  const skipBuild = args['--skip-build']
+
+  if (!skipVersionCheck) {
+    await checkECSVersions(workDir)
+  }
 
   if (await isTypescriptProject(workDir)) {
+    spinner.create('Building scene in production mode')
+    if (!skipBuild) {
+      try {
+        await buildTypescript({
+          workingDir: workDir,
+          watch: false,
+          production: true
+        })
+        spinner.succeed('Scene built successfully')
+      } catch (error) {
+        spinner.fail(`Build scene in production mode failed. ${error}`)
+      }
+    }
+
     spinner.create('Creating deployment structure')
 
     const dcl = new Decentraland({
@@ -138,6 +166,7 @@ export async function main(): Promise<number> {
     try {
       await catalyst.deployEntity(deployData, false, { timeout: '10m' })
       spinner.succeed('Content uploaded.')
+      Analytics.sceneDeploySuccess()
     } catch (error) {
       debug('\n' + error.stack)
       spinner.fail(`Could not upload content. ${error}`)

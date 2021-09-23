@@ -17,6 +17,8 @@ import * as proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
 import getDummyMappings from '../utils/getDummyMappings'
 
+declare const __non_webpack_require__: typeof require
+
 type Decentraland = import('./Decentraland').Decentraland
 
 /**
@@ -79,6 +81,7 @@ export class Preview extends EventEmitter {
             ws.send(
               JSON.stringify({
                 type: 'update',
+                cwd: this.dcl.getWorkingDir(),
                 path: relativiseUrl(path)
               })
             )
@@ -97,10 +100,19 @@ export class Preview extends EventEmitter {
     }
 
     const dclEcsPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-ecs')
+    const proxySetupPath = path.resolve(dclEcsPath, 'src/setupProxy.js')
     const dclApiPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-api')
 
     const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
     const unityPath = path.resolve(dclEcsPath, 'artifacts', 'unity')
+
+    if (fs.existsSync(proxySetupPath)) {
+      try {
+        __non_webpack_require__(proxySetupPath)(this.dcl, this.app, express)
+      } catch (err) {
+        console.log(`${proxySetupPath} found but it couldn't be loaded properly`)
+      }
+    }
 
     if (!fs.pathExistsSync(artifactPath)) {
       fail(
