@@ -26,14 +26,7 @@ async function getDependencyTree(workingDir: string): Promise<Object> {
 
     child.on('close', code => {
       if (code !== 0) {
-        spinner.fail()
-        reject(
-          new Error(
-            `${chalk.bold(
-              `npm ls --json`
-            )} exited with code ${code}. Please try running the command manually`
-          )
-        )
+        spinner.warn(`${chalk.bold(`npm ls --json`)} exited with code ${code}.`)
       }
 
       let dependenciesJson: Object
