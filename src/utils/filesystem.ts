@@ -67,3 +67,15 @@ export async function isEmptyDirectory(dir: string = '.'): Promise<boolean> {
 export function getUserHome(): string {
   return process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME']
 }
+
+export type PackageJson<T = Record<string, unknown>> = {
+  name: string
+  version: string
+  main?: string
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
+  peerDependencies?: Record<string, string>
+  // https://docs.npmjs.com/cli/v7/configuring-npm/package-json#bundleddependencies
+  bundledDependencies?: string[]
+  bundleDependencies?: string[]
+} & T
