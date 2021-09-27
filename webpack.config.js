@@ -19,7 +19,7 @@ module.exports = {
 
   ],
   // external dependencies
-  externals: ['aws-sdk', 'electron', 'dcl-node-runtime'],
+  externals: ['aws-sdk', 'electron', 'dcl-node-runtime', '@dcl/linker-dapp'],
   entry: './src/index.ts',
   module: {
     rules: [

@@ -16,10 +16,7 @@
     "watch": "npm run cli:watch",
     "cli:build": "webpack",
     "cli:watch": "webpack --watch",
-    "linker:build": "webpack --config linker-app/webpack.config.js",
-    "linker:watch": "webpack --config linker-app/webpack.config.js --watch",
-    "build": "npm run cli:build && npm run linker:build && node ./postbuild",
-    "postinstall": "node ./postinstall 2> postinstall-error.log || echo 'skip postinstall...'",
+    "build": "npm run cli:build",
     "lint": "tslint -e 'samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava",
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
@@ -152,6 +149,7 @@
     "ws": "^6.0.0"
   },
   "dependencies": {
+    "@dcl/linker-dapp": "^0.1.0-1270068311.commit-11df5ec",
     "@ethersproject/bytes": "^5.0.9",
     "@ethersproject/strings": "^5.0.8",
     "dcl-catalyst-commons": "^3.0.0",
