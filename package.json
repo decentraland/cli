@@ -129,9 +129,7 @@
     "ws": "^6.0.0"
   },
   "dependencies": {
-    "@dcl/linker-dapp": "^0.1.0-1270068311.commit-11df5ec",
-    "@ethersproject/bytes": "^5.0.9",
-    "@ethersproject/strings": "^5.0.8",
+    "@dcl/linker-dapp": "0.1.0-1279550888.commit-dea96e5",
     "dcl-catalyst-commons": "^3.0.0",
     "dcl-node-runtime": "^1.0.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",

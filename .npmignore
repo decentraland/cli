@@ -6,7 +6,6 @@ tmp/
 *.log
 .env
 
-linker-app/src/
 test/
 typings/
 src/
