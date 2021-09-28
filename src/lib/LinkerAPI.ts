@@ -5,6 +5,7 @@ import * as urlParse from 'url'
 import * as fs from 'fs-extra'
 import * as express from 'express'
 import * as portfinder from 'portfinder'
+import * as querystring from 'querystring'
 
 import { Project } from './Project'
 import { Network } from './Ethereum'
@@ -82,57 +83,22 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes(rootCID: string) {
-    this.app.get('/linker.js', (_, res) => {
-      res.sendFile(path.resolve(__dirname, './linker-app/src/index.js'))
-    })
+    const linkerDapp = path.resolve(__dirname, '..', 'node_modules', '@dcl/linker-dapp')
+
+    this.app.use(express.static(linkerDapp))
 
     this.app.get('/linker', async (_, res) => {
-      res.writeHead(200, 'OK', { 'Content-Type': 'text/html' })
-
-      const baseParcel = await this.project.getParcelCoordinates()
-      const parcels = await this.project.getParcels()
-
-      const { MANAToken, LANDRegistry, EstateRegistry } = getCustomConfig()
-
-      res.write(`
-        <head>
-          <title>Link scene</title>
-          <meta charset="utf-8">
-          <link href="css/styles.css" rel="stylesheet" />
-          <link href="css/dark-theme.css" rel="stylesheet" />
-        </head>
-        <body>
-          <div id="main">
-            <script src="linker.js"
-              env=${isDevelopment() ? 'dev' : 'prod'}
-              mana-token=${MANAToken}
-              land-registry=${LANDRegistry}
-              estate-registry=${EstateRegistry}
-              base-parcel=${JSON.stringify(baseParcel)}
-              parcels=${JSON.stringify(parcels)}
-              debug=${isDebug()}
-              root-cid=${rootCID}>
-            </script>
-          </div>
-        </body>
-      `)
-
-      res.end()
-    })
-
-    this.app.get('/css/styles.css', (_req, res) => {
-      const filePath = path.resolve(__dirname, './css/styles.css')
-      res.sendFile(filePath)
-    })
-
-    this.app.get('/css/dark-theme.css', (_req, res) => {
-      const filePath = path.resolve(__dirname, './css/dark-theme.css')
-      res.sendFile(filePath)
-    })
-
-    this.app.get('/css/logo.svg', (_req, res) => {
-      const filePath = path.resolve(__dirname, './css/logo.svg')
-      res.sendFile(filePath)
+      const { LANDRegistry, EstateRegistry } = getCustomConfig()
+      const { parcels, base: baseParcel } = (await this.project.getSceneFile()).scene
+      const query = querystring.stringify({
+        baseParcel,
+        parcels,
+        rootCID,
+        landRegistry: LANDRegistry,
+        estateRegistry: EstateRegistry,
+        debug: isDebug()
+      })
+      res.redirect(`/?${query}`)
     })
 
     this.app.get('/api/close', (req, res) => {

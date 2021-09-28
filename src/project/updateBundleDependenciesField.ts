@@ -43,6 +43,6 @@ export default async function() {
 
     spinner.succeed(`Decentraland libraries were added to bundleDependencies.\n`)
   } else {
-    spinner.succeed(`All decentraland dependencies are added in bundleDependencies.\n`)
+    spinner.succeed(`Decentraland libraries.\n`)
   }
 }
