@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import { CatalystClient, ContentAPI, ContentClient, DeploymentBuilder } from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
+import { ChainId, getChainName } from '@dcl/schemas'
 
 import opn = require('opn')
 
@@ -77,6 +78,8 @@ export async function main(): Promise<number> {
       } catch (error) {
         spinner.fail(`Build scene in production mode failed. ${error}`)
       }
+    } else {
+      spinner.succeed()
     }
 
     spinner.create('Creating deployment structure')
@@ -98,9 +101,6 @@ export async function main(): Promise<number> {
       filesToIgnorePlusEntityJson = filesToIgnorePlusEntityJson + '\n' + 'entity.json'
     }
     const files: IFile[] = await dcl.project.getFiles(filesToIgnorePlusEntityJson)
-    console.log()
-    console.log(`Discovered ${chalk.bold(`${files.length}`)} files.`)
-
     const contentFiles = new Map(files.map(file => [file.path, file.content]))
 
     // Create scene.json
@@ -127,21 +127,17 @@ export async function main(): Promise<number> {
         }
       }, 5000)
 
-      dcl.on('link:success', ({ address, signature, network }: LinkerResponse) => {
+      dcl.on('link:success', ({ address, signature, chainId }: LinkerResponse) => {
         spinner.succeed(`Content successfully signed.`)
         console.log(`${chalk.bold('Address:')} ${address}`)
         console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(
-          `${chalk.bold('Network:')} ${
-            network.label ? `${network.label} (${network.name})` : network.name
-          }`
-        )
+        console.log(`${chalk.bold('Network:')} ${getChainName(chainId)}`)
       })
     })
 
     // Signing message
     const messageToSign = entityId
-    const { signature, address } = await dcl.getAddressAndSignature(messageToSign)
+    const { signature, address, chainId } = await dcl.getAddressAndSignature(messageToSign)
     const authChain = Authenticator.createSimpleAuthChain(entityId, address, signature)
 
     // Uploading data
@@ -162,10 +158,13 @@ export async function main(): Promise<number> {
     spinner.create(`Uploading data to: ${catalyst.getContentUrl()}`)
 
     const deployData = { entityId, files: entityFiles, authChain }
+    const position = sceneJson.scene.base
+    const network = (!chainId || chainId) === ChainId.ETHEREUM_MAINNET ? 'mainnet' : 'ropsten'
+    const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}`
 
     try {
       await catalyst.deployEntity(deployData, false, { timeout: '10m' })
-      spinner.succeed('Content uploaded.')
+      spinner.succeed(`Content uploaded. Jump in at: ${chalk.bold(sceneUrl)}`)
       Analytics.sceneDeploySuccess()
     } catch (error) {
       debug('\n' + error.stack)
