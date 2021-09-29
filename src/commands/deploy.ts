@@ -164,7 +164,7 @@ export async function main(): Promise<number> {
 
     try {
       await catalyst.deployEntity(deployData, false, { timeout: '10m' })
-      spinner.succeed(`Content uploaded. Jump in at: ${chalk.bold(sceneUrl)}`)
+      spinner.succeed(`Content uploaded. ${chalk.bold(sceneUrl)}`)
       Analytics.sceneDeploySuccess()
     } catch (error) {
       debug('\n' + error.stack)

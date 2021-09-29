@@ -18,5 +18,5 @@ export async function getSceneFile(
 }
 
 export async function setSceneFile(sceneFile: SceneMetadata, workingDir: string): Promise<void> {
-  return fs.writeJSON(path.resolve(workingDir, 'scene.json'), sceneFile)
+  return fs.writeJSON(path.resolve(workingDir, 'scene.json'), sceneFile, { spaces: 2 })
 }

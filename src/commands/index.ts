@@ -9,5 +9,6 @@ export default new Set<String>([
   'help',
   'export',
   'pack',
-  'install'
+  'install',
+  'coords'
 ])
