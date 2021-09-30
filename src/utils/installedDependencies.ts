@@ -46,13 +46,13 @@ export async function getDecentralandDependencies(
   workDir: string
 ): Promise<string[]> {
   const dependenciesName = []
-  for (let dependencieName of Object.keys(dependencies)) {
-    const modulePath = getPath(workDir, dependencieName)
+  for (let dependency of Object.keys(dependencies)) {
+    const modulePath = getPath(workDir, dependency)
 
     if (fs.pathExistsSync(modulePath)) {
       const pkgJson = await readJSON<DecentralandPackage>(modulePath)
       if (pkgJson.decentralandLibrary && pkgJson.name && pkgJson.version) {
-        dependenciesName.push(dependencieName)
+        dependenciesName.push(dependency)
       }
     }
   }
