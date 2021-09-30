@@ -1,4 +1,4 @@
-import { MappingsFile } from 'src/lib/content/types'
+import { MappingsFile } from '../lib/content/types'
 
 export default function getDummyMappings(filePaths: string[]): MappingsFile {
   // In case of Windows

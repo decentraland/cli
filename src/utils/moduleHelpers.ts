@@ -155,7 +155,7 @@ export async function checkECSVersions(workingDir: string) {
   }>(path.resolve(getNodeModulesPath(workingDir), 'decentraland-ecs', 'package.json'))
 
   const cliPackageJson = await readJSON<{ minEcsVersion?: boolean; version: string }>(
-    path.resolve(__dirname + '../../', 'package.json')
+    path.resolve(__dirname, '..', '..', 'package.json')
   )
 
   if (

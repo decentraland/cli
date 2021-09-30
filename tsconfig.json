@@ -2,9 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2017",
+    "baseUrl": ".",
     "diagnostics": true,
     "outDir": "dist",
-    "baseUrl": ".",
     "moduleResolution": "node",
     "stripInternal": true,
     "pretty": true,
@@ -13,7 +13,8 @@
     "noUnusedLocals": true,
     "preserveConstEnums": true,
     "plugins": [{ "name": "tslint-language-service" }],
-    "lib": ["es2017", "dom"],
+    "lib": ["es2016", "dom"],
+    "allowJs": true,
     "resolveJsonModule": true
   },
   "exclude": ["dist", "node_modules", "**/*.test.ts", "samples/*"],

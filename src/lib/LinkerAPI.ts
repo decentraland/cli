@@ -65,11 +65,11 @@ export class LinkerAPI extends EventEmitter {
 
       if (isHttps) {
         const privateKey = await fs.readFile(
-          path.resolve(__dirname, '../certs/localhost.key'),
+          path.resolve(__dirname, '../../certs/localhost.key'),
           'utf-8'
         )
         const certificate = await fs.readFile(
-          path.resolve(__dirname, '../certs/localhost.crt'),
+          path.resolve(__dirname, '../../certs/localhost.crt'),
           'utf-8'
         )
         const credentials = { key: privateKey, cert: certificate }
@@ -83,7 +83,7 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes(rootCID: string) {
-    const linkerDapp = path.resolve(__dirname, '..', 'node_modules', '@dcl/linker-dapp')
+    const linkerDapp = path.resolve(__dirname, '..', '..', 'node_modules', '@dcl/linker-dapp')
 
     this.app.use(express.static(linkerDapp))
 

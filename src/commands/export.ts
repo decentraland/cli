@@ -14,8 +14,6 @@ import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import { getSceneFile } from '../sceneJson'
 import { checkECSVersions } from '../utils/moduleHelpers'
 
-declare const __non_webpack_require__: typeof require
-
 export const help = () => `
   Usage: ${chalk.bold('dcl export [options]')}
 
@@ -76,20 +74,18 @@ export async function main(): Promise<number> {
 
   const ignoreFileContent = await fs.readFile(path.resolve(workDir, '.dclignore'), 'utf-8')
   const filePaths = await getProjectFilePaths(workDir, ignoreFileContent)
-
   const promises = filePaths.map(f => fs.copy(path.resolve(workDir, f), path.resolve(exportDir, f)))
   await Promise.all(promises)
 
   const mappings = getDummyMappings(filePaths)
 
   const dclEcsPath = path.resolve(workDir, 'node_modules', 'decentraland-ecs')
-  const exportSetupPath = path.resolve(dclEcsPath, 'src/setupExport.js')
+  const exportSetupPath = path.resolve(dclEcsPath, 'src', 'setupExport.js')
   let exportDependencies: any = defaultExport
 
   if (fs.existsSync(exportSetupPath)) {
     try {
-      const externalExport = __non_webpack_require__(exportSetupPath)
-      exportDependencies = externalExport
+      exportDependencies = require(exportSetupPath)
     } catch (err) {
       console.log(`${exportSetupPath} found but it couldn't be loaded properly`)
     }

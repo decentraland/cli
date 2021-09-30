@@ -10,14 +10,11 @@ import * as fs from 'fs-extra'
 import * as portfinder from 'portfinder'
 import * as glob from 'glob'
 import * as chokidar from 'chokidar'
-import * as ignore from 'ignore'
 import * as url from 'url'
 
 import * as proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
 import getDummyMappings from '../utils/getDummyMappings'
-
-declare const __non_webpack_require__: typeof require
 
 type Decentraland = import('./Decentraland').Decentraland
 
@@ -53,8 +50,6 @@ export class Preview extends EventEmitter {
       }
     }
 
-    const ig = (ignore as any)().add(this.ignoredPaths)
-
     let resolvedPort = port
 
     if (!resolvedPort) {
@@ -66,28 +61,31 @@ export class Preview extends EventEmitter {
     }
 
     if (this.watch) {
-      chokidar.watch(this.dcl.getWorkingDir()).on('all', (_, path) => {
-        if (ig.ignores(path)) {
-          return
-        }
+      chokidar
+        .watch(this.dcl.getWorkingDir(), { ignored: this.ignoredPaths })
+        .on('all', (_, pathWatch) => {
+          console.log({ pathWatch })
+          // if (ig.ignores(relativePath)) {
+          // return
+          // }
 
-        this.wss.clients.forEach(ws => {
-          if (
-            ws.readyState === WebSocket.OPEN &&
-            (!ws.protocol || ws.protocol === 'scene-updates')
-          ) {
-            ws.send('update')
+          this.wss.clients.forEach(ws => {
+            if (
+              ws.readyState === WebSocket.OPEN &&
+              (!ws.protocol || ws.protocol === 'scene-updates')
+            ) {
+              ws.send('update')
 
-            ws.send(
-              JSON.stringify({
-                type: 'update',
-                cwd: this.dcl.getWorkingDir(),
-                path: relativiseUrl(path)
-              })
-            )
-          }
+              ws.send(
+                JSON.stringify({
+                  type: 'update',
+                  cwd: this.dcl.getWorkingDir(),
+                  path: relativiseUrl(pathWatch)
+                })
+              )
+            }
+          })
         })
-      })
     }
 
     this.app.use(cors())
@@ -100,7 +98,7 @@ export class Preview extends EventEmitter {
     }
 
     const dclEcsPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-ecs')
-    const proxySetupPath = path.resolve(dclEcsPath, 'src/setupProxy.js')
+    const proxySetupPath = path.resolve(dclEcsPath, 'src', 'setupProxy.js')
     const dclApiPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-api')
 
     const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
@@ -108,7 +106,7 @@ export class Preview extends EventEmitter {
 
     if (fs.existsSync(proxySetupPath)) {
       try {
-        __non_webpack_require__(proxySetupPath)(this.dcl, this.app, express)
+        require(proxySetupPath)(this.dcl, this.app, express)
       } catch (err) {
         console.log(`${proxySetupPath} found but it couldn't be loaded properly`)
       }
