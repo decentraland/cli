@@ -15,7 +15,7 @@
     "start": "npm run watch",
     "watch": "npm run cli:watch",
     "cli:build": "webpack",
-    "cli:watch": "webpack --watch",
+    "cli:watch": "webpack --watch --progress",
     "build": "npm run cli:build",
     "lint": "tslint -e 'samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
     "test": "FORCE_COLOR=1 ava",

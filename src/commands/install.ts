@@ -25,7 +25,7 @@ export const help = () => `
 
 const spawnNpmInstall = (args: any): Promise<void> => {
   return new Promise((resolve, reject) => {
-    spinner.create(`npm ${args.join(' ')}`)
+    spinner.create(`npm ${args.join(' ')}\n`)
 
     const child = spawn(npm, args, {
       shell: true,

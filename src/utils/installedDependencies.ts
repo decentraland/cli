@@ -1,65 +1,61 @@
-import { spawn } from 'child_process'
-import { npm } from './moduleHelpers'
-import * as spinner from '../utils/spinner'
-import chalk from 'chalk'
-import * as path from 'path'
 import * as fs from 'fs-extra'
+import * as path from 'path'
+import { readJSON, PackageJson } from './filesystem'
 
-type ModuleItem = {
-  name: string
-  path: string
-  main: boolean
+type DecentralandPackage = PackageJson<{ decentralandLibrary: string }>
+
+type Dependencies = Pick<
+  PackageJson,
+  'dependencies' | 'devDependencies' | 'bundledDependencies' | 'peerDependencies'
+>
+
+const parseBundled = (dependencies: unknown) => {
+  if (dependencies instanceof Array) {
+    return dependencies
+  }
+  return []
 }
 
-async function getDependencyTree(workingDir: string): Promise<Object> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(npm, ['ls', '--json'], {
-      shell: true,
-      cwd: workingDir,
-      env: { ...process.env, NODE_ENV: '' }
-    })
+export function getDependencies(packageJSON: PackageJson): Required<Dependencies> {
+  const {
+    bundleDependencies = [],
+    bundledDependencies = [],
+    dependencies = {},
+    devDependencies = {},
+    peerDependencies = {}
+  } = packageJSON
+  const bundled = [
+    ...parseBundled(bundleDependencies),
+    ...parseBundled(bundledDependencies)
+  ].filter(b => typeof b === 'string')
 
-    let data: string = ''
-    child.stdout.on('data', function($) {
-      data += $.toString()
-    })
-
-    child.on('close', code => {
-      if (code !== 0) {
-        spinner.warn(`${chalk.bold(`npm ls --json`)} exited with code ${code}.`)
-      }
-
-      let dependenciesJson: Object
-      try {
-        dependenciesJson = JSON.parse(data) as Object
-      } catch (err) {
-        reject(err)
-      }
-
-      resolve(dependenciesJson)
-    })
-  })
+  return {
+    dependencies,
+    devDependencies,
+    peerDependencies,
+    bundledDependencies: bundled
+  }
 }
 
-async function getInstalledDependencies(
-  workingDir: string
-): Promise<{ dependencies: ModuleItem[] }> {
-  let dependenciesList: ModuleItem[] = []
-  const dependencyTree = (await getDependencyTree(workingDir)) as { dependencies: Object }
+function getPath(workDir: string, name: string) {
+  return path.resolve(workDir, 'node_modules', name, 'package.json')
+}
 
-  for (const name of Object.keys(dependencyTree.dependencies)) {
-    const modulePath = path.resolve(
-      `${path.resolve(workingDir, 'node_modules')}/${name}/package.json`
-    )
+export async function getDecentralandDependencies(
+  dependencies: Record<string, string>,
+  workDir: string
+): Promise<string[]> {
+  const dependenciesName = []
+  for (let dependency of Object.keys(dependencies)) {
+    const modulePath = getPath(workDir, dependency)
+
     if (fs.pathExistsSync(modulePath)) {
-      dependenciesList.push({
-        name,
-        path: modulePath,
-        main: true
-      })
+      const pkgJson = await readJSON<DecentralandPackage>(modulePath)
+      if (pkgJson.decentralandLibrary && pkgJson.name && pkgJson.version) {
+        dependenciesName.push(dependency)
+      }
     }
   }
 
-  return { dependencies: dependenciesList }
+  return dependenciesName
 }
-export default getInstalledDependencies
