@@ -219,7 +219,7 @@ export class Decentraland extends EventEmitter {
         this.wallet.signMessage(messageToSign),
         this.wallet.getAddress()
       ])
-      return { signature, address, network: { id: 0, name: 'mainnet' } }
+      return { signature, address }
     }
 
     if (isWalletConnect()) {
@@ -228,9 +228,7 @@ export class Decentraland extends EventEmitter {
       const signature = await connector.signMessage([address, messageToSign])
       return {
         signature,
-        address,
-        // TODO support Ropsten and other networks with WC
-        network: { id: connector.networkId, name: 'mainnet' }
+        address
       }
     }
 

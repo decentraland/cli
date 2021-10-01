@@ -47,6 +47,7 @@ const help = `
       status    [args]    Displays the deployment status of the project or a given LAND
       help      [cmd]     Displays complete help for given command
       version             Display current version of dcl
+      coords              Set the parcels in your scene
 
     ${chalk.dim('Options:')}
 

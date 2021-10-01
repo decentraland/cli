@@ -6,16 +6,16 @@ import * as fs from 'fs-extra'
 import * as express from 'express'
 import * as portfinder from 'portfinder'
 import * as querystring from 'querystring'
+import { ChainId } from '@dcl/schemas'
 
 import { Project } from './Project'
-import { Network } from './Ethereum'
 import { getCustomConfig } from '../config'
 import { isDevelopment, isDebug } from '../utils/env'
 
 export type LinkerResponse = {
   address: string
   signature: string
-  network: Network
+  chainId?: ChainId
 }
 
 /**
@@ -108,7 +108,6 @@ export class LinkerAPI extends EventEmitter {
       const { ok, reason } = urlParse.parse(req.url, true).query
 
       if (ok === 'true') {
-        console.log(reason)
         this.emit('link:success', JSON.parse(reason.toString()) as LinkerResponse)
       }
 
