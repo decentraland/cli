@@ -81,7 +81,7 @@ test('E2E - coords 0,0 2,3 2,2', async t => {
   })
 })
 
-test('E2E - coords 0,0 2,3 2,2 should fail with invalid base parcel', async t => {
+test('E2E - coords 0,0 2,3 5,2 should fail with invalid base parcel', async t => {
   await sandbox(async (dirPath, done) => {
     const sw = '0,0'
     const ne = '2,3'
