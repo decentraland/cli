@@ -24,7 +24,7 @@ function coordsCommand(dirPath: string, coords: string[]) {
 }
 
 test('snapshot - dcl help instal', t => {
-  t.snapshot(help)
+  t.snapshot(help())
 })
 
 test('E2E - coords 0,8', async t => {

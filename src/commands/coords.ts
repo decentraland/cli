@@ -8,21 +8,23 @@ import * as spinner from '../utils/spinner'
 
 export function help() {
   return `
-  Usage: ${chalk.bold('dcl coords [sw] [ne] [base]')}
+  Usage: ${chalk.bold('dcl coords [parcels]')}
 
     ${chalk.dim('Options:')}
 
       -h, --help               Displays complete help
 
     ${chalk.dim('Examples:')}
-
-      - Updates scene.json with { parcels: ["0,0"], base: "0,0" }
+      - ${chalk.bold('Single parcel')}
+      - Pass a single argument with the scene coords. This coordinate is also set as the base parcel.
       ${chalk.green('$ dcl coords 0,0')}
 
-      - Updates scene.json with { parcels: ["0,0", "0,1", "1,0", "1,1"], base: "0,0" }
+      - ${chalk.bold('Multiple parcels')}
+      - Pass two arguments: the South-West and the North-East parcels. The South-West parcel is also set as the base parcel.
       ${chalk.green('$ dcl coords 0,0 1,1')}
 
-      - Updates scene.json with { parcels: ["0,0", "0,1", "1,0", "1,1"], base: "1,0" }
+      - ${chalk.bold('Customize Base Parcel')}
+      - Pass three arguments: the South-West and the North-East parcels, and the parcel to use as a base parcel.
       ${chalk.green('$ dcl coords 0,0 1,1 1,0')}
 `
 }
