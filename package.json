@@ -130,7 +130,7 @@
     "ws": "^6.0.0"
   },
   "dependencies": {
-    "@dcl/linker-dapp": "^0.1.2",
+    "@dcl/linker-dapp": "^0.1.3",
     "dcl-catalyst-commons": "^3.0.0",
     "dcl-node-runtime": "^1.0.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",

@@ -159,12 +159,12 @@ export async function main(): Promise<number> {
 
     const deployData = { entityId, files: entityFiles, authChain }
     const position = sceneJson.scene.base
-    const network = (!chainId || chainId) === ChainId.ETHEREUM_MAINNET ? 'mainnet' : 'ropsten'
+    const network = chainId === ChainId.ETHEREUM_ROPSTEN ? 'ropsten' : 'mainnet'
     const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}`
 
     try {
       await catalyst.deployEntity(deployData, false, { timeout: '10m' })
-      spinner.succeed(`Content uploaded. ${chalk.bold(sceneUrl)}`)
+      spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
       Analytics.sceneDeploySuccess()
     } catch (error) {
       debug('\n' + error.stack)
