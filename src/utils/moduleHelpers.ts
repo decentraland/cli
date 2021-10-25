@@ -1,8 +1,8 @@
-import * as path from 'path'
+import path from 'path'
 import { spawn } from 'child_process'
-import * as semver from 'semver'
-import * as fetch from 'isomorphic-fetch'
-import * as packageJson from 'package-json'
+import semver from 'semver'
+import fetch from 'isomorphic-fetch'
+import packageJson from 'package-json'
 
 import * as spinner from '../utils/spinner'
 import { readJSON } from '../utils/filesystem'

@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events'
 import chalk from 'chalk'
 import { ethers } from 'ethers'
-import * as events from 'wildcards'
+import events from 'wildcards'
 
 import { ContentService } from './content/ContentService'
 import { filterAndFillEmpty } from '../utils/land'

@@ -1,5 +1,5 @@
 import test from 'ava'
-import * as path from 'path'
+import path from 'path'
 
 import pathsExistOnDir from '../../../src/utils/pathsExistOnDir'
 

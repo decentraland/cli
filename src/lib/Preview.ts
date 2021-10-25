@@ -1,22 +1,21 @@
-import * as path from 'path'
-import * as WebSocket from 'ws'
+import path from 'path'
+import WebSocket from 'ws'
 import { fork } from 'child_process'
 import { createServer } from 'http'
 import { EventEmitter } from 'events'
+import express from 'express'
+import cors from 'cors'
+import fs from 'fs-extra'
+import portfinder from 'portfinder'
+import glob from 'glob'
+import chokidar from 'chokidar'
+import url from 'url'
+import { default as ignore } from 'ignore'
 
-import * as express from 'express'
-import * as cors from 'cors'
-import * as fs from 'fs-extra'
-import * as portfinder from 'portfinder'
-import * as glob from 'glob'
-import * as chokidar from 'chokidar'
-import * as url from 'url'
-
-import * as proto from './proto/broker'
+import proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
 import getDummyMappings from '../utils/getDummyMappings'
-
-type Decentraland = import('./Decentraland').Decentraland
+import { Decentraland } from './Decentraland'
 
 /**
  * Events emitted by this class:
@@ -59,15 +58,14 @@ export class Preview extends EventEmitter {
         resolvedPort = 2044
       }
     }
-
+    const ig = ignore().add(this.ignoredPaths)
     if (this.watch) {
       chokidar
-        .watch(this.dcl.getWorkingDir(), { ignored: this.ignoredPaths })
+        .watch(this.dcl.getWorkingDir())
         .on('all', (_, pathWatch) => {
-          console.log({ pathWatch })
-          // if (ig.ignores(relativePath)) {
-          // return
-          // }
+          if (ig.ignores(pathWatch)) {
+            return
+          }
 
           this.wss.clients.forEach(ws => {
             if (

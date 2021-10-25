@@ -1,5 +1,5 @@
-import * as os from 'os'
-import * as arg from 'arg'
+import os from 'os'
+import arg from 'arg'
 import chalk from 'chalk'
 import opn = require('opn')
 

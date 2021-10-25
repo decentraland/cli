@@ -1,7 +1,7 @@
 // package: protocol
 // file: broker.proto
 
-import * as jspb from 'google-protobuf'
+import jspb from 'google-protobuf'
 
 export class CoordinatorMessage extends jspb.Message {
   getType(): MessageType

@@ -1,4 +1,4 @@
-import * as path from 'path'
+import path from 'path'
 
 import { readJSON, writeJSON, getUserHome } from './utils/filesystem'
 import { removeEmptyKeys } from './utils'

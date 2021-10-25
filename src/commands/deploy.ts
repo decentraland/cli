@@ -1,11 +1,10 @@
-import * as arg from 'arg'
+import arg from 'arg'
 import chalk from 'chalk'
 import { CatalystClient, ContentAPI, ContentClient, DeploymentBuilder } from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
 import { ChainId, getChainName } from '@dcl/schemas'
-
-import opn = require('opn')
+import opn from 'opn'
 
 import { isTypescriptProject } from '../project/isTypescriptProject'
 import { getSceneFile } from '../sceneJson'

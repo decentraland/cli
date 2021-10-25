@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra'
-import * as path from 'path'
+import path from 'path'
 import test from 'ava'
 
 import * as init from '../../src/commands/init'

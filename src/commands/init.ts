@@ -1,5 +1,5 @@
-import * as arg from 'arg'
-import * as inquirer from 'inquirer'
+import arg from 'arg'
+import inquirer from 'inquirer'
 import chalk from 'chalk'
 
 import { BoilerplateType } from '../lib/Project'

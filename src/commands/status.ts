@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import * as arg from 'arg'
+import arg from 'arg'
 
 import { Decentraland } from '../lib/Decentraland'
 import { formatList } from '../utils/logging'

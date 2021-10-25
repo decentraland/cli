@@ -1,5 +1,5 @@
-import * as uuidv4 from 'uuid/v4'
-import AnalyticsNode = require('analytics-node')
+import uuidv4 from 'uuid/v4'
+import AnalyticsNode from 'analytics-node'
 
 import { createDCLInfo, getConfig } from '../config'
 import { isOnline, getInstalledCLIVersion, getInstalledVersion } from './moduleHelpers'

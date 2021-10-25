@@ -1,7 +1,7 @@
 import { MappingsFile } from './../lib/content/types'
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import * as arg from 'arg'
+import path from 'path'
+import fs from 'fs-extra'
+import arg from 'arg'
 import chalk from 'chalk'
 
 import * as spinner from '../utils/spinner'

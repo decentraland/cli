@@ -1,4 +1,4 @@
-import * as qrcode from 'qrcode-terminal'
+import qrcode from 'qrcode-terminal'
 
 export function showQR(data: string): Promise<void> {
   return new Promise(resolve => {

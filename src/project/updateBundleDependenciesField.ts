@@ -1,5 +1,6 @@
-import * as fs from 'fs-extra'
-import * as path from 'path'
+
+import path from 'path'
+import fs from 'fs-extra'
 
 import { readJSON, PackageJson } from '../utils/filesystem'
 import { getDecentralandDependencies, getDependencies } from '../utils/installedDependencies'

@@ -1,5 +1,5 @@
-import * as fs from 'fs'
-import * as archiver from 'archiver'
+import fs from 'fs'
+import archiver from 'archiver'
 
 const blacklist = [
   'item.zip',

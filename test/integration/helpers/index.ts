@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra'
-import * as path from 'path'
+import path from 'path'
 
 export async function setupFilesystem(dirPath: string, files: { path: string; content: string }[]) {
   for (let i = 0; i < files.length; i++) {

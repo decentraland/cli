@@ -1,7 +1,7 @@
-import * as path from 'path'
-import * as dockerNames from 'docker-names'
-import * as fs from 'fs-extra'
-import * as ignore from 'ignore'
+import path from 'path'
+import dockerNames from 'docker-names'
+import fs from 'fs-extra'
+import ignore from 'ignore'
 
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import {

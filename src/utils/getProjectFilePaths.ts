@@ -1,6 +1,6 @@
-import * as path from 'path'
-import * as fs from 'fs-extra'
-import * as ignore from 'ignore'
+import path from 'path'
+import fs from 'fs-extra'
+import ignore from 'ignore'
 
 export default async function getProjectFilePaths(
   dir: string,

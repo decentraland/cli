@@ -1,7 +1,7 @@
 // package: protocol
 // file: comms.proto
 
-import * as jspb from 'google-protobuf'
+import jspb from 'google-protobuf'
 
 export class AuthData extends jspb.Message {
   getSignature(): string

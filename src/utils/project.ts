@@ -1,4 +1,4 @@
-import * as path from 'path'
+import path from 'path'
 
 export const SCENE_FILE = 'scene.json'
 export const PACKAGE_FILE = 'package.json'
