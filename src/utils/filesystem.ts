@@ -65,7 +65,7 @@ export async function isEmptyDirectory(dir: string = '.'): Promise<boolean> {
  * @returns `USERPROFILE` or `HOME`
  */
 export function getUserHome(): string {
-  return process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME']
+  return process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME'] || ''
 }
 
 export type PackageJson<T = Record<string, unknown>> = {

@@ -1,14 +1,14 @@
 import { LANDData } from '../lib/Ethereum'
 
-export function filterAndFillEmpty(data: any, def: string = null): LANDData {
+export function filterAndFillEmpty(data: any, def?: string): LANDData {
   if (!data) {
-    return { name: def, description: def }
+    return { name: def || '', description: def || '' }
   }
 
   return { name: data.name || def, description: data.description || def }
 }
 
-export function parseTarget(args) {
+export function parseTarget(args: any) {
   const args1 = parseInt(args[1], 10)
   if (Number.isInteger(args1) && args1 < 0) {
     let coords = '-'

@@ -11,9 +11,8 @@ export default async function getProjectFilePaths(
     .filter(await fs.readdir(dir)) as string[]
   const filePaths = fileNames.map(fileName => path.resolve(dir, fileName))
   const stats = await Promise.all(filePaths.map(filePath => fs.stat(filePath)))
-
-  const files = []
-  const pendingPromises = []
+  const files: string[] = []
+  const pendingPromises: Promise<unknown>[] = []
 
   stats.forEach(async (stat, i) => {
     if (stat.isDirectory()) {
@@ -32,10 +31,11 @@ export default async function getProjectFilePaths(
     }
   })
 
-  const pResults = (await Promise.all(pendingPromises)).reduce((acc: string[], r) => {
-    acc.push(...r)
-    return acc
-  }, [])
+  const pResults = (await Promise.all(pendingPromises))
+    .reduce((acc: string[], r: any) => {
+      acc.push(...r)
+      return acc
+    }, [])
 
   return [...files, ...pResults]
 }

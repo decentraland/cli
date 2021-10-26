@@ -37,8 +37,8 @@ export class ContentService extends EventEmitter {
     try {
       const entity = await this.fetchEntity(coordinates)
       return entity.metadata
-    } catch {
-      return null
+    } catch (e) {
+      throw e
     }
   }
 
@@ -54,8 +54,9 @@ export class ContentService extends EventEmitter {
         )
       }
       return entity
-    } catch (error) {
+    } catch (error: any) {
       fail(ErrorType.CONTENT_SERVER_ERROR, error.message)
+      throw error
     }
   }
 }

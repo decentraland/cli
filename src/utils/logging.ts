@@ -1,6 +1,7 @@
 import chalk from 'chalk'
 
 import { isDebug } from './env'
+import { isRecord } from '.'
 
 export function debug(...messages: any[]): void {
   if (isDebug()) {
@@ -20,7 +21,7 @@ export function tabulate(spaces: number = 0) {
   return spaces > 0 ? ' '.repeat(spaces) : ''
 }
 
-export function isEmpty(obj) {
+export function isEmpty(obj: Record<string, unknown>) {
   if (!obj) return true
   const keys = Object.keys(obj)
   if (!keys.length) {
@@ -30,7 +31,7 @@ export function isEmpty(obj) {
 }
 
 export function formatDictionary(
-  obj: Object,
+  obj: Record<string, unknown>,
   options: { spacing: number; padding: number },
   level: number = 1,
   context?: 'array' | 'object'
@@ -51,7 +52,7 @@ export function formatDictionary(
         formatList(item, options, level + 1, 'object'),
         '\n'
       )
-    } else if (typeof item === 'object') {
+    } else if (isRecord(item)) {
       const isHidden = isEmpty(item)
       const content = isHidden
         ? `: ${chalk.italic('No information available')}\n`

@@ -224,7 +224,7 @@ function setComms(wss: WebSocket.Server) {
     }
     const alias = ++connectionCounter
 
-    const query = url.parse(req.url, true).query
+    const query = url.parse(req.url!, true).query
     const userId = query['identity'] as string
     aliasToUserId.set(alias, userId)
 
@@ -266,7 +266,7 @@ function setComms(wss: WebSocket.Server) {
         const topicFwMessage = new proto.TopicIdentityFWMessage()
         topicFwMessage.setType(proto.MessageType.TOPIC_IDENTITY_FW)
         topicFwMessage.setFromAlias(alias)
-        topicFwMessage.setIdentity(aliasToUserId.get(alias))
+        topicFwMessage.setIdentity(aliasToUserId.get(alias)!)
         topicFwMessage.setRole(proto.Role.CLIENT)
         topicFwMessage.setBody(topicMessage.getBody_asU8())
 

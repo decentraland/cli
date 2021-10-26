@@ -15,7 +15,7 @@
     "types": [
       "node"
     ],
-    // "strict": true,
+    "strict": true,
     "outDir": "./dist",
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -30,6 +30,7 @@
   ],
   "include": [
     "decs.d.ts",
-    "src"
+    "src",
+    "typings"
   ]
 }

@@ -4,10 +4,10 @@ export default function getDummyMappings(filePaths: string[]): MappingsFile {
   // In case of Windows
   const finalPaths = filePaths.map(f => f.replace(/\\/g, '/'))
 
-  const mappings = finalPaths.reduce((acc, f) => {
+  const mappings = finalPaths.reduce((acc: Record<string, string>, f) => {
     acc[f] = f
     return acc
-  }, {}) as Record<string, string>
+  }, {})
 
   return {
     mappings,

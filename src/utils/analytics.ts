@@ -8,7 +8,8 @@ import chalk from 'chalk'
 
 // Setup segment.io
 const SINGLEUSER = 'cli-user'
-export let analytics = null
+
+export let analytics: AnalyticsNode
 
 const ANONYMOUS_DATA_QUESTION = 'Send Anonymous data'
 
@@ -59,6 +60,7 @@ export namespace Analytics {
 
   export async function requestPermission() {
     const { fileExists, segmentKey } = getConfig()
+    if (!segmentKey) return
     analytics = new AnalyticsNode(segmentKey)
     if (!fileExists) {
       console.log(
@@ -91,7 +93,7 @@ async function track(eventName: string, properties: any = {}, workingDir?: strin
   }
 
   return new Promise<void>(async resolve => {
-    const dclApiVersion = await getInstalledVersion(workingDir, 'decentraland-api')
+    const dclApiVersion = await getInstalledVersion(workingDir!, 'decentraland-api')
     const newProperties = {
       ...properties,
       os: process.platform,

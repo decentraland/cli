@@ -61,7 +61,7 @@ export class Decentraland extends EventEmitter {
   options: DecentralandArguments
   provider: IEthereumDataProvider
   contentService: ContentService
-  wallet: ethers.Wallet
+  wallet?: ethers.Wallet
 
   constructor(
     args: DecentralandArguments = {
@@ -76,7 +76,7 @@ export class Decentraland extends EventEmitter {
     this.project = new Project(this.options.workingDir)
     this.ethereum = new Ethereum()
     this.provider = this.options.blockchain ? this.ethereum : new API()
-    this.contentService = new ContentService(this.options.config.catalystUrl)
+    this.contentService = new ContentService(this.options.config.catalystUrl!)
 
     if (process.env.DCL_PRIVATE_KEY) {
       this.createWallet(process.env.DCL_PRIVATE_KEY)
@@ -109,7 +109,7 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(this.options.linkerPort, this.options.isHttps, rootCID)
+        await linker.link(this.options.linkerPort!, !!this.options.isHttps, rootCID)
       } catch (e) {
         reject(e)
       }
@@ -119,11 +119,11 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
-    const preview = new Preview(this, await this.project.getDCLIgnore(), this.getWatch())
+    const preview = new Preview(this, (await this.project.getDCLIgnore())!, this.getWatch())
 
     events(preview, '*', this.pipeEvents.bind(this))
 
-    await preview.startServer(this.options.previewPort)
+    await preview.startServer(this.options.previewPort!)
   }
 
   async getAddressInfo(address: string): Promise<AddressInfo> {
@@ -177,10 +177,10 @@ export class Decentraland extends EventEmitter {
     return { scene, land: { ...land, owner, operator, updateOperator } }
   }
 
-  async getEstateInfo(estateId: number): Promise<Estate> {
+  async getEstateInfo(estateId: number): Promise<Estate | undefined> {
     const estate = await this.provider.getEstateData(estateId)
     if (!estate) {
-      return
+      return undefined
     }
 
     const owner = await this.provider.getEstateOwner(estateId)
@@ -190,10 +190,10 @@ export class Decentraland extends EventEmitter {
     return { ...estate, owner, operator, updateOperator, parcels }
   }
 
-  async getEstateOfParcel(coords: Coords): Promise<Estate> {
+  async getEstateOfParcel(coords: Coords): Promise<Estate | undefined> {
     const estateId = await this.provider.getEstateIdOfLand(coords)
     if (!estateId || estateId < 1) {
-      return
+      return undefined
     }
 
     return this.getEstateInfo(estateId)
@@ -204,7 +204,7 @@ export class Decentraland extends EventEmitter {
   }
 
   async getPublicAddress(): Promise<string> {
-    return this.wallet.getAddress()
+    return this.wallet?.getAddress()!
   }
 
   async validateOwnership() {
@@ -213,7 +213,7 @@ export class Decentraland extends EventEmitter {
     return this.ethereum.validateAuthorization(owner, parcels)
   }
 
-  async getAddressAndSignature(messageToSign): Promise<LinkerResponse> {
+  async getAddressAndSignature(messageToSign: string): Promise<LinkerResponse> {
     if (this.wallet) {
       const [signature, address] = await Promise.all([
         this.wallet.signMessage(messageToSign),

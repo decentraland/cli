@@ -11,7 +11,7 @@ fs.readFile(path.resolve(__dirname, '../package.json'), 'utf8', (err, data) => {
   require('./main')
     .main(version)
     .then(() => process.exit(0))
-    .catch(err => {
+    .catch((err: any) => {
       console.error(err)
       process.exit(1)
     })

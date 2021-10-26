@@ -92,7 +92,7 @@ export async function main() {
 
   try {
     await installDependencies(dcl.getWorkingDir(), false /* silent */)
-  } catch (error) {
+  } catch (error: any) {
     fail(ErrorType.INIT_ERROR, error.message)
   }
 

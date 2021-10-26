@@ -37,7 +37,6 @@ export const help = () => `
 
     ${chalk.green('$ dcl deploy --target my-favorite-catalyst-server.org:2323')}
 `
-
 export async function main(): Promise<number> {
   const args = arg({
     '--help': Boolean,
@@ -47,7 +46,10 @@ export async function main(): Promise<number> {
     '--target-content': String,
     '-tc': '--target-content',
     '--skip-version-checks': Boolean,
-    '--skip-build': Boolean
+    '--skip-build': Boolean,
+    '--https': Boolean,
+    '--force-upload': Boolean,
+    '--yes': Boolean
   })
 
   Analytics.deploy()
@@ -84,7 +86,7 @@ export async function main(): Promise<number> {
     spinner.create('Creating deployment structure')
 
     const dcl = new Decentraland({
-      isHttps: args['--https'],
+      isHttps: !!args['--https'],
       workingDir: workDir,
       forceDeploy: args['--force-upload'],
       yes: args['--yes']
@@ -120,6 +122,7 @@ export async function main(): Promise<number> {
 
       setTimeout(() => {
         try {
+          // tslint:disable-next-line: no-floating-promises
           opn(url)
         } catch (e) {
           console.log(`Unable to open browser automatically`)
@@ -130,7 +133,7 @@ export async function main(): Promise<number> {
         spinner.succeed(`Content successfully signed.`)
         console.log(`${chalk.bold('Address:')} ${address}`)
         console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(`${chalk.bold('Network:')} ${getChainName(chainId)}`)
+        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
       })
     })
 
@@ -165,7 +168,7 @@ export async function main(): Promise<number> {
       await catalyst.deployEntity(deployData, false, { timeout: '10m' })
       spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
       Analytics.sceneDeploySuccess()
-    } catch (error) {
+    } catch (error: any) {
       debug('\n' + error.stack)
       spinner.fail(`Could not upload content. ${error}`)
     }

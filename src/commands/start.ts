@@ -1,7 +1,7 @@
 import os from 'os'
 import arg from 'arg'
 import chalk from 'chalk'
-import opn = require('opn')
+import opn from 'opn'
 
 import { Decentraland } from '../lib/Decentraland'
 import { buildTypescript, checkECSVersions, getOutdatedApi, isOnline } from '../utils/moduleHelpers'
@@ -67,7 +67,7 @@ export async function main() {
   const enableWeb3 = args['--web3']
 
   const dcl = new Decentraland({
-    previewPort: parseInt(args['--port'], 10),
+    previewPort: parseInt(args['--port']!, 10),
     watch,
     workingDir
   })

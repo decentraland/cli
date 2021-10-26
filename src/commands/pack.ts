@@ -24,7 +24,7 @@ export async function main(): Promise<number> {
 
   try {
     await buildSmartItem(workDir)
-  } catch (error) {
+  } catch (error: any) {
     spinner.fail('Could not build the project')
     throw new Error(error)
   }

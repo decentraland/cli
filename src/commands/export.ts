@@ -54,7 +54,7 @@ export async function main(): Promise<number> {
     spinner.succeed(warning('No build found'))
     try {
       await buildProject(workDir)
-    } catch (error) {
+    } catch (error: any) {
       spinner.fail('Could not build the project')
       throw new Error(error)
     }

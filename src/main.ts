@@ -97,7 +97,7 @@ export async function main(version: string) {
         const { help } = await import(`./commands/${command}`)
         console.log(help())
         process.exit(0)
-      } catch (e) {
+      } catch (e: any) {
         console.error(log.error(e.message))
         process.exit(1)
       }
@@ -131,7 +131,7 @@ export async function main(version: string) {
     const command = await import(`./commands/${subcommand}`)
     await command.main()
     await finishPendingTracking()
-  } catch (e) {
+  } catch (e: any) {
     console.error(
       log.error(
         `\`${chalk.green(`dcl ${subcommand}`)}\` ${e.message}, run ${chalk.bold(
