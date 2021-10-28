@@ -22,7 +22,7 @@ const landFactory = new ContractFactory(requestManager, landAbi)
 const estateFactory = new ContractFactory(requestManager, estateAbi)
 
 const factories = new Map<String, ContractFactory>()
-factories.set('`MANAToken`', manaFactory)
+factories.set('MANAToken', manaFactory)
 factories.set('LANDRegistry', landFactory)
 factories.set('EstateRegistry', estateFactory)
 
