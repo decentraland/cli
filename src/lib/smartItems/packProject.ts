@@ -1,5 +1,5 @@
-import * as fs from 'fs'
-import * as archiver from 'archiver'
+import fs from 'fs'
+import archiver from 'archiver'
 
 const blacklist = [
   'item.zip',
@@ -16,7 +16,7 @@ export async function packProject(files: string[], target: string) {
   const output = fs.createWriteStream(target)
   const archive = archiver('zip')
 
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     output.on('close', () => {
       resolve()
     })

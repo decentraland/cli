@@ -1,7 +1,7 @@
-import * as path from 'path'
-import * as dockerNames from 'docker-names'
-import * as fs from 'fs-extra'
-import * as ignore from 'ignore'
+import path from 'path'
+import dockerNames from 'docker-names'
+import fs from 'fs-extra'
+import ignore from 'ignore'
 
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import {
@@ -30,7 +30,7 @@ export interface IFile {
 export class Project {
   private static MAX_FILE_SIZE = 524300000
   private workingDir: string
-  private sceneFile: SceneMetadata
+  private sceneFile: SceneMetadata | undefined
 
   constructor(workingDir: string) {
     this.workingDir = workingDir
@@ -67,15 +67,16 @@ export class Project {
     }
 
     try {
-      this.sceneFile = await readJSON<SceneMetadata>(getSceneFilePath(this.workingDir))
+      const sceneFile = await readJSON<SceneMetadata>(getSceneFilePath(this.workingDir))
+      this.sceneFile = sceneFile
+      return sceneFile
     } catch (e) {
       fail(
         ErrorType.PROJECT_ERROR,
         `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`
       )
     }
-
-    return this.sceneFile
+    return this.sceneFile!
   }
 
   /**
@@ -148,7 +149,7 @@ export class Project {
    * @param destination The path to the project root. By default the current woxsrking directory.
    */
   async copySample(project: string) {
-    const src = path.resolve(__dirname, '..', 'samples', project)
+    const src = path.resolve(__dirname, '..', '..', 'samples', project)
     const files = await fs.readdir(src)
 
     for (let i = 0; i < files.length; i++) {
@@ -208,7 +209,7 @@ export class Project {
    * Returns a random project name
    */
   getRandomName(): string {
-    return dockerNames.getRandomName() as string
+    return dockerNames.getRandomName()
   }
 
   /**
@@ -357,10 +358,10 @@ export class Project {
    * Returns `true` if the provided path contains a valid main file format.
    * @param path The path to the main file.
    */
-  private isValidMainFormat(path: string): boolean {
+  private isValidMainFormat(path: string | null): boolean {
     const supportedExtensions = new Set(['js', 'html', 'xml'])
     const mainExt = path ? path.split('.').pop() : null
-    return path === null || supportedExtensions.has(mainExt)
+    return path === null || !!(mainExt && supportedExtensions.has(mainExt))
   }
 
   /**

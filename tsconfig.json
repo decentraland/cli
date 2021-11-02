@@ -1,21 +1,36 @@
 {
   "compilerOptions": {
+    "target": "ES2017",
     "module": "commonjs",
-    "target": "es2017",
-    "diagnostics": true,
-    "outDir": "dist",
-    "baseUrl": ".",
-    "moduleResolution": "node",
-    "stripInternal": true,
-    "pretty": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,
     "preserveConstEnums": true,
-    "plugins": [{ "name": "tslint-language-service" }],
-    "lib": ["es2017", "dom"],
-    "resolveJsonModule": true
+    "declaration": true,
+    "declarationMap": true,
+    "diagnostics": true,
+    "sourceMap": true,
+    "lib": [
+      "es2016",
+      "dom"
+    ],
+    "types": [
+      "node"
+    ],
+    "strict": true,
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true
   },
-  "exclude": ["dist", "node_modules", "**/*.test.ts", "samples/*"],
-  "include": ["src/**/*"]
+  "exclude": [
+    "dist",
+    "node_modules",
+    "**/*.test.ts",
+    "samples/*"
+  ],
+  "include": [
+    "decs.d.ts",
+    "src",
+    "typings"
+  ]
 }

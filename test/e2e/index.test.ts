@@ -1,7 +1,7 @@
-import * as fs from 'fs-extra'
-import * as path from 'path'
+import fs from 'fs-extra'
+import path from 'path'
 import test from 'ava'
-import * as puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer'
 
 import { isDebug } from '../../src/utils/env'
 import Commando, { Response } from '../helpers/commando'

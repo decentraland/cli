@@ -1,4 +1,4 @@
-import * as path from 'path'
+import path from 'path'
 
 import { readJSON, writeJSON, getUserHome } from './utils/filesystem'
 import { removeEmptyKeys } from './utils'
@@ -18,8 +18,8 @@ export type DCLInfo = {
   segmentKey?: string
 }
 
-let networkFlag = null
-let config: DCLInfo = null
+let networkFlag: string
+let config: DCLInfo
 
 /**
  * Returns the path to the `.dclinfo` file located in the local HOME folder
@@ -31,7 +31,7 @@ function getDCLInfoPath(): string {
 /**
  * Reads the contents of the `.dclinfo` file
  */
-async function readDCLInfo(): Promise<DCLInfo> {
+async function readDCLInfo(): Promise<DCLInfo | null> {
   const filePath = getDCLInfoPath()
   try {
     const file = await readJSON<DCLInfo>(filePath)
@@ -61,7 +61,7 @@ export async function writeDCLInfo(newInfo: DCLInfo) {
  */
 export async function loadConfig(network: string): Promise<DCLInfo> {
   networkFlag = network
-  config = await readDCLInfo()
+  config = (await readDCLInfo())!
   return config
 }
 
@@ -89,7 +89,7 @@ export function getCustomConfig(): Partial<DCLInfo> {
 function getDefaultConfig(network: string): Partial<DCLInfo> {
   const isMainnet = network === 'mainnet'
   return {
-    userId: null,
+    userId: '',
     trackStats: false,
     provider: isDevelopment() ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/',
     MANAToken: isMainnet

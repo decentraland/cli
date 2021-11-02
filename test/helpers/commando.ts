@@ -1,4 +1,4 @@
-import * as path from 'path'
+import path from 'path'
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
 import spawn = require('cross-spawn')

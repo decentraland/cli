@@ -4,7 +4,7 @@ import { Coords } from '../utils/coordinateHelpers'
 import { getConfig } from '../config'
 import { Fetcher } from 'dcl-catalyst-commons'
 
-const { dclApiUrl } = getConfig()
+const dclApiUrl = getConfig().dclApiUrl!
 
 export class API implements IEthereumDataProvider {
   private readonly fetcher: Fetcher = new Fetcher()
@@ -20,7 +20,8 @@ export class API implements IEthereumDataProvider {
     type ResultType = { parcels: { estate: { id: string } | null }[] }
     const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, { x, y })
     const estate = response.parcels[0].estate
-    return estate ? parseInt(estate.id, 10) : undefined
+    if (!estate) throw new Error('No estate provided')
+    return parseInt(estate.id, 10)
   }
 
   async getEstateData(estateId: number): Promise<LANDData> {
@@ -63,7 +64,7 @@ export class API implements IEthereumDataProvider {
     const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
       estateId: `${estateId}`
     })
-    return response.estates[0].operator
+    return response.estates[0].operator!
   }
 
   async getEstateUpdateOperator(estateId: number): Promise<string> {
@@ -76,7 +77,7 @@ export class API implements IEthereumDataProvider {
     const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
       estateId: `${estateId}`
     })
-    return response.estates[0].updateOperator
+    return response.estates[0].updateOperator!
   }
 
   // This is a special case, because some estates have +10000 parcels, and TheGraph doesn't support offsets of more than 5000
@@ -93,8 +94,11 @@ export class API implements IEthereumDataProvider {
     type ResultType = { estates: { parcels: { x: string; y: string; id: string }[] }[] }
     const response = await this.queryGraphPaginated<
       ResultType,
-      { x: string; y: string; id: string }
-    >(query, { estateId: `${estateId}` }, result => result.estates[0].parcels)
+      { x: string; y: string; id: string }>(
+        query,
+        { estateId: `${estateId}` }
+        , result => result.estates[0].parcels
+      )
 
     return response.map(parcel => ({
       x: parseInt(parcel.x, 10),
@@ -163,8 +167,7 @@ export class API implements IEthereumDataProvider {
     type ResultType = { parcels: { x: string; y: string; id: string }[] }
     const response = await this.queryGraphPaginated<
       ResultType,
-      { x: string; y: string; id: string }
-    >(query, { owner: owner.toLowerCase() }, result => result.parcels)
+      { x: string; y: string; id: string }>(query, { owner: owner.toLowerCase() }, result => result.parcels)
     return response.map(({ x, y }) => ({ x: parseInt(x, 10), y: parseInt(y, 10) }))
   }
 
@@ -192,7 +195,7 @@ export class API implements IEthereumDataProvider {
     extractArray: (queryResult: QueryResultType) => ArrayType[]
   ): Promise<ArrayType[]> {
     const pageSize = 1000
-    let lastId = ''
+    let lastId: string | undefined = ''
     let keepGoing = true
 
     const finalResult: ArrayType[] = []

@@ -1,7 +1,5 @@
-// This is needed by the wallet connect connector as of is only ready for both the browser and mobile
-WebSocket = require('ws')
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
 fs.readFile(path.resolve(__dirname, '../package.json'), 'utf8', (err, data) => {
   if (err) {
@@ -13,7 +11,7 @@ fs.readFile(path.resolve(__dirname, '../package.json'), 'utf8', (err, data) => {
   require('./main')
     .main(version)
     .then(() => process.exit(0))
-    .catch(err => {
+    .catch((err: any) => {
       console.error(err)
       process.exit(1)
     })

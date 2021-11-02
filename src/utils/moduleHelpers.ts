@@ -1,15 +1,15 @@
-import * as path from 'path'
+import path from 'path'
 import { spawn } from 'child_process'
-import * as semver from 'semver'
-import * as fetch from 'isomorphic-fetch'
-import * as packageJson from 'package-json'
+import semver from 'semver'
+import fetch from 'isomorphic-fetch'
+import packageJson from 'package-json'
 
 import * as spinner from '../utils/spinner'
 import { readJSON } from '../utils/filesystem'
 import { getNodeModulesPath } from '../utils/project'
 
 export const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
-let version = null
+let version: string | null = null
 
 export function setVersion(v: string) {
   version = v
@@ -59,15 +59,15 @@ export function buildTypescript({
 
 export async function getLatestVersion(name: string): Promise<string> {
   if (!(await isOnline())) {
-    return null
+    return ''
   }
 
   try {
     // NOTE: this packageJson function should receive the workingDir
     const pkg = await packageJson(name.toLowerCase())
-    return pkg.version
+    return pkg.version as string
   } catch (e) {
-    return null
+    return ''
   }
 }
 
@@ -79,7 +79,7 @@ export async function getInstalledVersion(workingDir: string, name: string): Pro
       path.resolve(getNodeModulesPath(workingDir), name, 'package.json')
     )
   } catch (e) {
-    return null
+    return ''
   }
 
   return decentralandApiPkg.version
@@ -91,7 +91,7 @@ export async function getOutdatedApi(
   package: string
   installedVersion: string
   latestVersion: string
-}> {
+} | undefined> {
   const decentralandApiVersion = await getInstalledVersion(workingDir, 'decentraland-api')
   const decentralandEcsVersion = await getInstalledVersion(workingDir, 'decentraland-ecs')
 
@@ -155,12 +155,12 @@ export async function checkECSVersions(workingDir: string) {
   }>(path.resolve(getNodeModulesPath(workingDir), 'decentraland-ecs', 'package.json'))
 
   const cliPackageJson = await readJSON<{ minEcsVersion?: boolean; version: string }>(
-    path.resolve(__dirname + '../../', 'package.json')
+    path.resolve(__dirname, '..', '..', 'package.json')
   )
 
   if (
     cliPackageJson.minEcsVersion &&
-    semver.lt(ecsPackageJson.version, cliPackageJson.minEcsVersion)
+    semver.lt(ecsPackageJson.version, `${cliPackageJson.minEcsVersion}`)
   ) {
     throw new Error(
       [

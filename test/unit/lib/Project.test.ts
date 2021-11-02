@@ -1,6 +1,6 @@
 import { Stats } from 'fs-extra'
 import test from 'ava'
-import * as sinon from 'sinon'
+import sinon from 'sinon'
 
 function createSandbox() {
   const ctx = sinon.createSandbox()

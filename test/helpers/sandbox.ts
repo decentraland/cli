@@ -1,6 +1,6 @@
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import * as rimraf from 'rimraf'
+import fs from 'fs-extra'
+import path from 'path'
+import rimraf from 'rimraf'
 
 export default function sandbox(fn: any) {
   return new Promise(async (resolve, reject) => {

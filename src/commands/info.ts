@@ -1,7 +1,7 @@
-import * as arg from 'arg'
+import arg from 'arg'
 import chalk from 'chalk'
 
-import { Decentraland, Estate } from '../lib/Decentraland'
+import { Decentraland, Estate, ParcelMetadata } from '../lib/Decentraland'
 import { formatDictionary, debug } from '../utils/logging'
 import { Analytics } from '../utils/analytics'
 import { getObject, getString, isValid } from '../utils/coordinateHelpers'
@@ -52,7 +52,7 @@ function getTargetType(value: string): string {
     return 'address'
   }
 
-  return
+  return ''
 }
 
 export async function main() {
@@ -149,7 +149,7 @@ export async function main() {
   }
 }
 
-function logParcel(output) {
+function logParcel(output: Partial<ParcelMetadata> & { estate?: Estate }) {
   console.log('\n  Scene Metadata:\n')
 
   if (output.scene) {
@@ -171,7 +171,7 @@ function logParcel(output) {
   }
 }
 
-function logEstate(estate: Estate, id: number = null) {
+function logEstate(estate?: Estate, id?: number) {
   if (!estate) {
     console.log(chalk.italic(`\n  Estate with ID ${id} doesn't exist\n`))
     return
@@ -179,6 +179,7 @@ function logEstate(estate: Estate, id: number = null) {
 
   if (estate.parcels.length === 0) {
     console.log(chalk.bold(`\n  Estate with ID ${id} has been dissolved\n`))
+    // @ts-ignore: TODO
     delete estate.parcels
   }
 

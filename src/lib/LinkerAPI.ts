@@ -1,11 +1,11 @@
-import * as path from 'path'
-import * as https from 'https'
+import path from 'path'
+import https from 'https'
 import { EventEmitter } from 'events'
-import * as urlParse from 'url'
-import * as fs from 'fs-extra'
-import * as express from 'express'
-import * as portfinder from 'portfinder'
-import * as querystring from 'querystring'
+import urlParse from 'url'
+import fs from 'fs-extra'
+import express from 'express'
+import portfinder from 'portfinder'
+import querystring from 'querystring'
 import { ChainId } from '@dcl/schemas'
 
 import { Project } from './Project'
@@ -65,11 +65,11 @@ export class LinkerAPI extends EventEmitter {
 
       if (isHttps) {
         const privateKey = await fs.readFile(
-          path.resolve(__dirname, '../certs/localhost.key'),
+          path.resolve(__dirname, '../../certs/localhost.key'),
           'utf-8'
         )
         const certificate = await fs.readFile(
-          path.resolve(__dirname, '../certs/localhost.crt'),
+          path.resolve(__dirname, '../../certs/localhost.crt'),
           'utf-8'
         )
         const credentials = { key: privateKey, cert: certificate }
@@ -83,7 +83,7 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes(rootCID: string) {
-    const linkerDapp = path.resolve(__dirname, '..', 'node_modules', '@dcl/linker-dapp')
+    const linkerDapp = path.resolve(__dirname, '..', '..', 'node_modules', '@dcl/linker-dapp')
 
     this.app.use(express.static(linkerDapp))
 

@@ -6,14 +6,14 @@ import { ErrorType, fail } from '../utils/errors'
 import { Coords, getObject } from '../utils/coordinateHelpers'
 import { filterAndFillEmpty } from '../utils/land'
 import { isDebug } from '../utils/env'
-import { getConfig } from '../config'
+import { DCLInfo, getConfig } from '../config'
 
 const manaAbi = require('../../abi/MANAToken.json').abi
 const landAbi = require('../../abi/LANDRegistry.json').abi
 const estateAbi = require('../../abi/EstateRegistry.json').abi
 
 const { provider } = getConfig()
-const providerInstance = new providers.HTTPProvider(provider)
+const providerInstance = new providers.HTTPProvider(provider!)
 const requestManager = new RequestManager(providerInstance)
 providerInstance.debug = isDebug()
 
@@ -26,10 +26,12 @@ factories.set('MANAToken', manaFactory)
 factories.set('LANDRegistry', landFactory)
 factories.set('EstateRegistry', estateFactory)
 
+type ContractData = Contract & Record<string, (...args: any) => Promise<unknown>>
+
 export type LANDData = {
   version?: number
-  name: string
-  description: string
+  name: string | null
+  description: string | null
 }
 
 export type Network = {
@@ -48,118 +50,132 @@ export enum NETWORKS {
  *
  */
 export class Ethereum extends EventEmitter implements IEthereumDataProvider {
-  private static contracts = new Map<string, Contract>()
+  private static contracts = new Map<string, ContractData>()
 
-  static async getContract(name: string): Promise<Contract> {
-    if (this.contracts.get(name)) {
-      return this.contracts.get(name)
+  static async getContract(name: keyof DCLInfo): Promise<ContractData> {
+    const contract = this.contracts.get(name)
+    if (contract) {
+      return contract
     }
 
-    const address = getConfig()[name]
-    const factory = factories.get(name)
-    const contract = await factory.at(address)
-    this.contracts.set(name, contract)
-    return contract
+    const config = getConfig()
+    const address = config[name] as string
+    const factory = factories.get(name)!
+    const factoryContract = await factory.at(address) as ContractData
+    this.contracts.set(name, factoryContract)
+
+    return factoryContract
   }
 
   async getLandOf(address: string): Promise<Coords[]> {
     const contract = await Ethereum.getContract('LANDRegistry')
     try {
-      const [x, y] = await contract['landOf'](address.toUpperCase())
-      return x.map(($, i) => ({ x: $.toNumber(), y: y[i].toNumber() }))
-    } catch (e) {
+      const [x, y] = await contract['landOf'](address.toUpperCase()) as any
+      return x.map(($: any, i: any) => ({ x: $.toNumber(), y: y[i].toNumber() }))
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LANDs: ${e.message}`)
+      throw e
     }
   }
 
   async getEstatesOf(address: string): Promise<number[]> {
     const contract = await Ethereum.getContract('EstateRegistry')
     try {
-      const balance = await contract['balanceOf'](address)
+      const balance = await contract['balanceOf'](address) as number
       const requests = []
       for (let i = 0; i < balance; i++) {
-        const request = contract['tokenOfOwnerByIndex'](address, i)
+        const request = contract['tokenOfOwnerByIndex'](address, i) as Promise<number>
         requests.push(request)
       }
       return Promise.all(requests)
-    } catch (e) {
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate IDs of owner: ${e.message}`)
+      throw e
     }
+    return []
   }
 
   async getLandData({ x, y }: Coords): Promise<LANDData> {
     const contract = await Ethereum.getContract('LANDRegistry')
     try {
-      const landData = await contract['landData'](x, y)
+      const landData = await contract['landData'](x, y) as string
       return filterAndFillEmpty(this.decodeLandData(landData))
-    } catch (e) {
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND data: ${e.message}`)
+      throw e
     }
   }
 
   async getEstateData(estateId: number): Promise<LANDData> {
     const contract = await Ethereum.getContract('EstateRegistry')
     try {
-      const landData = await contract['getMetadata'](estateId)
+      const landData = await contract['getMetadata'](estateId) as string
       return filterAndFillEmpty(this.decodeLandData(landData))
-    } catch (e) {
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND data: ${e.message}`)
+      throw e
     }
   }
 
   async getLandOwner({ x, y }: Coords): Promise<string> {
     const contract = await Ethereum.getContract('LANDRegistry')
     try {
-      return await contract['ownerOfLand'](x, y)
-    } catch (e) {
+      return contract['ownerOfLand'](x, y) as Promise<string>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND owner: ${e.message}`)
+      throw e
     }
   }
 
   async getLandOperator({ x, y }: Coords): Promise<string> {
     const contract = await Ethereum.getContract('LANDRegistry')
     try {
-      const assetId = await contract['encodeTokenId'](x, y)
-      return await contract['getApproved'](assetId)
-    } catch (e) {
+      const assetId = await contract['encodeTokenId'](x, y) as string
+      return contract['getApproved'](assetId) as Promise<string>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND operator: ${e.message}`)
+      throw e
     }
   }
 
   async getLandUpdateOperator({ x, y }: Coords): Promise<string> {
     const contract = await Ethereum.getContract('LANDRegistry')
     try {
-      const assetId = await contract['encodeTokenId'](x, y)
-      return await contract['updateOperator'](assetId)
-    } catch (e) {
+      const assetId = await contract['encodeTokenId'](x, y) as string
+      return contract['updateOperator'](assetId) as Promise<string>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND update operator: ${e.message}`)
+      throw e
     }
   }
 
   async getEstateOwner(estateId: number): Promise<string> {
     const contract = await Ethereum.getContract('EstateRegistry')
     try {
-      return await contract['ownerOf'](estateId)
-    } catch (e) {
+      return contract['ownerOf'](estateId) as Promise<string>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND owner: ${e.message}`)
+      throw e
     }
   }
 
   async getEstateOperator(estateId: number): Promise<string> {
     const contract = await Ethereum.getContract('EstateRegistry')
     try {
-      return await contract['getApproved'](estateId)
-    } catch (e) {
+      return contract['getApproved'](estateId) as Promise<string>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate operator: ${e.message}`)
+      throw e
     }
   }
 
   async getEstateUpdateOperator(estateId: number): Promise<string> {
     const contract = await Ethereum.getContract('EstateRegistry')
     try {
-      return await contract['updateOperator'](estateId)
-    } catch (e) {
+      return contract['updateOperator'](estateId) as Promise<string>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate update operator: ${e.message}`)
+      throw e
     }
   }
 
@@ -186,21 +202,22 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     const landContract = await Ethereum.getContract('LANDRegistry')
 
     try {
-      const estateSize = await contract['getEstateSize'](estateId)
-      let promiseParcels = []
+      const estateSize = await contract['getEstateSize'](estateId) as number
+      let promiseParcels: Promise<string>[] = []
 
       for (let i = 0; i < estateSize; i++) {
         const request = contract['estateLandIds'](estateId, i).then(p => {
-          return landContract['decodeTokenId']([p])
+          return landContract['decodeTokenId']([p]) as Promise<string>
         })
         promiseParcels.push(request)
       }
 
-      const parcels = (await Promise.all(promiseParcels)).map(data => getObject(data))
+      const parcels = (await Promise.all(promiseParcels)).map(getObject)
 
       return parcels
-    } catch (e) {
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LANDs of Estate: ${e.message}`)
+      throw e
     }
   }
 
@@ -209,10 +226,11 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
     const landContract = await Ethereum.getContract('LANDRegistry')
 
     try {
-      const assetId = await landContract['encodeTokenId'](x, y)
-      return await contract['getLandEstateId'](assetId)
-    } catch (e) {
+      const assetId = await landContract['encodeTokenId'](x, y) as string
+      return contract['getLandEstateId'](assetId) as Promise<number>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate ID of LAND: ${e.message}`)
+      throw e
     }
   }
 
@@ -227,23 +245,25 @@ export class Ethereum extends EventEmitter implements IEthereumDataProvider {
 
     try {
       const { x, y } = coords
-      const assetId = await contract['encodeTokenId'](x, y)
-      return await contract['isUpdateAuthorized'](owner.toLowerCase(), assetId.toString())
-    } catch (e) {
+      const assetId = await contract['encodeTokenId'](x, y) as string
+      return contract['isUpdateAuthorized'](owner.toLowerCase(), assetId.toString()) as Promise<boolean>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch LAND authorization: ${JSON.stringify(e)}`)
+      throw e
     }
   }
 
   private async isEstateOperator(estateId: number, owner: string): Promise<boolean> {
     const contract = await Ethereum.getContract('EstateRegistry')
     try {
-      return await contract['isUpdateAuthorized'](owner, estateId)
-    } catch (e) {
+      return contract['isUpdateAuthorized'](owner, estateId) as Promise<boolean>
+    } catch (e: any) {
       fail(ErrorType.ETHEREUM_ERROR, `Unable to fetch Estate authorization: ${e.message}`)
+      throw e
     }
   }
 
-  private decodeLandData(data: string = ''): LANDData {
+  private decodeLandData(data: string = ''): LANDData | null {
     if (data === '') {
       return null
     }

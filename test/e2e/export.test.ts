@@ -1,4 +1,4 @@
-import * as path from 'path'
+import path from 'path'
 import test from 'ava'
 
 import * as exportCmd from '../../src/commands/export'

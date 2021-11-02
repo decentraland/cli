@@ -1,5 +1,5 @@
-import * as path from 'path'
-import * as fs from 'fs-extra'
+import path from 'path'
+import fs from 'fs-extra'
 import chalk from 'chalk'
 
 import * as spinner from '../utils/spinner'
@@ -24,7 +24,7 @@ export async function main(): Promise<number> {
 
   try {
     await buildSmartItem(workDir)
-  } catch (error) {
+  } catch (error: any) {
     spinner.fail('Could not build the project')
     throw new Error(error)
   }

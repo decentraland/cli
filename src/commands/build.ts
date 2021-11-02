@@ -1,4 +1,4 @@
-import * as arg from 'arg'
+import arg from 'arg'
 import chalk from 'chalk'
 
 import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'

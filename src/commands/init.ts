@@ -1,5 +1,5 @@
-import * as arg from 'arg'
-import * as inquirer from 'inquirer'
+import arg from 'arg'
+import inquirer from 'inquirer'
 import chalk from 'chalk'
 
 import { BoilerplateType } from '../lib/Project'
@@ -92,7 +92,7 @@ export async function main() {
 
   try {
     await installDependencies(dcl.getWorkingDir(), false /* silent */)
-  } catch (error) {
+  } catch (error: any) {
     fail(ErrorType.INIT_ERROR, error.message)
   }
 

@@ -1,25 +1,21 @@
-import * as path from 'path'
-import * as WebSocket from 'ws'
+import path from 'path'
+import WebSocket from 'ws'
 import { fork } from 'child_process'
 import { createServer } from 'http'
 import { EventEmitter } from 'events'
+import express from 'express'
+import cors from 'cors'
+import fs from 'fs-extra'
+import portfinder from 'portfinder'
+import glob from 'glob'
+import chokidar from 'chokidar'
+import url from 'url'
+import { default as ignore } from 'ignore'
 
-import * as express from 'express'
-import * as cors from 'cors'
-import * as fs from 'fs-extra'
-import * as portfinder from 'portfinder'
-import * as glob from 'glob'
-import * as chokidar from 'chokidar'
-import * as ignore from 'ignore'
-import * as url from 'url'
-
-import * as proto from './proto/broker'
+import proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
 import getDummyMappings from '../utils/getDummyMappings'
-
-declare const __non_webpack_require__: typeof require
-
-type Decentraland = import('./Decentraland').Decentraland
+import { Decentraland } from './Decentraland'
 
 /**
  * Events emitted by this class:
@@ -53,8 +49,6 @@ export class Preview extends EventEmitter {
       }
     }
 
-    const ig = (ignore as any)().add(this.ignoredPaths)
-
     let resolvedPort = port
 
     if (!resolvedPort) {
@@ -64,30 +58,32 @@ export class Preview extends EventEmitter {
         resolvedPort = 2044
       }
     }
-
+    const ig = ignore().add(this.ignoredPaths)
     if (this.watch) {
-      chokidar.watch(this.dcl.getWorkingDir()).on('all', (_, path) => {
-        if (ig.ignores(path)) {
-          return
-        }
-
-        this.wss.clients.forEach(ws => {
-          if (
-            ws.readyState === WebSocket.OPEN &&
-            (!ws.protocol || ws.protocol === 'scene-updates')
-          ) {
-            ws.send('update')
-
-            ws.send(
-              JSON.stringify({
-                type: 'update',
-                cwd: this.dcl.getWorkingDir(),
-                path: relativiseUrl(path)
-              })
-            )
+      chokidar
+        .watch(this.dcl.getWorkingDir())
+        .on('all', (_, pathWatch) => {
+          if (ig.ignores(pathWatch)) {
+            return
           }
+
+          this.wss.clients.forEach(ws => {
+            if (
+              ws.readyState === WebSocket.OPEN &&
+              (!ws.protocol || ws.protocol === 'scene-updates')
+            ) {
+              ws.send('update')
+
+              ws.send(
+                JSON.stringify({
+                  type: 'update',
+                  cwd: this.dcl.getWorkingDir(),
+                  path: relativiseUrl(pathWatch)
+                })
+              )
+            }
+          })
         })
-      })
     }
 
     this.app.use(cors())
@@ -100,7 +96,7 @@ export class Preview extends EventEmitter {
     }
 
     const dclEcsPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-ecs')
-    const proxySetupPath = path.resolve(dclEcsPath, 'src/setupProxy.js')
+    const proxySetupPath = path.resolve(dclEcsPath, 'src', 'setupProxy.js')
     const dclApiPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-api')
 
     const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
@@ -108,7 +104,7 @@ export class Preview extends EventEmitter {
 
     if (fs.existsSync(proxySetupPath)) {
       try {
-        __non_webpack_require__(proxySetupPath)(this.dcl, this.app, express)
+        require(proxySetupPath)(this.dcl, this.app, express)
       } catch (err) {
         console.log(`${proxySetupPath} found but it couldn't be loaded properly`)
       }
@@ -228,7 +224,7 @@ function setComms(wss: WebSocket.Server) {
     }
     const alias = ++connectionCounter
 
-    const query = url.parse(req.url, true).query
+    const query = url.parse(req.url!, true).query
     const userId = query['identity'] as string
     aliasToUserId.set(alias, userId)
 
@@ -270,7 +266,7 @@ function setComms(wss: WebSocket.Server) {
         const topicFwMessage = new proto.TopicIdentityFWMessage()
         topicFwMessage.setType(proto.MessageType.TOPIC_IDENTITY_FW)
         topicFwMessage.setFromAlias(alias)
-        topicFwMessage.setIdentity(aliasToUserId.get(alias))
+        topicFwMessage.setIdentity(aliasToUserId.get(alias)!)
         topicFwMessage.setRole(proto.Role.CLIENT)
         topicFwMessage.setBody(topicMessage.getBody_asU8())
 
