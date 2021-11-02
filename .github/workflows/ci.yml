@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 15.x
       - name: install
-        run: npm install
+        run: npm ci
       - name: build
         run: npm run build
       - name: test:win
@@ -40,7 +40,7 @@ jobs:
         with:
           node-version: 15.x
       - name: install
-        run: npm install
+        run: npm ci
       - name: build
         run: npm run build
       - name: Publish
