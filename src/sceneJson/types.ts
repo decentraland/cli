@@ -2,6 +2,8 @@ export type SceneMetadata = {
   display: {
     title: string
     favicon?: string
+    description?: string
+    navmapThumbnail?: string
   }
   owner: string
   contact: {
