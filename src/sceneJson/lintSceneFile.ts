@@ -1,9 +1,10 @@
+import { Scene } from '@dcl/schemas'
+
 import { getSceneFile, setSceneFile } from '.'
-import { SceneMetadata } from './types'
 
 export async function lintSceneFile(workingDir: string): Promise<void> {
   const sceneFile = await getSceneFile(workingDir)
-  const finalScene: SceneMetadata = {
+  const finalScene: Scene = {
     ...sceneFile,
     scene: {
       ...sceneFile.scene,

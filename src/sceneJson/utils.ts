@@ -2,7 +2,6 @@ import chalk from 'chalk'
 import { Scene } from '@dcl/schemas'
 
 import * as spinner from '../utils/spinner'
-import { SceneMetadata } from './types'
 
 function checkMissingOrDefault<T extends Record<string, unknown>>(
   obj: T,
@@ -18,7 +17,7 @@ function checkMissingOrDefault<T extends Record<string, unknown>>(
 }
 
 export function validateScene(
-  sceneJson: SceneMetadata,
+  sceneJson: Scene,
   log: boolean = false
 ): boolean {
   log && spinner.create('Validating scene.json')
@@ -33,12 +32,17 @@ export function validateScene(
     return false
   }
 
-  const defaults: SceneMetadata['display'] = {
+  const defaults: Scene['display'] = {
     title: 'DCL Scene',
     description: 'My new Decentraland project',
-    navmapThumbnail: 'images/scene-thumbnail.png'
+    navmapThumbnail: 'images/scene-thumbnail.png',
   }
-  const missingKeys = checkMissingOrDefault(sceneJson.display, defaults)
+  const sceneDisplay = sceneJson.display || {}
+
+  const missingKeys = checkMissingOrDefault<NonNullable<Scene['display']>>(
+    sceneDisplay,
+    defaults
+  )
 
   if (log) {
     if (missingKeys.length) {
@@ -52,5 +56,5 @@ export function validateScene(
     }
   }
 
-  return !!missingKeys.length
+  return !missingKeys.length
 }
