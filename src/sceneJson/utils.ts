@@ -1,30 +1,46 @@
 import chalk from 'chalk'
+import { Scene } from '@dcl/schemas'
 
 import * as spinner from '../utils/spinner'
 import { SceneMetadata } from './types'
 
-export function validateSceneMetadata(
-  sceneJson: SceneMetadata,
-  withSpinner: boolean = false,
-): string[] {
-  withSpinner && spinner.create('Validating scene metadata')
-  const { title, description, navmapThumbnail } = sceneJson.display || {}
-  const validTitle = title && title !== 'DCL Scene'
-  const validDesc = description && description !== 'My new Decentraland project'
-  const validThumbnail = navmapThumbnail && navmapThumbnail !== 'images/scene-thumbnail.png'
-
-  const missingKeys = Object.entries({
-    title: validTitle,
-    description: validDesc,
-    navmapThumbnail: validThumbnail
-  }).reduce(
+function checkMissingOrDefault<T extends Record<string, unknown>>(
+  obj: T,
+  defaults: T
+) {
+  const missingKeys = Object.entries(defaults).reduce(
     (acc: string[], [key, value]) => {
-      return value ? acc : acc.concat(key)
+      return obj[key] && obj[key] !== value ? acc : acc.concat(key)
     },
     []
   )
+  return missingKeys
+}
 
-  if (withSpinner) {
+export function validateScene(
+  sceneJson: SceneMetadata,
+  log: boolean = false
+): boolean {
+  log && spinner.create('Validating scene.json')
+
+  const validScene = Scene.validate(sceneJson)
+  if (!validScene) {
+    const error = (Scene.validate.errors || [])
+      .map(a => `${a.dataPath} ${a.message}`)
+      .join('')
+
+    log && spinner.fail(`Invalid scene.json: ${error}`)
+    return false
+  }
+
+  const defaults: SceneMetadata['display'] = {
+    title: 'DCL Scene',
+    description: 'My new Decentraland project',
+    navmapThumbnail: 'images/scene-thumbnail.png'
+  }
+  const missingKeys = checkMissingOrDefault(sceneJson.display, defaults)
+
+  if (log) {
     if (missingKeys.length) {
       spinner.warn(`Don't forget to update your scene.json metadata: [${missingKeys.join(', ')}]
         ${chalk.underline.bold(
@@ -36,5 +52,5 @@ export function validateSceneMetadata(
     }
   }
 
-  return missingKeys
+  return !!missingKeys.length
 }

@@ -15,7 +15,7 @@ import * as spinner from '../utils/spinner'
 import { debug } from '../utils/logging'
 import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
-import { validateSceneMetadata } from '../sceneJson/utils'
+import { validateScene } from '../sceneJson/utils'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -117,8 +117,8 @@ export async function main(): Promise<number> {
 
     spinner.succeed('Deployment structure created.')
 
-    //  Validate scene metadata
-    validateSceneMetadata(sceneJson, true)
+    //  Validate scene.json
+    validateScene(sceneJson, true)
 
     dcl.on('link:ready', url => {
       console.log(chalk.bold('You need to sign the content before the deployment:'))
