@@ -1,3 +1,4 @@
+import { Scene } from '@dcl/schemas'
 import { EventEmitter } from 'events'
 import chalk from 'chalk'
 import { ethers } from 'ethers'
@@ -8,7 +9,6 @@ import { filterAndFillEmpty } from '../utils/land'
 import { Coords } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
-import { SceneMetadata } from '../sceneJson/types'
 import { debug } from '../utils/logging'
 import { Project, BoilerplateType } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
@@ -46,7 +46,7 @@ export type Estate = Parcel & {
 }
 
 export type ParcelMetadata = {
-  scene: SceneMetadata
+  scene: Scene
   land: Parcel
 }
 
@@ -91,7 +91,7 @@ export class Decentraland extends EventEmitter {
     return this.options.workingDir
   }
 
-  async init(sceneMeta: SceneMetadata, boilerplateType: BoilerplateType) {
+  async init(sceneMeta: Scene, boilerplateType: BoilerplateType) {
     await this.project.writeDclIgnore()
     await this.project.writeSceneFile(sceneMeta)
     await this.project.scaffoldProject(boilerplateType)

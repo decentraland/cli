@@ -2,6 +2,7 @@ import path from 'path'
 import dockerNames from 'docker-names'
 import fs from 'fs-extra'
 import ignore from 'ignore'
+import { Scene } from '@dcl/schemas'
 
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import {
@@ -14,7 +15,6 @@ import {
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
-import { SceneMetadata } from '../sceneJson/types'
 
 export enum BoilerplateType {
   ECS = 'ecs',
@@ -30,7 +30,7 @@ export interface IFile {
 export class Project {
   private static MAX_FILE_SIZE = 524300000
   private workingDir: string
-  private sceneFile: SceneMetadata | undefined
+  private sceneFile: Scene | undefined
 
   constructor(workingDir: string) {
     this.workingDir = workingDir
@@ -61,13 +61,13 @@ export class Project {
   /**
    * Returns an object containing the contents of the `scene.json` file.
    */
-  async getSceneFile(): Promise<SceneMetadata> {
+  async getSceneFile(): Promise<Scene> {
     if (this.sceneFile) {
       return this.sceneFile
     }
 
     try {
-      const sceneFile = await readJSON<SceneMetadata>(getSceneFilePath(this.workingDir))
+      const sceneFile = await readJSON<Scene>(getSceneFilePath(this.workingDir))
       this.sceneFile = sceneFile
       return sceneFile
     } catch (e) {
@@ -138,7 +138,7 @@ export class Project {
    * Creates a new `scene.json` file
    * @param path The path to the directory where the file will be written.
    */
-  writeSceneFile(content: Partial<SceneMetadata>): Promise<void> {
+  writeSceneFile(content: Partial<Scene>): Promise<void> {
     return writeJSON(getSceneFilePath(this.workingDir), content)
   }
 
@@ -155,7 +155,7 @@ export class Project {
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file === SCENE_FILE) {
-        const sceneFile = await readJSON<SceneMetadata>(getSceneFilePath(src))
+        const sceneFile = await readJSON<Scene>(getSceneFilePath(src))
         await this.writeSceneFile(sceneFile)
       } else if (file === PACKAGE_FILE) {
         const pkgFile = await readJSON<any>(getPackageFilePath(src))
@@ -194,7 +194,7 @@ export class Project {
         `Missing owner attribute at scene.json. Owner attribute is required for deploying`
       )
     }
-    return owner.toLowerCase()
+    return owner?.toLowerCase() || ''
   }
 
   /**
@@ -388,7 +388,7 @@ export class Project {
    * Fails the execution if one of the parcel data is invalid
    * @param sceneFile The JSON parsed file of scene.json
    */
-  private validateSceneData(sceneFile: SceneMetadata): void {
+  private validateSceneData(sceneFile: Scene): void {
     const { base, parcels } = sceneFile.scene
     const parcelSet = new Set(parcels)
 

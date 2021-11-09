@@ -1,14 +1,13 @@
+import { Scene } from '@dcl/schemas'
 import path from 'path'
 import fs from 'fs-extra'
 
-import { SceneMetadata } from './types'
-
-let sceneFile: SceneMetadata
+let sceneFile: Scene
 
 export async function getSceneFile(
   workingDir: string,
   cache: boolean = true
-): Promise<SceneMetadata> {
+): Promise<Scene> {
   if (cache && sceneFile) {
     return sceneFile
   }
@@ -17,6 +16,6 @@ export async function getSceneFile(
   return sceneFile
 }
 
-export async function setSceneFile(sceneFile: SceneMetadata, workingDir: string): Promise<void> {
+export async function setSceneFile(sceneFile: Scene, workingDir: string): Promise<void> {
   return fs.writeJSON(path.resolve(workingDir, 'scene.json'), sceneFile, { spaces: 2 })
 }

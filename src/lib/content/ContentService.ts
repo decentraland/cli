@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
+import { Scene } from '@dcl/schemas'
 
 import { Coords } from '../../utils/coordinateHelpers'
 import { fail, ErrorType } from '../../utils/errors'
-import { SceneMetadata } from '../../sceneJson/types'
 import { FileInfo } from '../Decentraland'
 import { CatalystClient } from 'dcl-catalyst-client'
 import { EntityType, Entity } from 'dcl-catalyst-commons'
@@ -33,7 +33,7 @@ export class ContentService extends EventEmitter {
    * @param x
    * @param y
    */
-  async getSceneData(coordinates: Coords): Promise<SceneMetadata> {
+  async getSceneData(coordinates: Coords): Promise<Scene> {
     try {
       const entity = await this.fetchEntity(coordinates)
       return entity.metadata

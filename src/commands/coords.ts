@@ -1,9 +1,9 @@
+import { Scene } from '@dcl/schemas'
 import chalk from 'chalk'
 
 import { fail, ErrorType } from '../utils/errors'
 import { getObject, isValid, getString, Coords } from '../utils/coordinateHelpers'
 import { getSceneFile, setSceneFile } from '../sceneJson'
-import { SceneMetadata } from '../sceneJson/types'
 import * as spinner from '../utils/spinner'
 
 export function help() {
@@ -51,7 +51,7 @@ export async function main() {
   const parcelObjects = parcels.map(getObject)
   const { scene, ...sceneJson } = await getSceneFile(workDir)
   const newScene = getSceneObject(parcelObjects)
-  const parsedSceneJson: SceneMetadata = {
+  const parsedSceneJson: Scene = {
     ...sceneJson,
     scene: newScene
   }
@@ -60,7 +60,7 @@ export async function main() {
   spinner.succeed()
 }
 
-function getSceneObject([sw, ne, baseParcel = sw]: Coords[]): SceneMetadata['scene'] {
+function getSceneObject([sw, ne, baseParcel = sw]: Coords[]): Scene['scene'] {
   if (!ne) {
     const coords = getString(sw)
     return { base: coords, parcels: [coords] }
