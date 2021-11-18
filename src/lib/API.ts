@@ -18,7 +18,11 @@ export class API implements IEthereumDataProvider {
       }
     }`
     type ResultType = { parcels: { estate: { id: string } | null }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, { x, y })
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      { x, y }
+    )
     const estate = response.parcels[0].estate
     if (!estate) throw new Error('No estate provided')
     return parseInt(estate.id, 10)
@@ -33,11 +37,19 @@ export class API implements IEthereumDataProvider {
         }
       }
     }`
-    type ResultType = { estates: { data: { name: string; description: string } | null }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
-      estateId: `${estateId}`
-    })
-    return response.estates[0].data ? response.estates[0].data : { name: '', description: '' }
+    type ResultType = {
+      estates: { data: { name: string; description: string } | null }[]
+    }
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      {
+        estateId: `${estateId}`
+      }
+    )
+    return response.estates[0].data
+      ? response.estates[0].data
+      : { name: '', description: '' }
   }
   async getEstateOwner(estateId: number): Promise<string> {
     const query = `query GetEstateOwner($estateId: String!) {
@@ -48,9 +60,13 @@ export class API implements IEthereumDataProvider {
       }
     }`
     type ResultType = { estates: { owner: { address: string } }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
-      estateId: `${estateId}`
-    })
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      {
+        estateId: `${estateId}`
+      }
+    )
     return response.estates[0].owner.address
   }
 
@@ -61,9 +77,13 @@ export class API implements IEthereumDataProvider {
       }
     }`
     type ResultType = { estates: { operator: string | null }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
-      estateId: `${estateId}`
-    })
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      {
+        estateId: `${estateId}`
+      }
+    )
     return response.estates[0].operator!
   }
 
@@ -74,9 +94,13 @@ export class API implements IEthereumDataProvider {
       }
     }`
     type ResultType = { estates: { updateOperator: string | null }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, {
-      estateId: `${estateId}`
-    })
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      {
+        estateId: `${estateId}`
+      }
+    )
     return response.estates[0].updateOperator!
   }
 
@@ -91,16 +115,15 @@ export class API implements IEthereumDataProvider {
         }
       }
     }`
-    type ResultType = { estates: { parcels: { x: string; y: string; id: string }[] }[] }
+    type ResultType = {
+      estates: { parcels: { x: string; y: string; id: string }[] }[]
+    }
     const response = await this.queryGraphPaginated<
       ResultType,
-      { x: string; y: string; id: string }>(
-        query,
-        { estateId: `${estateId}` }
-        , result => result.estates[0].parcels
-      )
+      { x: string; y: string; id: string }
+    >(query, { estateId: `${estateId}` }, (result) => result.estates[0].parcels)
 
-    return response.map(parcel => ({
+    return response.map((parcel) => ({
       x: parseInt(parcel.x, 10),
       y: parseInt(parcel.y, 10)
     }))
@@ -116,9 +139,17 @@ export class API implements IEthereumDataProvider {
         }
       }
     }`
-    type ResultType = { parcels: { data: { name: string; description: string } | null }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, { x, y })
-    return response.parcels[0].data ? response.parcels[0].data : { name: '', description: '' }
+    type ResultType = {
+      parcels: { data: { name: string; description: string } | null }[]
+    }
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      { x, y }
+    )
+    return response.parcels[0].data
+      ? response.parcels[0].data
+      : { name: '', description: '' }
   }
 
   async getLandOwner({ x, y }: Coords): Promise<string> {
@@ -130,7 +161,11 @@ export class API implements IEthereumDataProvider {
       }
     }`
     type ResultType = { parcels: { owner: { address: string } }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, { x, y })
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      { x, y }
+    )
     return response.parcels[0].owner.address
   }
 
@@ -141,7 +176,11 @@ export class API implements IEthereumDataProvider {
       }
     }`
     type ResultType = { parcels: { operator: string }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, { x, y })
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      { x, y }
+    )
     return response.parcels[0].operator
   }
 
@@ -152,7 +191,11 @@ export class API implements IEthereumDataProvider {
       }
     }`
     type ResultType = { parcels: { updateOperator: string }[] }
-    const response = await this.fetcher.queryGraph<ResultType>(dclApiUrl, query, { x, y })
+    const response = await this.fetcher.queryGraph<ResultType>(
+      dclApiUrl,
+      query,
+      { x, y }
+    )
     return response.parcels[0].updateOperator
   }
 
@@ -167,8 +210,12 @@ export class API implements IEthereumDataProvider {
     type ResultType = { parcels: { x: string; y: string; id: string }[] }
     const response = await this.queryGraphPaginated<
       ResultType,
-      { x: string; y: string; id: string }>(query, { owner: owner.toLowerCase() }, result => result.parcels)
-    return response.map(({ x, y }) => ({ x: parseInt(x, 10), y: parseInt(y, 10) }))
+      { x: string; y: string; id: string }
+    >(query, { owner: owner.toLowerCase() }, (result) => result.parcels)
+    return response.map(({ x, y }) => ({
+      x: parseInt(x, 10),
+      y: parseInt(y, 10)
+    }))
   }
 
   async getEstatesOf(owner: string): Promise<number[]> {
@@ -181,7 +228,7 @@ export class API implements IEthereumDataProvider {
     const response = await this.queryGraphPaginated<ResultType, { id: string }>(
       query,
       { owner: owner.toLowerCase() },
-      result => result.estates
+      (result) => result.estates
     )
     return response.map(({ id }) => parseInt(id, 10))
   }
@@ -189,7 +236,10 @@ export class API implements IEthereumDataProvider {
   /**
    * We are making paginated queries to the subgraph, sorting by id and asking for the next ones
    */
-  private async queryGraphPaginated<QueryResultType, ArrayType extends { id: string }>(
+  private async queryGraphPaginated<
+    QueryResultType,
+    ArrayType extends { id: string }
+  >(
     query: string,
     variables: Record<string, any>,
     extractArray: (queryResult: QueryResultType) => ArrayType[]
@@ -200,11 +250,15 @@ export class API implements IEthereumDataProvider {
 
     const finalResult: ArrayType[] = []
     while (keepGoing) {
-      const result = await this.fetcher.queryGraph<QueryResultType>(dclApiUrl, query, {
-        ...variables,
-        first: pageSize,
-        lastId
-      })
+      const result = await this.fetcher.queryGraph<QueryResultType>(
+        dclApiUrl,
+        query,
+        {
+          ...variables,
+          first: pageSize,
+          lastId
+        }
+      )
       const array = extractArray(result)
       keepGoing = array.length === pageSize
       lastId = array.length > 0 ? array[array.length - 1].id : undefined

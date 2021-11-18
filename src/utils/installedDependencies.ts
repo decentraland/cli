@@ -7,7 +7,10 @@ type DecentralandPackage = PackageJson<{ decentralandLibrary: string }>
 
 type Dependencies = Pick<
   PackageJson,
-  'dependencies' | 'devDependencies' | 'bundledDependencies' | 'peerDependencies'
+  | 'dependencies'
+  | 'devDependencies'
+  | 'bundledDependencies'
+  | 'peerDependencies'
 >
 
 const parseBundled = (dependencies: unknown) => {
@@ -17,7 +20,9 @@ const parseBundled = (dependencies: unknown) => {
   return []
 }
 
-export function getDependencies(packageJSON: PackageJson): Required<Dependencies> {
+export function getDependencies(
+  packageJSON: PackageJson
+): Required<Dependencies> {
   const {
     bundleDependencies = [],
     bundledDependencies = [],
@@ -28,7 +33,7 @@ export function getDependencies(packageJSON: PackageJson): Required<Dependencies
   const bundled = [
     ...parseBundled(bundleDependencies),
     ...parseBundled(bundledDependencies)
-  ].filter(b => typeof b === 'string')
+  ].filter((b) => typeof b === 'string')
 
   return {
     dependencies,
@@ -47,7 +52,7 @@ export async function getDecentralandDependencies(
   workDir: string
 ): Promise<string[]> {
   const dependenciesName = []
-  for (let dependency of Object.keys(dependencies)) {
+  for (const dependency of Object.keys(dependencies)) {
     const modulePath = getPath(workDir, dependency)
 
     if (fs.pathExistsSync(modulePath)) {

@@ -4,7 +4,9 @@ import fs from 'fs-extra'
  * Checks if a folder exists and creates it if necessary.
  * @param path One or multiple paths to be checked.
  */
-export async function ensureFolder(path: string | Array<string>): Promise<void> {
+export async function ensureFolder(
+  path: string | Array<string>
+): Promise<void> {
   if (typeof path === 'string') {
     if (await fs.pathExists(path)) {
       return
@@ -65,7 +67,9 @@ export async function isEmptyDirectory(dir: string = '.'): Promise<boolean> {
  * @returns `USERPROFILE` or `HOME`
  */
 export function getUserHome(): string {
-  return process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME'] || ''
+  return (
+    process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME'] || ''
+  )
 }
 
 export type PackageJson<T = Record<string, unknown>> = {

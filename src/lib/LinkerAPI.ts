@@ -46,18 +46,24 @@ export class LinkerAPI extends EventEmitter {
         }
       }
 
-      const url = `${isHttps ? 'https' : 'http'}://localhost:${resolvedPort}/linker`
+      const url = `${
+        isHttps ? 'https' : 'http'
+      }://localhost:${resolvedPort}/linker`
 
       this.setRoutes(rootCID)
 
-      this.on('link:error', err => {
+      this.on('link:error', (err) => {
         reject(err)
       })
 
       const serverHandler = () => this.emit('link:ready', url)
       const eventHandler = () => (e: any) => {
         if (e.errno === 'EADDRINUSE') {
-          reject(new Error(`Port ${resolvedPort} is already in use by another process`))
+          reject(
+            new Error(
+              `Port ${resolvedPort} is already in use by another process`
+            )
+          )
         } else {
           reject(new Error(`Failed to start Linker App: ${e.message}`))
         }
@@ -75,7 +81,9 @@ export class LinkerAPI extends EventEmitter {
         const credentials = { key: privateKey, cert: certificate }
 
         const httpsServer = https.createServer(credentials, this.app)
-        httpsServer.listen(resolvedPort, serverHandler).on('error', eventHandler)
+        httpsServer
+          .listen(resolvedPort, serverHandler)
+          .on('error', eventHandler)
       } else {
         this.app.listen(resolvedPort, serverHandler).on('error', eventHandler)
       }
@@ -83,13 +91,20 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes(rootCID: string) {
-    const linkerDapp = path.resolve(__dirname, '..', '..', 'node_modules', '@dcl/linker-dapp')
+    const linkerDapp = path.resolve(
+      __dirname,
+      '..',
+      '..',
+      'node_modules',
+      '@dcl/linker-dapp'
+    )
 
     this.app.use(express.static(linkerDapp))
 
     this.app.get('/linker', async (_, res) => {
       const { LANDRegistry, EstateRegistry } = getCustomConfig()
-      const { parcels, base: baseParcel } = (await this.project.getSceneFile()).scene
+      const { parcels, base: baseParcel } = (await this.project.getSceneFile())
+        .scene
       const query = querystring.stringify({
         baseParcel,
         parcels,
@@ -108,7 +123,10 @@ export class LinkerAPI extends EventEmitter {
       const { ok, reason } = urlParse.parse(req.url, true).query
 
       if (ok === 'true') {
-        this.emit('link:success', JSON.parse(reason.toString()) as LinkerResponse)
+        this.emit(
+          'link:success',
+          JSON.parse(reason.toString()) as LinkerResponse
+        )
       }
 
       if (isDevelopment()) {

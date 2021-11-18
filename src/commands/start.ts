@@ -4,7 +4,12 @@ import chalk from 'chalk'
 import opn from 'opn'
 
 import { Decentraland } from '../lib/Decentraland'
-import { buildTypescript, checkECSVersions, getOutdatedApi, isOnline } from '../utils/moduleHelpers'
+import {
+  buildTypescript,
+  checkECSVersions,
+  getOutdatedApi,
+  isOnline
+} from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { error, formatOutdatedMessage } from '../utils/logging'
 import { isEnvCi } from '../utils/env'
@@ -115,7 +120,7 @@ export async function main() {
   await lintSceneFile(workingDir)
   const [x, y] = await getSceneBaseCoords()
 
-  dcl.on('preview:ready', port => {
+  dcl.on('preview:ready', (port) => {
     const ifaces = os.networkInterfaces()
 
     let url = null
@@ -127,7 +132,7 @@ export async function main() {
     console.log(chalk.bold('\n  Available on:\n'))
 
     Object.keys(ifaces).forEach((dev, i) => {
-      ifaces[dev].forEach(details => {
+      ifaces[dev].forEach((details) => {
         if (details.family === 'IPv4') {
           let addr = `http://${details.address}:${port}?position=${x}%2C${y}`
           if (debug) {
@@ -149,9 +154,7 @@ export async function main() {
     console.log(chalk.grey('\nPress CTRL+C to exit\n'))
 
     if (openBrowser) {
-      opn(url)
-        .then()
-        .catch()
+      void opn(url).catch()
     }
   })
 

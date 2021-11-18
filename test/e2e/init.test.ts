@@ -8,11 +8,11 @@ import { SceneMetadata } from '../../src/sceneJson/types'
 import sandbox from '../helpers/sandbox'
 import initProject from '../helpers/initProject'
 
-test('snapshot - dcl help init', t => {
+test('snapshot - dcl help init', (t) => {
   t.snapshot(init.help())
 })
 
-test('E2E - init command', async t => {
+test('E2E - init command', async (t) => {
   await sandbox(async (dirPath, done) => {
     await initProject(dirPath)
 

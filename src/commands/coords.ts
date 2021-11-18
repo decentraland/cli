@@ -2,7 +2,12 @@ import { Scene } from '@dcl/schemas'
 import chalk from 'chalk'
 
 import { fail, ErrorType } from '../utils/errors'
-import { getObject, isValid, getString, Coords } from '../utils/coordinateHelpers'
+import {
+  getObject,
+  isValid,
+  getString,
+  Coords
+} from '../utils/coordinateHelpers'
 import { getSceneFile, setSceneFile } from '../sceneJson'
 import * as spinner from '../utils/spinner'
 
@@ -32,7 +37,9 @@ export function help() {
 export async function main() {
   spinner.create('Generating coords')
 
-  const parcels = process.argv.slice(process.argv.findIndex(arg => arg === 'coords') + 1)
+  const parcels = process.argv.slice(
+    process.argv.findIndex((arg) => arg === 'coords') + 1
+  )
   const workDir = process.cwd()
 
   if (!parcels || !parcels.length) {
@@ -43,7 +50,7 @@ export async function main() {
     fail(ErrorType.INFO_ERROR, 'Invalid number of args')
   }
 
-  const invalidParcel = parcels.find(p => !isValid(p))
+  const invalidParcel = parcels.find((p) => !isValid(p))
   if (invalidParcel) {
     fail(ErrorType.INFO_ERROR, `Invalid target "${chalk.bold(invalidParcel)}"`)
   }
@@ -74,7 +81,7 @@ function getSceneObject([sw, ne, baseParcel = sw]: Coords[]): Scene['scene'] {
   const xValues = getValues('x')
   const yValues = getValues('y')
   const parcels = xValues.reduce((acc: string[], x) => {
-    const coord = yValues.map(y => getString({ x, y }))
+    const coord = yValues.map((y) => getString({ x, y }))
     return acc.concat(coord)
   }, [])
   const base = parcels.length ? getString(baseParcel) : ''

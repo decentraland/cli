@@ -1,6 +1,0 @@
-{
-  "extends": ["dcl-tslint-config-standard"],
-  "linterOptions": {
-    "exclude": ["test/**/*.ts"]
-  }
-}

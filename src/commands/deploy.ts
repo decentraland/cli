@@ -1,6 +1,11 @@
 import arg from 'arg'
 import chalk from 'chalk'
-import { CatalystClient, ContentAPI, ContentClient, DeploymentBuilder } from 'dcl-catalyst-client'
+import {
+  CatalystClient,
+  ContentAPI,
+  ContentClient,
+  DeploymentBuilder
+} from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
 import { ChainId, getChainName } from '@dcl/schemas'
@@ -56,7 +61,9 @@ export async function main(): Promise<number> {
   Analytics.deploy()
 
   if (args['--target'] && args['--target-content']) {
-    throw new Error(`You can't set both the 'target' and 'target-content' arguments.`)
+    throw new Error(
+      `You can't set both the 'target' and 'target-content' arguments.`
+    )
   }
 
   const workDir = process.cwd()
@@ -100,51 +107,66 @@ export async function main(): Promise<number> {
     }
     let filesToIgnorePlusEntityJson = originalFilesToIgnore
     if (!filesToIgnorePlusEntityJson.includes('entity.json')) {
-      filesToIgnorePlusEntityJson = filesToIgnorePlusEntityJson + '\n' + 'entity.json'
+      filesToIgnorePlusEntityJson =
+        filesToIgnorePlusEntityJson + '\n' + 'entity.json'
     }
-    const files: IFile[] = await dcl.project.getFiles(filesToIgnorePlusEntityJson)
-    const contentFiles = new Map(files.map(file => [file.path, file.content]))
+    const files: IFile[] = await dcl.project.getFiles(
+      filesToIgnorePlusEntityJson
+    )
+    const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
     // Create scene.json
     const sceneJson = await getSceneFile(workDir)
 
-    const { entityId, files: entityFiles } = await DeploymentBuilder.buildEntity(
-      EntityType.SCENE,
-      findPointers(sceneJson),
-      contentFiles,
-      sceneJson
-    )
+    const { entityId, files: entityFiles } =
+      await DeploymentBuilder.buildEntity(
+        EntityType.SCENE,
+        findPointers(sceneJson),
+        contentFiles,
+        sceneJson
+      )
 
     spinner.succeed('Deployment structure created.')
 
     //  Validate scene.json
     validateScene(sceneJson, true)
 
-    dcl.on('link:ready', url => {
-      console.log(chalk.bold('You need to sign the content before the deployment:'))
+    dcl.on('link:ready', (url) => {
+      console.log(
+        chalk.bold('You need to sign the content before the deployment:')
+      )
       spinner.create(`Signing app ready at ${url}`)
 
       setTimeout(() => {
         try {
           // tslint:disable-next-line: no-floating-promises
-          opn(url)
+          void opn(url)
         } catch (e) {
           console.log(`Unable to open browser automatically`)
         }
       }, 5000)
 
-      dcl.on('link:success', ({ address, signature, chainId }: LinkerResponse) => {
-        spinner.succeed(`Content successfully signed.`)
-        console.log(`${chalk.bold('Address:')} ${address}`)
-        console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
-      })
+      dcl.on(
+        'link:success',
+        ({ address, signature, chainId }: LinkerResponse) => {
+          spinner.succeed(`Content successfully signed.`)
+          console.log(`${chalk.bold('Address:')} ${address}`)
+          console.log(`${chalk.bold('Signature:')} ${signature}`)
+          console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
+        }
+      )
     })
 
     // Signing message
     const messageToSign = entityId
-    const { signature, address, chainId } = await dcl.getAddressAndSignature(messageToSign)
-    const authChain = Authenticator.createSimpleAuthChain(entityId, address, signature)
+    const { signature, address, chainId } = await dcl.getAddressAndSignature(
+      messageToSign
+    )
+    const authChain = Authenticator.createSimpleAuthChain(
+      entityId,
+      address,
+      signature
+    )
 
     // Uploading data
     let catalyst: ContentAPI

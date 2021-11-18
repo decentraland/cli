@@ -1,5 +1,4 @@
 import path from 'path'
-import * as fs from 'fs-extra'
 import test from 'ava'
 
 import * as installCmd from '../../src/commands/install'
@@ -10,12 +9,15 @@ import { isDebug } from '../../src/utils/env'
 import { readJSON } from '../../src/utils/filesystem'
 
 function installCommand(dirPath: string, library: string = '') {
-  return new Promise<void>(resolve => {
-    const cmd = new Commando(`node ${path.resolve('dist', 'cli.js')} install ${library}`, {
-      silent: !isDebug(),
-      workingDir: dirPath,
-      env: { NODE_ENV: 'development' }
-    })
+  return new Promise<void>((resolve) => {
+    const cmd = new Commando(
+      `node ${path.resolve('dist', 'cli.js')} install ${library}`,
+      {
+        silent: !isDebug(),
+        workingDir: dirPath,
+        env: { NODE_ENV: 'development' }
+      }
+    )
 
     cmd.on('end', async () => {
       resolve()
@@ -23,11 +25,11 @@ function installCommand(dirPath: string, library: string = '') {
   })
 }
 
-test('snapshot - dcl help instal', t => {
+test('snapshot - dcl help instal', (t) => {
   t.snapshot(installCmd.help())
 })
 
-test('E2E - install a package', async t => {
+test('E2E - install a package', async (t) => {
   await sandbox(async (dirPath, done) => {
     const packageToInstall = '@dcl/ecs-scene-utils'
     await initProject(dirPath)

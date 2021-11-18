@@ -1,5 +1,5 @@
 import { Scene } from '@dcl/schemas'
-import test, { before } from 'ava'
+import test from 'ava'
 import sinon from 'sinon'
 
 import * as spinner from '../../../src/utils/spinner'
@@ -12,18 +12,18 @@ let mockSpinner: Record<SinnonKeys, sinon.SinonSpy>
 
 test.before(() => {
   mockSpinner = {
-    create: sandbox.stub(spinner, 'create').callsFake(a => a),
-    fail: sandbox.stub(spinner, 'fail').callsFake(a => a),
-    warn: sandbox.stub(spinner, 'warn').callsFake(a => a),
-    succeed: sandbox.stub(spinner, 'succeed').callsFake(a => a),
-    info: sandbox.stub(spinner, 'info').callsFake(a => a),
+    create: sandbox.stub(spinner, 'create').callsFake((a) => a),
+    fail: sandbox.stub(spinner, 'fail').callsFake((a) => a),
+    warn: sandbox.stub(spinner, 'warn').callsFake((a) => a),
+    succeed: sandbox.stub(spinner, 'succeed').callsFake((a) => a),
+    info: sandbox.stub(spinner, 'info').callsFake((a) => a)
   }
 })
 test.after(() => {
   sandbox.restore()
 })
 
-test('Unit - validateScene should fail with default metadata values', t => {
+test('Unit - validateScene should fail with default metadata values', (t) => {
   sandbox.reset()
   const scene: Scene = sceneJson
 
@@ -35,7 +35,7 @@ test('Unit - validateScene should fail with default metadata values', t => {
   sandbox.assert.notCalled(mockSpinner.succeed)
 })
 
-test('Unit - validateScene should pass with valid scene.json', t => {
+test('Unit - validateScene should pass with valid scene.json', (t) => {
   sandbox.reset()
   const scene: Scene = {
     ...sceneJson,
@@ -54,7 +54,7 @@ test('Unit - validateScene should pass with valid scene.json', t => {
   sandbox.assert.notCalled(mockSpinner.warn)
 })
 
-test('Unit - validateScene should fail with missing main prop', t => {
+test('Unit - validateScene should fail with missing main prop', (t) => {
   sandbox.reset()
   const scene: Scene = {
     ...sceneJson,
@@ -69,7 +69,7 @@ test('Unit - validateScene should fail with missing main prop', t => {
   sandbox.assert.notCalled(mockSpinner.warn)
 })
 
-test('Unit - validateScene should fail with invalid description prop', t => {
+test('Unit - validateScene should fail with invalid description prop', (t) => {
   sandbox.reset()
   const scene: Scene = {
     ...sceneJson,
@@ -88,7 +88,7 @@ test('Unit - validateScene should fail with invalid description prop', t => {
   sandbox.assert.notCalled(mockSpinner.warn)
 })
 
-test('Unit - validateScene should not called spinner with log in false', t => {
+test('Unit - validateScene should not called spinner with log in false', (t) => {
   sandbox.reset()
   const scene: Scene = sceneJson
 

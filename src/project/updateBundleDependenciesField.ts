@@ -1,12 +1,14 @@
-
 import path from 'path'
 import fs from 'fs-extra'
 
 import { readJSON, PackageJson } from '../utils/filesystem'
-import { getDecentralandDependencies, getDependencies } from '../utils/installedDependencies'
+import {
+  getDecentralandDependencies,
+  getDependencies
+} from '../utils/installedDependencies'
 import * as spinner from '../utils/spinner'
 
-export default async function() {
+export default async function () {
   try {
     spinner.create('Checking decentraland libraries')
 
@@ -20,7 +22,7 @@ export default async function() {
     )
 
     const missingBundled = !!decentralandDependencies.find(
-      name => !pkgDependencies.bundledDependencies.includes(name)
+      (name) => !pkgDependencies.bundledDependencies.includes(name)
     )
 
     if (missingBundled) {
@@ -28,7 +30,8 @@ export default async function() {
         ...pkgDependencies.bundledDependencies,
         ...decentralandDependencies
       ])
-      const { bundledDependencies, bundleDependencies, ...packageJsonProps } = packageJSON
+      const { bundledDependencies, bundleDependencies, ...packageJsonProps } =
+        packageJSON
       const newPackage = {
         ...packageJsonProps,
         bundledDependencies: Array.from(allBundledDependencies)

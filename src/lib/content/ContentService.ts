@@ -20,10 +20,12 @@ export class ContentService extends EventEmitter {
    * @param x
    * @param y
    */
-  async getParcelStatus(coordinates: Coords): Promise<{ cid: string; files: FileInfo[] }> {
+  async getParcelStatus(
+    coordinates: Coords
+  ): Promise<{ cid: string; files: FileInfo[] }> {
     const entity = await this.fetchEntity(coordinates)
     const content = entity.content
-      ? entity.content.map(entry => ({ name: entry.file, cid: entry.hash }))
+      ? entity.content.map((entry) => ({ name: entry.file, cid: entry.hash }))
       : []
     return { cid: entity.id, files: content }
   }
@@ -45,7 +47,10 @@ export class ContentService extends EventEmitter {
   private async fetchEntity(coordinates: Coords): Promise<Entity> {
     const pointer = `${coordinates.x},${coordinates.y}`
     try {
-      const entities = await this.client.fetchEntitiesByPointers(EntityType.SCENE, [pointer])
+      const entities = await this.client.fetchEntitiesByPointers(
+        EntityType.SCENE,
+        [pointer]
+      )
       const entity: Entity | undefined = entities[0]
       if (!entity) {
         fail(

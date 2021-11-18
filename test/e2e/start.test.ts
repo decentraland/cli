@@ -9,12 +9,12 @@ import Commando from '../helpers/commando'
 import sandbox from '../helpers/sandbox'
 import initProject from '../helpers/initProject'
 
-test('snapshot - dcl help start', t => {
+test('snapshot - dcl help start', (t) => {
   t.snapshot(start.help())
 })
 
 function startProject(dirPath): Promise<Commando> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const command = new Commando(
       `node ${path.resolve('dist', 'cli.js')} start --no-browser -p 8001`,
       {
@@ -28,7 +28,7 @@ function startProject(dirPath): Promise<Commando> {
   })
 }
 
-test('E2E - init && start command', async t => {
+test('E2E - init && start command', async (t) => {
   await sandbox(async (dirPath, done) => {
     // We init project without installing dependencies so we test
     // that `dcl start` automatically install dependencies as well
@@ -37,10 +37,12 @@ test('E2E - init && start command', async t => {
     const response = await fetch(`http://localhost:8001`)
     const body = await response.text()
     t.snapshot(body)
-    const [gameCompiledExists, nodeModulesExists, ecsModuleExists] = await pathsExistOnDir(
-      dirPath,
-      ['bin/game.js', 'node_modules', 'node_modules/decentraland-ecs']
-    )
+    const [gameCompiledExists, nodeModulesExists, ecsModuleExists] =
+      await pathsExistOnDir(dirPath, [
+        'bin/game.js',
+        'node_modules',
+        'node_modules/decentraland-ecs'
+      ])
 
     t.true(gameCompiledExists)
     t.true(nodeModulesExists)

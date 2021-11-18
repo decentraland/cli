@@ -1,4 +1,4 @@
-export default new Set<String>([
+export default new Set<string>([
   'init',
   'build',
   'start',

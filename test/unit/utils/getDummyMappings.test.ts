@@ -2,7 +2,7 @@ import test from 'ava'
 
 import getDummyMappings from '../../../src/utils/getDummyMappings'
 
-test('Unit - getDummyMappings() - should calculate mappings for outside of DCL', async t => {
+test('Unit - getDummyMappings() - should calculate mappings for outside of DCL', async (t) => {
   const expected = {
     mappings: {
       'bin/game.js': 'bin/game.js',

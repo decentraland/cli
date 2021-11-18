@@ -6,7 +6,7 @@ export function getOrElse(value: any, def: any) {
  * Returns an object with the specified attributes with null as value
  */
 export function createEmptyObj(attributes: string[], obj: any = {}) {
-  attributes.forEach(attr => {
+  attributes.forEach((attr) => {
     obj[attr] = null
   })
   return obj
@@ -18,8 +18,8 @@ export function createEmptyObj(attributes: string[], obj: any = {}) {
 export function removeEmptyKeys(obj: Record<string, unknown>) {
   const result: Record<string, unknown> = {}
   Object.keys(obj)
-    .filter(k => !!obj[k])
-    .forEach(k => (result[k] = obj[k]))
+    .filter((k) => !!obj[k])
+    .forEach((k) => (result[k] = obj[k]))
   return result
 }
 

@@ -3,14 +3,14 @@ import test from 'ava'
 
 import * as info from '../../src/commands/info'
 import { isDebug } from '../../src/utils/env'
-import Commando, { Response } from '../helpers/commando'
+import Commando from '../helpers/commando'
 
-test('snapshot - dcl help info', t => {
+test('snapshot - dcl help info', (t) => {
   t.snapshot(info.help())
 })
 
-test('E2E - info command', async t => {
-  await new Promise(resolve => {
+test('E2E - info command', async (t) => {
+  await new Promise<void>((resolve) => {
     let allData = ''
     new Commando(
       `node ${path.resolve('dist', 'cli.js')} info --network ropsten -35,-130`,
@@ -19,7 +19,7 @@ test('E2E - info command', async t => {
         workingDir: '.',
         env: { NODE_ENV: 'development' }
       },
-      data => (allData += data)
+      (data) => (allData += data)
     ).on('end', async () => {
       t.snapshot(allData)
       resolve()
