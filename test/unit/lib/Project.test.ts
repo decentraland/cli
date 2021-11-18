@@ -1,7 +1,6 @@
 import { Stats } from 'fs-extra'
 import test from 'ava'
 import sinon from 'sinon'
-import fs from 'fs-extra'
 
 function createSandbox() {
   const ctx = sinon.createSandbox()
@@ -9,6 +8,8 @@ function createSandbox() {
   delete require.cache[require.resolve('../../../src/lib/Project')]
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Project } = require('../../../src/lib/Project')
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const fs = require('fs-extra')
 
   const getAllFilePathsStub = ctx
     .stub(Project.prototype, 'getAllFilePaths')

@@ -2,7 +2,7 @@ import Commando from '../helpers/commando'
 import { isDebug } from '../../src/utils/env'
 
 export default function buildProject(dirPath) {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     new Commando(`npm run build`, {
       silent: !isDebug(),
       workingDir: dirPath,
