@@ -70,7 +70,9 @@ export class Preview extends EventEmitter {
           sceneId = assetJson.id
           sceneType = 'portable-experience'
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error(`Unable to load asset.json properly, please check it.`, err)
+      }
     }
 
     const ig = ignore().add(this.ignoredPaths)
@@ -126,7 +128,7 @@ export class Preview extends EventEmitter {
       try {
         require(proxySetupPath)(this.dcl, this.app, express)
       } catch (err) {
-        console.log(`${proxySetupPath} found but it couldn't be loaded properly`)
+        console.log(`${proxySetupPath} found but it couldn't be loaded properly`, err)
       }
     }
 
