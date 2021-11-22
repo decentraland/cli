@@ -10,30 +10,28 @@ import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
 
 export const help = () => `
-Usage: ${chalk.bold('dcl init [options]')}
+  Usage: ${chalk.bold('dcl init [options]')}
 
-${chalk.dim('Options:')}
+    ${chalk.dim('Options:')}
 
--h, --help               Displays complete help
--b, --boilerplate [type] Choose a boilerplate (default is ecs). It could be any of ${chalk.bold(
-  getBoilerplateTypes()
-)}
+    -h, --help               Displays complete help
+    -b, --boilerplate [type] Choose a boilerplate (default is ecs). It could be any of ${chalk.bold(
+    getBoilerplateTypes()
+    )}
 
-  ${chalk.dim('Examples:')}
+    ${chalk.dim('Examples:')}
 
-  - Generate a new Decentraland Scene project in my-project folder
+    - Generate a new Decentraland Scene project in my-project folder
 
-  ${chalk.green('$ dcl init my-project')}
+    ${chalk.green('$ dcl init my-project')}
 
-  - Generate a new ecs project
+    - Generate a new ecs project
 
-  ${chalk.green('$ dcl init --boilerplate ecs')}
+    ${chalk.green('$ dcl init --boilerplate ecs')}
 `
 
 function getBoilerplateTypes() {
-  return Object.values(BoilerplateType)
-    .filter(($) => isNaN($ as any))
-    .join(', ')
+  return Object.values(BoilerplateType).join(', ')
 }
 
 async function getBoilerplate(type?: string): Promise<BoilerplateType> {

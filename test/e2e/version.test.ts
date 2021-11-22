@@ -9,7 +9,7 @@ test('E2E - version command', async (t) => {
   const dclVersion: string = await new Promise((resolve) => {
     let allData = ''
     new Commando(
-      `node ${path.resolve('dist', 'cli.js')} version`,
+      `node ${path.resolve('dist', 'index.js')} version`,
       {
         silent: !isDebug(),
         workingDir: '.',
