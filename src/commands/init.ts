@@ -1,7 +1,6 @@
-import { Scene } from '@dcl/schemas'
-import arg from 'arg'
-import inquirer from 'inquirer'
+import inquirer, { Questions } from 'inquirer'
 import chalk from 'chalk'
+import arg from 'arg'
 
 import { BoilerplateType } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
@@ -11,30 +10,64 @@ import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
 
 export const help = () => `
-  Usage: ${chalk.bold('dcl init [options]')}
+Usage: ${chalk.bold('dcl init [options]')}
 
-    ${chalk.dim('Options:')}
+${chalk.dim('Options:')}
 
-      -h, --help               Displays complete help
-      -b, --boilerplate [type] Choose a boilerplate (default is ecs). It could be any of ${chalk.bold(
-        getBoilerplateTypes()
-      )}
+-h, --help               Displays complete help
+-b, --boilerplate [type] Choose a boilerplate (default is ecs). It could be any of ${chalk.bold(
+  getBoilerplateTypes()
+)}
 
-    ${chalk.dim('Examples:')}
+  ${chalk.dim('Examples:')}
 
-    - Generate a new Decentraland Scene project in my-project folder
+  - Generate a new Decentraland Scene project in my-project folder
 
-      ${chalk.green('$ dcl init my-project')}
+  ${chalk.green('$ dcl init my-project')}
 
-    - Generate a new static project
+  - Generate a new ecs project
 
-      ${chalk.green('$ dcl info --boilerplate static')}
+  ${chalk.green('$ dcl init --boilerplate ecs')}
 `
 
 function getBoilerplateTypes() {
   return Object.values(BoilerplateType)
     .filter(($) => isNaN($ as any))
     .join(', ')
+}
+
+async function getBoilerplate(type?: string): Promise<BoilerplateType> {
+  if (!type) {
+    const boilerplateList: Questions = [
+      {
+        type: 'list',
+        name: 'boilerplate',
+        message: 'Choose a boilerplate',
+        choices: [
+          { value: BoilerplateType.ECS, name: 'ECS' },
+          { value: BoilerplateType.SMART_ITEM, name: 'Smart Item' },
+          {
+            value: BoilerplateType.PORTABLE_EXPERIENCE,
+            name: 'Portable Experience'
+          }
+        ]
+      }
+    ]
+    const answers = await inquirer.prompt(boilerplateList)
+    const boilerplate: BoilerplateType = answers.boilerplate
+
+    return boilerplate
+  }
+
+  if (!Object.values(BoilerplateType).includes(type as BoilerplateType)) {
+    fail(
+      ErrorType.INIT_ERROR,
+      `Invalid boilerplate: "${chalk.bold(
+        type
+      )}". Supported types are ${chalk.bold(getBoilerplateTypes())}`
+    )
+  }
+  return type as BoilerplateType
 }
 
 export async function main() {
@@ -45,19 +78,7 @@ export async function main() {
     '-b': '--boilerplate'
   })
 
-  const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
-
-  if (
-    !Object.values(BoilerplateType).includes(boilerplate as BoilerplateType)
-  ) {
-    fail(
-      ErrorType.INIT_ERROR,
-      `Invalid boilerplate: "${chalk.bold(
-        boilerplate
-      )}". Supported types are ${chalk.bold(getBoilerplateTypes())}`
-    )
-  }
-
+  const boilerplate = await getBoilerplate(args['--boilerplate'])
   const dcl = new Decentraland({ workingDir: process.cwd() })
 
   await dcl.project.validateNewProject()
@@ -77,25 +98,10 @@ export async function main() {
     }
   }
 
-  const sceneMeta: Scene = {
-    display: { title: dcl.project.getRandomName() },
-    contact: {
-      name: '',
-      email: ''
-    },
-    owner: '',
-    scene: {
-      parcels: ['0,0'],
-      base: '0,0'
-    },
-    requiredPermissions: [],
-    main: 'bin/game.js'
-  }
-
-  await dcl.init(sceneMeta, boilerplate as BoilerplateType)
+  await dcl.init(boilerplate)
 
   try {
-    await installDependencies(dcl.getWorkingDir(), false /* silent */)
+    await installDependencies(dcl.getWorkingDir(), false)
   } catch (error: any) {
     fail(ErrorType.INIT_ERROR, error.message)
   }

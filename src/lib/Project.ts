@@ -24,7 +24,8 @@ import {
 
 export enum BoilerplateType {
   ECS = 'ecs',
-  SMART_ITEM = 'smart-item'
+  SMART_ITEM = 'smart-item',
+  PORTABLE_EXPERIENCE = 'px'
 }
 
 export interface IFile {
@@ -87,15 +88,19 @@ export class Project {
 
   /**
    * Scaffolds a project or fails for an invalid boilerplate type
-   * @param boilerplateType `static`, `singleplayer` or `multiplayer`
+   * @param boilerplateType
    */
-  async scaffoldProject(boilerplateType: string) {
+  async scaffoldProject(boilerplateType: BoilerplateType) {
     switch (boilerplateType) {
       case BoilerplateType.SMART_ITEM: {
         await this.copySample('smart-item')
         break
       }
       case BoilerplateType.ECS: {
+        await this.copySample('ecs')
+        break
+      }
+      case BoilerplateType.PORTABLE_EXPERIENCE: {
         await this.copySample('ecs')
         break
       }
