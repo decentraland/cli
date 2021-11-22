@@ -108,6 +108,13 @@ class Commando extends EventEmitter {
     return this
   }
 
+  nextCommand() {
+    const nextCommand = this.orderedCommands[0]
+    this.orderedCommands = this.orderedCommands.slice(1)
+
+    return nextCommand
+  }
+
   private onData(data: string) {
     if (this.onDataFn) {
       this.onDataFn(data)
@@ -115,11 +122,8 @@ class Commando extends EventEmitter {
 
     if (this.orderedCommands.length) {
       const match = this.matchers.find(m => data.match(m.pattern))
-      if (match) {
-        const nextCommand = this.orderedCommands.shift()
-        if (nextCommand !== match.pattern.toString()) {
-          this.end()
-        }
+      if (match && this.nextCommand() !== match.pattern.toString()) {
+        this.end()
       }
     }
 
