@@ -58,32 +58,54 @@ export class Preview extends EventEmitter {
         resolvedPort = 2044
       }
     }
+
+    // PoC - TODO: need to be typed
+    let sceneId: string = ''
+    let sceneType: string = 'parcel'
+    const assetJsonPath = path.resolve(this.dcl.getWorkingDir(), 'asset.json')
+    if (fs.existsSync(assetJsonPath)) {
+      try {
+        const assetJson: any = require(assetJsonPath)
+        if (assetJson?.id && assetJson?.assetType === 'portable-experience'){
+          sceneId = assetJson.id
+          sceneType = 'portable-experience'
+        }
+      } catch (err) {
+        console.error(`Unable to load asset.json properly, please check it.`, err)
+      }
+    }
+
     const ig = ignore().add(this.ignoredPaths)
     if (this.watch) {
-      chokidar
-        .watch(this.dcl.getWorkingDir())
-        .on('all', (_, pathWatch) => {
-          if (ig.ignores(pathWatch)) {
-            return
+      chokidar.watch(this.dcl.getWorkingDir()).on('all', (_, pathWatch) => {
+        if (ig.ignores(pathWatch)) {
+          return
+        }
+
+        this.wss.clients.forEach(ws => {
+          if (
+            ws.readyState === WebSocket.OPEN &&
+            (!ws.protocol || ws.protocol === 'scene-updates')
+          ) {
+            ws.send('update')
+
+            ws.send(
+              JSON.stringify({
+                type: 'update',
+                cwd: this.dcl.getWorkingDir(),
+                path: relativiseUrl(pathWatch),
+                payload: {
+                  type: 'watch',
+                  body:{ 
+                    sceneId,
+                    sceneType
+                  }
+                }
+              })
+            )
           }
-
-          this.wss.clients.forEach(ws => {
-            if (
-              ws.readyState === WebSocket.OPEN &&
-              (!ws.protocol || ws.protocol === 'scene-updates')
-            ) {
-              ws.send('update')
-
-              ws.send(
-                JSON.stringify({
-                  type: 'update',
-                  cwd: this.dcl.getWorkingDir(),
-                  path: relativiseUrl(pathWatch)
-                })
-              )
-            }
-          })
         })
+      })
     }
 
     this.app.use(cors())
@@ -106,7 +128,7 @@ export class Preview extends EventEmitter {
       try {
         require(proxySetupPath)(this.dcl, this.app, express)
       } catch (err) {
-        console.log(`${proxySetupPath} found but it couldn't be loaded properly`)
+        console.log(`${proxySetupPath} found but it couldn't be loaded properly`, err)
       }
     }
 
