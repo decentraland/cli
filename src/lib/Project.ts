@@ -101,7 +101,7 @@ export class Project {
         break
       }
       case BoilerplateType.PORTABLE_EXPERIENCE: {
-        await this.copySample('ecs')
+        await this.copySample('portable-experience')
         break
       }
     }
