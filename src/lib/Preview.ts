@@ -65,13 +65,17 @@ export class Preview extends EventEmitter {
     const assetJsonPath = path.resolve(this.dcl.getWorkingDir(), 'asset.json')
     if (fs.existsSync(assetJsonPath)) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const assetJson: any = require(assetJsonPath)
-        if (assetJson?.id && assetJson?.assetType === 'portable-experience'){
+        if (assetJson?.id && assetJson?.assetType === 'portable-experience') {
           sceneId = assetJson.id
           sceneType = 'portable-experience'
         }
       } catch (err) {
-        console.error(`Unable to load asset.json properly, please check it.`, err)
+        console.error(
+          `Unable to load asset.json properly, please check it.`,
+          err
+        )
       }
     }
 
@@ -96,7 +100,7 @@ export class Preview extends EventEmitter {
                 path: relativiseUrl(pathWatch),
                 payload: {
                   type: 'watch',
-                  body:{
+                  body: {
                     sceneId,
                     sceneType
                   }
@@ -143,7 +147,10 @@ export class Preview extends EventEmitter {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require(proxySetupPath)(this.dcl, this.app, express)
       } catch (err) {
-        console.log(`${proxySetupPath} found but it couldn't be loaded properly`, err)
+        console.log(
+          `${proxySetupPath} found but it couldn't be loaded properly`,
+          err
+        )
       }
     }
 
