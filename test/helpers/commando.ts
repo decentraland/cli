@@ -17,12 +17,11 @@ export interface IMatcherOptions {
 export enum Response {
   YES = 'Yes\n',
   NO = 'no\n',
-  DOWN = "\x1B\x5B\x42",
-  UP = "\x1B\x5B\x41",
-  ENTER = "\x0D",
-  SPACE = "\x20",
+  DOWN = '\x1B\x5B\x42',
+  UP = '\x1B\x5B\x41',
+  ENTER = '\x0D',
+  SPACE = '\x20'
 }
-
 
 class Commando extends EventEmitter {
   private proc: ChildProcess
@@ -121,7 +120,7 @@ class Commando extends EventEmitter {
     }
 
     if (this.orderedCommands.length) {
-      const match = this.matchers.find(m => data.match(m.pattern))
+      const match = this.matchers.find((m) => data.match(m.pattern))
       if (match && this.nextCommand() !== match.pattern.toString()) {
         this.end()
       }
@@ -144,7 +143,7 @@ class Commando extends EventEmitter {
       }
 
       if (res && Array.isArray(res)) {
-        res.forEach(r => this.proc.stdin.write(r))
+        res.forEach((r) => this.proc.stdin.write(r))
       }
 
       if (!match.options.matchMany) {

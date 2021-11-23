@@ -16,7 +16,7 @@ export const help = () => `
 
     -h, --help               Displays complete help
     -b, --boilerplate [type] Choose a boilerplate (default is ecs). It could be any of ${chalk.bold(
-    getBoilerplateTypes()
+      getBoilerplateTypes()
     )}
 
     ${chalk.dim('Examples:')}
