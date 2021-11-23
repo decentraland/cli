@@ -65,13 +65,17 @@ export class Preview extends EventEmitter {
     const assetJsonPath = path.resolve(this.dcl.getWorkingDir(), 'asset.json')
     if (fs.existsSync(assetJsonPath)) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const assetJson: any = require(assetJsonPath)
-        if (assetJson?.id && assetJson?.assetType === 'portable-experience'){
+        if (assetJson?.id && assetJson?.assetType === 'portable-experience') {
           sceneId = assetJson.id
           sceneType = 'portable-experience'
         }
       } catch (err) {
-        console.error(`Unable to load asset.json properly, please check it.`, err)
+        console.error(
+          `Unable to load asset.json properly, please check it.`,
+          err
+        )
       }
     }
 
@@ -82,7 +86,7 @@ export class Preview extends EventEmitter {
           return
         }
 
-        this.wss.clients.forEach(ws => {
+        this.wss.clients.forEach((ws) => {
           if (
             ws.readyState === WebSocket.OPEN &&
             (!ws.protocol || ws.protocol === 'scene-updates')
@@ -96,7 +100,7 @@ export class Preview extends EventEmitter {
                 path: relativiseUrl(pathWatch),
                 payload: {
                   type: 'watch',
-                  body:{ 
+                  body: {
                     sceneId,
                     sceneType
                   }
@@ -110,25 +114,43 @@ export class Preview extends EventEmitter {
 
     this.app.use(cors())
 
-    const npmModulesPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules')
+    const npmModulesPath = path.resolve(
+      this.dcl.getWorkingDir(),
+      'node_modules'
+    )
 
     // TODO: dcl.project.needsDependencies() should do this
     if (!fs.pathExistsSync(npmModulesPath)) {
-      fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${npmModulesPath}, please run: npm install`)
+      fail(
+        ErrorType.PREVIEW_ERROR,
+        `Couldn\'t find ${npmModulesPath}, please run: npm install`
+      )
     }
 
-    const dclEcsPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-ecs')
+    const dclEcsPath = path.resolve(
+      this.dcl.getWorkingDir(),
+      'node_modules',
+      'decentraland-ecs'
+    )
     const proxySetupPath = path.resolve(dclEcsPath, 'src', 'setupProxy.js')
-    const dclApiPath = path.resolve(this.dcl.getWorkingDir(), 'node_modules', 'decentraland-api')
+    const dclApiPath = path.resolve(
+      this.dcl.getWorkingDir(),
+      'node_modules',
+      'decentraland-api'
+    )
 
     const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
     const unityPath = path.resolve(dclEcsPath, 'artifacts', 'unity')
 
     if (fs.existsSync(proxySetupPath)) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         require(proxySetupPath)(this.dcl, this.app, express)
       } catch (err) {
-        console.log(`${proxySetupPath} found but it couldn't be loaded properly`, err)
+        console.log(
+          `${proxySetupPath} found but it couldn't be loaded properly`,
+          err
+        )
       }
     }
 
@@ -165,7 +187,10 @@ export class Preview extends EventEmitter {
           res.end()
         } else {
           const ret = getDummyMappings(files.map(relativiseUrl))
-          ret.contents = ret.contents.map(({ file, hash }) => ({ file, hash: `contents/${hash}` }))
+          ret.contents = ret.contents.map(({ file, hash }) => ({
+            file,
+            hash: `contents/${hash}`
+          }))
 
           res.json(ret)
         }
@@ -184,16 +209,13 @@ export class Preview extends EventEmitter {
     this.emit('preview:ready', resolvedPort)
 
     return new Promise((resolve, reject) => {
-      this.server
-        .listen(resolvedPort)
-        .on('close', resolve)
-        .on('error', reject)
+      this.server.listen(resolvedPort).on('close', resolve).on('error', reject)
     })
   }
 }
 
 function setDebugRunner(wss: WebSocket.Server) {
-  wss.on('connection', ws => {
+  wss.on('connection', (ws) => {
     if (ws.protocol === 'dcl-scene') {
       const file = require.resolve('dcl-node-runtime')
 
@@ -210,12 +232,12 @@ function setDebugRunner(wss: WebSocket.Server) {
           ws.close()
         }
       })
-      theFork.on('message', message => {
+      theFork.on('message', (message) => {
         if (ws.readyState === ws.OPEN) {
           ws.send(message)
         }
       })
-      ws.on('message', data => theFork.send(data.toString()))
+      ws.on('message', (data) => theFork.send(data.toString()))
       ws.on('close', () => {
         console.log('> Killing fork #' + theFork.pid)
         theFork.kill()
@@ -254,7 +276,7 @@ function setComms(wss: WebSocket.Server) {
 
     connections.add(ws)
 
-    ws.on('message', message => {
+    ws.on('message', (message) => {
       const data = message as Buffer
       const msgType = proto.CoordinatorMessage.deserializeBinary(data).getType()
 
@@ -273,7 +295,7 @@ function setComms(wss: WebSocket.Server) {
         const topicData = topicFwMessage.serializeBinary()
 
         // Reliable/unreliable data
-        connections.forEach($ => {
+        connections.forEach(($) => {
           if (ws !== $) {
             if (getTopicList($).has(topic)) {
               $.send(topicData)
@@ -295,7 +317,7 @@ function setComms(wss: WebSocket.Server) {
         const topicData = topicFwMessage.serializeBinary()
 
         // Reliable/unreliable data
-        connections.forEach($ => {
+        connections.forEach(($) => {
           if (ws !== $) {
             if (getTopicList($).has(topic)) {
               $.send(topicData)
@@ -309,7 +331,7 @@ function setComms(wss: WebSocket.Server) {
         const set = getTopicList(ws)
 
         set.clear()
-        topics.split(/\s+/g).forEach($ => set.add($))
+        topics.split(/\s+/g).forEach(($) => set.add($))
       }
     })
 

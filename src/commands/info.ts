@@ -16,14 +16,16 @@ export const help = () => `
 
       -h, --help                Displays complete help
       -b, --blockchain          Retrieve information directly from the blockchain instead of Decentraland remote API
-      -n, --network             Choose between ${chalk.bold('mainnet')} and ${chalk.bold(
-  'ropsten'
-)} (default 'mainnet')
+      -n, --network             Choose between ${chalk.bold(
+        'mainnet'
+      )} and ${chalk.bold('ropsten')} (default 'mainnet')
 
 
     ${chalk.dim('Examples:')}
 
-    - Get information from the ${chalk.bold('LAND')} located at "${chalk.bold('-12, 40')}"
+    - Get information from the ${chalk.bold('LAND')} located at "${chalk.bold(
+  '-12, 40'
+)}"
 
       ${chalk.green('$ dcl info -12,40')}
 
@@ -33,7 +35,9 @@ export const help = () => `
 
       ${chalk.green('$ dcl info 5 --blockchain')}
 
-    - Get information from the ${chalk.bold('address 0x8bed95d830475691c10281f1fea2c0a0fe51304b')}"
+    - Get information from the ${chalk.bold(
+      'address 0x8bed95d830475691c10281f1fea2c0a0fe51304b'
+    )}"
 
       ${chalk.green('$ dcl info 0x8bed95d830475691c10281f1fea2c0a0fe51304b')}
 `
@@ -179,6 +183,7 @@ function logEstate(estate?: Estate, id?: number) {
 
   if (estate.parcels.length === 0) {
     console.log(chalk.bold(`\n  Estate with ID ${id} has been dissolved\n`))
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: TODO
     delete estate.parcels
   }

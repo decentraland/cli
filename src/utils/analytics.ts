@@ -2,7 +2,11 @@ import uuidv4 from 'uuid/v4'
 import AnalyticsNode from 'analytics-node'
 
 import { createDCLInfo, getConfig } from '../config'
-import { isOnline, getInstalledCLIVersion, getInstalledVersion } from './moduleHelpers'
+import {
+  isOnline,
+  getInstalledCLIVersion,
+  getInstalledVersion
+} from './moduleHelpers'
 import { debug } from './logging'
 import chalk from 'chalk'
 
@@ -13,22 +17,32 @@ export let analytics: AnalyticsNode
 
 const ANONYMOUS_DATA_QUESTION = 'Send Anonymous data'
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Analytics {
-  export const sceneCreated = (properties?: any) => trackAsync('Scene created', properties)
-  export const preview = (properties?: any) => trackAsync('Preview started', properties)
-  export const sceneDeploy = (properties?: any) => trackAsync('Scene deploy started', properties)
+  export const sceneCreated = (properties?: any) =>
+    trackAsync('Scene created', properties)
+  export const preview = (properties?: any) =>
+    trackAsync('Preview started', properties)
+  export const sceneDeploy = (properties?: any) =>
+    trackAsync('Scene deploy started', properties)
   export const sceneDeploySuccess = (properties?: any) =>
     trackAsync('Scene deploy success', properties)
   export const sceneLink = (properties?: any) =>
     trackAsync('Scene ethereum link started', properties)
   export const sceneLinkSuccess = (properties?: any) =>
     trackAsync('Scene ethereum link succeeded', properties)
-  export const deploy = (properties?: any) => trackAsync('Scene deploy requested', properties)
-  export const pinRequest = (properties?: any) => trackAsync('Pin requested', properties)
-  export const pinSuccess = (properties?: any) => trackAsync('Pin success', properties)
-  export const infoCmd = (properties?: any) => trackAsync('Info command', properties)
-  export const statusCmd = (properties?: any) => trackAsync('Status command', properties)
-  export const sendData = (shareData: boolean) => trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
+  export const deploy = (properties?: any) =>
+    trackAsync('Scene deploy requested', properties)
+  export const pinRequest = (properties?: any) =>
+    trackAsync('Pin requested', properties)
+  export const pinSuccess = (properties?: any) =>
+    trackAsync('Pin success', properties)
+  export const infoCmd = (properties?: any) =>
+    trackAsync('Info command', properties)
+  export const statusCmd = (properties?: any) =>
+    trackAsync('Status command', properties)
+  export const sendData = (shareData: boolean) =>
+    trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
 
   export async function identify(devId: string) {
     analytics.identify({
@@ -85,15 +99,22 @@ export namespace Analytics {
  * @param eventName The name of the event to be tracked
  * @param properties Any object containing serializable data
  */
-async function track(eventName: string, properties: any = {}, workingDir?: string) {
+async function track(
+  eventName: string,
+  properties: any = {},
+  workingDir?: string
+) {
   const { userId, trackStats } = getConfig()
 
   if (!(await isOnline())) {
     return null
   }
 
-  return new Promise<void>(async resolve => {
-    const dclApiVersion = await getInstalledVersion(workingDir!, 'decentraland-api')
+  return new Promise<void>(async (resolve) => {
+    const dclApiVersion = await getInstalledVersion(
+      workingDir!,
+      'decentraland-api'
+    )
     const newProperties = {
       ...properties,
       os: process.platform,
@@ -132,9 +153,7 @@ async function track(eventName: string, properties: any = {}, workingDir?: strin
 const pendingTracking: Promise<any>[] = []
 
 function trackAsync(eventName: string, properties: any = {}) {
-  const pTracking = track(eventName, properties)
-    .then()
-    .catch(debug)
+  const pTracking = track(eventName, properties).then().catch(debug)
   pendingTracking.push(pTracking)
 }
 

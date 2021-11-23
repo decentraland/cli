@@ -1,7 +1,7 @@
 import path from 'path'
 import { ChildProcess } from 'child_process'
 import { EventEmitter } from 'events'
-import spawn = require('cross-spawn')
+import spawn from 'cross-spawn'
 
 export interface IOptions {
   silent: boolean
@@ -48,10 +48,10 @@ class Commando extends EventEmitter {
       this.proc.stdout.pipe(process.stdout)
     }
 
-    this.proc.stdout.on('data', data => this.onData(data.toString()))
-    this.proc.stderr.on('data', data => this.emit('err', data.toString()))
+    this.proc.stdout.on('data', (data) => this.onData(data.toString()))
+    this.proc.stderr.on('data', (data) => this.emit('err', data.toString()))
     this.proc.on('close', async () => {
-      await Promise.all(this.promises)
+      void Promise.all(this.promises)
       this.emit('end')
     })
   }
@@ -74,14 +74,17 @@ class Commando extends EventEmitter {
     response?: (msg: string) => any,
     options: IMatcherOptions = { matchMany: false }
   ) {
-    const cb = msg => {
+    const cb = (msg) => {
       if (response) {
         const res = response(msg)
-        if ('then' in response || response.constructor.name === 'AsyncFunction') {
+        if (
+          'then' in response ||
+          response.constructor.name === 'AsyncFunction'
+        ) {
           this.promises.push(res)
         }
       }
-      Promise.all(this.promises).then(() => {
+      void Promise.all(this.promises).then(() => {
         this.proc.kill()
       })
     }

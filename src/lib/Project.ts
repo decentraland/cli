@@ -14,7 +14,13 @@ import {
   getPackageFilePath
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
-import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
+import {
+  inBounds,
+  getBounds,
+  getObject,
+  areConnected,
+  Coords
+} from '../utils/coordinateHelpers'
 
 export enum BoilerplateType {
   ECS = 'ecs',
@@ -101,10 +107,11 @@ export class Project {
    */
   async needsDependencies(): Promise<boolean> {
     const files = await this.getAllFilePaths()
-    const hasPackageFile = files.some(file => file === 'package.json')
+    const hasPackageFile = files.some((file) => file === 'package.json')
     const nodeModulesPath = path.resolve(this.workingDir, 'node_modules')
     const hasNodeModulesFolder = await fs.pathExists(nodeModulesPath)
-    const isNodeModulesEmpty = (await this.getAllFilePaths(nodeModulesPath)).length === 0
+    const isNodeModulesEmpty =
+      (await this.getAllFilePaths(nodeModulesPath)).length === 0
 
     if (hasPackageFile && (!hasNodeModulesFolder || isNodeModulesEmpty)) {
       return true
@@ -119,7 +126,7 @@ export class Project {
    */
   async isTypescriptProject(): Promise<boolean> {
     const files = await this.getAllFilePaths()
-    return files.some(file => file === 'tsconfig.json')
+    return files.some((file) => file === 'tsconfig.json')
   }
 
   /**
@@ -267,7 +274,10 @@ export class Project {
       }
 
       if (sceneFile.main !== null && !(await this.fileExists(sceneFile.main))) {
-        fail(ErrorType.PROJECT_ERROR, `Main scene file ${sceneFile.main} is missing`)
+        fail(
+          ErrorType.PROJECT_ERROR,
+          `Main scene file ${sceneFile.main} is missing`
+        )
       }
     }
   }
@@ -310,9 +320,9 @@ export class Project {
   async getFiles(ignoreFile?: string): Promise<IFile[]> {
     const files = await this.getAllFilePaths()
     const filteredFiles = (ignore as any)()
-      .add((ignoreFile || '').split(/\n/g).map($ => $.trim()))
+      .add((ignoreFile || '').split(/\n/g).map(($) => $.trim()))
       .filter(files)
-    let data = []
+    const data = []
 
     for (let i = 0; i < filteredFiles.length; i++) {
       const file = filteredFiles[i]
@@ -393,15 +403,24 @@ export class Project {
     const parcelSet = new Set(parcels)
 
     if (!base) {
-      fail(ErrorType.PROJECT_ERROR, 'Missing scene base attribute at scene.json')
+      fail(
+        ErrorType.PROJECT_ERROR,
+        'Missing scene base attribute at scene.json'
+      )
     }
 
     if (!parcels) {
-      fail(ErrorType.PROJECT_ERROR, 'Missing scene parcels attribute at scene.json')
+      fail(
+        ErrorType.PROJECT_ERROR,
+        'Missing scene parcels attribute at scene.json'
+      )
     }
 
     if (parcelSet.size < parcels.length) {
-      fail(ErrorType.PROJECT_ERROR, 'There are duplicated parcels at scene.json')
+      fail(
+        ErrorType.PROJECT_ERROR,
+        'There are duplicated parcels at scene.json'
+      )
     }
 
     if (!parcelSet.has(base)) {

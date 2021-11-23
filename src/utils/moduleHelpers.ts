@@ -37,14 +37,17 @@ export function buildTypescript({
     child.stdout.pipe(process.stdout)
     child.stderr.pipe(process.stderr)
 
-    child.stdout.on('data', data => {
-      if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
+    child.stdout.on('data', (data) => {
+      if (
+        data.toString().indexOf('The compiler is watching file changes...') !==
+        -1
+      ) {
         spinner.succeed('Project built.')
         return resolve()
       }
     })
 
-    child.on('close', code => {
+    child.on('close', (code) => {
       if (code !== 0) {
         const msg = 'Error while building the project'
         spinner.fail(msg)
@@ -71,7 +74,10 @@ export async function getLatestVersion(name: string): Promise<string> {
   }
 }
 
-export async function getInstalledVersion(workingDir: string, name: string): Promise<string> {
+export async function getInstalledVersion(
+  workingDir: string,
+  name: string
+): Promise<string> {
   let decentralandApiPkg: { version: string }
 
   try {
@@ -85,15 +91,22 @@ export async function getInstalledVersion(workingDir: string, name: string): Pro
   return decentralandApiPkg.version
 }
 
-export async function getOutdatedApi(
-  workingDir: string
-): Promise<{
-  package: string
-  installedVersion: string
-  latestVersion: string
-} | undefined> {
-  const decentralandApiVersion = await getInstalledVersion(workingDir, 'decentraland-api')
-  const decentralandEcsVersion = await getInstalledVersion(workingDir, 'decentraland-ecs')
+export async function getOutdatedApi(workingDir: string): Promise<
+  | {
+      package: string
+      installedVersion: string
+      latestVersion: string
+    }
+  | undefined
+> {
+  const decentralandApiVersion = await getInstalledVersion(
+    workingDir,
+    'decentraland-api'
+  )
+  const decentralandEcsVersion = await getInstalledVersion(
+    workingDir,
+    'decentraland-ecs'
+  )
 
   if (decentralandEcsVersion) {
     const latestVersion = await getLatestVersion('decentraland-ecs')
@@ -119,6 +132,7 @@ export async function getOutdatedApi(
 }
 
 export function getInstalledCLIVersion(): string {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   return version || require('../../package.json').version
 }
 
@@ -130,7 +144,11 @@ export async function isCLIOutdated(): Promise<boolean> {
   const cliVersion = getInstalledCLIVersion()
   const cliVersionLatest = await getLatestVersion('decentraland')
 
-  if (cliVersionLatest && cliVersion && semver.lt(cliVersion, cliVersionLatest)) {
+  if (
+    cliVersionLatest &&
+    cliVersion &&
+    semver.lt(cliVersion, cliVersionLatest)
+  ) {
     return true
   } else {
     return false
@@ -138,7 +156,7 @@ export async function isCLIOutdated(): Promise<boolean> {
 }
 
 export function isOnline(): Promise<boolean> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     fetch('https://decentraland.org/ping')
       .then(() => resolve(true))
       .catch(() => resolve(false))
@@ -152,11 +170,18 @@ export async function checkECSVersions(workingDir: string) {
   const ecsPackageJson = await readJSON<{
     minCliVersion?: string
     version: string
-  }>(path.resolve(getNodeModulesPath(workingDir), 'decentraland-ecs', 'package.json'))
-
-  const cliPackageJson = await readJSON<{ minEcsVersion?: boolean; version: string }>(
-    path.resolve(__dirname, '..', '..', 'package.json')
+  }>(
+    path.resolve(
+      getNodeModulesPath(workingDir),
+      'decentraland-ecs',
+      'package.json'
+    )
   )
+
+  const cliPackageJson = await readJSON<{
+    minEcsVersion?: boolean
+    version: string
+  }>(path.resolve(__dirname, '..', '..', 'package.json'))
 
   if (
     cliPackageJson.minEcsVersion &&

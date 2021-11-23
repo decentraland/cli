@@ -71,9 +71,14 @@ export async function main(): Promise<number> {
     await fs.remove(exportDir)
   }
 
-  const ignoreFileContent = await fs.readFile(path.resolve(workDir, '.dclignore'), 'utf-8')
+  const ignoreFileContent = await fs.readFile(
+    path.resolve(workDir, '.dclignore'),
+    'utf-8'
+  )
   const filePaths = await getProjectFilePaths(workDir, ignoreFileContent)
-  const promises = filePaths.map(f => fs.copy(path.resolve(workDir, f), path.resolve(exportDir, f)))
+  const promises = filePaths.map((f) =>
+    fs.copy(path.resolve(workDir, f), path.resolve(exportDir, f))
+  )
   await Promise.all(promises)
 
   const mappings = getDummyMappings(filePaths)
@@ -112,15 +117,29 @@ async function defaultExport({
   mappings: MappingsFile
   sceneJson: any
 }): Promise<void> {
-  const artifactPath = path.resolve(workDir, 'node_modules', 'decentraland-ecs', 'artifacts')
+  const artifactPath = path.resolve(
+    workDir,
+    'node_modules',
+    'decentraland-ecs',
+    'artifacts'
+  )
 
   // Change HTML title name
-  const content = await fs.readFile(path.resolve(artifactPath, 'export.html'), 'utf-8')
-  const finalContent = content.replace('{{ scene.display.title }}', sceneJson.display.title)
+  const content = await fs.readFile(
+    path.resolve(artifactPath, 'export.html'),
+    'utf-8'
+  )
+  const finalContent = content.replace(
+    '{{ scene.display.title }}',
+    sceneJson.display.title
+  )
 
   try {
     // decentraland-ecs <= 6.6.4
-    await fs.copy(path.resolve(artifactPath, 'unity'), path.resolve(exportDir, 'unity'))
+    await fs.copy(
+      path.resolve(artifactPath, 'unity'),
+      path.resolve(exportDir, 'unity')
+    )
   } catch {
     // decentraland-ecs > 6.6.4
     await fs.copy(
@@ -131,9 +150,16 @@ async function defaultExport({
 
   await Promise.all([
     fs.writeFile(path.resolve(exportDir, 'index.html'), finalContent, 'utf-8'),
-    fs.writeFile(path.resolve(exportDir, 'mappings'), JSON.stringify(mappings), 'utf-8'),
+    fs.writeFile(
+      path.resolve(exportDir, 'mappings'),
+      JSON.stringify(mappings),
+      'utf-8'
+    ),
 
-    fs.copy(path.resolve(artifactPath, 'preview.js'), path.resolve(exportDir, 'preview.js')),
+    fs.copy(
+      path.resolve(artifactPath, 'preview.js'),
+      path.resolve(exportDir, 'preview.js')
+    ),
 
     fs.copy(
       path.resolve(artifactPath, 'default-profile'),

@@ -33,7 +33,7 @@ export const help = () => `
 
 function getBoilerplateTypes() {
   return Object.values(BoilerplateType)
-    .filter($ => isNaN($ as any))
+    .filter(($) => isNaN($ as any))
     .join(', ')
 }
 
@@ -47,12 +47,14 @@ export async function main() {
 
   const boilerplate = args['--boilerplate'] || BoilerplateType.ECS
 
-  if (!Object.values(BoilerplateType).includes(boilerplate as BoilerplateType)) {
+  if (
+    !Object.values(BoilerplateType).includes(boilerplate as BoilerplateType)
+  ) {
     fail(
       ErrorType.INIT_ERROR,
-      `Invalid boilerplate: "${chalk.bold(boilerplate)}". Supported types are ${chalk.bold(
-        getBoilerplateTypes()
-      )}`
+      `Invalid boilerplate: "${chalk.bold(
+        boilerplate
+      )}". Supported types are ${chalk.bold(getBoilerplateTypes())}`
     )
   }
 
@@ -65,7 +67,9 @@ export async function main() {
     const results = await inquirer.prompt({
       type: 'confirm',
       name: 'continue',
-      message: warning(`Project directory isn't empty. Do you want to continue?`)
+      message: warning(
+        `Project directory isn't empty. Do you want to continue?`
+      )
     })
 
     if (!results.continue) {

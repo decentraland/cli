@@ -36,7 +36,7 @@ const spawnNpmInstall = (args: any): Promise<void> => {
     child.stdout.pipe(process.stdout)
     child.stderr.pipe(process.stderr)
 
-    child.on('close', code => {
+    child.on('close', (code) => {
       if (code !== 0) {
         spinner.fail()
         reject(

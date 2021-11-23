@@ -9,8 +9,10 @@ export default async function getProjectFilePaths(
   const fileNames = (ignore as any)()
     .add(ignoreFileContent)
     .filter(await fs.readdir(dir)) as string[]
-  const filePaths = fileNames.map(fileName => path.resolve(dir, fileName))
-  const stats = await Promise.all(filePaths.map(filePath => fs.stat(filePath)))
+  const filePaths = fileNames.map((fileName) => path.resolve(dir, fileName))
+  const stats = await Promise.all(
+    filePaths.map((filePath) => fs.stat(filePath))
+  )
   const files: string[] = []
   const pendingPromises: Promise<unknown>[] = []
 
@@ -18,8 +20,10 @@ export default async function getProjectFilePaths(
     if (stat.isDirectory()) {
       const promise = new Promise((resolve, reject) => {
         getProjectFilePaths(filePaths[i], ignoreFileContent)
-          .then(resolvedFilePaths => {
-            const finals = resolvedFilePaths.map(f => path.join(fileNames[i], f))
+          .then((resolvedFilePaths) => {
+            const finals = resolvedFilePaths.map((f) =>
+              path.join(fileNames[i], f)
+            )
             resolve(finals)
           })
           .catch(reject)
@@ -31,11 +35,13 @@ export default async function getProjectFilePaths(
     }
   })
 
-  const pResults = (await Promise.all(pendingPromises))
-    .reduce((acc: string[], r: any) => {
+  const pResults = (await Promise.all(pendingPromises)).reduce(
+    (acc: string[], r: any) => {
       acc.push(...r)
       return acc
-    }, [])
+    },
+    []
+  )
 
   return [...files, ...pResults]
 }

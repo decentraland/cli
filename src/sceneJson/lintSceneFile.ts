@@ -9,7 +9,9 @@ export async function lintSceneFile(workingDir: string): Promise<void> {
     scene: {
       ...sceneFile.scene,
       base: sceneFile.scene.base.replace(/\ /g, ''),
-      parcels: sceneFile.scene.parcels.map(coords => coords.replace(/\ /g, ''))
+      parcels: sceneFile.scene.parcels.map((coords) =>
+        coords.replace(/\ /g, '')
+      )
     }
   }
 

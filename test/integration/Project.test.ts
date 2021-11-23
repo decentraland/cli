@@ -4,7 +4,7 @@ import { Project } from '../../src/lib/Project'
 import sandbox from '../helpers/sandbox'
 import { setupFilesystem } from './helpers'
 
-test('Integration - Project', async t => {
+test('Integration - Project', async (t) => {
   await sandbox(async (dirPath, done) => {
     await setupFilesystem(dirPath, [
       {
@@ -61,7 +61,10 @@ test('Integration - Project', async t => {
       project.isTypescriptProject()
     ])
 
-    t.deepEqual(files.map(f => f.path), ['models/test.fbx', 'scene.json', 'scene.xml', 'test.js'])
+    t.deepEqual(
+      files.map((f) => f.path),
+      ['models/test.fbx', 'scene.json', 'scene.xml', 'test.js']
+    )
     t.true(need)
     t.true(tsProject)
     done()

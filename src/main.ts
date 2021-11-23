@@ -68,9 +68,9 @@ export async function main(version: string) {
     if (network && network !== 'mainnet' && network !== 'ropsten') {
       console.error(
         log.error(
-          `The only available values for ${chalk.bold(`'--network'`)} are ${chalk.bold(
-            `'mainnet'`
-          )} or ${chalk.bold(`'ropsten'`)}`
+          `The only available values for ${chalk.bold(
+            `'--network'`
+          )} are ${chalk.bold(`'mainnet'`)} or ${chalk.bold(`'ropsten'`)}`
         )
       )
       process.exit(1)
@@ -110,7 +110,9 @@ export async function main(version: string) {
     if (subcommand.startsWith('-')) {
       console.error(
         log.error(
-          `The "${chalk.bold(subcommand)}" option does not exist, run ${chalk.bold(
+          `The "${chalk.bold(
+            subcommand
+          )}" option does not exist, run ${chalk.bold(
             '"dcl help"'
           )} for more info.`
         )
@@ -119,7 +121,9 @@ export async function main(version: string) {
     }
     console.error(
       log.error(
-        `The "${chalk.bold(subcommand)}" subcommand does not exist, run ${chalk.bold(
+        `The "${chalk.bold(
+          subcommand
+        )}" subcommand does not exist, run ${chalk.bold(
           '"dcl help"'
         )} for more info.`
       )

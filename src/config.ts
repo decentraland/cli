@@ -91,7 +91,9 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
   return {
     userId: '',
     trackStats: false,
-    provider: isDevelopment() ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/',
+    provider: isDevelopment()
+      ? 'https://ropsten.infura.io/'
+      : 'https://mainnet.infura.io/',
     MANAToken: isMainnet
       ? '0x0f5d2fb29fb7d3cfee444a200298f468908cc942'
       : '0x2a8fd99c19271f4f04b1b7b9c4f7cf264b626edb',
@@ -101,7 +103,9 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
     EstateRegistry: isMainnet
       ? '0x959e104e1a4db6317fa58f8295f586e1a978c297'
       : '0x124bf28a423b2ca80b3846c3aa0eb944fe7ebb95',
-    catalystUrl: isMainnet ? 'https://peer.decentraland.org' : 'https://peer.decentraland.zone',
+    catalystUrl: isMainnet
+      ? 'https://peer.decentraland.org'
+      : 'https://peer.decentraland.zone',
     dclApiUrl: isMainnet
       ? 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager'
       : 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager-ropsten',

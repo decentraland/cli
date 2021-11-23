@@ -109,7 +109,11 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(this.options.linkerPort!, !!this.options.isHttps, rootCID)
+        await linker.link(
+          this.options.linkerPort!,
+          !!this.options.isHttps,
+          rootCID
+        )
       } catch (e) {
         reject(e)
       }
@@ -119,7 +123,11 @@ export class Decentraland extends EventEmitter {
   async preview() {
     await this.project.validateExistingProject()
     await this.project.validateSceneOptions()
-    const preview = new Preview(this, (await this.project.getDCLIgnore())!, this.getWatch())
+    const preview = new Preview(
+      this,
+      (await this.project.getDCLIgnore())!,
+      this.getWatch()
+    )
 
     events(preview, '*', this.pipeEvents.bind(this))
 
@@ -132,8 +140,12 @@ export class Decentraland extends EventEmitter {
       this.provider.getEstatesOf(address)
     ])
 
-    const pRequests = Promise.all(coords.map(coord => this.provider.getLandData(coord)))
-    const eRequests = Promise.all(estateIds.map(estateId => this.provider.getEstateData(estateId)))
+    const pRequests = Promise.all(
+      coords.map((coord) => this.provider.getLandData(coord))
+    )
+    const eRequests = Promise.all(
+      estateIds.map((estateId) => this.provider.getEstateData(estateId))
+    )
 
     const [pData, eData] = await Promise.all([pRequests, eRequests])
 
@@ -158,18 +170,22 @@ export class Decentraland extends EventEmitter {
   }
 
   async getParcelInfo(coords: Coords): Promise<ParcelMetadata> {
-    const [scene, land, blockchainOwner, operator, updateOperator] = await Promise.all([
-      this.contentService.getSceneData(coords),
-      this.provider.getLandData(coords),
-      this.provider.getLandOwner(coords),
-      this.provider.getLandOperator(coords),
-      this.provider.getLandUpdateOperator(coords)
-    ])
+    const [scene, land, blockchainOwner, operator, updateOperator] =
+      await Promise.all([
+        this.contentService.getSceneData(coords),
+        this.provider.getLandData(coords),
+        this.provider.getLandOwner(coords),
+        this.provider.getLandOperator(coords),
+        this.provider.getLandUpdateOperator(coords)
+      ])
 
     const { EstateRegistry } = getConfig()
 
     if (blockchainOwner !== EstateRegistry) {
-      return { scene, land: { ...land, owner: blockchainOwner, operator, updateOperator } }
+      return {
+        scene,
+        land: { ...land, owner: blockchainOwner, operator, updateOperator }
+      }
     }
 
     const estateId = await this.provider.getEstateIdOfLand(coords)
@@ -199,17 +215,26 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  getParcelStatus(x: number, y: number): Promise<{ cid: string; files: FileInfo[] }> {
+  getParcelStatus(
+    x: number,
+    y: number
+  ): Promise<{ cid: string; files: FileInfo[] }> {
     return this.contentService.getParcelStatus({ x, y })
   }
 
   async getPublicAddress(): Promise<string> {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
     return this.wallet?.getAddress()!
   }
 
   async validateOwnership() {
-    const pOwner = this.wallet ? this.wallet.getAddress() : this.project.getOwner()
-    const [parcels, owner] = await Promise.all([this.project.getParcels(), pOwner])
+    const pOwner = this.wallet
+      ? this.wallet.getAddress()
+      : this.project.getOwner()
+    const [parcels, owner] = await Promise.all([
+      this.project.getParcels(),
+      pOwner
+    ])
     return this.ethereum.validateAuthorization(owner, parcels)
   }
 

@@ -21,18 +21,20 @@ export async function packProject(files: string[], target: string) {
       resolve()
     })
 
-    archive.on('warning', err => {
+    archive.on('warning', (err) => {
       reject(err)
     })
 
-    archive.on('error', err => {
+    archive.on('error', (err) => {
       reject(err)
     })
 
     archive.pipe(output)
 
-    const targetFiles = files.filter(f => !blacklist.some(bf => f.includes(bf)) && f !== '')
-    targetFiles.forEach(f => {
+    const targetFiles = files.filter(
+      (f) => !blacklist.some((bf) => f.includes(bf)) && f !== ''
+    )
+    targetFiles.forEach((f) => {
       archive.file(f, { name: f })
     })
 

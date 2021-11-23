@@ -31,7 +31,7 @@ export function getBounds(): IBounds {
  */
 export function parse(coordinates: string): string[] {
   return coordinates.split(';').map((coord: string) => {
-    const [x = 0, y = 0] = coord.split(',').map($ => {
+    const [x = 0, y = 0] = coord.split(',').map(($) => {
       return parseInt($, 10)
         .toString() // removes spaces :)
         .replace('-0', '0')
@@ -54,7 +54,7 @@ export function validate(answers: string): Promise<boolean> {
     if (answers.trim().length === 0) {
       resolve(true)
     } else {
-      answers.split(/;\s/g).forEach(answer => {
+      answers.split(/;\s/g).forEach((answer) => {
         if (!isValid(answer)) {
           reject(new Error(`Invalid coordinate ${answer}`))
         }
@@ -91,7 +91,8 @@ export function getObject(coords: string): Coords
  */
 export function getObject(coords: number[]): Coords
 export function getObject(coords: number[] | string): Coords {
-  const [x, y] = typeof coords === 'string' ? parse(coords)[0].split(',') : coords
+  const [x, y] =
+    typeof coords === 'string' ? parse(coords)[0].split(',') : coords
   return { x: parseInt(x.toString(), 10), y: parseInt(y.toString(), 10) }
 }
 
@@ -126,11 +127,15 @@ function visitParcel(
   allParcels: Coords[] = [parcel],
   visited: Coords[] = []
 ): Coords[] {
-  let isVisited = visited.some(visitedParcel => isEqual(visitedParcel, parcel))
+  const isVisited = visited.some((visitedParcel) =>
+    isEqual(visitedParcel, parcel)
+  )
   if (!isVisited) {
     visited.push(parcel)
-    let neighbours = getNeighbours(parcel.x, parcel.y, allParcels)
-    neighbours.forEach(neighbours => visitParcel(neighbours, allParcels, visited))
+    const neighbours = getNeighbours(parcel.x, parcel.y, allParcels)
+    neighbours.forEach((neighbours) =>
+      visitParcel(neighbours, allParcels, visited)
+    )
   }
   return visited
 }

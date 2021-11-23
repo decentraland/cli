@@ -9,12 +9,12 @@ import sandbox from '../helpers/sandbox'
 import initProject from '../helpers/initProject'
 import buildProject from '../helpers/buildProject'
 
-test('snapshot - dcl help export', t => {
+test('snapshot - dcl help export', (t) => {
   t.snapshot(exportCmd.help())
 })
 
 function exportProject(dirPath) {
-  return new Promise(resolve => {
+  return new Promise<void>((resolve) => {
     new Commando(`node ${path.resolve('dist', 'cli.js')} export`, {
       silent: !isDebug(),
       workingDir: dirPath,
@@ -27,14 +27,21 @@ function exportProject(dirPath) {
   })
 }
 
-test('E2E - export command', async t => {
+test('E2E - export command', async (t) => {
   await sandbox(async (dirPath, done) => {
     await initProject(dirPath)
     await buildProject(dirPath)
     await exportProject(dirPath)
-    const [htmlExists, mappingsExists, previewExists, sceneExists] = await pathsExistOnDir(
+    const [htmlExists, , previewExists, sceneExists] = await pathsExistOnDir(
       path.resolve(dirPath, 'export'),
-      ['index.html', 'preview.js', 'scene.json', 'bin/game.js', 'unity', 'images/progress-logo.png']
+      [
+        'index.html',
+        'preview.js',
+        'scene.json',
+        'bin/game.js',
+        'unity',
+        'images/progress-logo.png'
+      ]
     )
 
     t.true(htmlExists)

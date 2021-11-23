@@ -2,7 +2,7 @@ import test from 'ava'
 
 import { Ethereum } from '../../../src/lib/Ethereum'
 
-test('Unit - Ethereum.decodeLandData()', t => {
+test('Unit - Ethereum.decodeLandData()', (t) => {
   const eth = new Ethereum()
 
   t.deepEqual(
@@ -28,9 +28,14 @@ test('Unit - Ethereum.decodeLandData()', t => {
     description: null
   })
 
-  t.deepEqual(eth['decodeLandData']('0,"",,"QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"'), {
-    version: 0,
-    name: null,
-    description: null
-  })
+  t.deepEqual(
+    eth['decodeLandData'](
+      '0,"",,"QmYeRMVLAtHCzGUbFSBbTTSUYx4AnqHZWwXAy5jzVJSpCE"'
+    ),
+    {
+      version: 0,
+      name: null,
+      description: null
+    }
+  )
 })

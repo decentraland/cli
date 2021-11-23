@@ -15,24 +15,12 @@
     "start": "npm run watch",
     "watch": "tsc -p tsconfig.json -w",
     "build": "tsc -p tsconfig.json",
-    "lint": "tslint -e 'samples/**/*' -e '*.json' -c tslint.json 'src/**/*.ts'",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint --fix . --ext .ts",
     "test": "FORCE_COLOR=1 ava",
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
     "test:ci": "FORCE_COLOR=1 ava -v --fail-fast --match='!*E2E*' --match='!*Decentraland.deploy()*'",
-    "test:win": "set FORCE_COLOR=1 ava -v --fail-fast --match=\"!*E2E*\" --match=\"!*Decentraland.deploy()*\"",
-    "precommit": "lint-staged"
-  },
-  "lint-staged": {
-    "linters": {
-      "*.ts": [
-        "tslint -c tslint.json",
-        "prettier --single-quote --no-semi --write",
-        "git add"
-      ]
-    },
-    "ignore": [
-      "samples/**/*.ts"
-    ]
+    "test:win": "set FORCE_COLOR=1 ava -v --fail-fast --match=\"!*E2E*\" --match=\"!*Decentraland.deploy()*\""
   },
   "repository": "decentraland/cli",
   "keywords": [
@@ -42,11 +30,6 @@
     "mana",
     "land"
   ],
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "printWidth": 100
-  },
   "ava": {
     "compileEnhancements": false,
     "extensions": [
@@ -59,10 +42,12 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/decentraland/cli",
   "devDependencies": {
+    "@dcl/eslint-config": "^1.0.0",
     "@types/analytics-node": "0.0.32",
     "@types/archiver": "^3.0.0",
     "@types/chalk": "^2.2.0",
     "@types/cors": "^2.8.12",
+    "@types/cross-spawn": "^6.0.2",
     "@types/express": "^4.11.1",
     "@types/fs-extra": "^5.0.0",
     "@types/glob": "^7.1.1",
@@ -71,16 +56,13 @@
     "@types/node": "^12.12.55",
     "@types/puppeteer": "^1.11.2",
     "@types/request": "^2.48.1",
+    "@types/rimraf": "^3.0.2",
     "@types/semver": "^7.3.9",
     "@types/sinon": "^5.0.5",
     "@types/ws": "^6.0.1",
     "husky": "^7.0.4",
-    "lint-staged": "^8.0.5",
-    "prettier": "^1.14.0",
     "rimraf": "^2.6.2",
-    "ts-node": "^4.1.0",
-    "tslint": "^5.11.0",
-    "tslint-language-service": "^0.9.9"
+    "ts-node": "^4.1.0"
   },
   "dependencies": {
     "@dcl/linker-dapp": "^0.1.3",
@@ -99,7 +81,6 @@
     "dcl-catalyst-client": "^5.0.3",
     "dcl-catalyst-commons": "^3.0.0",
     "dcl-node-runtime": "^1.0.0",
-    "dcl-tslint-config-standard": "^1.0.1",
     "decentraland-dapps": "^8.1.0",
     "decentraland-ecs": "^6.4.9-20200527010700.commit-85d2fbc",
     "docker-names": "^1.0.3",
