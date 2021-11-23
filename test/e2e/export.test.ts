@@ -15,7 +15,7 @@ test('snapshot - dcl help export', (t) => {
 
 function exportProject(dirPath) {
   return new Promise<void>((resolve) => {
-    new Commando(`node ${path.resolve('dist', 'cli.js')} export`, {
+    new Commando(`node ${path.resolve('dist', 'index.js')} export`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development' }

@@ -16,7 +16,11 @@ export interface IMatcherOptions {
 
 export enum Response {
   YES = 'Yes\n',
-  NO = 'no\n'
+  NO = 'no\n',
+  DOWN = '\x1B\x5B\x42',
+  UP = '\x1B\x5B\x41',
+  ENTER = '\x0D',
+  SPACE = '\x20'
 }
 
 class Commando extends EventEmitter {
@@ -28,6 +32,7 @@ class Commando extends EventEmitter {
   }[] = []
   private promises: Promise<any>[] = []
   private onDataFn: (string) => void
+  private orderedCommands: string[] = []
 
   constructor(
     command: string,
@@ -65,6 +70,16 @@ class Commando extends EventEmitter {
     return this
   }
 
+  orderedWhen(
+    pattern: string | RegExp,
+    response: (msg: string) => any,
+    options: IMatcherOptions = { matchMany: false }
+  ) {
+    this.orderedCommands.push(pattern.toString())
+    this.when(pattern, response, options)
+    return this
+  }
+
   end() {
     this.proc.kill()
   }
@@ -92,9 +107,23 @@ class Commando extends EventEmitter {
     return this
   }
 
+  nextCommand() {
+    const nextCommand = this.orderedCommands[0]
+    this.orderedCommands = this.orderedCommands.slice(1)
+
+    return nextCommand
+  }
+
   private onData(data: string) {
     if (this.onDataFn) {
       this.onDataFn(data)
+    }
+
+    if (this.orderedCommands.length) {
+      const match = this.matchers.find((m) => data.match(m.pattern))
+      if (match && this.nextCommand() !== match.pattern.toString()) {
+        this.end()
+      }
     }
 
     this.matchers.forEach((match, i) => {
@@ -113,6 +142,10 @@ class Commando extends EventEmitter {
         this.proc.stdin.write(res)
       }
 
+      if (res && Array.isArray(res)) {
+        res.forEach((r) => this.proc.stdin.write(r))
+      }
+
       if (!match.options.matchMany) {
         this.matchers.splice(i, 1)
       }
@@ -121,3 +154,22 @@ class Commando extends EventEmitter {
 }
 
 export default Commando
+
+export function runCommand(dirPath: string, cmdName: string, args?: string) {
+  const command = `node ${path.resolve('dist', 'index.js')} ${cmdName} ${args}`
+  const cmd = new Commando(command, {
+    silent: false,
+    workingDir: dirPath,
+    env: { NODE_ENV: 'development' }
+  })
+
+  cmd.when(/Send anonymous usage stats to Decentraland?/, () => Response.NO)
+
+  return cmd
+}
+
+export function endCommand(cmd: Commando) {
+  return new Promise((resolve) => {
+    cmd.on('end', resolve)
+  })
+}

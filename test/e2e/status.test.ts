@@ -15,7 +15,7 @@ test('E2E - status command', async (t) => {
     new Commando(
       `node ${path.resolve(
         'dist',
-        'cli.js'
+        'index.js'
       )} status --network ropsten -35,-130`,
       {
         silent: !isDebug(),

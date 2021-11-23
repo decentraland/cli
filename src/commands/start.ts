@@ -19,6 +19,7 @@ import isECSInstalled from '../project/isECSInstalled'
 import { getSceneFile } from '../sceneJson'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import updateBundleDependenciesField from '../project/updateBundleDependenciesField'
+import { isPortableExperience } from '../utils/isECSProject'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
@@ -69,7 +70,7 @@ export async function main() {
   const watch = !args['--no-watch'] && !isCi
   const workingDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
-  const enableWeb3 = args['--web3']
+  const enableWeb3 = args['--web3'] || isPortableExperience(workingDir)
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port']!, 10),

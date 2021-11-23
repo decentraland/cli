@@ -11,7 +11,7 @@ import { readJSON } from '../../src/utils/filesystem'
 function installCommand(dirPath: string, library: string = '') {
   return new Promise<void>((resolve) => {
     const cmd = new Commando(
-      `node ${path.resolve('dist', 'cli.js')} install ${library}`,
+      `node ${path.resolve('dist', 'index.js')} install ${library}`,
       {
         silent: !isDebug(),
         workingDir: dirPath,

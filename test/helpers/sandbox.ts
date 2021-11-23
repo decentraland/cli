@@ -22,3 +22,21 @@ export default function sandbox(fn: CallbackFn) {
     }
   })
 }
+
+export async function createSandbox(fn: (dirPath: string) => Promise<void>) {
+  const name =
+    'test-' + (+Date.now()).toString() + (Math.random() * 10).toString()
+  const dir = path.resolve(process.cwd(), name)
+  await fs.mkdir(dir)
+  try {
+    await fn(dir)
+  } finally {
+    await removeSandbox(dir)
+  }
+}
+
+export function removeSandbox(dirPath: string) {
+  return new Promise<void>((resolve, reject) => {
+    rimraf(dirPath, (err) => (err ? reject(err) : resolve()))
+  })
+}

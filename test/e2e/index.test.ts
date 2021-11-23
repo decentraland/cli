@@ -9,7 +9,7 @@ import sandbox from '../helpers/sandbox'
 
 function initProject(dirPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    new Commando(`node ${path.resolve('dist', 'cli.js')} init`, {
+    new Commando(`node ${path.resolve('dist', 'index.js')} init`, {
       silent: !isDebug(),
       workingDir: dirPath,
       env: { NODE_ENV: 'development' }
@@ -24,7 +24,7 @@ function initProject(dirPath: string): Promise<void> {
 function startProject(dirPath): Promise<Commando> {
   return new Promise((resolve) => {
     const command = new Commando(
-      `node ${path.resolve('dist', 'cli.js')} start --no-browser`,
+      `node ${path.resolve('dist', 'index.js')} start --no-browser`,
       {
         silent: !isDebug(),
         workingDir: dirPath,
@@ -40,7 +40,7 @@ function statusProject(): Promise<string> {
   return new Promise((resolve) => {
     let allData = ''
     new Commando(
-      `node ${path.resolve('dist', 'cli.js')} status --network ropsten 0,0`,
+      `node ${path.resolve('dist', 'index.js')} status --network ropsten 0,0`,
       {
         silent: !isDebug(),
         workingDir: '.',
@@ -56,7 +56,7 @@ function statusProject(): Promise<string> {
 function deployProject(dirPath): Promise<void> {
   return new Promise((resolve) => {
     new Commando(
-      `node ${path.resolve('dist', 'cli.js')} deploy --yes --network ropsten`,
+      `node ${path.resolve('dist', 'index.js')} deploy --yes --network ropsten`,
       {
         silent: !isDebug(),
         workingDir: dirPath,
