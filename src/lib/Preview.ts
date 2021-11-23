@@ -11,6 +11,7 @@ import glob from 'glob'
 import chokidar from 'chokidar'
 import url from 'url'
 import { default as ignore } from 'ignore'
+import { sdk } from '@dcl/schemas'
 
 import proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
@@ -91,22 +92,12 @@ export class Preview extends EventEmitter {
             ws.readyState === WebSocket.OPEN &&
             (!ws.protocol || ws.protocol === 'scene-updates')
           ) {
-            ws.send('update')
-
-            ws.send(
-              JSON.stringify({
-                type: 'update',
-                cwd: this.dcl.getWorkingDir(),
-                path: relativiseUrl(pathWatch),
-                payload: {
-                  type: 'watch',
-                  body: {
-                    sceneId,
-                    sceneType
-                  }
-                }
-              })
-            )
+            const message: sdk.SceneUpdate = {
+              type: sdk.SCENE_UPDATE,
+              payload: { sceneId, sceneType }
+            }
+            ws.send(sdk.UPDATE)
+            ws.send(JSON.stringify(message))
           }
         })
       })
