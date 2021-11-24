@@ -1,4 +1,4 @@
-import { Scene } from '@dcl/schemas'
+import { Scene, sdk } from '@dcl/schemas'
 import { EventEmitter } from 'events'
 import chalk from 'chalk'
 import { ethers } from 'ethers'
@@ -10,7 +10,7 @@ import { Coords } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
 import { debug } from '../utils/logging'
-import { Project, BoilerplateType } from './Project'
+import { Project } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
@@ -91,10 +91,10 @@ export class Decentraland extends EventEmitter {
     return this.options.workingDir
   }
 
-  async init(boilerplateType: BoilerplateType) {
+  async init(projectType: sdk.ProjectType) {
     await this.project.writeDclIgnore()
     await this.project.writeSceneFile({})
-    await this.project.scaffoldProject(boilerplateType)
+    await this.project.scaffoldProject(projectType)
   }
 
   async link(rootCID: string): Promise<LinkerResponse> {

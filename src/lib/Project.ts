@@ -2,7 +2,7 @@ import path from 'path'
 import dockerNames from 'docker-names'
 import fs from 'fs-extra'
 import ignore from 'ignore'
-import { Scene } from '@dcl/schemas'
+import { Scene, sdk } from '@dcl/schemas'
 
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import {
@@ -21,12 +21,6 @@ import {
   areConnected,
   Coords
 } from '../utils/coordinateHelpers'
-
-export enum BoilerplateType {
-  ECS = 'ecs',
-  SMART_ITEM = 'smart-item',
-  PORTABLE_EXPERIENCE = 'px'
-}
 
 export interface IFile {
   path: string
@@ -58,14 +52,6 @@ export class Project {
   }
 
   /**
-   * Returns `true` for valid boilerplate types (`static`, `ts` and `ws`)
-   * @param type
-   */
-  isValidBoilerplateType(type: string): boolean {
-    return Object.values(BoilerplateType).includes(type as BoilerplateType)
-  }
-
-  /**
    * Returns an object containing the contents of the `scene.json` file.
    */
   async getSceneFile(): Promise<Scene> {
@@ -87,20 +73,20 @@ export class Project {
   }
 
   /**
-   * Scaffolds a project or fails for an invalid boilerplate type
-   * @param boilerplateType
+   * Scaffolds a project or fails for an invalid project type
+   * @param projectType
    */
-  async scaffoldProject(boilerplateType: BoilerplateType) {
-    switch (boilerplateType) {
-      case BoilerplateType.SMART_ITEM: {
+  async scaffoldProject(type: sdk.ProjectType) {
+    switch (type) {
+      case sdk.ProjectType.SMART_ITEM: {
         await this.copySample('smart-item')
         break
       }
-      case BoilerplateType.ECS: {
+      case sdk.ProjectType.SCENE: {
         await this.copySample('ecs')
         break
       }
-      case BoilerplateType.PORTABLE_EXPERIENCE: {
+      case sdk.ProjectType.PORTABLE_EXPERIENCE: {
         await this.copySample('portable-experience')
         break
       }
