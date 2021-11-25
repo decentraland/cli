@@ -11,11 +11,13 @@ import glob from 'glob'
 import chokidar from 'chokidar'
 import url from 'url'
 import { default as ignore } from 'ignore'
+import { sdk } from '@dcl/schemas'
 
 import proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
 import getDummyMappings from '../utils/getDummyMappings'
 import { Decentraland } from './Decentraland'
+import { getProjectInfo } from '../project/projectInfo'
 
 /**
  * Events emitted by this class:
@@ -59,26 +61,7 @@ export class Preview extends EventEmitter {
       }
     }
 
-    // PoC - TODO: need to be typed
-    let sceneId: string = ''
-    let sceneType: string = 'parcel'
-    const assetJsonPath = path.resolve(this.dcl.getWorkingDir(), 'asset.json')
-    if (fs.existsSync(assetJsonPath)) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const assetJson: any = require(assetJsonPath)
-        if (assetJson?.id && assetJson?.assetType === 'portable-experience') {
-          sceneId = assetJson.id
-          sceneType = 'portable-experience'
-        }
-      } catch (err) {
-        console.error(
-          `Unable to load asset.json properly, please check it.`,
-          err
-        )
-      }
-    }
-
+    const { sceneId, sceneType } = getProjectInfo(this.dcl.getWorkingDir())
     const ig = ignore().add(this.ignoredPaths)
     if (this.watch) {
       chokidar.watch(this.dcl.getWorkingDir()).on('all', (_, pathWatch) => {
@@ -91,22 +74,12 @@ export class Preview extends EventEmitter {
             ws.readyState === WebSocket.OPEN &&
             (!ws.protocol || ws.protocol === 'scene-updates')
           ) {
-            ws.send('update')
-
-            ws.send(
-              JSON.stringify({
-                type: 'update',
-                cwd: this.dcl.getWorkingDir(),
-                path: relativiseUrl(pathWatch),
-                payload: {
-                  type: 'watch',
-                  body: {
-                    sceneId,
-                    sceneType
-                  }
-                }
-              })
-            )
+            const message: sdk.SceneUpdate = {
+              type: sdk.SCENE_UPDATE,
+              payload: { sceneId, sceneType }
+            }
+            ws.send(sdk.UPDATE)
+            ws.send(JSON.stringify(message))
           }
         })
       })

@@ -1,7 +1,7 @@
-import { BoilerplateType } from './../lib/Project'
 import path from 'path'
 import fs from 'fs-extra'
 import chalk from 'chalk'
+import { sdk } from '@dcl/schemas'
 
 import * as spinner from '../utils/spinner'
 import { packProject } from '../lib/smartItems/packProject'
@@ -25,17 +25,17 @@ export const help = () => `
 export async function main(): Promise<number> {
   const workDir = process.cwd()
   const projectType = isPortableExperience(workDir)
-    ? BoilerplateType.PORTABLE_EXPERIENCE
-    : BoilerplateType.SMART_ITEM
+    ? sdk.ProjectType.PORTABLE_EXPERIENCE
+    : sdk.ProjectType.SMART_ITEM
   const zipFileName =
-    projectType === BoilerplateType.PORTABLE_EXPERIENCE
+    projectType === sdk.ProjectType.PORTABLE_EXPERIENCE
       ? 'portable-experience.zip'
       : 'item.zip'
 
   try {
-    if (projectType == BoilerplateType.SMART_ITEM) {
+    if (projectType == sdk.ProjectType.SMART_ITEM) {
       await buildSmartItem(workDir)
-    } else if (projectType == BoilerplateType.PORTABLE_EXPERIENCE) {
+    } else if (projectType == sdk.ProjectType.PORTABLE_EXPERIENCE) {
       await buildTypescript({
         workingDir: workDir,
         watch: false,
@@ -63,7 +63,7 @@ export async function main(): Promise<number> {
     }
   }
 
-  if (projectType == BoilerplateType.PORTABLE_EXPERIENCE) {
+  if (projectType == sdk.ProjectType.PORTABLE_EXPERIENCE) {
     const MAX_WEARABLE_SIZE = 2097152
     const MAX_WEARABLE_SIZE_MB = Math.round(MAX_WEARABLE_SIZE / 1024 / 1024)
     if (totalSize > MAX_WEARABLE_SIZE) {

@@ -1,13 +1,15 @@
 import inquirer, { Questions } from 'inquirer'
 import chalk from 'chalk'
 import arg from 'arg'
+import { sdk } from '@dcl/schemas'
 
-import { BoilerplateType } from '../lib/Project'
 import { Decentraland } from '../lib/Decentraland'
 import { Analytics } from '../utils/analytics'
 import { warning } from '../utils/logging'
 import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
+
+import type = sdk.ProjectType
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -15,8 +17,8 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
     -h, --help               Displays complete help
-    -b, --boilerplate [type] Choose a boilerplate (default is ecs). It could be any of ${chalk.bold(
-      getBoilerplateTypes()
+    -p, --project [type] Choose a projectType (default is scene). It could be any of ${chalk.bold(
+      getProjectTypes()
     )}
 
     ${chalk.dim('Examples:')}
@@ -25,58 +27,59 @@ export const help = () => `
 
     ${chalk.green('$ dcl init my-project')}
 
-    - Generate a new ecs project
+    - Generate a new scene project
 
-    ${chalk.green('$ dcl init --boilerplate ecs')}
+    ${chalk.green('$ dcl init --project scene')}
 `
 
-function getBoilerplateTypes() {
-  return Object.values(BoilerplateType).join(', ')
+function getProjectTypes() {
+  return Object.values(type)
+    .filter((a) => typeof a === 'string')
+    .join(', ')
 }
 
-async function getBoilerplate(type?: string): Promise<BoilerplateType> {
+async function getprojectType(type?: string): Promise<sdk.ProjectType> {
   if (!type) {
-    const boilerplateList: Questions = [
+    const projectTypeList: Questions = [
       {
         type: 'list',
-        name: 'boilerplate',
-        message: 'Choose a boilerplate',
+        name: 'project',
+        message: 'Choose a project type',
         choices: [
-          { value: BoilerplateType.ECS, name: 'ECS' },
-          { value: BoilerplateType.SMART_ITEM, name: 'Smart Item' },
+          { value: sdk.ProjectType.SCENE, name: 'Scene' },
+          { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' },
           {
-            value: BoilerplateType.PORTABLE_EXPERIENCE,
+            value: sdk.ProjectType.PORTABLE_EXPERIENCE,
             name: 'Portable Experience'
           }
         ]
       }
     ]
-    const answers = await inquirer.prompt(boilerplateList)
-    const boilerplate: BoilerplateType = answers.boilerplate
+    const answers = await inquirer.prompt(projectTypeList)
+    const projectType: sdk.ProjectType = answers.project
 
-    return boilerplate
+    return projectType
   }
 
-  if (!Object.values(BoilerplateType).includes(type as BoilerplateType)) {
+  if (!sdk.ProjectType.validate(type)) {
     fail(
       ErrorType.INIT_ERROR,
-      `Invalid boilerplate: "${chalk.bold(
+      `Invalid projectType: "${chalk.bold(
         type
-      )}". Supported types are ${chalk.bold(getBoilerplateTypes())}`
+      )}". Supported types are ${chalk.bold(getProjectTypes())}`
     )
   }
-  return type as BoilerplateType
+
+  return type as sdk.ProjectType
 }
 
 export async function main() {
   const args = arg({
     '--help': Boolean,
-    '--boilerplate': String,
+    '--project': String,
     '-h': '--help',
-    '-b': '--boilerplate'
+    '-p': '--project'
   })
-
-  const boilerplate = await getBoilerplate(args['--boilerplate'])
   const dcl = new Decentraland({ workingDir: process.cwd() })
 
   await dcl.project.validateNewProject()
@@ -96,7 +99,8 @@ export async function main() {
     }
   }
 
-  await dcl.init(boilerplate)
+  const projectType = await getprojectType(args['--project'])
+  await dcl.init(projectType)
 
   try {
     await installDependencies(dcl.getWorkingDir(), false)
@@ -104,7 +108,7 @@ export async function main() {
     fail(ErrorType.INIT_ERROR, error.message)
   }
 
-  Analytics.sceneCreated({ boilerplateType: boilerplate })
+  Analytics.sceneCreated({ projectType: projectType })
 
   console.log(chalk.green(`\nSuccess! Run 'dcl start' to see your scene\n`))
 }
