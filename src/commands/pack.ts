@@ -8,7 +8,7 @@ import { packProject } from '../lib/smartItems/packProject'
 import { buildSmartItem } from '../lib/smartItems/buildSmartItem'
 import getProjectFilePaths from '../utils/getProjectFilePaths'
 import { buildTypescript } from '../utils/moduleHelpers'
-import { isPortableExperience } from '../utils/isECSProject'
+import { getProjectInfo } from '../project/projectInfo'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl pack [options]')}
@@ -24,18 +24,17 @@ export const help = () => `
 
 export async function main(): Promise<number> {
   const workDir = process.cwd()
-  const projectType = isPortableExperience(workDir)
-    ? sdk.ProjectType.PORTABLE_EXPERIENCE
-    : sdk.ProjectType.SMART_ITEM
+  const projectInfo = getProjectInfo(workDir)
+  
   const zipFileName =
-    projectType === sdk.ProjectType.PORTABLE_EXPERIENCE
+    projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
       ? 'portable-experience.zip'
       : 'item.zip'
 
   try {
-    if (projectType == sdk.ProjectType.SMART_ITEM) {
+    if (projectInfo.sceneType == sdk.ProjectType.SMART_ITEM) {
       await buildSmartItem(workDir)
-    } else if (projectType == sdk.ProjectType.PORTABLE_EXPERIENCE) {
+    } else if (projectInfo.sceneType == sdk.ProjectType.PORTABLE_EXPERIENCE) {
       await buildTypescript({
         workingDir: workDir,
         watch: false,
@@ -63,7 +62,7 @@ export async function main(): Promise<number> {
     }
   }
 
-  if (projectType == sdk.ProjectType.PORTABLE_EXPERIENCE) {
+  if (projectInfo.sceneType == sdk.ProjectType.PORTABLE_EXPERIENCE) {
     const MAX_WEARABLE_SIZE = 2097152
     const MAX_WEARABLE_SIZE_MB = Math.round(MAX_WEARABLE_SIZE / 1024 / 1024)
     if (totalSize > MAX_WEARABLE_SIZE) {
