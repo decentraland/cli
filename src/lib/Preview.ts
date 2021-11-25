@@ -68,7 +68,6 @@ export class Preview extends EventEmitter {
         if (ig.ignores(pathWatch)) {
           return
         }
-
         this.wss.clients.forEach((ws) => {
           if (
             ws.readyState === WebSocket.OPEN &&
