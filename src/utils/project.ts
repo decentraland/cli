@@ -2,6 +2,7 @@ import path from 'path'
 
 export const SCENE_FILE = 'scene.json'
 export const PACKAGE_FILE = 'package.json'
+export const ASSETJSON_FILE = 'asset.json'
 export const DCLIGNORE_FILE = '.dclignore'
 
 /**

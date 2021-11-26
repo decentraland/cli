@@ -11,7 +11,8 @@ import {
   getIgnoreFilePath,
   DCLIGNORE_FILE,
   PACKAGE_FILE,
-  getPackageFilePath
+  getPackageFilePath,
+  ASSETJSON_FILE
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 import {
@@ -21,6 +22,7 @@ import {
   areConnected,
   Coords
 } from '../utils/coordinateHelpers'
+import uuid from 'uuid'
 
 export interface IFile {
   path: string
@@ -158,6 +160,10 @@ export class Project {
       } else if (file === PACKAGE_FILE) {
         const pkgFile = await readJSON<any>(getPackageFilePath(src))
         await writeJSON(getPackageFilePath(this.workingDir), pkgFile)
+      } else if (file === ASSETJSON_FILE) {
+        const assetJsonFile = await readJSON<any>(path.join(src, file));
+        assetJsonFile.id = uuid.v4();
+        await writeJSON(path.join(this.workingDir, file), assetJsonFile);
       } else {
         await fs.copy(path.join(src, file), path.join(this.workingDir, file))
       }
