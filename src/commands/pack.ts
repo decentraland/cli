@@ -32,9 +32,9 @@ export async function main(): Promise<number> {
       : 'item.zip'
 
   try {
-    if (projectInfo.sceneType == sdk.ProjectType.SMART_ITEM) {
+    if (projectInfo.sceneType === sdk.ProjectType.SMART_ITEM) {
       await buildSmartItem(workDir)
-    } else if (projectInfo.sceneType == sdk.ProjectType.PORTABLE_EXPERIENCE) {
+    } else if (projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE) {
       await buildTypescript({
         workingDir: workDir,
         watch: false,
@@ -62,7 +62,7 @@ export async function main(): Promise<number> {
     }
   }
 
-  if (projectInfo.sceneType == sdk.ProjectType.PORTABLE_EXPERIENCE) {
+  if (projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE) {
     const MAX_WEARABLE_SIZE = 2097152
     const MAX_WEARABLE_SIZE_MB = Math.round(MAX_WEARABLE_SIZE / 1024 / 1024)
     if (totalSize > MAX_WEARABLE_SIZE) {
