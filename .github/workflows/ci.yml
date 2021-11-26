@@ -29,6 +29,8 @@ jobs:
       - name: test
         if: matrix.platform != 'windows-latest'
         run: npm run test:ci
+      - name: lint
+        run: npm run lint
 
   publish:
     runs-on: ubuntu-latest
