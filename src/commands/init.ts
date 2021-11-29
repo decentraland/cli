@@ -38,21 +38,28 @@ function getProjectTypes() {
     .join(', ')
 }
 
-async function getprojectType(type?: string): Promise<sdk.ProjectType> {
+async function getprojectType(
+  type?: string,
+  includePortableExperiences?: boolean
+): Promise<sdk.ProjectType> {
   if (!type) {
+    const choices = [
+      { value: sdk.ProjectType.SCENE, name: 'Scene' },
+      { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' }
+    ]
+    if (includePortableExperiences) {
+      choices.push({
+        value: sdk.ProjectType.PORTABLE_EXPERIENCE,
+        name: 'Portable Experience'
+      })
+    }
+
     const projectTypeList: Questions = [
       {
         type: 'list',
         name: 'project',
         message: 'Choose a project type',
-        choices: [
-          { value: sdk.ProjectType.SCENE, name: 'Scene' },
-          { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' },
-          {
-            value: sdk.ProjectType.PORTABLE_EXPERIENCE,
-            name: 'Portable Experience'
-          }
-        ]
+        choices
       }
     ]
     const answers = await inquirer.prompt(projectTypeList)
@@ -77,6 +84,7 @@ export async function main() {
   const args = arg({
     '--help': Boolean,
     '--project': String,
+    '--px': Boolean,
     '-h': '--help',
     '-p': '--project'
   })
@@ -99,7 +107,7 @@ export async function main() {
     }
   }
 
-  const projectType = await getprojectType(args['--project'])
+  const projectType = await getprojectType(args['--project'], args['--px'])
   await dcl.init(projectType)
 
   try {

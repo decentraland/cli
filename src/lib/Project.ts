@@ -23,6 +23,7 @@ import {
   Coords
 } from '../utils/coordinateHelpers'
 import uuid from 'uuid'
+import { getProjectInfo, ProjectInfo } from '../project/projectInfo'
 
 export interface IFile {
   path: string
@@ -37,6 +38,10 @@ export class Project {
 
   constructor(workingDir: string) {
     this.workingDir = workingDir
+  }
+
+  async getInfo(): Promise<ProjectInfo> {
+    return getProjectInfo(this.workingDir)
   }
 
   /**
