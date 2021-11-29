@@ -38,14 +38,17 @@ function getProjectTypes() {
     .join(', ')
 }
 
-async function getprojectType(type?: string, includePortableExperiences?: boolean): Promise<sdk.ProjectType> {
+async function getprojectType(
+  type?: string,
+  includePortableExperiences?: boolean
+): Promise<sdk.ProjectType> {
   if (!type) {
     const choices = [
       { value: sdk.ProjectType.SCENE, name: 'Scene' },
       { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' }
     ]
-    if (includePortableExperiences){
-        choices.push({
+    if (includePortableExperiences) {
+      choices.push({
         value: sdk.ProjectType.PORTABLE_EXPERIENCE,
         name: 'Portable Experience'
       })

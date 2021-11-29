@@ -71,7 +71,9 @@ export async function main() {
   const workingDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
   const projectInfo = getProjectInfo(workingDir)
-  const enableWeb3 = args['--web3'] || projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
+  const enableWeb3 =
+    args['--web3'] ||
+    projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port']!, 10),

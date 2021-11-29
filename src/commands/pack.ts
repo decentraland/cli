@@ -25,7 +25,7 @@ export const help = () => `
 export async function main(): Promise<number> {
   const workDir = process.cwd()
   const projectInfo = getProjectInfo(workDir)
-  
+
   const zipFileName =
     projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
       ? 'portable-experience.zip'
