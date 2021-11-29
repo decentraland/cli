@@ -42,8 +42,10 @@ export async function main(): Promise<number> {
       })
     }
   } catch (error) {
-    spinner.fail('Could not build the project')
-    throw error
+    console.error(
+      'Could not build the project properly, please check errors.',
+      error
+    )
   }
 
   spinner.create('Packing project')

@@ -21,8 +21,13 @@ export function getProjectInfo(workDir: string): ProjectInfo {
           }
         }
       } else {
+        const errors = (sdk.AssetJson.validate.errors || [])
+          .map((a) => `${a.dataPath} ${a.message}`)
+          .join('')
+
         console.error(
-          `Unable to validate asset.json properly, please check it.`
+          `Unable to validate asset.json properly, please check it.`,
+          errors
         )
       }
     } catch (err) {
