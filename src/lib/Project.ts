@@ -166,9 +166,9 @@ export class Project {
         const pkgFile = await readJSON<any>(getPackageFilePath(src))
         await writeJSON(getPackageFilePath(this.workingDir), pkgFile)
       } else if (file === ASSETJSON_FILE) {
-        const assetJsonFile = await readJSON<any>(path.join(src, file));
-        assetJsonFile.id = uuid.v4();
-        await writeJSON(path.join(this.workingDir, file), assetJsonFile);
+        const assetJsonFile = await readJSON<any>(path.join(src, file))
+        const assetJsonFileWithUuid = { ...assetJsonFile, id: uuid.v4() }
+        await writeJSON(path.join(this.workingDir, file), assetJsonFileWithUuid)
       } else {
         await fs.copy(path.join(src, file), path.join(this.workingDir, file))
       }
