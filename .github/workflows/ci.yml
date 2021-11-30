@@ -21,11 +21,11 @@ jobs:
           node-version: 16.x
         
       - name: Update npm
-        if: matrix.os == 'windows-latest'
+        if: matrix.platform == 'windows-latest'
         run: npm install --global npm@latest
 
       - name: Patch node-gyp to support Visual Studio 2019
-        if: matrix.os == 'windows-latest'
+        if: matrix.platform == 'windows-latest'
         shell: powershell
         run: |
           npm install --global node-gyp@latest
