@@ -71,17 +71,15 @@ export async function main(): Promise<number> {
     const MAX_WEARABLE_SIZE = 2097152
     const MAX_WEARABLE_SIZE_MB = Math.round(MAX_WEARABLE_SIZE / 1024 / 1024)
     if (totalSize > MAX_WEARABLE_SIZE) {
-      spinner.warn(`The sumatory of all packed files exceed the limit of wearable size (${MAX_WEARABLE_SIZE_MB}MB - ${MAX_WEARABLE_SIZE} bytes).
+      console.error(`The sumatory of all packed files exceed the limit of wearable size (${MAX_WEARABLE_SIZE_MB}MB - ${MAX_WEARABLE_SIZE} bytes).
 Please try to remove unneccessary files and/or reduce the files size, you can ignore file adding in .dclignore.`)
-      spinner.create('Packing project')
     }
 
     const id = projectInfo.sceneId.toLowerCase()
     if (!uuidRegexExp.test(id)) {
-      spinner.warn(
+      console.error(
         `The id of the wearable must be an UUID, otherwise the uploading to the builder will fail.`
       )
-      spinner.create('Packing project')
     }
   }
 
