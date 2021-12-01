@@ -19,9 +19,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 16.x
-      - name: clean node_gyp (windows)
+      - name: install node-gyp globally (windows)
         if: matrix.platform == 'windows-latest'
-        run: rm -rf ~/.node_gyp
+        run: npm install -g node-gyp
       - name: install
         run: npm ci
       - name: build
