@@ -19,9 +19,7 @@ async function projectCreatedSuccessfully(
 ) {
   const files = filesPath || DEFAULT_FILES[type]
   const pathsExists = await pathsExistOnDir(dirPath, files)
-
   pathsExists.slice(0, files.length).forEach((file) => t.true(file))
-
   const [sceneFile, expected]: Scene[] = await Promise.all([
     fs.readJson(path.resolve(dirPath, 'scene.json')),
     fs.readJson(path.resolve(__dirname, `../../samples/${type}/scene.json`))
@@ -51,36 +49,37 @@ test('snapshot - dcl help init', (t) => {
   t.snapshot(help())
 })
 
-test('E2E - dcl init with prompt', async (t) => {
+test('dcl init with prompt', async (t) => {
   await createSandbox(async (dirPath: string) => {
     const cmd = initCommand(dirPath)
-
-    cmd.orderedWhen(/Choose a project type/, () => [Response.ENTER])
-
-    await endCommand(cmd)
-    await projectCreatedSuccessfully(t, dirPath, sdk.ProjectType.SCENE)
-  })
-})
-
-test('E2E - dcl init with -b option', async (t) => {
-  await createSandbox(async (dirPath: string) => {
-    const cmd = initCommand(dirPath, '-b ecs')
+    cmd.orderedWhen(/Choose a project type/, () => {
+      console.log('Choose a project type')
+      return [Response.ENTER]
+    })
 
     await endCommand(cmd)
     await projectCreatedSuccessfully(t, dirPath, sdk.ProjectType.SCENE)
   })
 })
 
-test('E2E - dcl init with invalid -b option', async (t) => {
+test('dcl init with -p option', async (t) => {
   await createSandbox(async (dirPath: string) => {
-    const cmd = initCommand(dirPath, '-b dcl')
+    const cmd = initCommand(dirPath, '-p scene')
+    await endCommand(cmd)
+    await projectCreatedSuccessfully(t, dirPath, sdk.ProjectType.SCENE)
+  })
+})
+
+test('dcl init with invalid -p option', async (t) => {
+  await createSandbox(async (dirPath: string) => {
+    const cmd = initCommand(dirPath, '-p dcl')
     await endCommand(cmd)
     const [sceneJson] = await pathsExistOnDir(dirPath, ['scene.json'])
     t.false(sceneJson)
   })
 })
 
-test('E2E - dcl init with smart-items prompt selection', async (t) => {
+test('dcl init with smart-items prompt selection', async (t) => {
   await createSandbox(async (dirPath: string) => {
     const cmd = initCommand(dirPath)
 
@@ -94,9 +93,9 @@ test('E2E - dcl init with smart-items prompt selection', async (t) => {
   })
 })
 
-test('E2E - dcl init with portable-experience prompt selection', async (t) => {
+test('dcl init with portable-experience prompt selection', async (t) => {
   await createSandbox(async (dirPath: string) => {
-    const cmd = initCommand(dirPath)
+    const cmd = initCommand(dirPath, '--px')
 
     cmd.orderedWhen(/Choose a project type/, () => [
       Response.DOWN,

@@ -27,7 +27,7 @@ function exportProject(dirPath) {
   })
 }
 
-test('E2E - export command', async (t) => {
+test('export command', async (t) => {
   await sandbox(async (dirPath, done) => {
     await initProject(dirPath)
     await buildProject(dirPath)

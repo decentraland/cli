@@ -26,7 +26,7 @@ function buildProject(dirPath) {
   })
 }
 
-test('E2E - build command', async (t) => {
+test('build command', async (t) => {
   await sandbox(async (dirPath, done) => {
     await initProject(dirPath)
     await buildProject(dirPath)
