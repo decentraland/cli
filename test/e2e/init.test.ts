@@ -93,21 +93,21 @@ test('dcl init with smart-items prompt selection', async (t) => {
   })
 })
 
-// test('dcl init with portable-experience prompt selection', async (t) => {
-//   await createSandbox(async (dirPath: string) => {
-//     const cmd = initCommand(dirPath)
+test('dcl init with portable-experience prompt selection', async (t) => {
+  await createSandbox(async (dirPath: string) => {
+    const cmd = initCommand(dirPath, '--px')
 
-//     cmd.orderedWhen(/Choose a project type/, () => [
-//       Response.DOWN,
-//       Response.DOWN,
-//       Response.ENTER
-//     ])
+    cmd.orderedWhen(/Choose a project type/, () => [
+      Response.DOWN,
+      Response.DOWN,
+      Response.ENTER
+    ])
 
-//     await endCommand(cmd)
-//     await projectCreatedSuccessfully(
-//       t,
-//       dirPath,
-//       sdk.ProjectType.PORTABLE_EXPERIENCE
-//     )
-//   })
-// })
+    await endCommand(cmd)
+    await projectCreatedSuccessfully(
+      t,
+      dirPath,
+      sdk.ProjectType.PORTABLE_EXPERIENCE
+    )
+  })
+})
