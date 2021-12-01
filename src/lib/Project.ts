@@ -90,7 +90,7 @@ export class Project {
         break
       }
       case sdk.ProjectType.SCENE: {
-        await this.copySample('ecs')
+        await this.copySample('scene')
         break
       }
       case sdk.ProjectType.PORTABLE_EXPERIENCE: {

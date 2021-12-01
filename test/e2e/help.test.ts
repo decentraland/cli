@@ -9,7 +9,7 @@ test('snapshot - dcl commands', (t) => {
   t.snapshot(commands)
 })
 
-test('E2E - help command', async (t) => {
+test('help command', async (t) => {
   // dcl help
   const allDataDclHelpPromise = new Promise((resolve) => {
     let allData = ''

@@ -29,16 +29,16 @@ test('snapshot - dcl help instal', (t) => {
   t.snapshot(installCmd.help())
 })
 
-test('E2E - install a package', async (t) => {
+test('install a package', async (t) => {
   await sandbox(async (dirPath, done) => {
     const packageToInstall = '@dcl/ecs-scene-utils'
     await initProject(dirPath)
     await installCommand(dirPath, packageToInstall)
 
-    const packageJson = await readJSON<{ bundleDependencies: string[] }>(
+    const packageJson = await readJSON<{ bundledDependencies: string[] }>(
       path.resolve(dirPath, 'package.json')
     )
-    t.true(packageJson.bundleDependencies.includes(packageToInstall))
+    t.true(packageJson.bundledDependencies.includes(packageToInstall))
     done()
   })
 })
