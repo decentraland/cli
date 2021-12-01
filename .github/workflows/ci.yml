@@ -20,20 +20,20 @@ jobs:
         with:
           node-version: 16.x
       - name: install
-        continue-on-error: matrix.platform == 'windows-latest'
+        continue-on-error: ${{ matrix.platform == 'windows-latest' }}
         run: npm ci 
       - name: build
-        continue-on-error: matrix.platform == 'windows-latest'
+        continue-on-error: ${{ matrix.platform == 'windows-latest' }}
         run: npm run build
       - name: test:win
-        continue-on-error: matrix.platform == 'windows-latest'
+        continue-on-error: ${{ matrix.platform == 'windows-latest' }}
         if: matrix.platform == 'windows-latest'
         run: npm run test:win
       - name: test
         if: matrix.platform != 'windows-latest'
         run: npm run test:ci
       - name: lint
-        continue-on-error: matrix.platform == 'windows-latest'
+        continue-on-error: ${{ matrix.platform == 'windows-latest' }}
         run: npm run lint
 
   publish:
