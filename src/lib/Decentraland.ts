@@ -16,7 +16,6 @@ import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
-import { isWalletConnect, getWalletConnector } from '../walletConnect/connector'
 
 export type DecentralandArguments = {
   workingDir: string
@@ -245,16 +244,6 @@ export class Decentraland extends EventEmitter {
         this.wallet.getAddress()
       ])
       return { signature, address }
-    }
-
-    if (isWalletConnect()) {
-      const connector = getWalletConnector()
-      const address = connector.accounts[0]
-      const signature = await connector.signMessage([address, messageToSign])
-      return {
-        signature,
-        address
-      }
     }
 
     return this.link(messageToSign)
