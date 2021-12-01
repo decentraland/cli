@@ -8,10 +8,34 @@ on:
     types:
       - created
 jobs:
-  build:
+  build-windows:
     strategy:
       matrix:
-        platform: [macos-latest, ubuntu-latest, windows-latest]
+        platform: [windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@master
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - name: install
+        run: npm ci
+      - name: build
+        run: npm run build
+      - name: test:win
+        if: matrix.platform == 'windows-latest'
+        run: npm run test:win
+      - name: test
+        if: matrix.platform != 'windows-latest'
+        run: npm run test:ci
+      - name: lint
+        run: npm run lint
+        
+  build-unix:
+    strategy:
+      matrix:
+        platform: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@master
@@ -34,7 +58,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build-unix]
     steps:
       - uses: actions/checkout@master
       - name: Use Node.js 16.x
