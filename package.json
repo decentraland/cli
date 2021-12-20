@@ -78,7 +78,7 @@
     "chalk": "^2.3.1",
     "chokidar": "^2.0.3",
     "cors": "^2.8.4",
-    "dcl-catalyst-client": "^5.0.3",
+    "dcl-catalyst-client": "^9.0.3",
     "dcl-catalyst-commons": "^3.0.0",
     "dcl-node-runtime": "^1.0.0",
     "docker-names": "^1.0.3",
