@@ -396,7 +396,10 @@ export class Project {
     let ignoreFile
 
     try {
-      ignoreFile = await fs.readFile(getIgnoreFilePath(this.projectWorkingDir), 'utf8')
+      ignoreFile = await fs.readFile(
+        getIgnoreFilePath(this.projectWorkingDir),
+        'utf8'
+      )
     } catch (e) {
       ignoreFile = null
     }
