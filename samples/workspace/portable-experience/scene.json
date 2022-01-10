@@ -1,8 +1,0 @@
-{
-  "main": "bin/game.js",
-  "scene": {
-    "parcels": ["0,0"],
-    "base": "0,0"
-  },
-  "requiredPermissions": []
-}
