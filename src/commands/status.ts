@@ -54,14 +54,20 @@ export async function main() {
     coords = getObject(target)
   }
 
-  if (!coords) {
-    await dcl.project.validateExistingProject()
-    coords = await dcl.project.getParcelCoordinates()
+  const project = dcl.workspace.getSingleProject()
+  if (!coords && project) {
+    await project.validateExistingProject()
+    coords = await project.getParcelCoordinates()
   }
 
-  const { cid, files } = await dcl.getParcelStatus(coords.x, coords.y)
-  Analytics.statusCmd({ type: 'coordinates', target: coords })
-  logStatus(files, cid, `${coords.x},${coords.y}`)
+  if (!coords) {
+    fail(ErrorType.STATUS_ERROR, `Cannot get the coords`)
+    return
+  } else {
+    const { cid, files } = await dcl.getParcelStatus(coords.x, coords.y)
+    Analytics.statusCmd({ type: 'coordinates', target: coords })
+    logStatus(files, cid, `${coords.x},${coords.y}`)
+  }
 }
 
 function logStatus(files: any[], cid: string, coords: string) {

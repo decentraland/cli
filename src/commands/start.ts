@@ -16,10 +16,8 @@ import { isEnvCi } from '../utils/env'
 import * as spinner from '../utils/spinner'
 import installDependencies from '../project/installDependencies'
 import isECSInstalled from '../project/isECSInstalled'
-import { getSceneFile } from '../sceneJson'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import updateBundleDependenciesField from '../project/updateBundleDependenciesField'
-import { getProjectInfo } from '../project/projectInfo'
 import { sdk } from '@dcl/schemas'
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
@@ -70,10 +68,6 @@ export async function main() {
   const watch = !args['--no-watch'] && !isCi
   const workingDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
-  const projectInfo = getProjectInfo(workingDir)
-  const enableWeb3 =
-    args['--web3'] ||
-    projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
 
   const dcl = new Decentraland({
     previewPort: parseInt(args['--port']!, 10),
@@ -81,48 +75,72 @@ export async function main() {
     workingDir
   })
 
+  const enableWeb3 = args['--web3']
+
   Analytics.preview()
 
-  spinner.create('Checking if SDK is installed')
-  const [sdkOutdated, online, ECSInstalled] = await Promise.all([
-    getOutdatedApi(workingDir),
-    isOnline(),
-    isECSInstalled(workingDir)
-  ])
+  const online = await isOnline()
 
-  if (!ECSInstalled) {
-    spinner.info('SDK not found. Installing dependencies...')
-  } else if (sdkOutdated) {
-    spinner.warn(
-      `SDK is outdated, to upgrade to the latest version run the command: ${chalk.bold(
-        'npm install decentraland-ecs@latest'
-      )}`
-    )
-    console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
-  } else {
-    spinner.succeed('Latest SDK installation found.')
+  let thereIsAPortableExperience = false
+  let [x, y] = ['', '']
+
+  for (const project of dcl.workspace.getAllProjects()) {
+    spinner.create(`Checking if SDK is installed in project`)
+
+    const [sdkOutdated, ECSInstalled] = await Promise.all([
+      getOutdatedApi(project.getProjectWorkingDir()),
+      isECSInstalled(project.getProjectWorkingDir())
+    ])
+
+    if (!ECSInstalled) {
+      spinner.info('SDK not found. Installing dependencies...')
+    } else if (sdkOutdated) {
+      spinner.warn(
+        `SDK is outdated, to upgrade to the latest version run the command: ${chalk.bold(
+          'npm install decentraland-ecs@latest'
+        )}`
+      )
+      console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
+    } else {
+      spinner.succeed('Latest SDK installation found.')
+    }
+
+    if (online && !ECSInstalled) {
+      await installDependencies(
+        project.getProjectWorkingDir(),
+        false /* silent */
+      )
+    }
+
+    if (!skipVersionCheck) {
+      await checkECSVersions(project.getProjectWorkingDir())
+    }
+
+    try {
+      await updateBundleDependenciesField({
+        workDir: project.getProjectWorkingDir()
+      })
+    } catch (err) {
+      console.warn(`Unable to update bundle dependencies field.`, err)
+    }
+
+    if (await project.isTypescriptProject()) {
+      await buildTypescript({
+        workingDir: project.getProjectWorkingDir(),
+        watch: true,
+        production: false
+      })
+    }
+
+    await lintSceneFile(project.getProjectWorkingDir())
+
+    const projectType = project.getInfo().sceneType
+    if (projectType === sdk.ProjectType.PORTABLE_EXPERIENCE) {
+      thereIsAPortableExperience = true
+    } else if (projectType === sdk.ProjectType.SCENE && x === '') {
+      ;[x, y] = await project.getSceneBaseCoords()
+    }
   }
-
-  if (online && !ECSInstalled) {
-    await installDependencies(workingDir, false /* silent */)
-  }
-
-  if (!skipVersionCheck) {
-    await checkECSVersions(dcl.getWorkingDir())
-  }
-
-  try {
-    await updateBundleDependenciesField()
-  } catch (err) {
-    console.warn(`Unable to update bundle dependencies field.`, err)
-  }
-
-  if (await dcl.project.isTypescriptProject()) {
-    await buildTypescript({ workingDir, watch: true, production: false })
-  }
-
-  await lintSceneFile(workingDir)
-  const [x, y] = await getSceneBaseCoords()
 
   dcl.on('preview:ready', (port) => {
     const ifaces = os.networkInterfaces()
@@ -142,7 +160,7 @@ export async function main() {
           if (debug) {
             addr = `${addr}&SCENE_DEBUG_PANEL`
           }
-          if (enableWeb3) {
+          if (enableWeb3 || thereIsAPortableExperience) {
             addr = `${addr}&ENABLE_WEB3`
           }
           if (i === 0) {
@@ -163,14 +181,4 @@ export async function main() {
   })
 
   await dcl.preview()
-}
-
-async function getSceneBaseCoords() {
-  try {
-    const sceneFile = await getSceneFile(process.cwd())
-    return sceneFile.scene.base.replace(/\ /g, '').split(',')
-  } catch (e) {
-    console.log(error(`Could not open "scene.json" file`))
-    throw e
-  }
 }

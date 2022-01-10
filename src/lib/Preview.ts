@@ -17,7 +17,6 @@ import proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
 import getDummyMappings from '../utils/getDummyMappings'
 import { Decentraland } from './Decentraland'
-import { getProjectInfo } from '../project/projectInfo'
 
 /**
  * Events emitted by this class:
@@ -28,12 +27,10 @@ export class Preview extends EventEmitter {
   private app = express()
   private server = createServer(this.app)
   private wss = new WebSocket.Server({ server: this.server })
-  private ignoredPaths: string
   private watch: boolean
 
-  constructor(public dcl: Decentraland, ignoredPaths: string, watch: boolean) {
+  constructor(public dcl: Decentraland, watch: boolean) {
     super()
-    this.ignoredPaths = ignoredPaths
     this.watch = watch
   }
 
@@ -61,27 +58,33 @@ export class Preview extends EventEmitter {
       }
     }
 
-    const { sceneId, sceneType } = getProjectInfo(this.dcl.getWorkingDir())
-    const ig = ignore().add(this.ignoredPaths)
     if (this.watch) {
-      chokidar.watch(this.dcl.getWorkingDir()).on('all', (_, pathWatch) => {
-        if (ig.ignores(pathWatch)) {
-          return
-        }
-        this.wss.clients.forEach((ws) => {
-          if (
-            ws.readyState === WebSocket.OPEN &&
-            (!ws.protocol || ws.protocol === 'scene-updates')
-          ) {
-            const message: sdk.SceneUpdate = {
-              type: sdk.SCENE_UPDATE,
-              payload: { sceneId, sceneType }
+      for (const project of this.dcl.workspace.getAllProjects()) {
+        const ig = ignore().add((await project.getDCLIgnore())!)
+        const { sceneId, sceneType } = project.getInfo()
+        chokidar
+          .watch(project.getProjectWorkingDir())
+          .on('all', (_, pathWatch) => {
+            if (ig.ignores(pathWatch)) {
+              return
             }
-            ws.send(sdk.UPDATE)
-            ws.send(JSON.stringify(message))
-          }
-        })
-      })
+
+            this.wss.clients.forEach((ws) => {
+              if (
+                ws.readyState === WebSocket.OPEN &&
+                (!ws.protocol || ws.protocol === 'scene-updates')
+              ) {
+                const message: sdk.SceneUpdate = {
+                  type: sdk.SCENE_UPDATE,
+                  payload: { sceneId, sceneType }
+                }
+
+                ws.send(sdk.UPDATE)
+                ws.send(JSON.stringify(message))
+              }
+            })
+          })
+      }
     }
 
     this.app.use(cors())
@@ -117,7 +120,8 @@ export class Preview extends EventEmitter {
     if (fs.existsSync(proxySetupPath)) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require(proxySetupPath)(this.dcl, this.app, express)
+        const setupProxy = require(proxySetupPath)
+        setupProxy(this.dcl, this.app, express)
       } catch (err) {
         console.log(
           `${proxySetupPath} found but it couldn't be loaded properly`,

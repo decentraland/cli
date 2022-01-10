@@ -62,5 +62,5 @@ export async function main() {
 
   await spawnNpmInstall(args._)
 
-  await updateBundleDependenciesField()
+  await updateBundleDependenciesField({ workDir: process.cwd() })
 }

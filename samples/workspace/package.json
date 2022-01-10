@@ -1,0 +1,11 @@
+{
+  "name": "dcl-workspace",
+  "version": "1.0.0",
+  "description": "My new Decentraland workspace",
+  "scripts": {
+    "start": "dcl start"
+  },
+  "devDependencies": {
+    "decentraland-ecs": "latest"
+  }
+}
