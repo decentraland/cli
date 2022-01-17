@@ -39,8 +39,9 @@ export function getProjectInfo(workDir: string): ProjectInfo {
       sceneType: sdk.ProjectType.SMART_ITEM
     }
   }
+
   return {
-    sceneId: '',
+    sceneId: 'b64-' + Buffer.from(workDir).toString('base64'),
     sceneType: sdk.ProjectType.SCENE
   }
 }

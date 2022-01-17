@@ -49,7 +49,7 @@ export async function writeJSON(path: string, content: any): Promise<void> {
  * Reads a file and parses it's JSON content
  * @param path The path to the subject json file
  */
- export async function readJSON<T>(path: string): Promise<T> {
+export async function readJSON<T>(path: string): Promise<T> {
   const content = await fs.readFile(path, 'utf-8')
   return JSON.parse(content) as T
 }
