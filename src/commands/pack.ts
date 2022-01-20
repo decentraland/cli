@@ -32,7 +32,7 @@ export async function main(): Promise<number> {
   const project = workspace.getSingleProject()
 
   if (project === null) {
-    fail("You should't use `dcl install` in a workspace folder.")
+    fail("You should't use `dcl pack` in a workspace folder.")
   }
 
   const projectInfo = project.getInfo()
