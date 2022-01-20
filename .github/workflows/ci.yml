@@ -78,10 +78,8 @@ jobs:
       - name: Generate S3 URL
         id: url-generator
         run: |
-          body=$(echo ${{ secrets.SDK_TEAM_S3_BASE_URL }})/${{ needs.build.outputs.cli_s3_bucket_key }}
+          body=$(echo ${{ secrets.SDK_TEAM_S3_BASE_URL }})/${{ needs.publish.outputs.cli_s3_bucket_key }}
           echo ::set-output name=body::$body
-      - name: Test Install S3 URL
-        run: mkdir -p test_s3 && cd test_s3 && npm init --yes && npm install "${{ steps.url-generator.outputs.body }}"
       - name: Create or update comment
         uses: peter-evans/create-or-update-comment@v1
         with:
