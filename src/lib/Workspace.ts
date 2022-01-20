@@ -2,77 +2,117 @@ import path from 'path'
 import fs from 'fs-extra'
 import { readJSONSync } from '../utils/filesystem'
 import { Project } from './Project'
+import { sdk } from '@dcl/schemas'
 
-export class Workspace {
-  private workingDir: string
-  private projects: Project[] = []
+interface WorkspaceProjectSchema {
+  name?: string
+  path: string
+}
 
-  constructor(workingDir: string) {
-    this.workingDir = workingDir
+interface WorkspaceFileSchema {
+  folders: WorkspaceProjectSchema[]
+}
 
-    const projectFolders = this.getProjectFolders()
-    if (projectFolders.length > 0) {
-      for (const projectFolder of projectFolders) {
-        this.projects.push(new Project(projectFolder))
+function getProjectFolders(workspaceJsonPath: string): string[] {
+  const workspaceJsonDir = path.dirname(workspaceJsonPath)
+  if (fs.existsSync(workspaceJsonPath)) {
+    try {
+      const workspaceJson = readJSONSync<WorkspaceFileSchema>(workspaceJsonPath)
+      if (workspaceJson.folders) {
+        return workspaceJson.folders.map((folderPath) =>
+          folderPath.path.startsWith('/') || folderPath.path.startsWith('\\')
+            ? folderPath.path
+            : `${workspaceJsonDir}/${folderPath.path}`
+        )
       }
-    } else {
-      this.projects.push(new Project(workingDir))
-    }
-
-    if (this.projects.length === 0) {
-      throw new Error(
-        'At least one project has to have been read for the workspace.'
-      )
+    } catch (err) {
+      console.error(err)
     }
   }
+  return []
+}
 
-  getAllProjects() {
-    return this.projects
+export interface Workspace {
+  getAllProjects: () => Project[]
+  getProject: (index: number) => Project
+  getSingleProject: () => Project | null
+  isSingleProject: () => boolean
+  hasPortableExperience: () => boolean
+  getBaseCoords: () => Promise<{ x: number; y: number }>
+}
+
+export const createWorkspace = ({
+  workingDir,
+  workspaceFilePath
+}: {
+  workingDir?: string
+  workspaceFilePath?: string
+}): Workspace => {
+  const projects: Project[] = []
+
+  const workspaceJsonPath =
+    workspaceFilePath ||
+    path.resolve(workingDir || '', 'dcl-workspace.json') ||
+    ''
+
+  if (workspaceJsonPath === '') {
+    throw new Error(`Couldn't find the workspace file or a working directory.`)
   }
 
-  getProject(index: number = 0) {
-    return this.projects[index]
-  }
-
-  getSingleProject(): Project | null {
-    if (
-      this.projects.length === 1 &&
-      this.projects[0].getProjectWorkingDir() === this.workingDir
-    ) {
-      return this.getProject(0)
+  const projectFolders = getProjectFolders(workspaceJsonPath)
+  if (projectFolders.length) {
+    for (const projectFolder of projectFolders) {
+      projects.push(new Project(projectFolder))
     }
-    return null
+  } else if (workingDir) {
+    projects.push(new Project(workingDir))
   }
 
-  isSingleProject() {
+  if (projects.length === 0) {
+    throw new Error(
+      'At least one project has to have been read for the workspace.'
+    )
+  }
+  const getAllProjects = () => {
+    return projects
+  }
+
+  const getProject = (index: number = 0) => {
+    return projects[index]
+  }
+
+  const isSingleProject = () => {
     return (
-      this.projects.length === 1 &&
-      this.projects[0].getProjectWorkingDir() === this.workingDir
+      projects.length === 1 && projects[0].getProjectWorkingDir() === workingDir
     )
   }
 
-  private getProjectFolders(): string[] {
-    const workspaceJsonPath = path.resolve(
-      this.workingDir,
-      'dcl-workspace.json'
+  const getSingleProject = (): Project | null => {
+    return (isSingleProject() && projects[0]) || null
+  }
+
+  const hasPortableExperience = () => {
+    return !!projects.find(
+      (project) =>
+        project.getInfo().sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
     )
+  }
 
-    if (fs.existsSync(workspaceJsonPath)) {
-      try {
-        const workspaceJson = readJSONSync<any>(workspaceJsonPath)
-        if (workspaceJson?.folders) {
-          const folders = workspaceJson.folders as { path: string }[]
+  const getBaseCoords = async () => {
+    const firstParcelScene = projects.find(
+      (project) => project.getInfo().sceneType === sdk.ProjectType.SCENE
+    )
+    return firstParcelScene
+      ? await firstParcelScene.getSceneBaseCoords()
+      : { x: 0, y: 0 }
+  }
 
-          return folders.map((ppath) =>
-            ppath.path.startsWith('/') || ppath.path.startsWith('\\')
-              ? ppath.path
-              : `${this.workingDir}/${ppath.path}`
-          )
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    return []
+  return {
+    getAllProjects,
+    getProject,
+    getSingleProject,
+    isSingleProject,
+    hasPortableExperience,
+    getBaseCoords
   }
 }

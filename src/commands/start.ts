@@ -18,7 +18,7 @@ import installDependencies from '../project/installDependencies'
 import isECSInstalled from '../project/isECSInstalled'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import updateBundleDependenciesField from '../project/updateBundleDependenciesField'
-import { sdk } from '@dcl/schemas'
+
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
 
@@ -81,9 +81,6 @@ export async function main() {
 
   const online = await isOnline()
 
-  let thereIsAPortableExperience = false
-  let [x, y] = ['', '']
-
   for (const project of dcl.workspace.getAllProjects()) {
     spinner.create(`Checking if SDK is installed in project`)
 
@@ -96,9 +93,10 @@ export async function main() {
       spinner.info('SDK not found. Installing dependencies...')
     } else if (sdkOutdated) {
       spinner.warn(
-        `SDK is outdated, to upgrade to the latest version run the command: ${chalk.bold(
-          'npm install decentraland-ecs@latest'
-        )}`
+        `SDK is outdated, to upgrade to the latest version run the command: 
+          ${chalk.bold('npm install decentraland-ecs@latest')}
+          In the folder ${project.getProjectWorkingDir()}
+        `
       )
       console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
     } else {
@@ -133,19 +131,14 @@ export async function main() {
     }
 
     await lintSceneFile(project.getProjectWorkingDir())
-
-    const projectType = project.getInfo().sceneType
-    if (projectType === sdk.ProjectType.PORTABLE_EXPERIENCE) {
-      thereIsAPortableExperience = true
-    } else if (projectType === sdk.ProjectType.SCENE && x === '') {
-      ;[x, y] = await project.getSceneBaseCoords()
-    }
   }
+
+  const baseCoords = await dcl.workspace.getBaseCoords()
+  const hasPortableExperience = dcl.workspace.hasPortableExperience()
 
   dcl.on('preview:ready', (port) => {
     const ifaces = os.networkInterfaces()
-
-    let url = null
+    const availableURLs: string[] = []
 
     console.log('') // line break
 
@@ -153,20 +146,17 @@ export async function main() {
 
     console.log(chalk.bold('\n  Available on:\n'))
 
-    Object.keys(ifaces).forEach((dev, i) => {
+    Object.keys(ifaces).forEach((dev) => {
       ifaces[dev].forEach((details) => {
         if (details.family === 'IPv4') {
-          let addr = `http://${details.address}:${port}?position=${x}%2C${y}`
+          let addr = `http://${details.address}:${port}?position=${baseCoords.x}%2C${baseCoords.y}`
           if (debug) {
             addr = `${addr}&SCENE_DEBUG_PANEL`
           }
-          if (enableWeb3 || thereIsAPortableExperience) {
+          if (enableWeb3 || hasPortableExperience) {
             addr = `${addr}&ENABLE_WEB3`
           }
-          if (i === 0) {
-            url = addr
-          }
-          console.log(`    ${addr}`)
+          availableURLs.push(addr)
         }
       })
     })
@@ -175,8 +165,13 @@ export async function main() {
 
     console.log(chalk.grey('\nPress CTRL+C to exit\n'))
 
-    if (openBrowser) {
-      void opn(url).catch()
+    if (openBrowser && availableURLs.length) {
+      const localhostUrl = availableURLs.find(
+        (url) =>
+          url.toLowerCase().includes('localhost') || url.includes('127.0.0.1')
+      )
+
+      void opn(localhostUrl || availableURLs[0]).catch()
     }
   })
 

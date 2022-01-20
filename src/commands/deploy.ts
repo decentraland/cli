@@ -21,6 +21,7 @@ import { debug } from '../utils/logging'
 import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
+import { fail } from 'assert'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -105,7 +106,7 @@ export async function main(): Promise<number> {
       spinner.fail(
         'Cannot deploy a workspace, please go to the project directory and run `dcl deploy` again there.'
       )
-      return 1
+      fail()
     }
 
     // Obtain list of files to deploy

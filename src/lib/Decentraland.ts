@@ -15,7 +15,7 @@ import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
-import { Workspace } from './Workspace'
+import { createWorkspace, Workspace } from './Workspace'
 
 export type DecentralandArguments = {
   workingDir: string
@@ -72,7 +72,7 @@ export class Decentraland extends EventEmitter {
     this.options.config = this.options.config || getConfig()
     console.assert(this.options.workingDir, 'Working directory is missing')
     debug(`Working directory: ${chalk.bold(this.options.workingDir)}`)
-    this.workspace = new Workspace(this.options.workingDir)
+    this.workspace = createWorkspace({ workingDir: this.options.workingDir })
     this.ethereum = new Ethereum()
     this.provider = this.options.blockchain ? this.ethereum : new API()
     this.contentService = new ContentService(this.options.config.catalystUrl!)

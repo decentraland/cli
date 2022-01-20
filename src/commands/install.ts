@@ -4,6 +4,8 @@ import updateBundleDependenciesField from '../project/updateBundleDependenciesFi
 import { spawn } from 'child_process'
 import { npm } from './../utils/moduleHelpers'
 import * as spinner from '../utils/spinner'
+import { createWorkspace } from '../lib/Workspace'
+import { fail } from 'assert'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl install [package]')}
@@ -60,7 +62,14 @@ export async function main() {
     '-h': '--help'
   })
 
+  const workingDir = process.cwd()
+  const workspace = createWorkspace({ workingDir })
+
+  if (!workspace.isSingleProject()) {
+    fail("You should't use `dcl install` in a workspace folder.")
+  }
+
   await spawnNpmInstall(args._)
 
-  await updateBundleDependenciesField({ workDir: process.cwd() })
+  await updateBundleDependenciesField({ workDir: workingDir })
 }

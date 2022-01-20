@@ -12,6 +12,8 @@ import { warning, debug } from '../utils/logging'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import { getSceneFile } from '../sceneJson'
 import { checkECSVersions } from '../utils/moduleHelpers'
+import { createWorkspace } from '../lib/Workspace'
+import { fail } from 'assert'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl export [options]')}
@@ -38,21 +40,31 @@ export async function main(): Promise<number> {
     '--skip-version-checks': Boolean
   })
 
-  const workDir = process.cwd()
-  const exportDir = path.resolve(workDir, args['--out'] || 'export')
+  console.warn(
+    '`dcl export` will be deprecated in ECS 7. Preview mode scene is getting a complex funcitonality to be served statically. Please try to use a the docker file or just run `dcl start` instead.'
+  )
+
+  const workingDir = process.cwd()
+  const exportDir = path.resolve(workingDir, args['--out'] || 'export')
   const skipVersionCheck = args['--skip-version-checks']
   debug(`Using export directory: ${exportDir}`)
 
+  const workspace = createWorkspace({ workingDir })
+
+  if (!workspace.isSingleProject()) {
+    fail(`Can not export a workspace.`)
+  }
+
   spinner.create('Checking existance of build')
 
-  await lintSceneFile(workDir)
-  const sceneJson = await getSceneFile(workDir)
-  const mainPath = path.resolve(workDir, sceneJson.main)
+  await lintSceneFile(workingDir)
+  const sceneJson = await getSceneFile(workingDir)
+  const mainPath = path.resolve(workingDir, sceneJson.main)
 
   if (!(await fs.pathExists(mainPath))) {
     spinner.succeed(warning('No build found'))
     try {
-      await buildProject(workDir)
+      await buildProject(workingDir)
     } catch (error: any) {
       spinner.fail('Could not build the project')
       throw new Error(error)
@@ -62,7 +74,7 @@ export async function main(): Promise<number> {
   }
 
   if (!skipVersionCheck) {
-    await checkECSVersions(workDir)
+    await checkECSVersions(workingDir)
   }
 
   spinner.create('Exporting project')
@@ -72,18 +84,22 @@ export async function main(): Promise<number> {
   }
 
   const ignoreFileContent = await fs.readFile(
-    path.resolve(workDir, '.dclignore'),
+    path.resolve(workingDir, '.dclignore'),
     'utf-8'
   )
-  const filePaths = await getProjectFilePaths(workDir, ignoreFileContent)
+  const filePaths = await getProjectFilePaths(workingDir, ignoreFileContent)
   const promises = filePaths.map((f) =>
-    fs.copy(path.resolve(workDir, f), path.resolve(exportDir, f))
+    fs.copy(path.resolve(workingDir, f), path.resolve(exportDir, f))
   )
   await Promise.all(promises)
 
   const mappings = getDummyMappings(filePaths)
 
-  const dclEcsPath = path.resolve(workDir, 'node_modules', 'decentraland-ecs')
+  const dclEcsPath = path.resolve(
+    workingDir,
+    'node_modules',
+    'decentraland-ecs'
+  )
   const exportSetupPath = path.resolve(dclEcsPath, 'src', 'setupExport.js')
   let exportDependencies: any = defaultExport
 
@@ -96,7 +112,7 @@ export async function main(): Promise<number> {
   }
 
   await exportDependencies({
-    workDir,
+    workDir: workingDir,
     exportDir,
     mappings,
     sceneJson

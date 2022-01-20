@@ -8,7 +8,8 @@ import { packProject } from '../lib/smartItems/packProject'
 import { buildSmartItem } from '../lib/smartItems/buildSmartItem'
 import getProjectFilePaths from '../utils/getProjectFilePaths'
 import { buildTypescript } from '../utils/moduleHelpers'
-import { getProjectInfo } from '../project/projectInfo'
+import { fail } from 'assert'
+import { createWorkspace } from '../lib/Workspace'
 
 const uuidRegexExp =
   /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
@@ -26,8 +27,15 @@ export const help = () => `
 `
 
 export async function main(): Promise<number> {
-  const workDir = process.cwd()
-  const projectInfo = getProjectInfo(workDir)
+  const workingDir = process.cwd()
+  const workspace = createWorkspace({ workingDir })
+  const project = workspace.getSingleProject()
+
+  if (project === null) {
+    fail("You should't use `dcl install` in a workspace folder.")
+  }
+
+  const projectInfo = project.getInfo()
 
   const zipFileName =
     projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
@@ -36,10 +44,10 @@ export async function main(): Promise<number> {
 
   try {
     if (projectInfo.sceneType === sdk.ProjectType.SMART_ITEM) {
-      await buildSmartItem(workDir)
+      await buildSmartItem(workingDir)
     } else if (projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE) {
       await buildTypescript({
-        workingDir: workDir,
+        workingDir,
         watch: false,
         production: true
       })
@@ -54,10 +62,10 @@ export async function main(): Promise<number> {
   spinner.create('Packing project')
 
   const ignoreFileContent = await fs.readFile(
-    path.resolve(workDir, '.dclignore'),
+    path.resolve(workingDir, '.dclignore'),
     'utf-8'
   )
-  const filePaths = await getProjectFilePaths(workDir, ignoreFileContent)
+  const filePaths = await getProjectFilePaths(workingDir, ignoreFileContent)
 
   let totalSize = 0
   for (const filePath of filePaths) {
@@ -83,7 +91,7 @@ Please try to remove unneccessary files and/or reduce the files size, you can ig
     }
   }
 
-  const packDir = path.resolve(workDir, zipFileName)
+  const packDir = path.resolve(workingDir, zipFileName)
   await fs.remove(packDir)
   await packProject(filePaths, packDir)
 

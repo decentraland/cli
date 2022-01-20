@@ -496,7 +496,8 @@ export class Project {
   async getSceneBaseCoords() {
     try {
       const sceneFile = await getSceneFile(this.projectWorkingDir)
-      return sceneFile.scene.base.replace(/\ /g, '').split(',')
+      const [x, y] = sceneFile.scene.base.replace(/\ /g, '').split(',')
+      return { x: parseInt(x), y: parseInt(y) }
     } catch (e) {
       console.log(error(`Could not open "scene.json" file`))
       throw e
