@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:lts-alpine
 WORKDIR /usr/src/app
 
 COPY package-lock.json .

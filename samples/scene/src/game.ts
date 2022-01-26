@@ -42,7 +42,7 @@ function spawnCube(x: number, y: number, z: number) {
 const cube = spawnCube(8, 1, 8)
 
 cube.addComponent(
-  new OnClick(() => {
+  new OnPointerDown(() => {
     cube.getComponent(Transform).scale.z *= 1.1
     cube.getComponent(Transform).scale.x *= 0.9
 
