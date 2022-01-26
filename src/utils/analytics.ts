@@ -50,6 +50,9 @@ export namespace Analytics {
       traits: {
         os: process.platform,
         createdAt: new Date().getTime(),
+        isCI:
+          process.env.CI === 'true' ||
+          (process.argv.includes('--ci') && process.argv.includes('--c')),
         devId
       }
     })
@@ -120,6 +123,9 @@ async function track(
       os: process.platform,
       nodeVersion: process.version,
       cliVersion: getInstalledCLIVersion(),
+      isCI:
+        process.env.CI === 'true' ||
+        (process.argv.includes('--ci') && process.argv.includes('--c')),
       devId: userId
     }
 
