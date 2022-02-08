@@ -21,7 +21,7 @@ import { debug } from '../utils/logging'
 import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
-import { fail } from 'assert'
+import { ErrorType, fail } from '../utils/errors'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -44,7 +44,13 @@ export const help = () => `
 
     ${chalk.green('$ dcl deploy --target my-favorite-catalyst-server.org:2323')}
 `
-export async function main(): Promise<number> {
+
+export function failWithSpinner(message: string, error?: any): void {
+  spinner.fail(message)
+  fail(ErrorType.DEPLOY_ERROR, error)
+}
+
+export async function main(): Promise<void> {
   const args = arg({
     '--help': Boolean,
     '-h': '--help',
@@ -75,144 +81,142 @@ export async function main(): Promise<number> {
     await checkECSVersions(workDir)
   }
 
-  if (await isTypescriptProject(workDir)) {
-    spinner.create('Building scene in production mode')
-    if (!skipBuild) {
-      try {
-        await buildTypescript({
-          workingDir: workDir,
-          watch: false,
-          production: true
-        })
-        spinner.succeed('Scene built successfully')
-      } catch (error) {
-        spinner.fail(`Build scene in production mode failed. ${error}`)
-      }
-    } else {
-      spinner.succeed()
-    }
+  spinner.create('Building scene in production mode')
 
-    spinner.create('Creating deployment structure')
-
-    const dcl = new Decentraland({
-      isHttps: !!args['--https'],
-      workingDir: workDir,
-      forceDeploy: args['--force-upload'],
-      yes: args['--yes']
-    })
-
-    const project = dcl.workspace.getSingleProject()
-    if (!project) {
-      spinner.fail(
-        'Cannot deploy a workspace, please go to the project directory and run `dcl deploy` again there.'
-      )
-      fail()
-    }
-
-    // Obtain list of files to deploy
-    let originalFilesToIgnore = await project.getDCLIgnore()
-    if (originalFilesToIgnore === null) {
-      originalFilesToIgnore = await project.writeDclIgnore()
-    }
-    let filesToIgnorePlusEntityJson = originalFilesToIgnore
-    if (!filesToIgnorePlusEntityJson.includes('entity.json')) {
-      filesToIgnorePlusEntityJson =
-        filesToIgnorePlusEntityJson + '\n' + 'entity.json'
-    }
-    const files: IFile[] = await project.getFiles(filesToIgnorePlusEntityJson)
-    const contentFiles = new Map(files.map((file) => [file.path, file.content]))
-
-    // Create scene.json
-    const sceneJson = await getSceneFile(workDir)
-
-    const { entityId, files: entityFiles } =
-      await DeploymentBuilder.buildEntity(
-        EntityType.SCENE,
-        findPointers(sceneJson),
-        contentFiles,
-        sceneJson
-      )
-
-    spinner.succeed('Deployment structure created.')
-
-    //  Validate scene.json
-    validateScene(sceneJson, true)
-
-    dcl.on('link:ready', (url) => {
-      console.log(
-        chalk.bold('You need to sign the content before the deployment:')
-      )
-      spinner.create(`Signing app ready at ${url}`)
-
-      setTimeout(() => {
-        try {
-          // tslint:disable-next-line: no-floating-promises
-          void opn(url)
-        } catch (e) {
-          console.log(`Unable to open browser automatically`)
-        }
-      }, 5000)
-
-      dcl.on(
-        'link:success',
-        ({ address, signature, chainId }: LinkerResponse) => {
-          spinner.succeed(`Content successfully signed.`)
-          console.log(`${chalk.bold('Address:')} ${address}`)
-          console.log(`${chalk.bold('Signature:')} ${signature}`)
-          console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
-        }
-      )
-    })
-
-    // Signing message
-    const messageToSign = entityId
-    const { signature, address, chainId } = await dcl.getAddressAndSignature(
-      messageToSign
+  if (!(await isTypescriptProject(workDir))) {
+    failWithSpinner(
+      `Please make sure that your project has a 'tsconfig.json' file.`
     )
-    const authChain = Authenticator.createSimpleAuthChain(
-      entityId,
-      address,
-      signature
-    )
-
-    // Uploading data
-    let catalyst: ContentAPI
-
-    if (args['--target']) {
-      let target = args['--target']
-      if (target.endsWith('/')) {
-        target = target.slice(0, -1)
-      }
-      catalyst = new CatalystClient(target, 'CLI')
-    } else if (args['--target-content']) {
-      const targetContent = args['--target-content']
-      catalyst = new ContentClient(targetContent, 'CLI')
-    } else {
-      catalyst = await CatalystClient.connectedToCatalystIn('mainnet', 'CLI')
-    }
-    spinner.create(`Uploading data to: ${catalyst.getContentUrl()}`)
-
-    const deployData = { entityId, files: entityFiles, authChain }
-    const position = sceneJson.scene.base
-    const network = chainId === ChainId.ETHEREUM_ROPSTEN ? 'ropsten' : 'mainnet'
-    const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}`
-
-    try {
-      await catalyst.deployEntity(deployData, false, { timeout: '10m' })
-      spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
-      Analytics.sceneDeploySuccess()
-    } catch (error: any) {
-      debug('\n' + error.stack)
-      spinner.fail(`Could not upload content. ${error}`)
-    }
-  } else {
-    console.log(
-      `Could not upload content. Please make sure that your project has a 'tsconfig.json' file.`
-    )
-    return 1
   }
 
-  return 0
+  if (!skipBuild) {
+    try {
+      await buildTypescript({
+        workingDir: workDir,
+        watch: false,
+        production: true,
+        silence: true
+      })
+      spinner.succeed('Scene built successfully')
+    } catch (error) {
+      const message = 'Build /scene in production mode failed'
+      failWithSpinner(message, error)
+    }
+  } else {
+    spinner.succeed()
+  }
+
+  spinner.create('Creating deployment structure')
+
+  const dcl = new Decentraland({
+    isHttps: !!args['--https'],
+    workingDir: workDir,
+    forceDeploy: args['--force-upload'],
+    yes: args['--yes']
+  })
+
+  const project = dcl.workspace.getSingleProject()
+  if (!project) {
+    return failWithSpinner(
+      'Cannot deploy a workspace, please go to the project directory and run `dcl deploy` again there.'
+    )
+  }
+
+  // Obtain list of files to deploy
+  let originalFilesToIgnore = await project.getDCLIgnore()
+  if (originalFilesToIgnore === null) {
+    originalFilesToIgnore = await project.writeDclIgnore()
+  }
+  let filesToIgnorePlusEntityJson = originalFilesToIgnore
+  if (!filesToIgnorePlusEntityJson.includes('entity.json')) {
+    filesToIgnorePlusEntityJson =
+      filesToIgnorePlusEntityJson + '\n' + 'entity.json'
+  }
+  const files: IFile[] = await project.getFiles(filesToIgnorePlusEntityJson)
+  const contentFiles = new Map(files.map((file) => [file.path, file.content]))
+
+  // Create scene.json
+  const sceneJson = await getSceneFile(workDir)
+
+  const { entityId, files: entityFiles } = await DeploymentBuilder.buildEntity(
+    EntityType.SCENE,
+    findPointers(sceneJson),
+    contentFiles,
+    sceneJson
+  )
+
+  spinner.succeed('Deployment structure created.')
+
+  //  Validate scene.json
+  validateScene(sceneJson, true)
+
+  dcl.on('link:ready', (url) => {
+    console.log(
+      chalk.bold('You need to sign the content before the deployment:')
+    )
+    spinner.create(`Signing app ready at ${url}`)
+
+    setTimeout(() => {
+      try {
+        // tslint:disable-next-line: no-floating-promises
+        void opn(url)
+      } catch (e) {
+        console.log(`Unable to open browser automatically`)
+      }
+    }, 5000)
+
+    dcl.on(
+      'link:success',
+      ({ address, signature, chainId }: LinkerResponse) => {
+        spinner.succeed(`Content successfully signed.`)
+        console.log(`${chalk.bold('Address:')} ${address}`)
+        console.log(`${chalk.bold('Signature:')} ${signature}`)
+        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
+      }
+    )
+  })
+
+  // Signing message
+  const messageToSign = entityId
+  const { signature, address, chainId } = await dcl.getAddressAndSignature(
+    messageToSign
+  )
+  const authChain = Authenticator.createSimpleAuthChain(
+    entityId,
+    address,
+    signature
+  )
+
+  // Uploading data
+  let catalyst: ContentAPI
+
+  if (args['--target']) {
+    let target = args['--target']
+    if (target.endsWith('/')) {
+      target = target.slice(0, -1)
+    }
+    catalyst = new CatalystClient(target, 'CLI')
+  } else if (args['--target-content']) {
+    const targetContent = args['--target-content']
+    catalyst = new ContentClient(targetContent, 'CLI')
+  } else {
+    catalyst = await CatalystClient.connectedToCatalystIn('mainnet', 'CLI')
+  }
+  spinner.create(`Uploading data to: ${catalyst.getContentUrl()}`)
+
+  const deployData = { entityId, files: entityFiles, authChain }
+  const position = sceneJson.scene.base
+  const network = chainId === ChainId.ETHEREUM_ROPSTEN ? 'ropsten' : 'mainnet'
+  const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}`
+
+  try {
+    await catalyst.deployEntity(deployData, false, { timeout: '10m' })
+    spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
+    Analytics.sceneDeploySuccess()
+  } catch (error: any) {
+    debug('\n' + error.stack)
+    failWithSpinner('Could not upload content', error)
+  }
 }
 
 function findPointers(sceneJson: any): string[] {
