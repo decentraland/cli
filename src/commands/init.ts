@@ -89,9 +89,18 @@ export async function main() {
     '-p': '--project'
   })
   const dcl = new Decentraland({ workingDir: process.cwd() })
+  const project = dcl.workspace.getSingleProject()
 
-  await dcl.project.validateNewProject()
-  const isEmpty = await dcl.project.isProjectDirEmpty()
+  if (!project) {
+    fail(
+      ErrorType.INIT_ERROR,
+      'Cannot try to init a project in workspace directory'
+    )
+    return
+  }
+
+  await project.validateNewProject()
+  const isEmpty = await project.isProjectDirEmpty()
 
   if (!isEmpty) {
     const results = await inquirer.prompt({
@@ -108,7 +117,9 @@ export async function main() {
   }
 
   const projectType = await getprojectType(args['--project'], args['--px'])
-  await dcl.init(projectType)
+  await project.writeDclIgnore()
+  await project.writeSceneFile({})
+  await project.scaffoldProject(projectType)
 
   try {
     await installDependencies(dcl.getWorkingDir(), false)

@@ -35,6 +35,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: [build]
+    outputs:
+      cli_s3_bucket_key: ${{ steps.publish_cli.outputs.s3-bucket-key }}
     steps:
       - uses: actions/checkout@master
       - name: Use Node.js 16.x
@@ -46,9 +48,47 @@ jobs:
       - name: build
         run: npm run build
       - name: Publish
+        id: publish_cli
         uses: menduz/oddish-action@master
         with:
           registry-url: "https://registry.npmjs.org"
           access: public
+          
+          ## publish every package to s3
+          s3-bucket: ${{ secrets.SDK_TEAM_S3_BUCKET }}
+          s3-bucket-key-prefix: 'decentraland-cli/branch/${{ github.head_ref || github.ref }}'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.SDK_TEAM_AWS_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SDK_TEAM_AWS_SECRET }}
+
+  notify_deployment:
+    needs: [publish]
+    if: ${{ github.event.pull_request.number }}
+    runs-on: ubuntu-latest
+    name: Deployment Notification
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Test this pull request
+      - name: Generate S3 URL
+        id: url-generator
+        run: |
+          body=$(echo ${{ secrets.SDK_TEAM_S3_BASE_URL }})/${{ needs.publish.outputs.cli_s3_bucket_key }}
+          echo ::set-output name=body::$body
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            # Test this pull request
+            - The `cli` package can be tested by globally install
+               ```bash
+               npm i -g "${{ steps.url-generator.outputs.body }}"
+               ```
+          edit-mode: replace

@@ -1,4 +1,4 @@
-import { Scene } from '@dcl/schemas'
+import { Scene, sdk } from '@dcl/schemas'
 import chalk from 'chalk'
 
 import { fail, ErrorType } from '../utils/errors'
@@ -10,6 +10,7 @@ import {
 } from '../utils/coordinateHelpers'
 import { getSceneFile, setSceneFile } from '../sceneJson'
 import * as spinner from '../utils/spinner'
+import { createWorkspace } from '../lib/Workspace'
 
 export function help() {
   return `
@@ -40,7 +41,18 @@ export async function main() {
   const parcels = process.argv.slice(
     process.argv.findIndex((arg) => arg === 'coords') + 1
   )
-  const workDir = process.cwd()
+  const workingDir = process.cwd()
+
+  const workspace = createWorkspace({ workingDir })
+  const project = workspace.getSingleProject()
+  if (project === null) {
+    fail(ErrorType.INFO_ERROR, `Can not change a coords of workspace.`)
+  } else if (project.getInfo().sceneType !== sdk.ProjectType.SCENE) {
+    fail(
+      ErrorType.INFO_ERROR,
+      'Only parcel scenes can be edited the coords property.'
+    )
+  }
 
   if (!parcels || !parcels.length) {
     fail(ErrorType.INFO_ERROR, 'Please provide a target to retrieve data')
@@ -56,14 +68,14 @@ export async function main() {
   }
 
   const parcelObjects = parcels.map(getObject)
-  const { scene, ...sceneJson } = await getSceneFile(workDir)
+  const { scene, ...sceneJson } = await getSceneFile(workingDir)
   const newScene = getSceneObject(parcelObjects)
   const parsedSceneJson: Scene = {
     ...sceneJson,
     scene: newScene
   }
 
-  await setSceneFile(parsedSceneJson, workDir)
+  await setSceneFile(parsedSceneJson, workingDir)
   spinner.succeed()
 }
 

@@ -21,6 +21,7 @@ import { debug } from '../utils/logging'
 import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
+import { fail } from 'assert'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -100,19 +101,25 @@ export async function main(): Promise<number> {
       yes: args['--yes']
     })
 
+    const project = dcl.workspace.getSingleProject()
+    if (!project) {
+      spinner.fail(
+        'Cannot deploy a workspace, please go to the project directory and run `dcl deploy` again there.'
+      )
+      fail()
+    }
+
     // Obtain list of files to deploy
-    let originalFilesToIgnore = await dcl.project.getDCLIgnore()
+    let originalFilesToIgnore = await project.getDCLIgnore()
     if (originalFilesToIgnore === null) {
-      originalFilesToIgnore = await dcl.project.writeDclIgnore()
+      originalFilesToIgnore = await project.writeDclIgnore()
     }
     let filesToIgnorePlusEntityJson = originalFilesToIgnore
     if (!filesToIgnorePlusEntityJson.includes('entity.json')) {
       filesToIgnorePlusEntityJson =
         filesToIgnorePlusEntityJson + '\n' + 'entity.json'
     }
-    const files: IFile[] = await dcl.project.getFiles(
-      filesToIgnorePlusEntityJson
-    )
+    const files: IFile[] = await project.getFiles(filesToIgnorePlusEntityJson)
     const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
     // Create scene.json

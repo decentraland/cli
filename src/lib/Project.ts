@@ -24,6 +24,8 @@ import {
 } from '../utils/coordinateHelpers'
 import uuid from 'uuid'
 import { getProjectInfo, ProjectInfo } from '../project/projectInfo'
+import { getSceneFile } from '../sceneJson'
+import { error } from '../utils/logging'
 
 export interface IFile {
   path: string
@@ -33,29 +35,35 @@ export interface IFile {
 
 export class Project {
   private static MAX_FILE_SIZE = 524300000
-  private workingDir: string
+  private projectWorkingDir: string
   private sceneFile: Scene | undefined
+  private projectInfo: ProjectInfo
 
-  constructor(workingDir: string) {
-    this.workingDir = workingDir
+  constructor(projectWorkingDir: string) {
+    this.projectWorkingDir = projectWorkingDir || process.cwd()
+    this.projectInfo = getProjectInfo(this.projectWorkingDir)
   }
 
-  async getInfo(): Promise<ProjectInfo> {
-    return getProjectInfo(this.workingDir)
+  getProjectWorkingDir() {
+    return this.projectWorkingDir
+  }
+
+  getInfo(): ProjectInfo {
+    return this.projectInfo
   }
 
   /**
    * Returns `true` if the provided path contains a scene file
    */
   sceneFileExists(): Promise<boolean> {
-    return fs.pathExists(getSceneFilePath(this.workingDir))
+    return fs.pathExists(getSceneFilePath(this.projectWorkingDir))
   }
 
   /**
    * Returns `true` if the project working directory is empty of files
    */
   async isProjectDirEmpty(): Promise<boolean> {
-    return isEmptyDirectory(this.workingDir)
+    return isEmptyDirectory(this.projectWorkingDir)
   }
 
   /**
@@ -67,7 +75,9 @@ export class Project {
     }
 
     try {
-      const sceneFile = await readJSON<Scene>(getSceneFilePath(this.workingDir))
+      const sceneFile = await readJSON<Scene>(
+        getSceneFilePath(this.projectWorkingDir)
+      )
       this.sceneFile = sceneFile
       return sceneFile
     } catch (e) {
@@ -104,12 +114,20 @@ export class Project {
    * Returns true if the project contains a package.json file and an empty node_modules folder
    */
   async needsDependencies(): Promise<boolean> {
-    const files = await this.getAllFilePaths()
+    const files = await this.getAllFilePaths({
+      dir: this.projectWorkingDir,
+      rootFolder: this.projectWorkingDir
+    })
     const hasPackageFile = files.some((file) => file === 'package.json')
-    const nodeModulesPath = path.resolve(this.workingDir, 'node_modules')
+    const nodeModulesPath = path.resolve(this.projectWorkingDir, 'node_modules')
     const hasNodeModulesFolder = await fs.pathExists(nodeModulesPath)
     const isNodeModulesEmpty =
-      (await this.getAllFilePaths(nodeModulesPath)).length === 0
+      (
+        await this.getAllFilePaths({
+          dir: nodeModulesPath,
+          rootFolder: this.projectWorkingDir
+        })
+      ).length === 0
 
     if (hasPackageFile && (!hasNodeModulesFolder || isNodeModulesEmpty)) {
       return true
@@ -123,7 +141,10 @@ export class Project {
    * @param dir
    */
   async isTypescriptProject(): Promise<boolean> {
-    const files = await this.getAllFilePaths()
+    const files = await this.getAllFilePaths({
+      dir: this.projectWorkingDir,
+      rootFolder: this.projectWorkingDir
+    })
     return files.some((file) => file === 'tsconfig.json')
   }
 
@@ -144,7 +165,7 @@ export class Project {
    * @param path The path to the directory where the file will be written.
    */
   writeSceneFile(content: Partial<Scene>): Promise<void> {
-    return writeJSON(getSceneFilePath(this.workingDir), content)
+    return writeJSON(getSceneFilePath(this.projectWorkingDir), content)
   }
 
   /**
@@ -164,13 +185,19 @@ export class Project {
         await this.writeSceneFile(sceneFile)
       } else if (file === PACKAGE_FILE) {
         const pkgFile = await readJSON<any>(getPackageFilePath(src))
-        await writeJSON(getPackageFilePath(this.workingDir), pkgFile)
+        await writeJSON(getPackageFilePath(this.projectWorkingDir), pkgFile)
       } else if (file === ASSETJSON_FILE) {
         const assetJsonFile = await readJSON<any>(path.join(src, file))
         const assetJsonFileWithUuid = { ...assetJsonFile, id: uuid.v4() }
-        await writeJSON(path.join(this.workingDir, file), assetJsonFileWithUuid)
+        await writeJSON(
+          path.join(this.projectWorkingDir, file),
+          assetJsonFileWithUuid
+        )
       } else {
-        await fs.copy(path.join(src, file), path.join(this.workingDir, file))
+        await fs.copy(
+          path.join(src, file),
+          path.join(this.projectWorkingDir, file)
+        )
       }
     }
   }
@@ -246,7 +273,10 @@ export class Project {
       '*.zip',
       '*.rar'
     ].join('\n')
-    await fs.outputFile(path.join(this.workingDir, DCLIGNORE_FILE), content)
+    await fs.outputFile(
+      path.join(this.projectWorkingDir, DCLIGNORE_FILE),
+      content
+    )
     return content
   }
 
@@ -288,7 +318,12 @@ export class Project {
    * Returns a promise of an array containing all the file paths for the given directory.
    * @param dir The given directory where to list the file paths.
    */
-  async getAllFilePaths(dir: string = this.workingDir): Promise<string[]> {
+  async getAllFilePaths(
+    { dir, rootFolder }: { dir: string; rootFolder: string } = {
+      dir: this.projectWorkingDir,
+      rootFolder: this.projectWorkingDir
+    }
+  ): Promise<string[]> {
     try {
       const files = await fs.readdir(dir)
       let tmpFiles: string[] = []
@@ -296,11 +331,14 @@ export class Project {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         const filePath = path.resolve(dir, file)
-        const relativePath = path.relative(this.workingDir, filePath)
+        const relativePath = path.relative(rootFolder, filePath)
         const stat = await fs.stat(filePath)
 
         if (stat.isDirectory()) {
-          const folderFiles = await this.getAllFilePaths(filePath)
+          const folderFiles = await this.getAllFilePaths({
+            dir: filePath,
+            rootFolder
+          })
           tmpFiles = tmpFiles.concat(folderFiles)
         } else {
           tmpFiles.push(relativePath)
@@ -328,7 +366,7 @@ export class Project {
 
     for (let i = 0; i < filteredFiles.length; i++) {
       const file = filteredFiles[i]
-      const filePath = path.resolve(this.workingDir, file)
+      const filePath = path.resolve(this.projectWorkingDir, file)
       const stat = await fs.stat(filePath)
 
       if (stat.size > Project.MAX_FILE_SIZE) {
@@ -358,7 +396,10 @@ export class Project {
     let ignoreFile
 
     try {
-      ignoreFile = await fs.readFile(getIgnoreFilePath(this.workingDir), 'utf8')
+      ignoreFile = await fs.readFile(
+        getIgnoreFilePath(this.projectWorkingDir),
+        'utf8'
+      )
     } catch (e) {
       ignoreFile = null
     }
@@ -393,7 +434,7 @@ export class Project {
       return true
     }
 
-    return fs.pathExists(path.join(this.workingDir, filePath))
+    return fs.pathExists(path.join(this.projectWorkingDir, filePath))
   }
 
   /**
@@ -449,6 +490,17 @@ export class Project {
         ErrorType.PROJECT_ERROR,
         'Parcels described on scene.json are not connected. They should be one next to each other'
       )
+    }
+  }
+
+  async getSceneBaseCoords() {
+    try {
+      const sceneFile = await getSceneFile(this.projectWorkingDir)
+      const [x, y] = sceneFile.scene.base.replace(/\ /g, '').split(',')
+      return { x: parseInt(x), y: parseInt(y) }
+    } catch (e) {
+      console.log(error(`Could not open "scene.json" file`))
+      throw e
     }
   }
 }

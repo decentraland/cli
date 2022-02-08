@@ -8,11 +8,10 @@ import {
 } from '../utils/installedDependencies'
 import * as spinner from '../utils/spinner'
 
-export default async function () {
+export default async function ({ workDir }: { workDir: string }) {
   try {
     spinner.create('Checking decentraland libraries')
 
-    const workDir = process.cwd()
     const packageJsonDir = path.resolve(workDir, 'package.json')
     const packageJSON = await readJSON<PackageJson>(packageJsonDir)
     const pkgDependencies = getDependencies(packageJSON)

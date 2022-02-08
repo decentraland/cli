@@ -55,6 +55,15 @@ export async function readJSON<T>(path: string): Promise<T> {
 }
 
 /**
+ * Reads a file and parses it's JSON content
+ * @param path The path to the subject json file
+ */
+export function readJSONSync<T>(path: string): T {
+  const content = fs.readFileSync(path, 'utf-8')
+  return JSON.parse(content) as T
+}
+
+/**
  * Returns true if the directory is empty
  */
 export async function isEmptyDirectory(dir: string = '.'): Promise<boolean> {

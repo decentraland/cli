@@ -1,4 +1,4 @@
-import { Scene, sdk } from '@dcl/schemas'
+import { Scene } from '@dcl/schemas'
 import { EventEmitter } from 'events'
 import chalk from 'chalk'
 import { ethers } from 'ethers'
@@ -10,12 +10,12 @@ import { Coords } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
 import { debug } from '../utils/logging'
-import { Project } from './Project'
 import { Ethereum, LANDData } from './Ethereum'
 import { LinkerAPI, LinkerResponse } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
+import { createWorkspace, Workspace } from './Workspace'
 
 export type DecentralandArguments = {
   workingDir: string
@@ -55,7 +55,7 @@ export type FileInfo = {
 }
 
 export class Decentraland extends EventEmitter {
-  project: Project
+  workspace: Workspace
   ethereum: Ethereum
   options: DecentralandArguments
   provider: IEthereumDataProvider
@@ -72,7 +72,7 @@ export class Decentraland extends EventEmitter {
     this.options.config = this.options.config || getConfig()
     console.assert(this.options.workingDir, 'Working directory is missing')
     debug(`Working directory: ${chalk.bold(this.options.workingDir)}`)
-    this.project = new Project(this.options.workingDir)
+    this.workspace = createWorkspace({ workingDir: this.options.workingDir })
     this.ethereum = new Ethereum()
     this.provider = this.options.blockchain ? this.ethereum : new API()
     this.contentService = new ContentService(this.options.config.catalystUrl!)
@@ -90,18 +90,19 @@ export class Decentraland extends EventEmitter {
     return this.options.workingDir
   }
 
-  async init(projectType: sdk.ProjectType) {
-    await this.project.writeDclIgnore()
-    await this.project.writeSceneFile({})
-    await this.project.scaffoldProject(projectType)
-  }
-
   async link(rootCID: string): Promise<LinkerResponse> {
-    await this.project.validateExistingProject()
-    await this.project.validateSceneOptions()
+    const project = this.workspace.getSingleProject()
+    if (!project) {
+      throw new Error(
+        'Cannot link a workspace. Please set you current directory in the project folder.'
+      )
+    }
+
+    await project.validateExistingProject()
+    await project.validateSceneOptions()
 
     return new Promise<LinkerResponse>(async (resolve, reject) => {
-      const linker = new LinkerAPI(this.project)
+      const linker = new LinkerAPI(project)
       events(linker, '*', this.pipeEvents.bind(this))
       linker.on('link:success', async (message: LinkerResponse) => {
         resolve(message)
@@ -120,13 +121,12 @@ export class Decentraland extends EventEmitter {
   }
 
   async preview() {
-    await this.project.validateExistingProject()
-    await this.project.validateSceneOptions()
-    const preview = new Preview(
-      this,
-      (await this.project.getDCLIgnore())!,
-      this.getWatch()
-    )
+    for (const project of this.workspace.getAllProjects()) {
+      await project.validateExistingProject()
+      await project.validateSceneOptions()
+    }
+
+    const preview = new Preview(this, this.getWatch())
 
     events(preview, '*', this.pipeEvents.bind(this))
 
@@ -224,17 +224,6 @@ export class Decentraland extends EventEmitter {
   async getPublicAddress(): Promise<string> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
     return this.wallet?.getAddress()!
-  }
-
-  async validateOwnership() {
-    const pOwner = this.wallet
-      ? this.wallet.getAddress()
-      : this.project.getOwner()
-    const [parcels, owner] = await Promise.all([
-      this.project.getParcels(),
-      pOwner
-    ])
-    return this.ethereum.validateAuthorization(owner, parcels)
   }
 
   async getAddressAndSignature(messageToSign: string): Promise<LinkerResponse> {
