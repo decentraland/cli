@@ -18,15 +18,17 @@ export function setVersion(v: string) {
 export function buildTypescript({
   workingDir,
   watch,
-  production
+  production,
+  silence = false
 }: {
   workingDir: string
   watch: boolean
   production: boolean
+  silence?: boolean
 }): Promise<void> {
   const command = watch ? 'watch' : 'build'
   const NODE_ENV = production ? 'production' : ''
-  console.log(`Building project using "npm run ${command}"`)
+
   return new Promise((resolve, reject) => {
     const child = spawn(npm, ['run', command], {
       shell: true,
@@ -34,15 +36,17 @@ export function buildTypescript({
       env: { ...process.env, NODE_ENV }
     })
 
-    child.stdout.pipe(process.stdout)
-    child.stderr.pipe(process.stderr)
+    if (!silence) {
+      child.stdout.pipe(process.stdout)
+      child.stderr.pipe(process.stderr)
+    }
 
     child.stdout.on('data', (data) => {
       if (
         data.toString().indexOf('The compiler is watching file changes...') !==
         -1
       ) {
-        spinner.succeed('Project built.')
+        if (!silence) spinner.succeed('Project built.')
         return resolve()
       }
     })
@@ -50,10 +54,10 @@ export function buildTypescript({
     child.on('close', (code) => {
       if (code !== 0) {
         const msg = 'Error while building the project'
-        spinner.fail(msg)
+        if (!silence) spinner.fail(msg)
         reject(new Error(msg))
       } else {
-        spinner.succeed('Project built.')
+        if (!silence) spinner.succeed('Project built.')
         return resolve()
       }
     })
