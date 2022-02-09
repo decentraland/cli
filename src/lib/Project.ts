@@ -83,7 +83,9 @@ export class Project {
     } catch (e) {
       fail(
         ErrorType.PROJECT_ERROR,
-        `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'`
+        `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'.
+        \t > Folder: ${this.projectWorkingDir} 
+        `
       )
     }
     return this.sceneFile!
@@ -308,7 +310,7 @@ export class Project {
       if (sceneFile.main !== null && !(await this.fileExists(sceneFile.main))) {
         fail(
           ErrorType.PROJECT_ERROR,
-          `Main scene file ${sceneFile.main} is missing`
+          `Main scene file ${sceneFile.main} is missing in folder ${this.projectWorkingDir}`
         )
       }
     }
@@ -462,7 +464,7 @@ export class Project {
     if (parcelSet.size < parcels.length) {
       fail(
         ErrorType.PROJECT_ERROR,
-        'There are duplicated parcels at scene.json'
+        `There are duplicated parcels at scene.json. Project folder ${this.projectWorkingDir}`
       )
     }
 

@@ -32,6 +32,7 @@ export const help = () => `
       -c, --ci                  Run the parcel previewer on a remote unix server
       --web3                    Connects preview to browser wallet to use the associated avatar and account
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
+      --skip-build              Skip build and only serve the files in preview mode
 
     ${chalk.dim('Examples:')}
 
@@ -59,13 +60,15 @@ export async function main() {
     '-d': '--no-debug',
     '-b': '--no-browser',
     '-w': '--no-watch',
-    '-c': '--ci'
+    '-c': '--ci',
+    '--skip-build': Boolean
   })
 
   const isCi = args['--ci'] || isEnvCi()
   const debug = !args['--no-debug'] && !isCi
   const openBrowser = !args['--no-browser'] && !isCi
-  const watch = !args['--no-watch'] && !isCi
+  const skipBuild = args['--skip-build']
+  const watch = !args['--no-watch'] && !isCi && !skipBuild
   const workingDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
 
@@ -82,52 +85,54 @@ export async function main() {
   const online = await isOnline()
 
   for (const project of dcl.workspace.getAllProjects()) {
-    spinner.create(`Checking if SDK is installed in project`)
+    if (!skipBuild) {
+      spinner.create(`Checking if SDK is installed in project`)
 
-    const [sdkOutdated, ECSInstalled] = await Promise.all([
-      getOutdatedApi(project.getProjectWorkingDir()),
-      isECSInstalled(project.getProjectWorkingDir())
-    ])
+      const [sdkOutdated, ECSInstalled] = await Promise.all([
+        getOutdatedApi(project.getProjectWorkingDir()),
+        isECSInstalled(project.getProjectWorkingDir())
+      ])
 
-    if (!ECSInstalled) {
-      spinner.info('SDK not found. Installing dependencies...')
-    } else if (sdkOutdated) {
-      spinner.warn(
-        `SDK is outdated, to upgrade to the latest version run the command: 
+      if (!ECSInstalled) {
+        spinner.info('SDK not found. Installing dependencies...')
+      } else if (sdkOutdated) {
+        spinner.warn(
+          `SDK is outdated, to upgrade to the latest version run the command: 
           ${chalk.bold('npm install decentraland-ecs@latest')}
           In the folder ${project.getProjectWorkingDir()}
         `
-      )
-      console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
-    } else {
-      spinner.succeed('Latest SDK installation found.')
-    }
+        )
+        console.log(chalk.bold(error(formatOutdatedMessage(sdkOutdated))))
+      } else {
+        spinner.succeed('Latest SDK installation found.')
+      }
 
-    if (online && !ECSInstalled) {
-      await installDependencies(
-        project.getProjectWorkingDir(),
-        false /* silent */
-      )
-    }
+      if (online && !ECSInstalled) {
+        await installDependencies(
+          project.getProjectWorkingDir(),
+          false /* silent */
+        )
+      }
 
-    if (!skipVersionCheck) {
-      await checkECSVersions(project.getProjectWorkingDir())
-    }
+      if (!skipVersionCheck) {
+        await checkECSVersions(project.getProjectWorkingDir())
+      }
 
-    try {
-      await updateBundleDependenciesField({
-        workDir: project.getProjectWorkingDir()
-      })
-    } catch (err) {
-      console.warn(`Unable to update bundle dependencies field.`, err)
-    }
+      try {
+        await updateBundleDependenciesField({
+          workDir: project.getProjectWorkingDir()
+        })
+      } catch (err) {
+        console.warn(`Unable to update bundle dependencies field.`, err)
+      }
 
-    if (await project.isTypescriptProject()) {
-      await buildTypescript({
-        workingDir: project.getProjectWorkingDir(),
-        watch: true,
-        production: false
-      })
+      if (await project.isTypescriptProject()) {
+        await buildTypescript({
+          workingDir: project.getProjectWorkingDir(),
+          watch: true,
+          production: false
+        })
+      }
     }
 
     await lintSceneFile(project.getProjectWorkingDir())
