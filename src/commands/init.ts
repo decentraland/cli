@@ -10,6 +10,8 @@ import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
 
 import type = sdk.ProjectType
+import { initializeWorkspace } from '../lib/Workspace'
+import { isEmptyDirectory } from '../utils/filesystem'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -20,6 +22,7 @@ export const help = () => `
     -p, --project [type] Choose a projectType (default is scene). It could be any of ${chalk.bold(
       getProjectTypes()
     )}
+    --workspace             Create a workspace looking for subfolder Decentraland projects.
 
     ${chalk.dim('Examples:')}
 
@@ -38,21 +41,16 @@ function getProjectTypes() {
     .join(', ')
 }
 
-async function getprojectType(
-  type?: string,
-  includePortableExperiences?: boolean
-): Promise<sdk.ProjectType> {
+async function getprojectType(type?: string): Promise<sdk.ProjectType> {
   if (!type) {
     const choices = [
       { value: sdk.ProjectType.SCENE, name: 'Scene' },
-      { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' }
-    ]
-    if (includePortableExperiences) {
-      choices.push({
+      { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' },
+      {
         value: sdk.ProjectType.PORTABLE_EXPERIENCE,
-        name: 'Portable Experience'
-      })
-    }
+        name: 'Smart Wearable'
+      }
+    ]
 
     const projectTypeList: Questions = [
       {
@@ -84,23 +82,14 @@ export async function main() {
   const args = arg({
     '--help': Boolean,
     '--project': String,
-    '--px': Boolean,
+    '--workspace': Boolean,
     '-h': '--help',
     '-p': '--project'
   })
   const dcl = new Decentraland({ workingDir: process.cwd() })
   const project = dcl.workspace.getSingleProject()
-
-  if (!project) {
-    fail(
-      ErrorType.INIT_ERROR,
-      'Cannot try to init a project in workspace directory'
-    )
-    return
-  }
-
-  await project.validateNewProject()
-  const isEmpty = await project.isProjectDirEmpty()
+  const initWorkspace = args['--workspace']
+  const isEmpty = await isEmptyDirectory(process.cwd())
 
   if (!isEmpty) {
     const results = await inquirer.prompt({
@@ -116,7 +105,35 @@ export async function main() {
     }
   }
 
-  const projectType = await getprojectType(args['--project'], args['--px'])
+  // TODO: this is a temporal implementation
+  if (initWorkspace) {
+    warning(
+      `This --workspace option it's a temporary feature to make easier its usage.`
+    )
+
+    try {
+      await initializeWorkspace(process.cwd())
+      console.log(
+        chalk.green(`\nSuccess! Run 'dcl start' to preview your workspace.\n`)
+      )
+    } catch (err: any) {
+      fail(ErrorType.INIT_ERROR, err.message)
+    }
+    Analytics.sceneCreated({ projectType: 'workspace' })
+    return
+  }
+
+  if (!project) {
+    fail(
+      ErrorType.INIT_ERROR,
+      'Cannot try to init a project in workspace directory'
+    )
+    return
+  }
+
+  await project.validateNewProject()
+
+  const projectType = await getprojectType(args['--project'])
   await project.writeDclIgnore()
   await project.writeSceneFile({})
   await project.scaffoldProject(projectType)

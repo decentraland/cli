@@ -1,8 +1,9 @@
 import path from 'path'
 import fs from 'fs-extra'
 import { readJSONSync } from '../utils/filesystem'
-import { Project } from './Project'
+import { copySample, Project } from './Project'
 import { sdk } from '@dcl/schemas'
+import installDependencies from '../project/installDependencies'
 
 interface WorkspaceProjectSchema {
   name?: string
@@ -12,6 +13,8 @@ interface WorkspaceProjectSchema {
 interface WorkspaceFileSchema {
   folders: WorkspaceProjectSchema[]
 }
+
+export const workspaceConfigFile = 'dcl-workspace.json'
 
 function getProjectFolders(workspaceJsonPath: string): string[] {
   const workspaceJsonDir = path.dirname(workspaceJsonPath)
@@ -52,7 +55,7 @@ export const createWorkspace = ({
 
   const workspaceJsonPath =
     workspaceFilePath ||
-    path.resolve(workingDir || '', 'dcl-workspace.json') ||
+    path.resolve(workingDir || '', workspaceConfigFile) ||
     ''
 
   if (workspaceJsonPath === '') {
@@ -115,4 +118,36 @@ export const createWorkspace = ({
     hasPortableExperience,
     getBaseCoords
   }
+}
+
+export async function initializeWorkspace(
+  workingDir: string
+): Promise<Workspace> {
+  const workingDirPaths = await fs.readdir(workingDir)
+  const folders: WorkspaceProjectSchema[] = []
+
+  for (const listedPath of workingDirPaths) {
+    const projectWorkingDir = path.resolve(workingDir, listedPath)
+    if ((await fs.stat(projectWorkingDir)).isDirectory()) {
+      const project = new Project(projectWorkingDir)
+      if (await project.sceneFileExists()) {
+        folders.push({ path: listedPath })
+      }
+    }
+  }
+
+  if (!folders.length) {
+    throw new Error(`There isn't any valid project in the sub folders.`)
+  }
+
+  const newWorkspace: WorkspaceFileSchema = { folders }
+  await fs.writeJSON(
+    path.resolve(workingDir, workspaceConfigFile),
+    newWorkspace,
+    { spaces: 2 }
+  )
+  await copySample('workspace', workingDir)
+  await installDependencies(workingDir, false)
+
+  return createWorkspace({ workingDir })
 }
