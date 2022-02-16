@@ -10,5 +10,6 @@ export default new Set<string>([
   'export',
   'pack',
   'install',
-  'coords'
+  'coords',
+  'workspace'
 ])

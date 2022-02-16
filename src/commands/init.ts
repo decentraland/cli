@@ -10,7 +10,6 @@ import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
 
 import type = sdk.ProjectType
-import { initializeWorkspace } from '../lib/Workspace'
 import { isEmptyDirectory } from '../utils/filesystem'
 
 export const help = () => `
@@ -22,7 +21,6 @@ export const help = () => `
     -p, --project [type] Choose a projectType (default is scene). It could be any of ${chalk.bold(
       getProjectTypes()
     )}
-    --workspace             Create a workspace looking for subfolder Decentraland projects.
 
     ${chalk.dim('Examples:')}
 
@@ -48,7 +46,7 @@ async function getprojectType(type?: string): Promise<sdk.ProjectType> {
       { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' },
       {
         value: sdk.ProjectType.PORTABLE_EXPERIENCE,
-        name: 'Smart Wearable'
+        name: 'Smart Wearable (Beta)'
       }
     ]
 
@@ -82,13 +80,11 @@ export async function main() {
   const args = arg({
     '--help': Boolean,
     '--project': String,
-    '--workspace': Boolean,
     '-h': '--help',
     '-p': '--project'
   })
   const dcl = new Decentraland({ workingDir: process.cwd() })
   const project = dcl.workspace.getSingleProject()
-  const initWorkspace = args['--workspace']
   const isEmpty = await isEmptyDirectory(process.cwd())
 
   if (!isEmpty) {
@@ -103,24 +99,6 @@ export async function main() {
     if (!results.continue) {
       return
     }
-  }
-
-  // TODO: this is a temporal implementation
-  if (initWorkspace) {
-    warning(
-      `This --workspace option it's a temporary feature to make easier its usage.`
-    )
-
-    try {
-      await initializeWorkspace(process.cwd())
-      console.log(
-        chalk.green(`\nSuccess! Run 'dcl start' to preview your workspace.\n`)
-      )
-    } catch (err: any) {
-      fail(ErrorType.INIT_ERROR, err.message)
-    }
-    Analytics.sceneCreated({ projectType: 'workspace' })
-    return
   }
 
   if (!project) {
