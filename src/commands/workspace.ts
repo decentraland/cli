@@ -4,7 +4,7 @@ import { Analytics } from '../utils/analytics'
 import { warning } from '../utils/logging'
 import { fail, ErrorType } from '../utils/errors'
 
-import { initializeWorkspace } from '../lib/Workspace'
+import { createWorkspace, initializeWorkspace } from '../lib/Workspace'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl workspace SUBCOMMAND [options]')}
@@ -18,29 +18,81 @@ export const help = () => `
     -h, --help               Displays complete help
 `
 
-export async function main() {
-  if (process.argv.length <= 3) {
-    throw new Error(`The subcommand is not recognized`)
+async function init() {
+  try {
+    await initializeWorkspace(process.cwd())
+    console.log(
+      chalk.green(`\nSuccess! Run 'dcl start' to preview your workspace.\n`)
+    )
+  } catch (err: any) {
+    fail(ErrorType.WORKSPACE_ERROR, err.message)
   }
 
+  Analytics.sceneCreated({ projectType: 'workspace' })
+}
+
+async function listProjects() {
+  const workingDir = process.cwd()
+  const workspace = createWorkspace({ workingDir })
+
+  if (workspace.isSingleProject()) {
+    fail(
+      ErrorType.WORKSPACE_ERROR,
+      `There is no a workspace in the current directory.`
+    )
+  }
+
+  console.log(`\nWorkspace in folder ${workingDir}`)
+  for (const [index, project] of workspace.getAllProjects().entries()) {
+    const projectPath = project
+      .getProjectWorkingDir()
+      .replace(`${workingDir}\\`, '')
+      .replace(`${workingDir}/`, '')
+    console.log(`> Project ${index + 1} in: ${projectPath}`)
+  }
+  console.log('')
+}
+
+async function addProject() {
+  if (process.argv.length <= 4) {
+    fail(ErrorType.WORKSPACE_ERROR, `Missing folder of new project.`)
+  }
+
+  const newProjectPath = process.argv[4]
+  const workspace = createWorkspace({ workingDir: process.cwd() })
+  if (workspace.isSingleProject()) {
+    fail(
+      ErrorType.WORKSPACE_ERROR,
+      `There is no a workspace in the current directory.`
+    )
+  }
+
+  await workspace.addProject(newProjectPath)
+  console.log(
+    chalk.green(
+      `\nSuccess! Run 'dcl start' to preview your workspace and see the new project added.\n`
+    )
+  )
+}
+
+export async function main() {
+  if (process.argv.length <= 3) {
+    fail(ErrorType.WORKSPACE_ERROR, `The subcommand is not recognized`)
+  }
+
+  const subcommandList: Record<string, () => Promise<void>> = {
+    init,
+    ls: listProjects,
+    help: async () => console.log(help()),
+    add: addProject
+  }
   const subcommand = process.argv[3].toLowerCase()
 
-  if (subcommand === 'init') {
-    warning(`(Beta)`)
+  warning(`(Beta)`)
 
-    try {
-      await initializeWorkspace(process.cwd())
-      console.log(
-        chalk.green(`\nSuccess! Run 'dcl start' to preview your workspace.\n`)
-      )
-    } catch (err: any) {
-      fail(ErrorType.INIT_ERROR, err.message)
-    }
-
-    Analytics.sceneCreated({ projectType: 'workspace' })
-  } else if (subcommand === 'help') {
-    console.log(help())
+  if (subcommand in subcommandList) {
+    await subcommandList[subcommand]()
   } else {
-    throw new Error(`The subcommand ${subcommand} is not recognized`)
+    fail(ErrorType.WORKSPACE_ERROR, `The subcommand ${subcommand} is not recognized`)
   }
 }

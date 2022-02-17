@@ -10,7 +10,8 @@ export enum ErrorType {
   DEPLOY_ERROR = 'DeployError',
   API_ERROR = 'APIError',
   UPLOAD_ERROR = 'UploadError',
-  CONTENT_SERVER_ERROR = 'ContentServerError'
+  CONTENT_SERVER_ERROR = 'ContentServerError',
+  WORKSPACE_ERROR = 'WorkspaceError'
 }
 
 export function fail(type: ErrorType, message: string) {
