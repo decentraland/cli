@@ -12,7 +12,7 @@ export class ContentService extends EventEmitter {
 
   constructor(catalystServerUrl: string) {
     super()
-    this.client = new CatalystClient(catalystServerUrl, 'CLI')
+    this.client = new CatalystClient({ catalystUrl: catalystServerUrl })
   }
 
   /**
