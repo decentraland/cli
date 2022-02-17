@@ -9,11 +9,13 @@ import { createWorkspace, initializeWorkspace } from '../lib/Workspace'
 export const help = () => `
   Usage: ${chalk.bold('dcl workspace SUBCOMMAND [options]')}
   
-    ${chalk.dim('Sub commands:')}
+  ${chalk.dim('Sub commands:')}
     
     init             Create a workspace looking for subfolder Decentraland projects.
-    
-    ${chalk.dim('Options:')}
+    ls               List all projects in the current workspace
+    add              Add a project in the current workspace.
+
+  ${chalk.dim('Options:')}
 
     -h, --help               Displays complete help
 `
@@ -93,6 +95,9 @@ export async function main() {
   if (subcommand in subcommandList) {
     await subcommandList[subcommand]()
   } else {
-    fail(ErrorType.WORKSPACE_ERROR, `The subcommand ${subcommand} is not recognized`)
+    fail(
+      ErrorType.WORKSPACE_ERROR,
+      `The subcommand ${subcommand} is not recognized`
+    )
   }
 }
