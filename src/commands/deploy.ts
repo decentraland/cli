@@ -138,12 +138,12 @@ export async function main(): Promise<void> {
   // Create scene.json
   const sceneJson = await getSceneFile(workDir)
 
-  const { entityId, files: entityFiles } = await DeploymentBuilder.buildEntity(
-    EntityType.SCENE,
-    findPointers(sceneJson),
-    contentFiles,
-    sceneJson
-  )
+  const { entityId, files: entityFiles } = await DeploymentBuilder.buildEntity({
+    type: EntityType.SCENE,
+    pointers: findPointers(sceneJson),
+    files: contentFiles,
+    metadata: sceneJson
+  })
 
   spinner.succeed('Deployment structure created.')
 
@@ -195,12 +195,14 @@ export async function main(): Promise<void> {
     if (target.endsWith('/')) {
       target = target.slice(0, -1)
     }
-    catalyst = new CatalystClient(target, 'CLI')
+    catalyst = new CatalystClient({ catalystUrl: target })
   } else if (args['--target-content']) {
     const targetContent = args['--target-content']
-    catalyst = new ContentClient(targetContent, 'CLI')
+    catalyst = new ContentClient({ contentUrl: targetContent })
   } else {
-    catalyst = await CatalystClient.connectedToCatalystIn('mainnet', 'CLI')
+    catalyst = await CatalystClient.connectedToCatalystIn({
+      network: 'mainnet'
+    })
   }
   spinner.create(`Uploading data to: ${catalyst.getContentUrl()}`)
 
