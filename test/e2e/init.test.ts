@@ -95,7 +95,7 @@ test('dcl init with smart-items prompt selection', async (t) => {
 
 test('dcl init with portable-experience prompt selection', async (t) => {
   await createSandbox(async (dirPath: string) => {
-    const cmd = initCommand(dirPath, '--px')
+    const cmd = initCommand(dirPath)
 
     cmd.orderedWhen(/Choose a project type/, () => [
       Response.DOWN,

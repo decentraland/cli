@@ -7,11 +7,8 @@ import { Scene, sdk } from '@dcl/schemas'
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import {
   getSceneFilePath,
-  SCENE_FILE,
   getIgnoreFilePath,
   DCLIGNORE_FILE,
-  PACKAGE_FILE,
-  getPackageFilePath,
   ASSETJSON_FILE
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
@@ -177,31 +174,7 @@ export class Project {
    * @param destination The path to the project root. By default the current woxsrking directory.
    */
   async copySample(project: string) {
-    const src = path.resolve(__dirname, '..', '..', 'samples', project)
-    const files = await fs.readdir(src)
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      if (file === SCENE_FILE) {
-        const sceneFile = await readJSON<Scene>(getSceneFilePath(src))
-        await this.writeSceneFile(sceneFile)
-      } else if (file === PACKAGE_FILE) {
-        const pkgFile = await readJSON<any>(getPackageFilePath(src))
-        await writeJSON(getPackageFilePath(this.projectWorkingDir), pkgFile)
-      } else if (file === ASSETJSON_FILE) {
-        const assetJsonFile = await readJSON<any>(path.join(src, file))
-        const assetJsonFileWithUuid = { ...assetJsonFile, id: uuid.v4() }
-        await writeJSON(
-          path.join(this.projectWorkingDir, file),
-          assetJsonFileWithUuid
-        )
-      } else {
-        await fs.copy(
-          path.join(src, file),
-          path.join(this.projectWorkingDir, file)
-        )
-      }
-    }
+    await copySample(project, this.projectWorkingDir)
   }
 
   /**
@@ -503,6 +476,25 @@ export class Project {
     } catch (e) {
       console.log(error(`Could not open "scene.json" file`))
       throw e
+    }
+  }
+}
+
+export async function copySample(
+  projectSample: string,
+  destWorkingDir: string
+) {
+  const src = path.resolve(__dirname, '..', '..', 'samples', projectSample)
+  const files = await fs.readdir(src)
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    if (file === ASSETJSON_FILE) {
+      const assetJsonFile = await readJSON<any>(path.join(src, file))
+      const assetJsonFileWithUuid = { ...assetJsonFile, id: uuid.v4() }
+      await writeJSON(path.join(destWorkingDir, file), assetJsonFileWithUuid)
+    } else {
+      await fs.copy(path.join(src, file), path.join(destWorkingDir, file))
     }
   }
 }

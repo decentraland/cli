@@ -10,6 +10,7 @@ import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
 
 import type = sdk.ProjectType
+import { isEmptyDirectory } from '../utils/filesystem'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -38,21 +39,16 @@ function getProjectTypes() {
     .join(', ')
 }
 
-async function getprojectType(
-  type?: string,
-  includePortableExperiences?: boolean
-): Promise<sdk.ProjectType> {
+async function getprojectType(type?: string): Promise<sdk.ProjectType> {
   if (!type) {
     const choices = [
       { value: sdk.ProjectType.SCENE, name: 'Scene' },
-      { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' }
-    ]
-    if (includePortableExperiences) {
-      choices.push({
+      { value: sdk.ProjectType.SMART_ITEM, name: 'Smart Item' },
+      {
         value: sdk.ProjectType.PORTABLE_EXPERIENCE,
-        name: 'Portable Experience'
-      })
-    }
+        name: 'Smart Wearable (Beta)'
+      }
+    ]
 
     const projectTypeList: Questions = [
       {
@@ -84,23 +80,12 @@ export async function main() {
   const args = arg({
     '--help': Boolean,
     '--project': String,
-    '--px': Boolean,
     '-h': '--help',
     '-p': '--project'
   })
   const dcl = new Decentraland({ workingDir: process.cwd() })
   const project = dcl.workspace.getSingleProject()
-
-  if (!project) {
-    fail(
-      ErrorType.INIT_ERROR,
-      'Cannot try to init a project in workspace directory'
-    )
-    return
-  }
-
-  await project.validateNewProject()
-  const isEmpty = await project.isProjectDirEmpty()
+  const isEmpty = await isEmptyDirectory(process.cwd())
 
   if (!isEmpty) {
     const results = await inquirer.prompt({
@@ -116,7 +101,17 @@ export async function main() {
     }
   }
 
-  const projectType = await getprojectType(args['--project'], args['--px'])
+  if (!project) {
+    fail(
+      ErrorType.INIT_ERROR,
+      'Cannot try to init a project in workspace directory'
+    )
+    return
+  }
+
+  await project.validateNewProject()
+
+  const projectType = await getprojectType(args['--project'])
   await project.writeDclIgnore()
   await project.writeSceneFile({})
   await project.scaffoldProject(projectType)
