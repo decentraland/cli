@@ -6,7 +6,7 @@ import fs from 'fs-extra'
 import express from 'express'
 import portfinder from 'portfinder'
 import querystring from 'querystring'
-import { ChainId } from '@dcl/schemas'
+import { ChainId, sdk } from '@dcl/schemas'
 
 import { Project } from './Project'
 import { getCustomConfig } from '../config'
@@ -102,18 +102,37 @@ export class LinkerAPI extends EventEmitter {
     this.app.use(express.static(linkerDapp))
 
     this.app.get('/linker', async (_, res) => {
-      const { LANDRegistry, EstateRegistry } = getCustomConfig()
-      const { parcels, base: baseParcel } = (await this.project.getSceneFile())
-        .scene
-      const query = querystring.stringify({
-        baseParcel,
-        parcels,
-        rootCID,
-        landRegistry: LANDRegistry,
-        estateRegistry: EstateRegistry,
-        debug: isDebug()
-      })
-      res.redirect(`/?${query}`)
+      if (
+        this.project.getInfo().sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
+      ) {
+        const wearableId = this.project.getInfo().sceneId
+        const query = querystring.stringify({
+          wearableId,
+          debug: isDebug()
+        })
+        res.redirect(`/?${query}`)
+      } else {
+        const { LANDRegistry, EstateRegistry } = getCustomConfig()
+        const { parcels, base: baseParcel } = (
+          await this.project.getSceneFile()
+        ).scene
+        const query = querystring.stringify({
+          baseParcel,
+          parcels,
+          rootCID,
+          landRegistry: LANDRegistry,
+          estateRegistry: EstateRegistry,
+          debug: isDebug()
+        })
+        res.redirect(`/?${query}`)
+      }
+    })
+
+    this.app.get('/api/address_info', (req, res) => {
+      res.writeHead(200)
+      res.end()
+      const { address } = urlParse.parse(req.url, true).query
+      this.emit('link:address', address)
     })
 
     this.app.get('/api/close', (req, res) => {

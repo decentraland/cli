@@ -8,8 +8,9 @@ import {
 } from 'dcl-catalyst-client'
 import { EntityType } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
-import { ChainId, getChainName } from '@dcl/schemas'
+import { ChainId, getChainName, sdk } from '@dcl/schemas'
 import opn from 'opn'
+import * as path from 'path'
 
 import { isTypescriptProject } from '../project/isTypescriptProject'
 import { getSceneFile } from '../sceneJson'
@@ -22,6 +23,9 @@ import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
 import { ErrorType, fail } from '../utils/errors'
+import { BodyShapeType, BuilderClient, ItemFactory } from '@dcl/builder-client'
+import { ethers } from 'ethers'
+import { readFile, readJSON } from 'fs-extra'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -67,15 +71,17 @@ export async function main(): Promise<void> {
 
   Analytics.deploy()
 
-  if (args['--target'] && args['--target-content']) {
+  const workDir = process.cwd()
+  const skipVersionCheck = args['--skip-version-checks']
+  const skipBuild = args['--skip-build']
+  const target = args['--target']
+  const targetContent = args['--target-content']
+
+  if (target && targetContent) {
     throw new Error(
       `You can't set both the 'target' and 'target-content' arguments.`
     )
   }
-
-  const workDir = process.cwd()
-  const skipVersionCheck = args['--skip-version-checks']
-  const skipBuild = args['--skip-build']
 
   if (!skipVersionCheck) {
     await checkECSVersions(workDir)
@@ -120,7 +126,30 @@ export async function main(): Promise<void> {
     return failWithSpinner(
       'Cannot deploy a workspace, please go to the project directory and run `dcl deploy` again there.'
     )
+  } else if (project.getInfo().sceneType === sdk.ProjectType.SMART_ITEM) {
+    return failWithSpinner('Cannot deploy a smart item.')
   }
+
+  if (project.getInfo().sceneType === sdk.ProjectType.SCENE) {
+    await deployScene({ dcl, target, targetContent })
+  } else if (
+    project.getInfo().sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
+  ) {
+    spinner.create('Building smart wearable')
+    await deploySmartWearable({ dcl })
+  }
+}
+
+async function deployScene({
+  dcl,
+  target,
+  targetContent
+}: {
+  dcl: Decentraland
+  target?: string
+  targetContent?: string
+}) {
+  const project = dcl.workspace.getSingleProject()!
 
   // Obtain list of files to deploy
   let originalFilesToIgnore = await project.getDCLIgnore()
@@ -136,7 +165,7 @@ export async function main(): Promise<void> {
   const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
   // Create scene.json
-  const sceneJson = await getSceneFile(workDir)
+  const sceneJson = await getSceneFile(project.getProjectWorkingDir())
 
   const { entityId, files: entityFiles } = await DeploymentBuilder.buildEntity({
     type: EntityType.SCENE,
@@ -190,14 +219,9 @@ export async function main(): Promise<void> {
   // Uploading data
   let catalyst: ContentAPI
 
-  if (args['--target']) {
-    let target = args['--target']
-    if (target.endsWith('/')) {
-      target = target.slice(0, -1)
-    }
-    catalyst = new CatalystClient({ catalystUrl: target })
-  } else if (args['--target-content']) {
-    const targetContent = args['--target-content']
+  if (target) {
+    catalyst = new CatalystClient({ catalystUrl: cropLastSlash(target) })
+  } else if (targetContent) {
     catalyst = new ContentClient({ contentUrl: targetContent })
   } else {
     catalyst = await CatalystClient.connectedToCatalystIn({
@@ -223,4 +247,151 @@ export async function main(): Promise<void> {
 
 function findPointers(sceneJson: any): string[] {
   return sceneJson.scene.parcels
+}
+
+function cropLastSlash(str: string) {
+  return str.replace(/\/?$/, '')
+}
+
+async function deploySmartWearable({ dcl }: { dcl: Decentraland }) {
+  const project = dcl.workspace.getSingleProject()!
+  const assetJsonPath = path.resolve(
+    project.getProjectWorkingDir(),
+    'asset.json'
+  )
+  const assetJson = await readJSON(assetJsonPath)
+
+  if (!sdk.AssetJson.validate(assetJson)) {
+    const errors = (sdk.AssetJson.validate.errors || [])
+      .map((a) => `${a.dataPath} ${a.message}`)
+      .join('')
+
+    console.error(
+      `Unable to validate asset.json properly, please check it.`,
+      errors
+    )
+    throw new Error(`Invalid asset.json (${assetJsonPath})`)
+  }
+
+  const assetBasicConfig = assetJson as sdk.AssetJson
+  const thumbnailContent = await readFile(
+    path.resolve(project.getProjectWorkingDir(), assetBasicConfig.thumbnail)
+  )
+
+  let originalFilesToIgnore = await project.getDCLIgnore()
+  if (originalFilesToIgnore === null) {
+    originalFilesToIgnore = await project.writeDclIgnore()
+  }
+
+  const content: any = {}
+  const files: IFile[] = await project.getFiles(originalFilesToIgnore)
+  for (const file of files) {
+    content[file.path] = file.content
+  }
+  content['thumbnail.png'] = content[assetBasicConfig.thumbnail]
+  delete content['asset.json']
+
+  const item = new ItemFactory<Buffer>()
+    .newItem({
+      id: assetBasicConfig.id,
+      name: assetBasicConfig.name,
+      description: assetBasicConfig.description,
+      rarity: assetBasicConfig.rarity
+    })
+    .withCategory(assetBasicConfig.category)
+    .withThumbnail(thumbnailContent)
+    .withRepresentation(
+      assetBasicConfig.bodyShape as any as BodyShapeType,
+      assetBasicConfig.model,
+      content,
+      {
+        triangles: 0,
+        materials: 0,
+        meshes: 0,
+        bodies: 0,
+        entities: 0,
+        textures: 0
+      }
+    )
+
+  const builtItem = await item.build()
+
+  // const aPrivateKey = 'insertHereAPrivateKey'
+  // const wallet = new ethers.Wallet(aPrivateKey)
+  // const identity = await createIdentity(wallet as any, 1000)
+  // const address = await wallet.getAddress()
+
+  // const messageToSign = entityId
+  // const { signature, address, chainId } = await dcl.getAddressAndSignature(
+  //   messageToSign
+  // )
+  // const authChain = Authenticator.createSimpleAuthChain(
+  //   entityId,
+  //   address,
+  //   signature
+  // )
+
+  spinner.succeed('Smart wearable built!')
+
+  spinner.create('Waiting for sign pre deployment')
+
+  dcl.on('link:ready', (url) => {
+    console.log(
+      chalk.bold('You need to sign the content before the deployment:')
+    )
+    spinner.create(`Signing app ready at ${url}`)
+
+    setTimeout(() => {
+      try {
+        // tslint:disable-next-line: no-floating-promises
+        void opn(url)
+      } catch (e) {
+        console.log(`Unable to open browser automatically`)
+      }
+    }, 5000)
+
+    dcl.on(
+      'link:success',
+      ({ address, signature, chainId }: LinkerResponse) => {
+        spinner.succeed(`Content successfully signed.`)
+        console.log(`${chalk.bold('Address:')} ${address}`)
+        console.log(`${chalk.bold('Signature:')} ${signature}`)
+        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
+      }
+    )
+  })
+
+  const { identity, address } = await createLinkerIdentity(dcl)
+
+  const client = new BuilderClient(
+    'https://builder-api.decentraland.io',
+    identity,
+    address
+  )
+  await client.upsertItem(builtItem.item, builtItem.newContent)
+
+  spinner.succeed('Wearable uploaded succesfully!')
+}
+
+async function createLinkerIdentity(dcl: Decentraland) {
+  const wallet = ethers.Wallet.createRandom()
+  const payload = {
+    address: wallet.address,
+    privateKey: wallet.privateKey,
+    publicKey: await wallet.getAddress()
+  }
+
+  const { address } = await dcl.getAddressAndSignature('test')
+
+  const identity = await Authenticator.initializeAuthChain(
+    address,
+    payload,
+    1000,
+    async (message) => {
+      const linkerResponse = await dcl.getAddressAndSignature(message)
+      return linkerResponse.signature
+    }
+  )
+
+  return { identity, address }
 }
