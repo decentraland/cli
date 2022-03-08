@@ -11,11 +11,12 @@ import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
 import { debug } from '../utils/logging'
 import { Ethereum, LANDData } from './Ethereum'
-import { LinkerAPI, LinkerResponse, LinkerResponseIdentity } from './LinkerAPI'
+import { LinkerAPI, LinkerResponse, LinkerResponseIdentity, LinkerResponseScenenDeploy } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { createWorkspace, Workspace } from './Workspace'
+import { createIdentity } from '@dcl/builder-client'
 
 export type DecentralandArguments = {
   workingDir: string
@@ -226,7 +227,9 @@ export class Decentraland extends EventEmitter {
     return this.wallet?.getAddress()!
   }
 
-  async getAddressAndSignature(messageToSign: string): Promise<LinkerResponse> {
+  async getAddressAndSignature(
+    messageToSign: string
+  ): Promise<LinkerResponseScenenDeploy> {
     if (this.wallet) {
       const [signature, address] = await Promise.all([
         this.wallet.signMessage(messageToSign),
@@ -238,19 +241,22 @@ export class Decentraland extends EventEmitter {
       }
     }
 
-    return await this.link(messageToSign)
+    const response = await this.link(messageToSign)
+    if (response.responseType !== 'scene-deploy') {
+      console.error({ response })
+      throw new Error('Linker-dapp responses an invalid scene sign')
+    }
+    return response
   }
 
   async getIdentity(): Promise<LinkerResponseIdentity> {
     if (this.wallet) {
-      // const [signature, address] = await Promise.all([
-      //   this.wallet.signMessage(messageToSign),
-      //   this.wallet.getAddress()
-      // ])
-      // return {
-      //   responseType: 'scene-deploy',
-      //   payload: { signature, address, chainId: ChainId.ETHEREUM_MAINNET }
-      // }
+      const identity = await createIdentity(this.wallet as any, 1000)
+      const address = await this.wallet.getAddress()
+      return {
+        responseType: 'identity',
+        payload: { identity, address, chainId: ChainId.ETHEREUM_MAINNET }
+      }
     }
 
     const response = await this.link('')

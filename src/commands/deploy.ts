@@ -321,8 +321,6 @@ async function deploySmartWearable({ dcl }: { dcl: Decentraland }) {
 
   spinner.succeed('Smart wearable built!')
 
-  spinner.create('Waiting for sign pre deployment')
-
   dcl.on('link:ready', (url) => {
     console.log(
       chalk.bold('You need to sign the content before the deployment:')
