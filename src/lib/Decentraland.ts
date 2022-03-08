@@ -1,4 +1,4 @@
-import { Scene } from '@dcl/schemas'
+import { ChainId, Scene } from '@dcl/schemas'
 import { EventEmitter } from 'events'
 import chalk from 'chalk'
 import { ethers } from 'ethers'
@@ -11,7 +11,7 @@ import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
 import { debug } from '../utils/logging'
 import { Ethereum, LANDData } from './Ethereum'
-import { LinkerAPI, LinkerResponse } from './LinkerAPI'
+import { LinkerAPI, LinkerResponse, LinkerResponseIdentity } from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
@@ -232,10 +232,33 @@ export class Decentraland extends EventEmitter {
         this.wallet.signMessage(messageToSign),
         this.wallet.getAddress()
       ])
-      return { signature, address }
+      return {
+        responseType: 'scene-deploy',
+        payload: { signature, address, chainId: ChainId.ETHEREUM_MAINNET }
+      }
     }
 
-    return this.link(messageToSign)
+    return await this.link(messageToSign)
+  }
+
+  async getIdentity(): Promise<LinkerResponseIdentity> {
+    if (this.wallet) {
+      // const [signature, address] = await Promise.all([
+      //   this.wallet.signMessage(messageToSign),
+      //   this.wallet.getAddress()
+      // ])
+      // return {
+      //   responseType: 'scene-deploy',
+      //   payload: { signature, address, chainId: ChainId.ETHEREUM_MAINNET }
+      // }
+    }
+
+    const response = await this.link('')
+    if (response.responseType !== 'identity') {
+      console.error({ response })
+      throw new Error('Linker-dapp responses an invalid identity')
+    }
+    return response
   }
 
   private pipeEvents(event: string, ...args: any[]) {

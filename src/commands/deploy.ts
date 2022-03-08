@@ -24,7 +24,6 @@ import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
 import { ErrorType, fail } from '../utils/errors'
 import { BodyShapeType, BuilderClient, ItemFactory } from '@dcl/builder-client'
-import { ethers } from 'ethers'
 import { readFile, readJSON } from 'fs-extra'
 
 export const help = () => `
@@ -194,22 +193,26 @@ async function deployScene({
       }
     }, 5000)
 
-    dcl.on(
-      'link:success',
-      ({ address, signature, chainId }: LinkerResponse) => {
+    dcl.on('link:success', (response: LinkerResponse) => {
+      if (response.responseType === 'scene-deploy') {
         spinner.succeed(`Content successfully signed.`)
-        console.log(`${chalk.bold('Address:')} ${address}`)
-        console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
+        console.log(`${chalk.bold('Address:')} ${response.payload.address}`)
+        console.log(`${chalk.bold('Signature:')} ${response.payload.signature}`)
+        console.log(
+          `${chalk.bold('Network:')} ${getChainName(response.payload.chainId)}`
+        )
       }
-    )
+    })
   })
 
   // Signing message
   const messageToSign = entityId
-  const { signature, address, chainId } = await dcl.getAddressAndSignature(
-    messageToSign
-  )
+  const message = await dcl.getAddressAndSignature(messageToSign)
+
+  if (message.responseType !== 'scene-deploy') return
+
+  const { signature, address, chainId } = message.payload
+
   const authChain = Authenticator.createSimpleAuthChain(
     entityId,
     address,
@@ -316,21 +319,6 @@ async function deploySmartWearable({ dcl }: { dcl: Decentraland }) {
 
   const builtItem = await item.build()
 
-  // const aPrivateKey = 'insertHereAPrivateKey'
-  // const wallet = new ethers.Wallet(aPrivateKey)
-  // const identity = await createIdentity(wallet as any, 1000)
-  // const address = await wallet.getAddress()
-
-  // const messageToSign = entityId
-  // const { signature, address, chainId } = await dcl.getAddressAndSignature(
-  //   messageToSign
-  // )
-  // const authChain = Authenticator.createSimpleAuthChain(
-  //   entityId,
-  //   address,
-  //   signature
-  // )
-
   spinner.succeed('Smart wearable built!')
 
   spinner.create('Waiting for sign pre deployment')
@@ -350,48 +338,31 @@ async function deploySmartWearable({ dcl }: { dcl: Decentraland }) {
       }
     }, 5000)
 
-    dcl.on(
-      'link:success',
-      ({ address, signature, chainId }: LinkerResponse) => {
-        spinner.succeed(`Content successfully signed.`)
-        console.log(`${chalk.bold('Address:')} ${address}`)
-        console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
+    dcl.on('link:success', (response: LinkerResponse) => {
+      if (response.responseType === 'identity') {
+        spinner.succeed(`Identity successfully created and signed.`)
+        console.log(`${chalk.bold('Address:')}`, response.payload.address)
+        console.log(
+          `${chalk.bold('Network:')} ${getChainName(response.payload.chainId)}`
+        )
       }
-    )
+    })
   })
 
-  const { identity, address } = await createLinkerIdentity(dcl)
+  const linkerResponse = await dcl.getIdentity()
+  const builderServerUrl =
+    linkerResponse.payload.chainId === ChainId.ETHEREUM_MAINNET
+      ? 'https://builder-api.decentraland.org'
+      : 'https://builder-api.decentraland.io'
+
+  spinner.create('Uploading content to builder')
 
   const client = new BuilderClient(
-    'https://builder-api.decentraland.io',
-    identity,
-    address
+    builderServerUrl,
+    linkerResponse.payload.identity,
+    linkerResponse.payload.address
   )
   await client.upsertItem(builtItem.item, builtItem.newContent)
 
   spinner.succeed('Wearable uploaded succesfully!')
-}
-
-async function createLinkerIdentity(dcl: Decentraland) {
-  const wallet = ethers.Wallet.createRandom()
-  const payload = {
-    address: wallet.address,
-    privateKey: wallet.privateKey,
-    publicKey: await wallet.getAddress()
-  }
-
-  const { address } = await dcl.getAddressAndSignature('test')
-
-  const identity = await Authenticator.initializeAuthChain(
-    address,
-    payload,
-    1000,
-    async (message) => {
-      const linkerResponse = await dcl.getAddressAndSignature(message)
-      return linkerResponse.signature
-    }
-  )
-
-  return { identity, address }
 }

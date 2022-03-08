@@ -11,12 +11,27 @@ import { ChainId, sdk } from '@dcl/schemas'
 import { Project } from './Project'
 import { getCustomConfig } from '../config'
 import { isDevelopment, isDebug } from '../utils/env'
+import { AuthIdentity } from 'dcl-crypto'
 
-export type LinkerResponse = {
-  address: string
-  signature: string
-  chainId?: ChainId
+export type LinkerResponseScenenDeploy = {
+  responseType: 'scene-deploy'
+  payload: {
+    address: string
+    signature: string
+    chainId: ChainId
+  }
 }
+
+export type LinkerResponseIdentity = {
+  responseType: 'identity'
+  payload: {
+    identity: AuthIdentity
+    address: string
+    chainId: ChainId
+  }
+}
+
+export type LinkerResponse = LinkerResponseScenenDeploy | LinkerResponseIdentity
 
 /**
  * Events emitted by this class:
