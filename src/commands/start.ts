@@ -166,17 +166,25 @@ export async function main() {
       })
     })
 
-    console.log(chalk.bold('\n  Details:\n'))
+    // Push localhost and 127.0.0.1 at top
+    const sortedURLs = availableURLs.sort((a, _b) => {
+      return a.toLowerCase().includes('localhost') ||
+        a.includes('127.0.0.1') ||
+        a.includes('0.0.0.0')
+        ? -1
+        : 1
+    })
 
+    for (const addr of sortedURLs) {
+      console.log(`    ${addr}`)
+    }
+
+    console.log(chalk.bold('\n  Details:\n'))
     console.log(chalk.grey('\nPress CTRL+C to exit\n'))
 
-    if (openBrowser && availableURLs.length) {
-      const localhostUrl = availableURLs.find(
-        (url) =>
-          url.toLowerCase().includes('localhost') || url.includes('127.0.0.1')
-      )
-
-      void opn(localhostUrl || availableURLs[0]).catch()
+    // Open preferably localhost/127.0.0.1
+    if (openBrowser && sortedURLs.length) {
+      void opn(sortedURLs[0]).catch()
     }
   })
 
