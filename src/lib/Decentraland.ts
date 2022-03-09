@@ -11,7 +11,12 @@ import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
 import { debug } from '../utils/logging'
 import { Ethereum, LANDData } from './Ethereum'
-import { LinkerAPI, LinkerResponse, LinkerResponseIdentity, LinkerResponseScenenDeploy } from './LinkerAPI'
+import {
+  LinkerAPI,
+  LinkerResponse,
+  LinkerResponseIdentity,
+  LinkerResponseScenenDeploy
+} from './LinkerAPI'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
