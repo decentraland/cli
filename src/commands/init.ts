@@ -9,8 +9,8 @@ import { warning } from '../utils/logging'
 import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
 
-import type = sdk.ProjectType
 import { isEmptyDirectory } from '../utils/filesystem'
+import { ProjectType } from '@dcl/schemas/dist/sdk'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -34,7 +34,7 @@ export const help = () => `
 `
 
 function getProjectTypes() {
-  return Object.values(type)
+  return Object.values(sdk.ProjectType)
     .filter((a) => typeof a === 'string')
     .join(', ')
 }
@@ -47,6 +47,10 @@ async function getprojectType(type?: string): Promise<sdk.ProjectType> {
       {
         value: sdk.ProjectType.PORTABLE_EXPERIENCE,
         name: 'Smart Wearable (Beta)'
+      },
+      {
+        value: sdk.ProjectType.LIBRARY,
+        name: 'Library'
       }
     ]
 
@@ -112,8 +116,12 @@ export async function main() {
   await project.validateNewProject()
 
   const projectType = await getprojectType(args['--project'])
-  await project.writeDclIgnore()
-  await project.writeSceneFile({})
+
+  if (projectType !== ProjectType.LIBRARY) {
+    await project.writeDclIgnore()
+    await project.writeSceneFile({})
+  }
+
   await project.scaffoldProject(projectType)
 
   try {
@@ -124,5 +132,7 @@ export async function main() {
 
   Analytics.sceneCreated({ projectType: projectType })
 
-  console.log(chalk.green(`\nSuccess! Run 'dcl start' to see your scene\n`))
+  if (projectType !== ProjectType.LIBRARY) {
+    console.log(chalk.green(`\nSuccess! Run 'dcl start' to see your scene\n`))
+  }
 }
