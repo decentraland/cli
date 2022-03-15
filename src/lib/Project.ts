@@ -81,7 +81,7 @@ export class Project {
       fail(
         ErrorType.PROJECT_ERROR,
         `Unable to read 'scene.json' file. Try initializing the project using 'dcl init'.
-        \t > Folder: ${this.projectWorkingDir} 
+        \t > Folder: ${this.projectWorkingDir}
         `
       )
     }
@@ -104,6 +104,10 @@ export class Project {
       }
       case sdk.ProjectType.PORTABLE_EXPERIENCE: {
         await this.copySample('portable-experience')
+        break
+      }
+      case sdk.ProjectType.LIBRARY: {
+        await this.copySample('library')
         break
       }
     }
