@@ -17,3 +17,7 @@ Copy that token, go to your github repository settings and add the secret enviro
 Once you have setted the NPM_TOKEN on your github repository, you can force a push to main and the package will be published.
 That's it. Now you can go to your scene and run `npm i package-name`, and run `dcl start`.
 
+
+## Copyright info
+
+This scene is protected with a standard Apache 2 licence. See the terms and conditions in the [LICENSE](/LICENSE) file.
