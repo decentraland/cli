@@ -102,5 +102,10 @@
     "uuid": "^3.4.0",
     "wildcards": "^1.0.2",
     "ws": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0",
+    "yarn": "please use npm"
   }
 }
