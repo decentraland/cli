@@ -1,10 +1,7 @@
 .vscode
 node_modules
-
 tmp
 *.log
-
 dist
-
 .DS_Store
 test-*

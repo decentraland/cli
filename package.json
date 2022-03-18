@@ -6,7 +6,6 @@
     "dcl": "dist/index.js"
   },
   "files": [
-    "bin",
     "dist",
     "samples",
     "abi"
