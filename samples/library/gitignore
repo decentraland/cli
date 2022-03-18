@@ -1,0 +1,6 @@
+## NPM ignores .gitignore file. https://github.com/npm/npm/issues/1862
+node_modules
+bin
+lib
+dist
+.DS_Store
