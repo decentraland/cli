@@ -31,6 +31,7 @@ export default function installDependencies(
             )} exited with code ${code}. Please try running the command manually`
           )
         )
+        return
       }
 
       spinner.succeed('Dependencies installed.')
