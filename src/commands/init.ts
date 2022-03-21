@@ -9,9 +9,10 @@ import { warning } from '../utils/logging'
 import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
 
-import { isEmptyDirectory } from '../utils/filesystem'
+import { isEmptyDirectory, readJSON } from '../utils/filesystem'
 import { ProjectType } from '@dcl/schemas/dist/sdk'
 import { downloadRepo } from '../utils/shellCommands'
+import path from 'path'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -236,6 +237,7 @@ async function initRepository(dcl: Decentraland, url: string) {
     fail(ErrorType.INIT_ERROR, error.message)
   }
 
+  console.log(chalk.green(`\nSuccess! Run 'dcl start' to see your scene\n`))
   Analytics.sceneCreated({ projectType: 'scene-template', url })
 }
 
