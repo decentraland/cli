@@ -52,34 +52,25 @@ type InitOptionRepositoryURL = {
 
 type InitOption = InitOptionProjectType | InitOptionRepositoryURL
 
+type RemoteRepositoriesFileSchema = {
+  scenes: {
+    title: string
+    url: string
+  }[]
+}
+
 async function getSceneInitOption(): Promise<InitOption> {
-  const remoteRepositories = [
-    {
-      title: 'Grass noise example',
-      url: 'https://github.com/decentraland-scenes/grass-noise-example.git'
-    },
-    {
-      title: 'Basic interactions',
-      url: 'https://github.com/decentraland-scenes/Basic-Interactions'
-    },
-    {
-      title: 'Moving platforms',
-      url: 'https://github.com/decentraland-scenes/moving-platforms'
-    },
-    {
-      title: 'Video streaming',
-      url: 'https://github.com/decentraland-scenes/video-streaming'
-    },
-    {
-      title: 'Lazy loading',
-      url: 'https://github.com/decentraland-scenes/lazy-loading'
-    },
-    {
-      title: 'POAP booth',
-      url: 'https://github.com/decentraland-scenes/POAP-Booth'
-    }
-  ]
-  const remoteChoices = remoteRepositories.map((repo) => ({
+  const remoteRepositoriesFilepath = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'samples',
+    'remote-scenes.json'
+  )
+  const remoteRepositoriesFile = await readJSON<RemoteRepositoriesFileSchema>(
+    remoteRepositoriesFilepath
+  )
+  const remoteChoices = remoteRepositoriesFile.scenes.map((repo) => ({
     name: repo.title,
     value: repo.url
   }))

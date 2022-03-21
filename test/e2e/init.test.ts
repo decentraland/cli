@@ -56,6 +56,10 @@ test('dcl init with prompt', async (t) => {
       console.log('Choose a project type')
       return [Response.ENTER]
     })
+    cmd.orderedWhen(/Choose a scene/, () => {
+      console.log('Choose a scene')
+      return [Response.ENTER]
+    })
 
     await endCommand(cmd)
     await projectCreatedSuccessfully(t, dirPath, sdk.ProjectType.SCENE)
