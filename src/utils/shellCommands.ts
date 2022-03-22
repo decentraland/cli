@@ -17,7 +17,7 @@ export function runCommand({
   args: string[]
   fdStandards?: FileDescriptorStandardOption
 }): Promise<void> {
-  const standarOption = fdStandards || FileDescriptorStandardOption.SILENT
+  const standardOption = fdStandards || FileDescriptorStandardOption.SILENT
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       shell: true,
@@ -28,10 +28,10 @@ export function runCommand({
     let stdOut = ''
     let stdErr = ''
 
-    if (standarOption === FileDescriptorStandardOption.PIPE) {
+    if (standardOption === FileDescriptorStandardOption.PIPE) {
       child.stdout.pipe(process.stdout)
       child.stderr.pipe(process.stderr)
-    } else if (standarOption === FileDescriptorStandardOption.ONLY_IF_THROW) {
+    } else if (standardOption === FileDescriptorStandardOption.ONLY_IF_THROW) {
       child.stdout.on('data', (data) => {
         stdOut += data.toString()
       })
@@ -48,7 +48,7 @@ export function runCommand({
           > Working directory: ${workingDir} `
 
       if (code !== 0) {
-        if (standarOption === FileDescriptorStandardOption.ONLY_IF_THROW) {
+        if (standardOption === FileDescriptorStandardOption.ONLY_IF_THROW) {
           reject(
             new Error(`${errorMessage} \n
             > Standard output: \n ${stdOut} \n

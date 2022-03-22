@@ -9,12 +9,14 @@ import { warning } from '../utils/logging'
 import { fail, ErrorType } from '../utils/errors'
 import installDependencies from '../project/installDependencies'
 
-import { isEmptyDirectory, readJSON } from '../utils/filesystem'
+import { isEmptyDirectory } from '../utils/filesystem'
 import { ProjectType } from '@dcl/schemas/dist/sdk'
 import { downloadRepo } from '../utils/shellCommands'
 import path from 'path'
 import { remove } from 'fs-extra'
 import * as spinner from '../utils/spinner'
+
+import * as remoteScenesJSON from '../../samples/remote-scenes.json'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -63,18 +65,10 @@ type RemoteRepositoriesFileSchema = {
 }
 
 async function getSceneInitOption(): Promise<InitOption> {
-  const remoteRepositoriesFilepath = path.resolve(
-    __dirname,
-    '..',
-    '..',
-    'samples',
-    'remote-scenes.json'
-  )
-  const remoteRepositoriesFile = await readJSON<RemoteRepositoriesFileSchema>(
-    remoteRepositoriesFilepath
-  )
-  const remoteChoices = remoteRepositoriesFile.scenes.map((repo) => ({
-    name: repo.title,
+  const remoteRepositoriesFile =
+    remoteScenesJSON as unknown as RemoteRepositoriesFileSchema
+  const remoteChoices = remoteRepositoriesFile.scenes.map((repo, index) => ({
+    name: `(${index + 1}) ${repo.title}`,
     value: repo.url
   }))
 
@@ -84,24 +78,20 @@ async function getSceneInitOption(): Promise<InitOption> {
     {
       name: 'Paste a repository URL',
       value: 'write-repository'
-    }
+    },
+    new inquirer.Separator(),
+    new inquirer.Separator()
   ]
-
-  // Fills the choices with separators to less confusing
-  Array(20)
-    .fill(0)
-    .forEach(() => choices.push(new inquirer.Separator()))
 
   const projectTypeList: Questions = [
     {
       type: 'list',
       name: 'scene',
       message: 'Choose a scene',
-      choices,
-      paginated: true,
-      pageSize: 10
+      choices
     }
   ]
+
   const answers = await inquirer.prompt(projectTypeList)
   if (answers.scene === 'write-repository') {
     const answers = await inquirer.prompt([
@@ -186,7 +176,7 @@ async function getInitOption(type?: string): Promise<InitOption> {
   }
 
   if (answers.project === 'scene-option') {
-    return await getSceneInitOption()
+    return getSceneInitOption()
   }
 
   fail(
@@ -210,7 +200,7 @@ export async function initProjectType(
   await project.scaffoldProject(projectType)
 
   try {
-    await installDependencies(dcl.getWorkingDir(), false)
+    await installDependencies(dcl.getWorkingDir(), true)
   } catch (error: any) {
     fail(ErrorType.INIT_ERROR, error.message)
   }
@@ -236,7 +226,7 @@ async function initRepository(dcl: Decentraland, url: string) {
   }
 
   try {
-    await installDependencies(dcl.getWorkingDir(), false)
+    await installDependencies(dcl.getWorkingDir(), true)
   } catch (error: any) {
     fail(ErrorType.INIT_ERROR, error.message)
   }
