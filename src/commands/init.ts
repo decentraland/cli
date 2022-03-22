@@ -13,6 +13,8 @@ import { isEmptyDirectory, readJSON } from '../utils/filesystem'
 import { ProjectType } from '@dcl/schemas/dist/sdk'
 import { downloadRepo } from '../utils/shellCommands'
 import path from 'path'
+import { remove } from 'fs-extra'
+import * as spinner from '../utils/spinner'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -77,34 +79,31 @@ async function getSceneInitOption(): Promise<InitOption> {
   }))
 
   const choices: ChoiceType[] = [
-    {
-      name: 'Local example',
-      value: sdk.ProjectType.SCENE
-    },
+    ...remoteChoices,
+    new inquirer.Separator(),
     {
       name: 'Paste a repository URL',
       value: 'write-repository'
-    },
-    new inquirer.Separator(),
-    ...remoteChoices,
-    new inquirer.Separator()
+    }
   ]
+
+  // Fills the choices with separators to less confusing
+  Array(20)
+    .fill(0)
+    .forEach(() => choices.push(new inquirer.Separator()))
 
   const projectTypeList: Questions = [
     {
       type: 'list',
       name: 'scene',
       message: 'Choose a scene',
-      choices
+      choices,
+      paginated: true,
+      pageSize: 10
     }
   ]
   const answers = await inquirer.prompt(projectTypeList)
-  if (answers.scene === sdk.ProjectType.SCENE) {
-    return {
-      type: 'sdk.ProjectType',
-      value: sdk.ProjectType.SCENE
-    }
-  } else if (answers.scene === 'write-repository') {
+  if (answers.scene === 'write-repository') {
     const answers = await inquirer.prompt([
       {
         type: 'input',
@@ -116,11 +115,8 @@ async function getSceneInitOption(): Promise<InitOption> {
       type: 'repository.URL',
       value: answers.url
     }
-  } else {
-    const choice = remoteChoices.find(
-      (item) => item.value === answers.scene
-    )! as any
-
+  } else if (answers.scene) {
+    const choice = remoteChoices.find((item) => item.value === answers.scene)
     if (choice) {
       return {
         type: 'repository.URL',
@@ -229,7 +225,15 @@ export async function initProjectType(
 async function initRepository(dcl: Decentraland, url: string) {
   const project = dcl.workspace.getSingleProject()!
 
-  await downloadRepo(project.getProjectWorkingDir(), url, '.')
+  try {
+    spinner.create('Downloading example...')
+    await downloadRepo(project.getProjectWorkingDir(), url, '.')
+    await remove(path.resolve(project.getProjectWorkingDir(), '.git'))
+    spinner.succeed('Example downloaded')
+  } catch (error: any) {
+    spinner.fail(`Failed fetching the repo ${url}.`)
+    fail(ErrorType.INIT_ERROR, error.message)
+  }
 
   try {
     await installDependencies(dcl.getWorkingDir(), false)

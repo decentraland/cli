@@ -1,7 +1,5 @@
 import { spawn } from 'child_process'
 
-const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm'
-
 enum FileDescriptorStandardOption {
   SILENT = 1,
   PIPE = 2,
@@ -65,24 +63,6 @@ export function runCommand({
   })
 }
 
-export function installDependencies(workingDir: string): Promise<void> {
-  return runCommand({
-    workingDir,
-    command: npm,
-    args: ['install'],
-    fdStandards: FileDescriptorStandardOption.SILENT
-  })
-}
-
-export function runDclBuild(workingDir: string): Promise<void> {
-  return runCommand({
-    workingDir,
-    command: 'dcl',
-    args: ['build'],
-    fdStandards: FileDescriptorStandardOption.ONLY_IF_THROW
-  })
-}
-
 export function downloadRepo(
   workingDir: string,
   url: string,
@@ -92,6 +72,6 @@ export function downloadRepo(
     workingDir,
     command: 'git',
     args: ['clone', '--depth', '1', url, destinationPath],
-    fdStandards: FileDescriptorStandardOption.PIPE
+    fdStandards: FileDescriptorStandardOption.ONLY_IF_THROW
   })
 }

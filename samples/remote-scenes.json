@@ -1,6 +1,10 @@
 {
   "scenes": [
     {
+      "title": "Cube spawner",
+      "url": "https://github.com/decentraland-scenes/cube-spawner"
+    },
+    {
       "title": "Basic interactions",
       "url": "https://github.com/decentraland-scenes/Basic-Interactions"
     },
