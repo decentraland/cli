@@ -6,7 +6,7 @@ class RotatorSystem {
 
   update(dt: number) {
     // iterate over the entities of the group
-    for (let entity of this.group.entities) {
+    for (const entity of this.group.entities) {
       // get the Transform component of the entity
       const transform = entity.getComponent(Transform)
 
