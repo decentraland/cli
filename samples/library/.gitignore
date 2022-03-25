@@ -1,7 +1,5 @@
-.vscode
 node_modules
-tmp
-*.log
+bin
+lib
 dist
 .DS_Store
-test-*

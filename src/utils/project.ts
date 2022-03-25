@@ -2,6 +2,9 @@ import path from 'path'
 
 export const SCENE_FILE = 'scene.json'
 export const PACKAGE_FILE = 'package.json'
+export const GITIGNORE_FILE = 'gitignore'
+export const NPMRC_FILE = 'npmrc'
+export const ESTLINTRC_FILE = 'eslintrc.json'
 export const ASSETJSON_FILE = 'asset.json'
 export const DCLIGNORE_FILE = '.dclignore'
 
