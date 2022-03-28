@@ -63,6 +63,23 @@ const help = `
 `
 
 export async function main(version: string) {
+  const minNodeVersionUser = 14
+  const nodeVersion = process.versions.node
+  if (nodeVersion) {
+    const majorVersion = parseInt(nodeVersion.split('.')[0])
+    if (majorVersion < minNodeVersionUser) {
+      console.error(
+        `Decentraland CLI runs over node version ${minNodeVersionUser} or greater, current is ${majorVersion}.`
+      )
+      process.exit(1)
+    }
+  } else {
+    console.error(
+      `It's not possible to check node version, version ${minNodeVersionUser} or greater is required to run Decentraland CLI.`
+    )
+    process.exit(1)
+  }
+
   setVersion(version)
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
     const network = args['--network']
