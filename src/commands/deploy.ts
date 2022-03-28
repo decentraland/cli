@@ -286,15 +286,15 @@ async function deploySmartWearable({ dcl }: { dcl: Decentraland }) {
     originalFilesToIgnore = await project.writeDclIgnore()
   }
 
-  const content: any = {}
+  const content: Record<string, Uint8Array> = {}
   const files: IFile[] = await project.getFiles(originalFilesToIgnore)
   for (const file of files) {
-    content[file.path] = file.content
+    content[file.path] = new Uint8Array(file.content.buffer, 0)
   }
   content['thumbnail.png'] = content[assetBasicConfig.thumbnail]
   delete content['asset.json']
 
-  const item = new ItemFactory<Buffer>()
+  const item = new ItemFactory<Uint8Array>()
     .newItem({
       id: assetBasicConfig.id,
       name: assetBasicConfig.name,

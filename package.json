@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@dcl/builder-client": "^1.6.1",
-    "@dcl/linker-dapp": "^0.2.0",
+    "@dcl/linker-dapp": "^0.2.1-2041668432.commit-33e3b3d",
     "@dcl/schemas": "^3.9.1-20220315201552.commit-f3655cc",
     "analytics-node": "^3.2.0",
     "archiver": "^3.1.1",
