@@ -20,7 +20,7 @@
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
     "test:ci": "FORCE_COLOR=1 ava -v --fail-fast --match='!*E2E*' --match='!*Decentraland.deploy()*'",
     "test:win": "set FORCE_COLOR=1 ava -v --fail-fast --match=\"!*E2E*\" --match=\"!*Decentraland.deploy()*\"",
-    "preinstall": "node test/failNodeVersion.js"
+    "preinstall": "node src/failNodeVersion.js"
   },
   "repository": "decentraland/cli",
   "keywords": [
