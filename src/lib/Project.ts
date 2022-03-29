@@ -9,7 +9,10 @@ import {
   getSceneFilePath,
   getIgnoreFilePath,
   DCLIGNORE_FILE,
-  ASSETJSON_FILE
+  ASSETJSON_FILE,
+  GITIGNORE_FILE,
+  NPMRC_FILE,
+  ESTLINTRC_FILE
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 import {
@@ -497,6 +500,12 @@ export async function copySample(
       const assetJsonFile = await readJSON<any>(path.join(src, file))
       const assetJsonFileWithUuid = { ...assetJsonFile, id: uuid.v4() }
       await writeJSON(path.join(destWorkingDir, file), assetJsonFileWithUuid)
+    } else if (
+      file === GITIGNORE_FILE ||
+      file === NPMRC_FILE ||
+      file === ESTLINTRC_FILE
+    ) {
+      await fs.copy(path.join(src, file), path.join(destWorkingDir, '.' + file))
     } else {
       await fs.copy(path.join(src, file), path.join(destWorkingDir, file))
     }
