@@ -170,7 +170,27 @@ export function isOnline(): Promise<boolean> {
   })
 }
 
-export async function checkECSVersions(workingDir: string) {
+export async function checkECSVersion(
+  workingDir: string,
+  version: string
+): Promise<boolean> {
+  const ecsPackageJson = await readJSON<{
+    version: string
+  }>(
+    path.resolve(
+      getNodeModulesPath(workingDir),
+      'decentraland-ecs',
+      'package.json'
+    )
+  )
+
+  if (semver.lt(ecsPackageJson.version, version)) {
+    return false
+  }
+  return true
+}
+
+export async function checkECSAndCLIVersions(workingDir: string) {
   const ecsPackageJson = await readJSON<{
     minCliVersion?: string
     version: string

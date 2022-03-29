@@ -11,7 +11,7 @@ import buildProject from '../utils/buildProject'
 import { warning, debug } from '../utils/logging'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import { getSceneFile } from '../sceneJson'
-import { checkECSVersions } from '../utils/moduleHelpers'
+import { checkECSAndCLIVersions } from '../utils/moduleHelpers'
 import { createWorkspace } from '../lib/Workspace'
 import { fail } from 'assert'
 
@@ -74,7 +74,7 @@ export async function main(): Promise<number> {
   }
 
   if (!skipVersionCheck) {
-    await checkECSVersions(workingDir)
+    await checkECSAndCLIVersions(workingDir)
   }
 
   spinner.create('Exporting project')

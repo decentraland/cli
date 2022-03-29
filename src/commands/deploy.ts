@@ -18,7 +18,7 @@ import { IFile } from '../lib/Project'
 import { LinkerResponse } from '../lib/LinkerAPI'
 import * as spinner from '../utils/spinner'
 import { debug } from '../utils/logging'
-import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
+import { buildTypescript, checkECSAndCLIVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
 import { ErrorType, fail } from '../utils/errors'
@@ -78,7 +78,7 @@ export async function main(): Promise<void> {
   const skipBuild = args['--skip-build']
 
   if (!skipVersionCheck) {
-    await checkECSVersions(workDir)
+    await checkECSAndCLIVersions(workDir)
   }
 
   spinner.create('Building scene in production mode')
