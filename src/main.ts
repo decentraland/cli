@@ -3,9 +3,17 @@ import chalk from 'chalk'
 
 import * as log from './utils/logging'
 import { finishPendingTracking, Analytics } from './utils/analytics'
-import { getInstalledCLIVersion, setVersion } from './utils/moduleHelpers'
+import {
+  getCLIPackageJson,
+  getInstalledCLIVersion,
+  setVersion
+} from './utils/moduleHelpers'
 import { loadConfig } from './config'
 import commands from './commands'
+import {
+  getNodeMajorVersion,
+  getNpmMajorVersion
+} from './utils/nodeAndNpmVersion'
 
 log.debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
 log.debug(`Provided argv: ${JSON.stringify(process.argv)}`)
@@ -63,6 +71,46 @@ const help = `
 `
 
 export async function main(version: string) {
+  const requiredVersion = await getCLIPackageJson<{
+    userEngines: {
+      minMajorNode: number
+      minMajorNpm: number
+    }
+  }>()
+
+  try {
+    const nodeVersion = await getNodeMajorVersion()
+    const npmVersion = await getNpmMajorVersion()
+
+    if (nodeVersion) {
+      if (nodeVersion < requiredVersion.userEngines.minMajorNode) {
+        console.error(
+          `Decentraland CLI runs over node version ${requiredVersion.userEngines.minMajorNode} or greater, current is ${nodeVersion}.`
+        )
+        process.exit(1)
+      }
+    } else {
+      console.error(
+        `It's not possible to check node version, version ${requiredVersion.userEngines.minMajorNode} or greater is required to run Decentraland CLI.`
+      )
+      process.exit(1)
+    }
+
+    if (npmVersion) {
+      if (npmVersion < requiredVersion.userEngines.minMajorNpm) {
+        console.warn(
+          `⚠ Decentraland CLI works correctly installing packages with npm version ${requiredVersion.userEngines.minMajorNpm} or greater, current is ${npmVersion}.`
+        )
+      }
+    } else {
+      console.warn(
+        `⚠ It's not possible to check npm version, version ${requiredVersion.userEngines.minMajorNpm} or greater is required to Decentraland CLI works correctly.`
+      )
+    }
+  } catch (err) {
+    console.warn(`⚠ It was not possible to check npm version or node.`, err)
+  }
+
   setVersion(version)
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
     const network = args['--network']

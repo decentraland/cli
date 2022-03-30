@@ -135,6 +135,10 @@ export async function getOutdatedApi(workingDir: string): Promise<
   return undefined
 }
 
+export async function getCLIPackageJson<T = any>(): Promise<T> {
+  return readJSON<T>(path.resolve(__dirname, '..', '..', 'package.json'))
+}
+
 export function getInstalledCLIVersion(): string {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   return version || require('../../package.json').version
@@ -182,10 +186,10 @@ export async function checkECSVersions(workingDir: string) {
     )
   )
 
-  const cliPackageJson = await readJSON<{
+  const cliPackageJson = await getCLIPackageJson<{
     minEcsVersion?: boolean
     version: string
-  }>(path.resolve(__dirname, '..', '..', 'package.json'))
+  }>()
 
   if (
     cliPackageJson.minEcsVersion &&
