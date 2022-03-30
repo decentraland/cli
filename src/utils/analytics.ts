@@ -43,6 +43,8 @@ export namespace Analytics {
     trackAsync('Status command', properties)
   export const sendData = (shareData: boolean) =>
     trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
+  export const tryToUseDeprecated = (properties?: any) =>
+    trackAsync('Try to use depacreated feature', properties)
 
   export async function identify(devId: string) {
     analytics.identify({

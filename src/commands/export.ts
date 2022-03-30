@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { Analytics } from '../utils/analytics'
 
 export const help = () => `
 ${chalk.bold(
@@ -10,5 +11,6 @@ export async function main(): Promise<number> {
   console.warn(
     `\`dcl export\` is not being supported in this CLI version. Please visit ${link} to more information`
   )
+  Analytics.tryToUseDeprecated({ command: 'export' })
   return 1
 }
