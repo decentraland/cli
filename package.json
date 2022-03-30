@@ -108,7 +108,7 @@
     "yarn": "please use npm"
   },
   "userEngines": {
-    "minMajorNode": 14,
-    "minMajorNpm": 6
+    "minNodeVersion": "14.0.0",
+    "minNpmVersion": "6.0.0"
   }
 }

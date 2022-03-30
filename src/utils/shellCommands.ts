@@ -1,21 +1,29 @@
 import { spawn } from 'child_process'
 
-enum FileDescriptorStandardOption {
+export enum FileDescriptorStandardOption {
   SILENT = 1,
   PIPE = 2,
-  ONLY_IF_THROW = 3
+  ONLY_IF_THROW = 3,
+  SEND_TO_CALLBACK = 4
+}
+
+export type FDCallback = {
+  onErrorData?: (data: string) => void
+  onOutData?: (data: string) => void
 }
 
 export function runCommand({
   workingDir,
   command,
   args,
-  fdStandards
+  fdStandards,
+  cb
 }: {
   workingDir: string
   command: string
   args: string[]
   fdStandards?: FileDescriptorStandardOption
+  cb?: FDCallback
 }): Promise<void> {
   const standardOption = fdStandards || FileDescriptorStandardOption.SILENT
   return new Promise((resolve, reject) => {
@@ -38,6 +46,20 @@ export function runCommand({
 
       child.stderr.on('data', (data) => {
         stdErr += data.toString()
+      })
+    } else if (
+      standardOption === FileDescriptorStandardOption.SEND_TO_CALLBACK
+    ) {
+      child.stdout.on('data', (data) => {
+        if (cb?.onOutData) {
+          cb.onOutData(data.toString())
+        }
+      })
+
+      child.stderr.on('data', (data) => {
+        if (cb?.onErrorData) {
+          cb.onErrorData(data.toString())
+        }
       })
     }
 
