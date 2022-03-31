@@ -7,8 +7,8 @@ import { Decentraland } from '../lib/Decentraland'
 import {
   buildTypescript,
   checkECSAndCLIVersions,
-  checkECSVersion,
   getOutdatedApi,
+  isECSVersionLower,
   isOnline
 } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
@@ -144,7 +144,8 @@ export async function main() {
 
   if (
     (enableWeb3 || hasPortableExperience) &&
-    (await checkECSVersion(workingDir, '6.10.0'))
+    (await isECSVersionLower(workingDir, '6.10.0')) &&
+    !skipVersionCheck
   ) {
     throw new Error(
       'Web3 is not currently working with `decentraland-ecs` version lower than 6.10.0. You can update it with running `npm i decentraland-ecs@latest`.'
