@@ -1,7 +1,7 @@
 import arg from 'arg'
 import chalk from 'chalk'
 
-import { buildTypescript, checkECSVersions } from '../utils/moduleHelpers'
+import { buildTypescript, checkECSAndCLIVersions } from '../utils/moduleHelpers'
 import { isTypescriptProject } from '../project/isTypescriptProject'
 import { createWorkspace } from '../lib/Workspace'
 import { fail } from 'assert'
@@ -43,7 +43,7 @@ export async function main(): Promise<number> {
   }
 
   if (!skipVersionCheck) {
-    await checkECSVersions(workingDir)
+    await checkECSAndCLIVersions(workingDir)
   }
 
   if (await isTypescriptProject(workingDir)) {
