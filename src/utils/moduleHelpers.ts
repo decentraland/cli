@@ -174,7 +174,7 @@ export function isOnline(): Promise<boolean> {
   })
 }
 
-export async function checkECSVersion(
+export async function isECSVersionLower(
   workingDir: string,
   version: string
 ): Promise<boolean> {
@@ -189,9 +189,9 @@ export async function checkECSVersion(
   )
 
   if (semver.lt(ecsPackageJson.version, version)) {
-    return false
+    return true
   }
-  return true
+  return false
 }
 
 export async function checkECSAndCLIVersions(workingDir: string) {
