@@ -6,7 +6,8 @@ import opn from 'opn'
 import { Decentraland } from '../lib/Decentraland'
 import {
   buildTypescript,
-  checkECSVersions,
+  checkECSAndCLIVersions,
+  checkECSVersion,
   getOutdatedApi,
   isOnline
 } from '../utils/moduleHelpers'
@@ -115,7 +116,7 @@ export async function main() {
       }
 
       if (!skipVersionCheck) {
-        await checkECSVersions(project.getProjectWorkingDir())
+        await checkECSAndCLIVersions(project.getProjectWorkingDir())
       }
 
       try {
@@ -140,6 +141,15 @@ export async function main() {
 
   const baseCoords = await dcl.workspace.getBaseCoords()
   const hasPortableExperience = dcl.workspace.hasPortableExperience()
+
+  if (
+    (enableWeb3 || hasPortableExperience) &&
+    (await checkECSVersion(workingDir, '6.10.0'))
+  ) {
+    throw new Error(
+      'Web3 is not currently working with `decentraland-ecs` version lower than 6.10.0. You can update it with running `npm i decentraland-ecs@latest`.'
+    )
+  }
 
   dcl.on('preview:ready', (port) => {
     const ifaces = os.networkInterfaces()
