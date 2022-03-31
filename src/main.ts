@@ -6,6 +6,7 @@ import { finishPendingTracking, Analytics } from './utils/analytics'
 import { getInstalledCLIVersion, setVersion } from './utils/moduleHelpers'
 import { loadConfig } from './config'
 import commands from './commands'
+import { checkNodeAndNpmVersion } from './utils/nodeAndNpmVersion'
 
 log.debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
 log.debug(`Provided argv: ${JSON.stringify(process.argv)}`)
@@ -63,6 +64,8 @@ const help = `
 `
 
 export async function main(version: string) {
+  await checkNodeAndNpmVersion()
+
   setVersion(version)
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
     const network = args['--network']
