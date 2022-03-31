@@ -144,8 +144,8 @@ export async function main() {
 
   if (
     (enableWeb3 || hasPortableExperience) &&
-    (await isECSVersionLower(workingDir, '6.10.0'))
-    && !skipVersionCheck
+    (await isECSVersionLower(workingDir, '6.10.0')) &&
+    !skipVersionCheck
   ) {
     throw new Error(
       'Web3 is not currently working with `decentraland-ecs` version lower than 6.10.0. You can update it with running `npm i decentraland-ecs@latest`.'
