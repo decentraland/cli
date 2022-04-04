@@ -123,7 +123,7 @@ export async function main(): Promise<void> {
   } else if (
     project.getInfo().sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
   ) {
-    spinner.create('Building smart wearable')
+    spinner.succeed()
     await deploySmartWearable({ dcl })
   }
 }
