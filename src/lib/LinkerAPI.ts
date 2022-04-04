@@ -6,32 +6,13 @@ import fs from 'fs-extra'
 import express from 'express'
 import portfinder from 'portfinder'
 import querystring from 'querystring'
-import { ChainId, sdk } from '@dcl/schemas'
+import { sdk } from '@dcl/schemas'
 
 import { Project } from './Project'
 import { getCustomConfig } from '../config'
 import { isDevelopment, isDebug } from '../utils/env'
-import { AuthIdentity } from 'dcl-crypto'
 
-export type LinkerResponseScenenDeploy = {
-  responseType: 'scene-deploy'
-  payload: {
-    address: string
-    signature: string
-    chainId: ChainId
-  }
-}
-
-export type LinkerResponseIdentity = {
-  responseType: 'identity'
-  payload: {
-    identity: AuthIdentity
-    address: string
-    chainId: ChainId
-  }
-}
-
-export type LinkerResponse = LinkerResponseScenenDeploy | LinkerResponseIdentity
+import { LinkerResponse } from '@dcl/linker-dapp/types/modules/server/utils'
 
 /**
  * Events emitted by this class:

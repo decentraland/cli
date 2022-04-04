@@ -12,16 +12,16 @@ import { DCLInfo, getConfig } from '../config'
 import { debug } from '../utils/logging'
 import { Ethereum, LANDData } from './Ethereum'
 import {
-  LinkerAPI,
   LinkerResponse,
   LinkerResponseIdentity,
   LinkerResponseScenenDeploy
-} from './LinkerAPI'
+} from '@dcl/linker-dapp/types/modules/server/utils'
 import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { createWorkspace, Workspace } from './Workspace'
 import { createIdentity } from '@dcl/builder-client'
+import { LinkerAPI } from './LinkerAPI'
 
 export type DecentralandArguments = {
   workingDir: string

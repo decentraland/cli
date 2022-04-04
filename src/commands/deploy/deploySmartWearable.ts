@@ -5,7 +5,7 @@ import * as path from 'path'
 
 import { Decentraland } from '../../lib/Decentraland'
 import { IFile } from '../../lib/Project'
-import { LinkerResponse } from '../../lib/LinkerAPI'
+import { LinkerResponse } from '@dcl/linker-dapp/types/modules/server/utils'
 import * as spinner from '../../utils/spinner'
 import { BodyShapeType, BuilderClient, ItemFactory } from '@dcl/builder-client'
 import { readFile, readJSON } from 'fs-extra'
