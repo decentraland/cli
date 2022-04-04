@@ -5,7 +5,10 @@ import { sdk } from '@dcl/schemas'
 import { isTypescriptProject } from '../../project/isTypescriptProject'
 import { Decentraland } from '../../lib/Decentraland'
 import * as spinner from '../../utils/spinner'
-import { buildTypescript, checkECSAndCLIVersions } from '../../utils/moduleHelpers'
+import {
+  buildTypescript,
+  checkECSAndCLIVersions
+} from '../../utils/moduleHelpers'
 import { Analytics } from '../../utils/analytics'
 import { ErrorType, fail } from '../../utils/errors'
 
