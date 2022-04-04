@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "3.8.2",
+  "version": "3.10.0",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "dist/index.js"
@@ -108,5 +108,9 @@
     "node": ">=16.0.0",
     "npm": ">=8.0.0",
     "yarn": "please use npm"
+  },
+  "userEngines": {
+    "minNodeVersion": "14.0.0",
+    "minNpmVersion": "6.0.0"
   }
 }

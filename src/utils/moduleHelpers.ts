@@ -135,6 +135,10 @@ export async function getOutdatedApi(workingDir: string): Promise<
   return undefined
 }
 
+export async function getCLIPackageJson<T = any>(): Promise<T> {
+  return readJSON<T>(path.resolve(__dirname, '..', '..', 'package.json'))
+}
+
 export function getInstalledCLIVersion(): string {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   return version || require('../../package.json').version
@@ -170,7 +174,27 @@ export function isOnline(): Promise<boolean> {
   })
 }
 
-export async function checkECSVersions(workingDir: string) {
+export async function isECSVersionLower(
+  workingDir: string,
+  version: string
+): Promise<boolean> {
+  const ecsPackageJson = await readJSON<{
+    version: string
+  }>(
+    path.resolve(
+      getNodeModulesPath(workingDir),
+      'decentraland-ecs',
+      'package.json'
+    )
+  )
+
+  if (semver.lt(ecsPackageJson.version, version)) {
+    return true
+  }
+  return false
+}
+
+export async function checkECSAndCLIVersions(workingDir: string) {
   const ecsPackageJson = await readJSON<{
     minCliVersion?: string
     version: string
@@ -182,10 +206,10 @@ export async function checkECSVersions(workingDir: string) {
     )
   )
 
-  const cliPackageJson = await readJSON<{
+  const cliPackageJson = await getCLIPackageJson<{
     minEcsVersion?: boolean
     version: string
-  }>(path.resolve(__dirname, '..', '..', 'package.json'))
+  }>()
 
   if (
     cliPackageJson.minEcsVersion &&
