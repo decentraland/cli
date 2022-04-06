@@ -25,6 +25,7 @@ export const help = () => `
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-build              Skip build before deploy
+      --save-identity           Save identity to avoid sign smart-wearable deployment again (in the same console session)
 
     ${chalk.dim('Example:')}
 
@@ -54,7 +55,8 @@ export async function main(): Promise<void> {
     '--skip-build': Boolean,
     '--https': Boolean,
     '--force-upload': Boolean,
-    '--yes': Boolean
+    '--yes': Boolean,
+    '--save-identity': Boolean
   })
 
   Analytics.deploy()

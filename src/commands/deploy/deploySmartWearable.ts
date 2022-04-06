@@ -15,8 +15,14 @@ import { readFile, readJSON, writeFile } from 'fs-extra'
 import * as uuid from 'uuid'
 import { warning } from '../../utils/logging'
 import inquirer from 'inquirer'
+import arg from 'arg'
+import { isEnvCi } from '../../utils/env'
 
 export default async function ({ dcl }: { dcl: Decentraland }) {
+  const args = arg({
+    '--save-identity': Boolean
+  })
+
   const project = dcl.workspace.getSingleProject()!
   const assetJsonPath = path.resolve(
     project.getProjectWorkingDir(),
@@ -189,32 +195,32 @@ export default async function ({ dcl }: { dcl: Decentraland }) {
     `)
   }
 
-  if (!process.env.DCL_IDENTITY) {
-    const results = await inquirer.prompt({
-      type: 'confirm',
-      name: 'continue',
-      message: `Do you want to save the deployment Identity? This will avoid to open the linker again in this console session (this does NOT store your private key).`
-    })
-
-    if (results.continue) {
-      const value = btoa(JSON.stringify(linkerResponse))
-      if (process.platform === 'win32') {
-        console.info(
-          'Run the next command to save the identity:\n\tset DCL_IDENTITY=' +
-            value
-        )
-      } else {
-        console.info(
-          'Run the next command to save the identity:\n\texport DCL_IDENTITY=' +
-            value
-        )
-      }
+  if (!process.env.DCL_IDENTITY && args['--save-identity']) {
+    const value = btoa(JSON.stringify(linkerResponse))
+    if (process.platform === 'win32') {
+      console.info(
+        'Run the next command to save the identity:\n\tset DCL_IDENTITY=' +
+          value
+      )
+    } else {
+      console.info(
+        'Run the next command to save the identity:\n\texport DCL_IDENTITY=' +
+          value
+      )
     }
   }
 }
 
 async function getSavedIdentity(): Promise<LinkerResponseIdentity | undefined> {
   if (process.env['DCL_IDENTITY']) {
+    const identity = JSON.parse(
+      atob(process.env['DCL_IDENTITY'])
+    ) as LinkerResponseIdentity
+
+    if (isEnvCi()) {
+      return identity
+    }
+
     const results = await inquirer.prompt({
       type: 'confirm',
       name: 'continue',
@@ -222,9 +228,7 @@ async function getSavedIdentity(): Promise<LinkerResponseIdentity | undefined> {
     })
 
     if (results.continue) {
-      return JSON.parse(
-        atob(process.env['DCL_IDENTITY'])
-      ) as LinkerResponseIdentity
+      return identity
     }
   }
 }
