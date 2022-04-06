@@ -24,7 +24,7 @@ export default async function ({ dcl }: { dcl: Decentraland }) {
   )
   const assetJson = await readJSON(assetJsonPath)
 
-  console.log(chalk.bold('[BETA] This feature is a beta one.'))
+  console.log(chalk.bold('[BETA] This is a beta feature.'))
 
   if (!sdk.AssetJson.validate(assetJson)) {
     const errors = (sdk.AssetJson.validate.errors || [])
