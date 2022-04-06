@@ -6,7 +6,7 @@ The libraries in the [Awesome Repository](https://github.com/decentraland-scenes
 
 ## Publish
 
-See [Create Libraries]() for tips on how to design and develop your library, and for simple instructions for publishing it to NPM.
+See [Create Libraries](https://docs.decentraland.org/development-guide/create-libraries/) for tips on how to design and develop your library, and for simple instructions for publishing it to NPM.
 
 Below is a template to help you craft documentation for your library, so others know how to use it.
 
