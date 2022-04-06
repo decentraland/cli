@@ -22,7 +22,7 @@ import {
   areConnected,
   Coords
 } from '../utils/coordinateHelpers'
-import uuid from 'uuid'
+import * as uuid from 'uuid'
 import { getProjectInfo, ProjectInfo } from '../project/projectInfo'
 import { getSceneFile } from '../sceneJson'
 import { error } from '../utils/logging'

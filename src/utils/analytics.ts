@@ -1,4 +1,5 @@
-import { v4 as uuidv4 } from 'uuid'
+
+import * as uuid from 'uuid'
 import AnalyticsNode from 'analytics-node'
 
 import { createDCLInfo, getConfig } from '../config'
@@ -90,7 +91,7 @@ export namespace Analytics {
         )
       )
 
-      const newUserId = uuidv4()
+      const newUserId = uuid.v4()
       await createDCLInfo({ userId: newUserId, trackStats: true })
       debug(`${chalk.bold('.dclinfo')} file created`)
       await identify(newUserId)

@@ -12,7 +12,7 @@ import {
 import * as spinner from '../../utils/spinner'
 import { BodyShapeType, BuilderClient, ItemFactory } from '@dcl/builder-client'
 import { readFile, readJSON, writeFile } from 'fs-extra'
-import { validate as validateUUID } from 'uuid'
+import * as uuid from 'uuid'
 import { warning } from '../../utils/logging'
 import inquirer from 'inquirer'
 
@@ -39,7 +39,7 @@ export default async function ({ dcl }: { dcl: Decentraland }) {
   }
 
   let collectionId = (assetJson as any)?.collectionId || ''
-  if (!validateUUID(collectionId)) {
+  if (!uuid.validate(collectionId)) {
     const results = await inquirer.prompt({
       type: 'confirm',
       name: 'continue',
@@ -62,7 +62,7 @@ export default async function ({ dcl }: { dcl: Decentraland }) {
         if (ans.length === 0) {
           console.info(`Skipping collection ID.`)
           break
-        } else if (validateUUID(answers.uuid)) {
+        } else if (uuid.validate(answers.uuid)) {
           collectionId = answers.uuid
           console.info(`Using collection ID: ${collectionId}`)
           const newAssetJson = { ...assetJson, collectionId }
