@@ -10,10 +10,11 @@ import {
   checkECSAndCLIVersions
 } from '../../utils/moduleHelpers'
 import { Analytics } from '../../utils/analytics'
-import { ErrorType, fail } from '../../utils/errors'
 
 import deploySmartWearable from './deploySmartWearable'
 import deployScene from './deployScene'
+import { IFile } from '../../lib/Project'
+import { failWithSpinner } from './utils'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl deploy [options]')}
@@ -37,11 +38,6 @@ export const help = () => `
 
     ${chalk.green('$ dcl deploy --target my-favorite-catalyst-server.org:2323')}
 `
-
-export function failWithSpinner(message: string, error?: any): void {
-  spinner.fail(message)
-  fail(ErrorType.DEPLOY_ERROR, error)
-}
 
 export async function main(): Promise<void> {
   const args = arg({
@@ -120,12 +116,21 @@ export async function main(): Promise<void> {
     return failWithSpinner('Cannot deploy a smart item.')
   }
 
+  // Obtain list of files to deploy
+  const originalFilesToIgnore =
+    (await project.getDCLIgnore()) || (await project.writeDclIgnore())
+  const filesToIgnorePlusEntityJson =
+    originalFilesToIgnore +
+    `${originalFilesToIgnore.includes('entity.json') ? '' : '\nentity.json'}`
+
+  const files: IFile[] = await project.getFiles(filesToIgnorePlusEntityJson)
+
   if (project.getInfo().sceneType === sdk.ProjectType.SCENE) {
-    await deployScene({ dcl, target, targetContent })
+    await deployScene({ dcl, target, targetContent, files })
   } else if (
     project.getInfo().sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
   ) {
     spinner.succeed()
-    await deploySmartWearable({ dcl })
+    await deploySmartWearable({ dcl, files })
   }
 }

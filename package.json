@@ -69,8 +69,8 @@
     "ts-node": "^4.1.0"
   },
   "dependencies": {
-    "@dcl/builder-client": "^1.8.0",
-    "@dcl/linker-dapp": "^0.2.2-2090471827.commit-84b7063",
+    "@dcl/builder-client": "^1.9.0",
+    "@dcl/linker-dapp": "^0.2.3",
     "@dcl/schemas": "^3.9.1-20220315201552.commit-f3655cc",
     "analytics-node": "^3.2.0",
     "archiver": "^3.1.1",

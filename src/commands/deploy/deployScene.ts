@@ -23,25 +23,15 @@ import { ErrorType, fail } from '../../utils/errors'
 export default async function ({
   dcl,
   target,
-  targetContent
+  targetContent,
+  files
 }: {
   dcl: Decentraland
   target?: string
   targetContent?: string
+  files: IFile[]
 }) {
   const project = dcl.workspace.getSingleProject()!
-
-  // Obtain list of files to deploy
-  let originalFilesToIgnore = await project.getDCLIgnore()
-  if (originalFilesToIgnore === null) {
-    originalFilesToIgnore = await project.writeDclIgnore()
-  }
-  let filesToIgnorePlusEntityJson = originalFilesToIgnore
-  if (!filesToIgnorePlusEntityJson.includes('entity.json')) {
-    filesToIgnorePlusEntityJson =
-      filesToIgnorePlusEntityJson + '\n' + 'entity.json'
-  }
-  const files: IFile[] = await project.getFiles(filesToIgnorePlusEntityJson)
   const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
   // Create scene.json

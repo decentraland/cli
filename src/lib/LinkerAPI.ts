@@ -124,13 +124,6 @@ export class LinkerAPI extends EventEmitter {
       }
     })
 
-    this.app.get('/api/address_info', (req, res) => {
-      res.writeHead(200)
-      res.end()
-      const { address } = urlParse.parse(req.url, true).query
-      this.emit('link:address', address)
-    })
-
     this.app.get('/api/close', (req, res) => {
       res.writeHead(200)
       res.end()
