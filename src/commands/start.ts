@@ -195,8 +195,9 @@ export async function main() {
     if (args['--desktop-client']) {
       console.log(chalk.bold('\n  Desktop client:\n'))
       for (const addr of sortedURLs) {
-        const url = new URL(`dcl://PREVIEW-MODE=${addr}&`)
-        console.log(`    ${url.toString()}`)
+        const searchParams = new URLSearchParams()
+        searchParams.append('PREVIEW-MODE', addr)
+        console.log(`    dcl://${searchParams.toString()}&`)
       }
     }
 
