@@ -163,7 +163,7 @@ export async function main() {
     console.log(chalk.bold('\n  Available on:\n'))
 
     Object.keys(ifaces).forEach((dev) => {
-      ifaces[dev].forEach((details) => {
+      ;(ifaces[dev] || []).forEach((details) => {
         if (details.family === 'IPv4') {
           let addr = `http://${details.address}:${port}?position=${baseCoords.x}%2C${baseCoords.y}`
           if (debug) {

@@ -1,4 +1,4 @@
-import inquirer, { ChoiceType, Questions } from 'inquirer'
+import inquirer, { ChoiceCollection, QuestionCollection } from 'inquirer'
 import chalk from 'chalk'
 import arg from 'arg'
 import { sdk } from '@dcl/schemas'
@@ -72,7 +72,7 @@ async function getSceneInitOption(): Promise<InitOption> {
     value: repo.url
   }))
 
-  const choices: ChoiceType[] = [
+  const choices: ChoiceCollection = [
     ...remoteChoices,
     new inquirer.Separator(),
     {
@@ -83,7 +83,7 @@ async function getSceneInitOption(): Promise<InitOption> {
     new inquirer.Separator()
   ]
 
-  const projectTypeList: Questions = [
+  const projectTypeList: QuestionCollection = [
     {
       type: 'list',
       name: 'scene',
@@ -139,7 +139,7 @@ async function getInitOption(type?: string): Promise<InitOption> {
     }
   }
 
-  const firstChoices: ChoiceType[] = [
+  const firstChoices: ChoiceCollection = [
     {
       name: 'Scene',
       value: 'scene-option'
@@ -158,7 +158,7 @@ async function getInitOption(type?: string): Promise<InitOption> {
     }
   ]
 
-  const projectTypeList: Questions = [
+  const projectTypeList: QuestionCollection = [
     {
       type: 'list',
       name: 'project',
