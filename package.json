@@ -77,7 +77,7 @@
     "dcl-catalyst-client": "^11.3.0",
     "dcl-catalyst-commons": "^8.2.0",
     "dcl-node-runtime": "^1.0.0",
-    "eth-connect": "^0.3.0",
+    "eth-connect": "^6.0.2",
     "ethers": "^4.0.38",
     "express": "^4.16.2",
     "fs-extra": "^7.0.1",
