@@ -49,7 +49,7 @@ const help = `
       help      [cmd]       Displays complete help for given command
       version               Display current version of dcl
       coords                Set the parcels in your scene
-      workspace subcommand  Make a workspace level action, dcl help workspace for more information.          
+      workspace subcommand  Make a workspace level action, dcl help workspace for more information.
 
     ${chalk.dim('Options:')}
 
