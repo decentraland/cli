@@ -83,7 +83,7 @@
     "glob": "^8.0.1",
     "google-protobuf": "^3.20.1",
     "ignore": "^4.0.6",
-    "inquirer": "^6.2.0",
+    "inquirer": "^8.2.2",
     "node-fetch": "^2.6.7",
     "opn": "^6.0.0",
     "ora": "^5.4.1",
