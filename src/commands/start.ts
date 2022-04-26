@@ -98,7 +98,7 @@ export async function main() {
         spinner.info('SDK not found. Installing dependencies...')
       } else if (sdkOutdated) {
         spinner.warn(
-          `SDK is outdated, to upgrade to the latest version run the command: 
+          `SDK is outdated, to upgrade to the latest version run the command:
           ${chalk.bold('npm install decentraland-ecs@latest')}
           In the folder ${project.getProjectWorkingDir()}
         `
