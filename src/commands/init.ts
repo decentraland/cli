@@ -11,12 +11,10 @@ import installDependencies from '../project/installDependencies'
 
 import { isEmptyDirectory } from '../utils/filesystem'
 import { ProjectType } from '@dcl/schemas/dist/sdk'
-import { downloadRepo } from '../utils/shellCommands'
-import path from 'path'
-import { remove } from 'fs-extra'
 import * as spinner from '../utils/spinner'
 
 import * as remoteScenesJSON from '../../samples/remote-scenes.json'
+import { downloadRepoZip } from '../utils/download'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl init [options]')}
@@ -217,8 +215,9 @@ async function initRepository(dcl: Decentraland, url: string) {
 
   try {
     spinner.create('Downloading example...')
-    await downloadRepo(project.getProjectWorkingDir(), url, '.')
-    await remove(path.resolve(project.getProjectWorkingDir(), '.git'))
+
+    await downloadRepoZip(url, project.getProjectWorkingDir())
+
     spinner.succeed('Example downloaded')
   } catch (error: any) {
     spinner.fail(`Failed fetching the repo ${url}.`)
