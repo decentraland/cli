@@ -1,5 +1,4 @@
 import path from 'path'
-import dockerNames from 'docker-names'
 import fs from 'fs-extra'
 import ignore from 'ignore'
 import { Scene, sdk } from '@dcl/schemas'
@@ -221,13 +220,6 @@ export class Project {
   async validateSceneOptions(): Promise<void> {
     const sceneFile = await this.getSceneFile()
     return this.validateSceneData(sceneFile)
-  }
-
-  /**
-   * Returns a random project name
-   */
-  getRandomName(): string {
-    return dockerNames.getRandomName()
   }
 
   /**
