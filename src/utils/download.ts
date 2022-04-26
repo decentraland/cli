@@ -1,13 +1,12 @@
 import extract from 'extract-zip'
 import { rmdirSync } from 'fs'
 import { move, readdir, remove, writeFile } from 'fs-extra'
-import * as makeFetchHappen from 'make-fetch-happen'
 import path from 'path'
+import fetch from 'isomorphic-fetch'
 
 export const downloadFile = async function (url: string, dest: string) {
-  const fetch = makeFetchHappen.defaults()
-  const data = await (await fetch(url)).buffer()
-  await writeFile(dest, data)
+  const data = await (await fetch(url)).arrayBuffer()
+  await writeFile(dest, Buffer.from(data))
 }
 
 export const downloadRepoZip = async function (url: string, dest: string) {
