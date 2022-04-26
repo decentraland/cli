@@ -73,7 +73,7 @@
     "arg": "^5.0.1",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
-    "cors": "^2.8.4",
+    "cors": "^2.8.5",
     "dcl-catalyst-client": "^11.0.0",
     "dcl-catalyst-commons": "^8.0.0",
     "dcl-node-runtime": "^1.0.0",
