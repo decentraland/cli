@@ -83,7 +83,7 @@
     "google-protobuf": "^3.20.1",
     "ignore": "^4.0.6",
     "inquirer": "^6.2.0",
-    "isomorphic-fetch": "^2.2.1",
+    "node-fetch": "^3.2.3",
     "opn": "^6.0.0",
     "ora": "^3.0.0",
     "package-json": "^7.0.0",
