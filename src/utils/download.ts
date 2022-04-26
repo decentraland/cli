@@ -18,7 +18,7 @@ export const downloadRepoZip = async function (url: string, dest: string) {
   try {
     await extract(zipFilePath, { dir: dest })
   } catch (err) {
-    console.error(err)
+    console.log(`Couldn't extract the zip of the repository.`, err)
     throw err
   }
 
@@ -27,7 +27,9 @@ export const downloadRepoZip = async function (url: string, dest: string) {
   const directoryCreated = newFiles.filter((value) => !oldFiles.includes(value))
 
   if (directoryCreated.length !== 1) {
-    throw new Error('asd')
+    throw new Error(
+      'Please, make sure not to modify the directory while the example repository is downloading.'
+    )
   }
 
   const extractedPath = path.resolve(dest, directoryCreated[0])
