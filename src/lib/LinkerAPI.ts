@@ -125,7 +125,7 @@ export class LinkerAPI extends EventEmitter {
       if (ok === 'true') {
         this.emit(
           'link:success',
-          JSON.parse(reason.toString()) as LinkerResponse
+          JSON.parse(reason?.toString() || '{}') as LinkerResponse
         )
       }
 

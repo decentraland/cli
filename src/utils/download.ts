@@ -2,7 +2,7 @@ import extract from 'extract-zip'
 import { rmdirSync } from 'fs'
 import { move, readdir, remove, writeFile } from 'fs-extra'
 import path from 'path'
-import fetch from 'isomorphic-fetch'
+import fetch from 'node-fetch'
 
 export const downloadFile = async function (url: string, dest: string) {
   const data = await (await fetch(url)).arrayBuffer()

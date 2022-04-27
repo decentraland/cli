@@ -1,7 +1,6 @@
 import path from 'path'
-import { ChildProcess } from 'child_process'
+import { ChildProcess, spawn } from 'child_process'
 import { EventEmitter } from 'events'
-import spawn from 'cross-spawn'
 
 export interface IOptions {
   silent: boolean

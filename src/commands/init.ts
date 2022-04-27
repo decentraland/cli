@@ -1,4 +1,4 @@
-import inquirer, { ChoiceType, Questions } from 'inquirer'
+import inquirer, { ChoiceCollection, QuestionCollection } from 'inquirer'
 import chalk from 'chalk'
 import arg from 'arg'
 import { sdk } from '@dcl/schemas'
@@ -64,24 +64,21 @@ type RemoteRepositoriesFileSchema = {
 
 async function getSceneInitOption(): Promise<InitOption> {
   const remoteRepositoriesFile =
-    remoteScenesJSON as unknown as RemoteRepositoriesFileSchema
+    remoteScenesJSON as any as RemoteRepositoriesFileSchema
   const remoteChoices = remoteRepositoriesFile.scenes.map((repo, index) => ({
     name: `(${index + 1}) ${repo.title}`,
     value: repo.url
   }))
 
-  const choices: ChoiceType[] = [
+  const choices: ChoiceCollection = [
     ...remoteChoices,
-    new inquirer.Separator(),
     {
       name: 'Paste a repository URL',
       value: 'write-repository'
-    },
-    new inquirer.Separator(),
-    new inquirer.Separator()
+    }
   ]
 
-  const projectTypeList: Questions = [
+  const projectTypeList: QuestionCollection = [
     {
       type: 'list',
       name: 'scene',
@@ -137,7 +134,7 @@ async function getInitOption(type?: string): Promise<InitOption> {
     }
   }
 
-  const firstChoices: ChoiceType[] = [
+  const firstChoices: ChoiceCollection = [
     {
       name: 'Scene',
       value: 'scene-option'
@@ -156,7 +153,7 @@ async function getInitOption(type?: string): Promise<InitOption> {
     }
   ]
 
-  const projectTypeList: Questions = [
+  const projectTypeList: QuestionCollection = [
     {
       type: 'list',
       name: 'project',

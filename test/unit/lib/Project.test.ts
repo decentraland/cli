@@ -147,7 +147,9 @@ test('Unit - Project.validateNewProject() - should fail if the working directory
   sceneFileExistsStub.callsFake(() => true)
   const project = new Project('.')
 
-  await t.throwsAsync(project.validateNewProject(), 'Project already exists')
+  await t.throwsAsync(project.validateNewProject(), {
+    message: 'Project already exists'
+  })
 })
 
 test('Unit - Project.needsDependencies() - should return true if a package.json file is present', async (t) => {

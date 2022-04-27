@@ -1,7 +1,7 @@
 import path from 'path'
 import { spawn } from 'child_process'
 import semver from 'semver'
-import fetch from 'isomorphic-fetch'
+import fetch from 'node-fetch'
 import packageJson from 'package-json'
 
 import * as spinner from '../utils/spinner'

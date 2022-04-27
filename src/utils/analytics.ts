@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
 import AnalyticsNode from 'analytics-node'
-
 import { createDCLInfo, getConfig } from '../config'
 import {
   isOnline,

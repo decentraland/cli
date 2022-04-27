@@ -25,39 +25,33 @@ test('Unit - coordinateHelpers.validate() - should resolve true for an empty set
 })
 
 test('Unit - coordinateHelpers.validate() - should reject for an invalid set of coordinates', async (t) => {
-  await t.throwsAsync(
-    coordinateHelpers.validate('1,1;1,2'),
-    'Invalid coordinate 1,1;1,2'
-  )
-  await t.throwsAsync(coordinateHelpers.validate('1,'), 'Invalid coordinate 1,')
-  await t.throwsAsync(
-    coordinateHelpers.validate('9999'),
-    'Invalid coordinate 9999'
-  )
-  await t.throwsAsync(
-    coordinateHelpers.validate('9,9,9,9'),
-    'Invalid coordinate 9,9,9,9'
-  )
-  await t.throwsAsync(
-    coordinateHelpers.validate('`1,1'),
-    'Invalid coordinate `1,1'
-  )
-  await t.throwsAsync(
-    coordinateHelpers.validate(' 1,1'),
-    'Invalid coordinate  1,1'
-  )
-  await t.throwsAsync(
-    coordinateHelpers.validate('asd'),
-    'Invalid coordinate asd'
-  )
-  await t.throwsAsync(
-    coordinateHelpers.validate('Infinity,-Infinity'),
-    'Invalid coordinate Infinity,-Infinity'
-  )
-  await t.throwsAsync(
-    coordinateHelpers.validate('0,NaN'),
-    'Invalid coordinate 0,NaN'
-  )
+  await t.throwsAsync(coordinateHelpers.validate('1,1;1,2'), {
+    message: 'Invalid coordinate 1,1;1,2'
+  })
+  await t.throwsAsync(coordinateHelpers.validate('1,'), {
+    message: 'Invalid coordinate 1,'
+  })
+  await t.throwsAsync(coordinateHelpers.validate('9999'), {
+    message: 'Invalid coordinate 9999'
+  })
+  await t.throwsAsync(coordinateHelpers.validate('9,9,9,9'), {
+    message: 'Invalid coordinate 9,9,9,9'
+  })
+  await t.throwsAsync(coordinateHelpers.validate('`1,1'), {
+    message: 'Invalid coordinate `1,1'
+  })
+  await t.throwsAsync(coordinateHelpers.validate(' 1,1'), {
+    message: 'Invalid coordinate  1,1'
+  })
+  await t.throwsAsync(coordinateHelpers.validate('asd'), {
+    message: 'Invalid coordinate asd'
+  })
+  await t.throwsAsync(coordinateHelpers.validate('Infinity,-Infinity'), {
+    message: 'Invalid coordinate Infinity,-Infinity'
+  })
+  await t.throwsAsync(coordinateHelpers.validate('0,NaN'), {
+    message: 'Invalid coordinate 0,NaN'
+  })
 })
 
 test('Unit - coordinateHelpers.parse() - should parse a single valid coordinate', (t) => {
