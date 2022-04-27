@@ -142,12 +142,14 @@ test('Unit - Project.validateNewProject() - should pass if the working directory
   t.pass()
 })
 
-test('Unit - Project.validateNewProject() - should fail if the working directory contains a scene.json file', async (t) => {
+test.only('Unit - Project.validateNewProject() - should fail if the working directory contains a scene.json file', async (t) => {
   const { Project, sceneFileExistsStub } = createSandbox()
   sceneFileExistsStub.callsFake(() => true)
   const project = new Project('.')
 
-  await t.throwsAsync(project.validateNewProject(), 'Project already exists')
+  await t.throwsAsync(project.validateNewProject(), {
+    message: 'Project already exists'
+  })
 })
 
 test('Unit - Project.needsDependencies() - should return true if a package.json file is present', async (t) => {

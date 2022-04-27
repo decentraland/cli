@@ -18,8 +18,8 @@
     "lint:fix": "eslint --fix . --ext .ts",
     "test": "FORCE_COLOR=1 ava",
     "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
-    "test:ci": "FORCE_COLOR=1 ava -v --fail-fast --match='!*E2E*' --match='!*Decentraland.deploy()*'",
-    "test:win": "set FORCE_COLOR=1 ava -v --fail-fast --match=\"!*E2E*\" --match=\"!*Decentraland.deploy()*\""
+    "test:ci": "FORCE_COLOR=1 ava -v --fail-fast -T 2m",
+    "test:win": "set FORCE_COLOR=1 ava -v --fail-fast -T 2m "
   },
   "repository": "decentraland/cli",
   "keywords": [
@@ -30,7 +30,6 @@
     "land"
   ],
   "ava": {
-    "compileEnhancements": false,
     "extensions": [
       "ts"
     ],
@@ -57,7 +56,7 @@
     "@types/sinon": "^5.0.5",
     "@types/uuid": "^8.3.4",
     "@types/ws": "^8.5.3",
-    "ava": "^1.2.1",
+    "ava": "^4.2.0",
     "husky": "^7.0.4",
     "puppeteer": "^1.17.0",
     "sinon": "^7.1.1",
