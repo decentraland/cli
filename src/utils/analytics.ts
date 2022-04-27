@@ -126,7 +126,7 @@ async function track(
       cliVersion: getInstalledCLIVersion(),
       isCI:
         process.env.CI === 'true' ||
-        (process.argv.includes('--ci') && process.argv.includes('--c')),
+        (process.argv.includes('--ci') || process.argv.includes('--c')),
       devId: userId
     }
 
