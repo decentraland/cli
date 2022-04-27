@@ -142,7 +142,7 @@ test('Unit - Project.validateNewProject() - should pass if the working directory
   t.pass()
 })
 
-test.only('Unit - Project.validateNewProject() - should fail if the working directory contains a scene.json file', async (t) => {
+test('Unit - Project.validateNewProject() - should fail if the working directory contains a scene.json file', async (t) => {
   const { Project, sceneFileExistsStub } = createSandbox()
   sceneFileExistsStub.callsFake(() => true)
   const project = new Project('.')
