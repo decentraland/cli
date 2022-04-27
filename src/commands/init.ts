@@ -64,7 +64,7 @@ type RemoteRepositoriesFileSchema = {
 
 async function getSceneInitOption(): Promise<InitOption> {
   const remoteRepositoriesFile =
-    remoteScenesJSON as unknown as RemoteRepositoriesFileSchema
+    remoteScenesJSON as any as RemoteRepositoriesFileSchema
   const remoteChoices = remoteRepositoriesFile.scenes.map((repo, index) => ({
     name: `(${index + 1}) ${repo.title}`,
     value: repo.url
@@ -72,13 +72,10 @@ async function getSceneInitOption(): Promise<InitOption> {
 
   const choices: ChoiceCollection = [
     ...remoteChoices,
-    new inquirer.Separator(),
     {
       name: 'Paste a repository URL',
       value: 'write-repository'
-    },
-    new inquirer.Separator(),
-    new inquirer.Separator()
+    }
   ]
 
   const projectTypeList: QuestionCollection = [
