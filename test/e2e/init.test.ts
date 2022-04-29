@@ -1,7 +1,5 @@
-import * as fs from 'fs-extra'
-import path from 'path'
 import test, { ExecutionContext } from 'ava'
-import { Scene, sdk } from '@dcl/schemas'
+import { sdk } from '@dcl/schemas'
 
 import { help } from '../../src/commands/init'
 import pathsExistOnDir from '../../src/utils/pathsExistOnDir'
@@ -14,18 +12,11 @@ const initCommand = (dirPath: string, args?: string) =>
 async function projectCreatedSuccessfully(
   t: ExecutionContext,
   dirPath: string,
-  type: sdk.ProjectType,
-  filesPath?: string[]
+  type: sdk.ProjectType
 ) {
-  const files = filesPath || DEFAULT_FILES[type]
+  const files = DEFAULT_FILES[type]
   const pathsExists = await pathsExistOnDir(dirPath, files)
   pathsExists.slice(0, files.length).forEach((file) => t.true(file))
-  const [sceneFile, expected]: Scene[] = await Promise.all([
-    fs.readJson(path.resolve(dirPath, 'scene.json')),
-    fs.readJson(path.resolve(__dirname, `../../samples/${type}/scene.json`))
-  ])
-
-  t.deepEqual(sceneFile, expected)
 }
 
 const DEFAULT_FILES: Record<sdk.ProjectType, string[]> = {

@@ -255,16 +255,6 @@ export class Project {
   }
 
   /**
-   * Validates all the conditions required for the creation of a new project.
-   * Throws if a project already exists or if the directory is not empty.
-   */
-  async validateNewProject() {
-    if (await this.sceneFileExists()) {
-      fail(ErrorType.PROJECT_ERROR, 'Project already exists')
-    }
-  }
-
-  /**
    * Validates all the conditions required to operate over an existing project.
    * Throws if a project contains an invalid main path or if the `scene.json` file is missing.
    */
