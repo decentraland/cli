@@ -85,10 +85,10 @@ export function getRepositoryUrl(choice: InitOption): string | void {
   }
 
   if (choice.value === sdk.ProjectType.SMART_ITEM) {
-    return repositories.library
+    return repositories.smartItem
   }
 
   if (choice.value === sdk.ProjectType.PORTABLE_EXPERIENCE) {
-    return repositories.library
+    return repositories.portableExperience
   }
 }

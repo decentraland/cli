@@ -27,8 +27,10 @@ export const repos = {
   ],
   library:
     'https://github.com/decentraland/sdk-library/archive/refs/heads/main.zip',
-  'portable-experience': '',
-  'smart-item': ''
+  portableExperience:
+    'https://github.com/decentraland/portable-experience-sample/archive/refs/heads/main.zip',
+  smartItem:
+    'https://github.com/decentraland/smart-item-sample/archive/refs/heads/main.zip'
 }
 
 export default repos
