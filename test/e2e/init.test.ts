@@ -40,7 +40,7 @@ test('snapshot - dcl help init', (t) => {
   t.snapshot(help())
 })
 
-test.only('dcl init with prompt', async (t) => {
+test('dcl init with prompt', async (t) => {
   await createSandbox(async (dirPath: string) => {
     const cmd = initCommand(dirPath)
     cmd.orderedWhen(/Choose a project type/, () => {
