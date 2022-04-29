@@ -24,5 +24,8 @@
       "title": "POAP booth",
       "url": "https://github.com/decentraland-scenes/POAP-Booth/archive/refs/heads/master.zip"
     }
-  ]
+  ],
+  "library": "https://github.com/decentraland/sdk-library/archive/refs/heads/main.zip",
+  "portable-experience": "",
+  "smart-item":""
 }
