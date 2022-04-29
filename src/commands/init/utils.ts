@@ -76,8 +76,8 @@ export async function getInitOption(type?: string): Promise<InitOption> {
 }
 
 export function getRepositoryUrl(choice: InitOption): string | void {
-  if (choice.type === 'scene') {
-    return choice.value
+  if (choice.value === sdk.ProjectType.SCENE) {
+    return repositories.scenes[0].url
   }
 
   if (choice.value === sdk.ProjectType.LIBRARY) {
@@ -90,5 +90,9 @@ export function getRepositoryUrl(choice: InitOption): string | void {
 
   if (choice.value === sdk.ProjectType.PORTABLE_EXPERIENCE) {
     return repositories.portableExperience
+  }
+
+  if (choice.type === 'scene') {
+    return choice.value
   }
 }

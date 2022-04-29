@@ -25,10 +25,10 @@ export async function main() {
     fail(ErrorType.INIT_ERROR, 'Cannot init a project in workspace directory')
     return
   }
-
-  const choice = await getInitOption(args['--project'])
+  const projectArg = args['--project']
+  const choice = await getInitOption(projectArg)
   const url = getRepositoryUrl(choice)
-  console.log({ choice, url })
+
   if (!url) {
     fail(ErrorType.INIT_ERROR, 'Cannot get a choice')
     return

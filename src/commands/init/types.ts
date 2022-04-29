@@ -1,5 +1,7 @@
 import { sdk } from '@dcl/schemas'
 
+type URL = string
+
 export type InitOptionProjectType = {
   type: 'project'
   value: sdk.ProjectType
@@ -7,7 +9,7 @@ export type InitOptionProjectType = {
 
 export type InitOptionRepositoryURL = {
   type: 'scene'
-  value: string
+  value: URL
 }
 
 export type InitOption = InitOptionProjectType | InitOptionRepositoryURL
