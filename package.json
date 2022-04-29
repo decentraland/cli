@@ -16,8 +16,8 @@
     "build": "tsc -p tsconfig.json",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint --fix . --ext .ts",
-    "test": "FORCE_COLOR=1 ava -T 5m",
-    "test:dry": "FORCE_COLOR=1 ava --update-snapshots",
+    "test": "FORCE_COLOR=1 ava -T 5m --verbose",
+    "test:dry": "FORCE_COLOR=1 ava -T 5m --update-snapshots",
     "test:ci": "FORCE_COLOR=1 ava -v --fail-fast -T 5m",
     "test:win": "set FORCE_COLOR=1 ava -v --fail-fast -T 5m "
   },
