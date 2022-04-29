@@ -11,3 +11,10 @@ export type InitOptionRepositoryURL = {
 }
 
 export type InitOption = InitOptionProjectType | InitOptionRepositoryURL
+
+export type RepositoryJson = {
+  scenes: { title: string; url: string }[]
+  library: string
+  portableExperience: string
+  smartItem: string
+}

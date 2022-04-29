@@ -1,5 +1,5 @@
 import inquirer, { QuestionCollection } from 'inquirer'
-import repositories from '../../../samples/remote-scenes.json'
+import repositories from './repositories'
 import { ErrorType, fail } from '../../utils/errors'
 import { InitOption } from './types'
 

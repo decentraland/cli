@@ -2,8 +2,8 @@ import { sdk } from '@dcl/schemas'
 import inquirer, { QuestionCollection } from 'inquirer'
 import chalk from 'chalk'
 
-import repositoriesJson from '../../../samples/remote-scenes.json'
 import { ErrorType, fail } from '../../utils/errors'
+import repositories from './repositories'
 import { sceneOptions } from './scene'
 import { InitOption } from './types'
 
@@ -81,14 +81,14 @@ export function getRepositoryUrl(choice: InitOption): string | void {
   }
 
   if (choice.value === sdk.ProjectType.LIBRARY) {
-    return repositoriesJson.library
+    return repositories.library
   }
 
   if (choice.value === sdk.ProjectType.SMART_ITEM) {
-    return repositoriesJson.library
+    return repositories.library
   }
 
   if (choice.value === sdk.ProjectType.PORTABLE_EXPERIENCE) {
-    return repositoriesJson.library
+    return repositories.library
   }
 }
