@@ -133,6 +133,18 @@ export async function main(): Promise<void> {
       filesToIgnorePlusEntityJson + '\n' + 'entity.json'
   }
   const files: IFile[] = await project.getFiles(filesToIgnorePlusEntityJson)
+
+  const MAX_FILE_SIZE = 50 * 1e6 // 50mb
+  const exceedFiles = files.filter((file) => file.size > MAX_FILE_SIZE)
+
+  if (exceedFiles.length) {
+    return failWithSpinner(
+      `Cannot deploy files bigger than 50mb. Files: \n\t${exceedFiles.join(
+        '\n\t'
+      )}`
+    )
+  }
+
   const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
   // Create scene.json
