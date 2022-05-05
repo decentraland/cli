@@ -8,6 +8,7 @@ import {
 } from './moduleHelpers'
 import { debug } from './logging'
 import chalk from 'chalk'
+import { debuglog } from 'util'
 
 // Setup segment.io
 const SINGLEUSER = 'cli-user'
@@ -46,17 +47,22 @@ export namespace Analytics {
     trackAsync('Try to use depacreated feature', properties)
 
   export async function identify(devId: string) {
-    analytics.identify({
-      userId: SINGLEUSER,
-      traits: {
-        os: process.platform,
-        createdAt: new Date().getTime(),
-        isCI:
-          process.env.CI === 'true' ||
-          (process.argv.includes('--ci') && process.argv.includes('--c')),
-        devId
-      }
-    })
+    try {
+      analytics.identify({
+        userId: SINGLEUSER,
+        traits: {
+          os: process.platform,
+          createdAt: new Date().getTime(),
+          isCI:
+            process.env.CI === 'true' ||
+            process.argv.includes('--ci') ||
+            process.argv.includes('--c'),
+          devId
+        }
+      })
+    } catch (err: any) {
+      debuglog('' + err)
+    }
   }
 
   export async function reportError(
@@ -126,7 +132,8 @@ async function track(
       cliVersion: getInstalledCLIVersion(),
       isCI:
         process.env.CI === 'true' ||
-        (process.argv.includes('--ci') && process.argv.includes('--c')),
+        process.argv.includes('--ci') ||
+        process.argv.includes('--c'),
       devId: userId
     }
 
@@ -152,6 +159,7 @@ async function track(
         resolve()
       })
     } catch (e) {
+      debuglog('' + e)
       resolve()
     }
   })
