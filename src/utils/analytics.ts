@@ -16,6 +16,14 @@ export let analytics: AnalyticsNode
 
 const ANONYMOUS_DATA_QUESTION = 'Send Anonymous data'
 
+function isCI() {
+  return (
+    process.env.CI === 'true' ||
+    process.argv.includes('--ci') ||
+    process.argv.includes('--c')
+  )
+}
+
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Analytics {
   export const sceneCreated = (properties?: any) =>
@@ -51,9 +59,7 @@ export namespace Analytics {
       traits: {
         os: process.platform,
         createdAt: new Date().getTime(),
-        isCI:
-          process.env.CI === 'true' ||
-          (process.argv.includes('--ci') && process.argv.includes('--c')),
+        isCI: isCI(),
         devId
       }
     })
@@ -124,10 +130,7 @@ async function track(
       os: process.platform,
       nodeVersion: process.version,
       cliVersion: getInstalledCLIVersion(),
-      isCI:
-        process.env.CI === 'true' ||
-        process.argv.includes('--ci') ||
-        process.argv.includes('--c'),
+      isCI: isCI(),
       devId: userId
     }
 
