@@ -55,7 +55,8 @@ export namespace Analytics {
           createdAt: new Date().getTime(),
           isCI:
             process.env.CI === 'true' ||
-            (process.argv.includes('--ci') && process.argv.includes('--c')),
+            process.argv.includes('--ci') ||
+            process.argv.includes('--c'),
           devId
         }
       })
