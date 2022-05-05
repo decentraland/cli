@@ -11,6 +11,11 @@ import { checkNodeAndNpmVersion } from './utils/nodeAndNpmVersion'
 log.debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
 log.debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 
+process.on('unhandledRejection', (r) => {
+  const reason = r as any
+  console.log('\nERROR: [unhandledRejection]: ', reason.code, reason.syscall)
+})
+
 const args = arg(
   {
     '--help': Boolean,
