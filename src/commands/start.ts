@@ -205,7 +205,7 @@ export async function main() {
     console.log(chalk.grey('\nPress CTRL+C to exit\n'))
 
     // Open preferably localhost/127.0.0.1
-    if (openBrowser && sortedURLs.length) {
+    if (openBrowser && sortedURLs.length && !args['--desktop-client']) {
       void opn(sortedURLs[0]).catch()
     }
   })
