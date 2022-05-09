@@ -100,7 +100,7 @@ export async function main() {
         spinner.info('SDK not found. Installing dependencies...')
       } else if (sdkOutdated) {
         spinner.warn(
-          `SDK is outdated, to upgrade to the latest version run the command: 
+          `SDK is outdated, to upgrade to the latest version run the command:
           ${chalk.bold('npm install decentraland-ecs@latest')}
           In the folder ${project.getProjectWorkingDir()}
         `
@@ -165,7 +165,7 @@ export async function main() {
     console.log(chalk.bold('\n  Available on:\n'))
 
     Object.keys(ifaces).forEach((dev) => {
-      ifaces[dev].forEach((details) => {
+      ;(ifaces[dev] || []).forEach((details) => {
         if (details.family === 'IPv4') {
           let addr = `http://${details.address}:${port}?position=${baseCoords.x}%2C${baseCoords.y}`
           if (debug) {

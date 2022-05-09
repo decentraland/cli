@@ -1,8 +1,8 @@
 import path from 'path'
-import dockerNames from 'docker-names'
 import fs from 'fs-extra'
 import ignore from 'ignore'
 import { Scene, sdk } from '@dcl/schemas'
+import { v4 as uuidv4 } from 'uuid'
 
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
 import {
@@ -22,7 +22,6 @@ import {
   areConnected,
   Coords
 } from '../utils/coordinateHelpers'
-import uuid from 'uuid'
 import { getProjectInfo, ProjectInfo } from '../project/projectInfo'
 import { getSceneFile } from '../sceneJson'
 import { error } from '../utils/logging'
@@ -224,13 +223,6 @@ export class Project {
   }
 
   /**
-   * Returns a random project name
-   */
-  getRandomName(): string {
-    return dockerNames.getRandomName()
-  }
-
-  /**
    * Writes the `.dclignore` file to the provided directory path.
    * @param dir The target path where the file will be
    */
@@ -260,16 +252,6 @@ export class Project {
       content
     )
     return content
-  }
-
-  /**
-   * Validates all the conditions required for the creation of a new project.
-   * Throws if a project already exists or if the directory is not empty.
-   */
-  async validateNewProject() {
-    if (await this.sceneFileExists()) {
-      fail(ErrorType.PROJECT_ERROR, 'Project already exists')
-    }
   }
 
   /**
@@ -498,7 +480,7 @@ export async function copySample(
     const file = files[i]
     if (file === ASSETJSON_FILE) {
       const assetJsonFile = await readJSON<any>(path.join(src, file))
-      const assetJsonFileWithUuid = { ...assetJsonFile, id: uuid.v4() }
+      const assetJsonFileWithUuid = { ...assetJsonFile, id: uuidv4() }
       await writeJSON(path.join(destWorkingDir, file), assetJsonFileWithUuid)
     } else if (
       file === GITIGNORE_FILE ||

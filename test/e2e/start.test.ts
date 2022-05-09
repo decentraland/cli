@@ -1,6 +1,6 @@
 import path from 'path'
 import test from 'ava'
-import fetch from 'isomorphic-fetch'
+import fetch from 'node-fetch'
 
 import * as start from '../../src/commands/start'
 import { isDebug } from '../../src/utils/env'

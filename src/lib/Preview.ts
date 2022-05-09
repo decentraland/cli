@@ -319,7 +319,11 @@ function setComms(wss: WebSocket.Server) {
       welcome.setAlias(alias)
       const data = welcome.serializeBinary()
 
-      ws.send(data)
+      ws.send(data, () => {
+        try {
+          ws.close()
+        } catch {}
+      })
     }, 100)
   })
 }

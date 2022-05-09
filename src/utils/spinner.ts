@@ -1,6 +1,6 @@
-import ora from 'ora'
+import ora, { Ora } from 'ora'
 
-let spinner: ora.Ora | null = null
+let spinner: Ora | null = null
 
 export function create(message: string) {
   if (!process.stdout.isTTY && process.env.DEBUG) {

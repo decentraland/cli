@@ -134,22 +134,6 @@ test('Unit - Project.getFiles() - should ignore several files', async (t) => {
   )
 })
 
-test('Unit - Project.validateNewProject() - should pass if the working directory is not dirty', async (t) => {
-  const { Project } = createSandbox()
-  const project = new Project('.')
-
-  await project.validateNewProject()
-  t.pass()
-})
-
-test('Unit - Project.validateNewProject() - should fail if the working directory contains a scene.json file', async (t) => {
-  const { Project, sceneFileExistsStub } = createSandbox()
-  sceneFileExistsStub.callsFake(() => true)
-  const project = new Project('.')
-
-  await t.throwsAsync(project.validateNewProject(), 'Project already exists')
-})
-
 test('Unit - Project.needsDependencies() - should return true if a package.json file is present', async (t) => {
   const { ctx, fs, Project, getAllFilePathsStub } = createSandbox()
 

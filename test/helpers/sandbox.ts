@@ -1,6 +1,5 @@
 import fs from 'fs-extra'
 import path from 'path'
-import rimraf from 'rimraf'
 
 type CallbackFn = (path: string, done: () => void) => void
 
@@ -12,13 +11,13 @@ export default function sandbox(fn: CallbackFn) {
     await fs.mkdir(dir)
 
     const done = () => {
-      rimraf(dir, resolve)
+      fs.remove(dir, resolve)
     }
 
     try {
       fn(dir, done)
     } catch (e) {
-      rimraf(dir, () => reject(e))
+      fs.remove(dir, () => reject(e))
     }
   })
 }
@@ -37,6 +36,6 @@ export async function createSandbox(fn: (dirPath: string) => Promise<void>) {
 
 export function removeSandbox(dirPath: string) {
   return new Promise<void>((resolve, reject) => {
-    rimraf(dirPath, (err) => (err ? reject(err) : resolve()))
+    fs.remove(dirPath, (err) => (err ? reject(err) : resolve()))
   })
 }
