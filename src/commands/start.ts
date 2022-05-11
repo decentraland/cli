@@ -34,6 +34,7 @@ export const help = () => `
       --web3                    Connects preview to browser wallet to use the associated avatar and account
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-build              Skip build and only serve the files in preview mode
+      --desktop-client          Show URL to launch preview in the desktop client (BETA)
 
     ${chalk.dim('Examples:')}
 
@@ -62,7 +63,8 @@ export async function main() {
     '-b': '--no-browser',
     '-w': '--no-watch',
     '-c': '--ci',
-    '--skip-build': Boolean
+    '--skip-build': Boolean,
+    '--desktop-client': Boolean
   })
 
   const isCi = args['--ci'] || isEnvCi()
@@ -190,11 +192,20 @@ export async function main() {
       console.log(`    ${addr}`)
     }
 
+    if (args['--desktop-client']) {
+      console.log(chalk.bold('\n  Desktop client:\n'))
+      for (const addr of sortedURLs) {
+        const searchParams = new URLSearchParams()
+        searchParams.append('PREVIEW-MODE', addr)
+        console.log(`    dcl://${searchParams.toString()}&`)
+      }
+    }
+
     console.log(chalk.bold('\n  Details:\n'))
     console.log(chalk.grey('\nPress CTRL+C to exit\n'))
 
     // Open preferably localhost/127.0.0.1
-    if (openBrowser && sortedURLs.length) {
+    if (openBrowser && sortedURLs.length && !args['--desktop-client']) {
       void opn(sortedURLs[0]).catch()
     }
   })
