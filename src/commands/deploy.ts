@@ -141,10 +141,9 @@ export async function main(): Promise<void> {
 
   if (exceedFiles.length) {
     return failWithSpinner(
-      `Cannot deploy files bigger than 50mb. Files: \n\t${
-        exceedFiles.map(file=>`${file.path} ${file.size} bytes`).join(
-        '\n\t'
-      )}`
+      `Cannot deploy files bigger than 50mb. Files: \n\t${exceedFiles
+        .map((file) => `${file.path} ${file.size} bytes`)
+        .join('\n\t')}`
     )
   }
 
@@ -241,18 +240,21 @@ function findPointers(sceneJson: any): string[] {
   return sceneJson.scene.parcels
 }
 
-function getFilesLog(files:IFile[], detailedLog?:boolean){
-  let filesLog:string = `Number of files: ${files.length}\nTotal size: ${files.reduce((acc, file) => acc + file.size, 0)} bytes`;
-  if(detailedLog){
+function getFilesLog(files: IFile[], detailedLog?: boolean) {
+  let filesLog: string = `Number of files: ${
+    files.length
+  }\nTotal size: ${files.reduce((acc, file) => acc + file.size, 0)} bytes`
+  if (detailedLog) {
     filesLog += chalk.dim(
-        `\n${files
-            .sort(sortFilesBySize)
-            .map(file=>`${file.path} ${file.size}`)
-            .join(`\n`)}`)
+      `\n${files
+        .sort(sortFilesBySize)
+        .map((file) => `${file.path} ${file.size}`)
+        .join(`\n`)}`
+    )
   }
   return filesLog
 
-  function sortFilesBySize(a:IFile,b:IFile):number {
+  function sortFilesBySize(a: IFile, b: IFile): number {
     return a.size - b.size
   }
 }
