@@ -9,10 +9,10 @@ import {
   getSceneFilePath,
   getIgnoreFilePath,
   DCLIGNORE_FILE,
-  ASSETJSON_FILE,
   GITIGNORE_FILE,
   NPMRC_FILE,
-  ESTLINTRC_FILE
+  ESTLINTRC_FILE,
+  WEARABLE_JSON_FILE
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 import {
@@ -40,7 +40,13 @@ export class Project {
 
   constructor(projectWorkingDir: string) {
     this.projectWorkingDir = projectWorkingDir || process.cwd()
-    this.projectInfo = getProjectInfo(this.projectWorkingDir)
+    const info = getProjectInfo(this.projectWorkingDir)
+
+    if (!info) {
+      throw new Error(`Unable to get project info of directory '${this.projectWorkingDir}'
+      Please, see if its json configuration file is wrong.`)
+    }
+    this.projectInfo = info
   }
 
   getProjectWorkingDir() {
@@ -478,10 +484,10 @@ export async function copySample(
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    if (file === ASSETJSON_FILE) {
-      const assetJsonFile = await readJSON<any>(path.join(src, file))
-      const assetJsonFileWithUuid = { ...assetJsonFile, id: uuidv4() }
-      await writeJSON(path.join(destWorkingDir, file), assetJsonFileWithUuid)
+    if (file === WEARABLE_JSON_FILE) {
+      const wearableJsonFile = await readJSON<any>(path.join(src, file))
+      const wearableJsonFileWithUuid = { ...wearableJsonFile, id: uuidv4() }
+      await writeJSON(path.join(destWorkingDir, file), wearableJsonFileWithUuid)
     } else if (
       file === GITIGNORE_FILE ||
       file === NPMRC_FILE ||

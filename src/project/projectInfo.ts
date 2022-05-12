@@ -1,22 +1,32 @@
 import path from 'path'
-import fs from 'fs-extra'
+import fs, { readJsonSync } from 'fs-extra'
 import { sdk } from '@dcl/schemas'
+import { ASSET_JSON_FILE, WEARABLE_JSON_FILE } from '../utils/project'
 
 export type ProjectInfo = {
   sceneId: string
   sceneType: sdk.ProjectType
 }
 
-export function getProjectInfo(workDir: string): ProjectInfo {
-  const assetJsonPath = path.resolve(workDir, 'asset.json')
+export function getProjectInfo(workDir: string): ProjectInfo | null {
+  const assetJsonPath = path.resolve(workDir, ASSET_JSON_FILE)
   if (fs.existsSync(assetJsonPath)) {
+    // Validate, if is not valid, return null
+
+    return {
+      sceneId: 'b64-' + Buffer.from(workDir).toString('base64'),
+      sceneType: sdk.ProjectType.SMART_ITEM
+    }
+  }
+
+  const wearableJsonPath = path.resolve(workDir, WEARABLE_JSON_FILE)
+  if (fs.existsSync(wearableJsonPath)) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const assetJson = require(assetJsonPath)
-      if (sdk.AssetJson.validate(assetJson)) {
-        if (assetJson.assetType === sdk.ProjectType.PORTABLE_EXPERIENCE) {
+      const wearableJson = readJsonSync(wearableJsonPath)
+      if (sdk.AssetJson.validate(wearableJson)) {
+        if (wearableJson.assetType === sdk.ProjectType.PORTABLE_EXPERIENCE) {
           return {
-            sceneId: assetJson.id,
+            sceneId: wearableJson.id,
             sceneType: sdk.ProjectType.PORTABLE_EXPERIENCE
           }
         }
@@ -26,17 +36,17 @@ export function getProjectInfo(workDir: string): ProjectInfo {
           .join('')
 
         console.error(
-          `Unable to validate asset.json properly, please check it.`,
+          `Unable to validate ${WEARABLE_JSON_FILE} properly, please check it.`,
           errors
         )
+
+        return null
       }
     } catch (err) {
-      console.error(`Unable to load asset.json properly, please check it.`, err)
-    }
-
-    return {
-      sceneId: '',
-      sceneType: sdk.ProjectType.SMART_ITEM
+      console.error(
+        `Unable to load ${WEARABLE_JSON_FILE} properly, please check it.`,
+        err
+      )
     }
   }
 

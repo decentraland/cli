@@ -5,7 +5,8 @@ export const PACKAGE_FILE = 'package.json'
 export const GITIGNORE_FILE = 'gitignore'
 export const NPMRC_FILE = 'npmrc'
 export const ESTLINTRC_FILE = 'eslintrc.json'
-export const ASSETJSON_FILE = 'asset.json'
+export const ASSET_JSON_FILE = 'asset.json'
+export const WEARABLE_JSON_FILE = 'wearable.json'
 export const DCLIGNORE_FILE = '.dclignore'
 
 /**
