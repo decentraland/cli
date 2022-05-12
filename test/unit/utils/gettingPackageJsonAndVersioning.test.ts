@@ -20,7 +20,7 @@ test('Unit - getCLIPackageJson() - should have userEngines', async (t) => {
 })
 
 test('Unit - npm and node versions - having installed node and npm should return valid values', async (t) => {
-  const nodeVersion = await getNodeVersion()
+  const nodeVersion = getNodeVersion()
   const npmVersion = await getNpmVersion()
 
   t.true(typeof nodeVersion === 'string')

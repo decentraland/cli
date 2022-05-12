@@ -33,6 +33,7 @@ export const help = () => `
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-build              Skip build before deploy
+      --log-files               Log files to be uploaded ordered by size
 
     ${chalk.dim('Example:')}
 
@@ -62,7 +63,8 @@ export async function main(): Promise<void> {
     '--skip-build': Boolean,
     '--https': Boolean,
     '--force-upload': Boolean,
-    '--yes': Boolean
+    '--yes': Boolean,
+    '--log-files': Boolean
   })
 
   Analytics.deploy()
@@ -139,7 +141,8 @@ export async function main(): Promise<void> {
 
   if (exceedFiles.length) {
     return failWithSpinner(
-      `Cannot deploy files bigger than 50mb. Files: \n\t${exceedFiles.join(
+      `Cannot deploy files bigger than 50mb. Files: \n\t${
+        exceedFiles.map(file=>`${file.path} ${file.size} bytes`).join(
         '\n\t'
       )}`
     )
@@ -158,6 +161,7 @@ export async function main(): Promise<void> {
   })
 
   spinner.succeed('Deployment structure created.')
+  console.log(getFilesLog(files, args['--log-files']))
 
   //  Validate scene.json
   validateScene(sceneJson, true)
@@ -235,4 +239,20 @@ export async function main(): Promise<void> {
 
 function findPointers(sceneJson: any): string[] {
   return sceneJson.scene.parcels
+}
+
+function getFilesLog(files:IFile[], detailedLog?:boolean){
+  let filesLog:string = `Number of files: ${files.length}\nTotal size: ${files.reduce((acc, file) => acc + file.size, 0)} bytes`;
+  if(detailedLog){
+    filesLog += chalk.dim(
+        `\n${files
+            .sort(sortFilesBySize)
+            .map(file=>`${file.path} ${file.size}`)
+            .join(`\n`)}`)
+  }
+  return filesLog
+
+  function sortFilesBySize(a:IFile,b:IFile):number {
+    return a.size - b.size
+  }
 }
