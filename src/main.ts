@@ -11,9 +11,13 @@ import { checkNodeAndNpmVersion } from './utils/nodeAndNpmVersion'
 log.debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
 log.debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 
-process.on('unhandledRejection', (r) => {
-  const reason = r as any
-  console.log('\nERROR: [unhandledRejection]: ', reason.code, reason.syscall)
+process.on('unhandledRejection', (error: any) => {
+  if (error.hostname && error.hostname.includes('.segment.')) {
+    console.log('\n ⚠️ Analytics api call failed. \n')
+    return
+  }
+
+  throw error
 })
 
 const args = arg(
