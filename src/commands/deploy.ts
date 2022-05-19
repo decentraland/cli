@@ -123,28 +123,14 @@ export async function main(): Promise<void> {
   }
 
   // Obtain list of files to deploy
-  let originalFilesToIgnore = await project.getDCLIgnore()
-  if (originalFilesToIgnore === null) {
-    originalFilesToIgnore = await project.writeDclIgnore()
-  }
-  let filesToIgnorePlusEntityJson = originalFilesToIgnore
-  if (!filesToIgnorePlusEntityJson.includes('entity.json')) {
-    filesToIgnorePlusEntityJson =
-      filesToIgnorePlusEntityJson + '\n' + 'entity.json'
-  }
-  const files: IFile[] = await project.getFiles(filesToIgnorePlusEntityJson)
+  const originalFilesToIgnore =
+    (await project.getDCLIgnore()) ?? (await project.writeDclIgnore())
+  const filesToIgnorePlusEntityJson =
+    originalFilesToIgnore.concat('\n entity.json')
 
-  const MAX_FILE_SIZE = 50 * 1e6 // 50mb
-  const exceedFiles = files.filter((file) => file.size > MAX_FILE_SIZE)
-
-  if (exceedFiles.length) {
-    return failWithSpinner(
-      `Cannot deploy files bigger than 50mb. Files: \n\t${exceedFiles.join(
-        '\n\t'
-      )}`
-    )
-  }
-
+  const files: IFile[] = await project.getFiles({
+    ignoreFile: filesToIgnorePlusEntityJson
+  })
   const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
   // Create scene.json

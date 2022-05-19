@@ -4,9 +4,10 @@ import { EventEmitter } from 'events'
 import urlParse from 'url'
 import fs from 'fs-extra'
 import express from 'express'
+import cors from 'cors'
 import portfinder from 'portfinder'
-import querystring from 'querystring'
 import { ChainId } from '@dcl/schemas'
+import { getPointers } from '@dcl/opscli/dist/commands/pointer-consistency'
 
 import { Project } from './Project'
 import { getCustomConfig } from '../config'
@@ -99,21 +100,42 @@ export class LinkerAPI extends EventEmitter {
       '@dcl/linker-dapp'
     )
 
+    this.app.use(cors())
     this.app.use(express.static(linkerDapp))
 
-    this.app.get('/linker', async (_, res) => {
+    this.app.get('/api/info', async (_, res) => {
       const { LANDRegistry, EstateRegistry } = getCustomConfig()
-      const { parcels, base: baseParcel } = (await this.project.getSceneFile())
-        .scene
-      const query = querystring.stringify({
-        baseParcel,
+      const { parcels, base } = (await this.project.getSceneFile()).scene
+
+      res.send({
+        baseParcel: base,
         parcels,
         rootCID,
         landRegistry: LANDRegistry,
         estateRegistry: EstateRegistry,
         debug: isDebug()
       })
-      res.redirect(`/?${query}`)
+    })
+
+    this.app.get('/api/files', async (req, res) => {
+      const files = (await this.project.getFiles({ cache: true })).map(
+        (file) => ({
+          name: file.path,
+          size: file.size
+        })
+      )
+      res.send(files)
+    })
+
+    this.app.get('/api/catalyst-consistency', async (req, res) => {
+      const { x, y } = await this.project.getParcelCoordinates()
+      const pointer = `${x},${y}`
+      const chainId = this.project.getDeployInfo()?.linkerResponse?.chainId || 1
+      const network =
+        chainId === ChainId.ETHEREUM_MAINNET ? 'mainnet' : 'ropsten'
+      const value = await getPointers(pointer, network, { log: false })
+
+      res.send(value)
     })
 
     this.app.get('/api/close', (req, res) => {
@@ -123,10 +145,9 @@ export class LinkerAPI extends EventEmitter {
       const { ok, reason } = urlParse.parse(req.url, true).query
 
       if (ok === 'true') {
-        this.emit(
-          'link:success',
-          JSON.parse(reason?.toString() || '{}') as LinkerResponse
-        )
+        const value = JSON.parse(reason?.toString() || '{}') as LinkerResponse
+        this.project.setDeployInfo({ linkerResponse: value })
+        this.emit('link:success', value)
       }
 
       if (isDevelopment()) {

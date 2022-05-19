@@ -25,6 +25,7 @@ import {
 import { getProjectInfo, ProjectInfo } from '../project/projectInfo'
 import { getSceneFile } from '../sceneJson'
 import { error } from '../utils/logging'
+import { LinkerResponse } from './LinkerAPI'
 
 export interface IFile {
   path: string
@@ -32,11 +33,18 @@ export interface IFile {
   size: number
 }
 
+type DeployInfo = {
+  linkerResponse?: LinkerResponse
+}
+
 export class Project {
-  private static MAX_FILE_SIZE = 524300000
+  private static MAX_FILE_SIZE_BYTES = 50 * 1e6 // 50mb
+
   private projectWorkingDir: string
   private sceneFile: Scene | undefined
   private projectInfo: ProjectInfo
+  private files: IFile[] = []
+  private deployInfo: DeployInfo = {}
 
   constructor(projectWorkingDir: string) {
     this.projectWorkingDir = projectWorkingDir || process.cwd()
@@ -47,6 +55,14 @@ export class Project {
       Please, see if its json configuration file is wrong.`)
     }
     this.projectInfo = info
+  }
+
+  setDeployInfo(value: Partial<DeployInfo>) {
+    this.deployInfo = { ...this.deployInfo, ...value }
+  }
+
+  getDeployInfo() {
+    return this.deployInfo
   }
 
   getProjectWorkingDir() {
@@ -327,10 +343,20 @@ export class Project {
    * Windows directory separators are replaced for POSIX separators.
    * @param ignoreFile The contents of the .dclignore file
    */
-  async getFiles(ignoreFile?: string): Promise<IFile[]> {
+  async getFiles({
+    ignoreFile = '',
+    cache = false
+  }: {
+    ignoreFile?: string
+    cache?: boolean
+  } = {}): Promise<IFile[]> {
+    if (cache && this.files.length) {
+      return this.files
+    }
+
     const files = await this.getAllFilePaths()
     const filteredFiles = (ignore as any)()
-      .add((ignoreFile || '').split(/\n/g).map(($) => $.trim()))
+      .add(ignoreFile.split(/\n/g).map(($) => $.trim()))
       .filter(files)
     const data = []
 
@@ -339,11 +365,12 @@ export class Project {
       const filePath = path.resolve(this.projectWorkingDir, file)
       const stat = await fs.stat(filePath)
 
-      if (stat.size > Project.MAX_FILE_SIZE) {
-        // MAX_FILE_SIZE is an arbitrary file size
+      if (stat.size > Project.MAX_FILE_SIZE_BYTES) {
         fail(
           ErrorType.UPLOAD_ERROR,
-          `Maximum file size exceeded: '${file}' is larger than ${Project.MAX_FILE_SIZE} bytes`
+          `Maximum file size exceeded: '${file}' is larger than ${
+            Project.MAX_FILE_SIZE_BYTES / 1e6
+          }MB`
         )
       }
 
@@ -355,7 +382,7 @@ export class Project {
         size: stat.size
       })
     }
-
+    this.files = data
     return data
   }
 
