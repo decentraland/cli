@@ -29,7 +29,7 @@ const DEFAULT_FILES: Record<sdk.ProjectType, string[]> = {
     'node_modules/decentraland-ecs'
   ],
   [sdk.ProjectType.PORTABLE_EXPERIENCE]: [
-    'asset.json',
+    'wearable.json',
     'AvatarWearables_TX.png',
     'src/game.ts'
   ],
