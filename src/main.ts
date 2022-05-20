@@ -12,8 +12,8 @@ log.debug(`Running with NODE_ENV: ${process.env.NODE_ENV}`)
 log.debug(`Provided argv: ${JSON.stringify(process.argv)}`)
 
 process.on('unhandledRejection', (error: any) => {
-  if (error.hostname && error.hostname.includes('.segment.')) {
-    console.log('\n ⚠️ Analytics api call failed. \n')
+  if (error?.config?.url?.includes('.segment.')) {
+    console.log(chalk.dim('\n⚠️  Analytics api call failed. \n'))
     return
   }
 
