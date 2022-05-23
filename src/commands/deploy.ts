@@ -22,6 +22,7 @@ import { buildTypescript, checkECSAndCLIVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
 import { ErrorType, fail } from '../utils/errors'
+import inquirer from 'inquirer'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -210,12 +211,22 @@ export async function main(): Promise<void> {
 
   try {
     await catalyst.deployEntity(deployData, false, { timeout: '10m' })
+    project.setDeployInfo({ status: 'success' })
     spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
+
+    await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'continue',
+        message: 'Deploy success, press Enter to finish'
+      }
+    ])
     Analytics.sceneDeploySuccess()
   } catch (error: any) {
     debug('\n' + error.stack)
     failWithSpinner('Could not upload content', error)
   }
+  return
 }
 
 function findPointers(sceneJson: any): string[] {

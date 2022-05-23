@@ -35,6 +35,7 @@ export interface IFile {
 
 type DeployInfo = {
   linkerResponse?: LinkerResponse
+  status?: 'deploying' | 'success'
 }
 
 export class Project {

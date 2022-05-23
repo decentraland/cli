@@ -1,17 +1,18 @@
 import path from 'path'
 import https from 'https'
 import { EventEmitter } from 'events'
-import urlParse from 'url'
 import fs from 'fs-extra'
-import express from 'express'
+import express, { Express, Request, Response, NextFunction } from 'express'
 import cors from 'cors'
+import bodyParser from 'body-parser'
 import portfinder from 'portfinder'
 import { ChainId } from '@dcl/schemas'
-import { getPointers } from '@dcl/opscli/dist/commands/pointer-consistency'
+import urlParse from 'url'
 
+import { getPointers } from '../utils/catalystPointers'
 import { Project } from './Project'
 import { getCustomConfig } from '../config'
-import { isDevelopment, isDebug } from '../utils/env'
+import { isDebug } from '../utils/env'
 
 export type LinkerResponse = {
   address: string
@@ -26,9 +27,31 @@ export type LinkerResponse = {
  * link:success - Signatire success
  * link:error   - The transaction failed and the server was closed
  */
+
+type Route = (
+  path: string,
+  fn: (
+    req: Request,
+    resp?: Response,
+    next?: NextFunction
+  ) =>
+    | Promise<void | Record<string, unknown> | unknown[]>
+    | void
+    | Record<string, unknown>
+    | unknown[]
+) => void
+
+type Async = 'async'
+type Method = 'get' | 'post'
+type AsyncMethod = `${Async}${Capitalize<Method>}`
+
+type AsyncExpress = Express & {
+  [key in AsyncMethod]: Route
+}
+
 export class LinkerAPI extends EventEmitter {
   private project: Project
-  private app = express()
+  private app: AsyncExpress = express() as AsyncExpress
 
   constructor(project: Project) {
     super()
@@ -47,9 +70,7 @@ export class LinkerAPI extends EventEmitter {
         }
       }
 
-      const url = `${
-        isHttps ? 'https' : 'http'
-      }://localhost:${resolvedPort}/linker`
+      const url = `${isHttps ? 'https' : 'http'}://localhost:${resolvedPort}`
 
       this.setRoutes(rootCID)
 
@@ -99,43 +120,72 @@ export class LinkerAPI extends EventEmitter {
       'node_modules',
       '@dcl/linker-dapp'
     )
-
     this.app.use(cors())
     this.app.use(express.static(linkerDapp))
+    this.app.use(bodyParser.json())
 
-    this.app.get('/api/info', async (_, res) => {
+    /**
+     * Async method to try/catch errors
+     */
+    const methods: Capitalize<Method>[] = ['Get', 'Post']
+    for (const method of methods) {
+      const asyncMethod: AsyncMethod = `async${method}`
+      this.app[asyncMethod] = async (path, fn) => {
+        const originalMethod = method.toLocaleLowerCase() as Method
+        this.app[originalMethod](path, async (req, res) => {
+          try {
+            const resp = await fn(req, res)
+            res.send(resp || {})
+          } catch (e) {
+            console.log(e)
+            res.send(e)
+          }
+        })
+      }
+    }
+
+    this.app.asyncGet('/api/info', async () => {
       const { LANDRegistry, EstateRegistry } = getCustomConfig()
-      const { parcels, base } = (await this.project.getSceneFile()).scene
+      const {
+        scene: { parcels, base },
+        display
+      } = await this.project.getSceneFile()
 
-      res.send({
+      return {
         baseParcel: base,
         parcels,
         rootCID,
         landRegistry: LANDRegistry,
         estateRegistry: EstateRegistry,
-        debug: isDebug()
-      })
+        debug: isDebug(),
+        title: display?.title,
+        description: display?.description
+      }
     })
 
-    this.app.get('/api/files', async (req, res) => {
+    this.app.asyncGet('/api/files', async () => {
       const files = (await this.project.getFiles({ cache: true })).map(
         (file) => ({
           name: file.path,
           size: file.size
         })
       )
-      res.send(files)
+
+      return files
     })
 
-    this.app.get('/api/catalyst-consistency', async (req, res) => {
+    this.app.asyncGet('/api/catalyst-pointers', async () => {
       const { x, y } = await this.project.getParcelCoordinates()
       const pointer = `${x},${y}`
       const chainId = this.project.getDeployInfo()?.linkerResponse?.chainId || 1
       const network =
         chainId === ChainId.ETHEREUM_MAINNET ? 'mainnet' : 'ropsten'
-      const value = await getPointers(pointer, network, { log: false })
+      const value = await getPointers(pointer, network)
 
-      res.send(value)
+      return {
+        catalysts: value,
+        status: this.project.getDeployInfo().status ?? ''
+      }
     })
 
     this.app.get('/api/close', (req, res) => {
@@ -150,11 +200,24 @@ export class LinkerAPI extends EventEmitter {
         this.emit('link:success', value)
       }
 
-      if (isDevelopment()) {
-        return
-      }
-      // we can't throw an error for this one, koa will handle and log it
       this.emit('link:error', new Error(`Failed to link: ${reason}`))
+    })
+
+    this.app.asyncPost('/api/deploy', (req) => {
+      type Body = {
+        address: string
+        signature: string
+        chainId: ChainId
+      }
+      const value = req.body as Body
+
+      if (!value.address || !value.signature || !value.chainId) {
+        throw new Error(`Invalid payload: ${Object.keys(value).join(' - ')}`)
+      }
+
+      this.project.setDeployInfo({ linkerResponse: value, status: 'deploying' })
+      this.emit('link:success', value)
+      // this.emit('link:error', new Error(`Failed to link: ${reason}`))
     })
   }
 }
