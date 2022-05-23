@@ -206,7 +206,9 @@ export async function main() {
 
     // Open preferably localhost/127.0.0.1
     if (openBrowser && sortedURLs.length && !args['--desktop-client']) {
-      void opn(sortedURLs[0]).catch()
+      opn(sortedURLs[0]).catch(() => {
+        console.log('Unable to open browser automatically.')
+      })
     }
   })
 

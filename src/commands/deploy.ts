@@ -168,10 +168,9 @@ export async function main(): Promise<void> {
     )
     spinner.create(`Signing app ready at ${url}`)
 
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
-        // tslint:disable-next-line: no-floating-promises
-        void opn(url)
+        await opn(url)
       } catch (e) {
         console.log(`Unable to open browser automatically`)
       }
