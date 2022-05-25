@@ -42,7 +42,7 @@ function createSandbox() {
 test('Unit - Project.getFiles() - should return all files', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
-  const files = await project.getFiles('')
+  const files = await project.getFiles()
   const expected = [
     'a.json',
     'src/b.json',
@@ -61,7 +61,7 @@ test('Unit - Project.getFiles() - should return all files', async (t) => {
 test('Unit - Project.getFiles() - should ignore node_modules', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
-  const files = await project.getFiles('node_modules')
+  const files = await project.getFiles({ ignoreFiles: 'node_modules' })
   const expected = ['a.json', 'src/b.json', '.dclignore']
 
   files.forEach((file, i) => {
@@ -76,7 +76,7 @@ test('Unit - Project.getFiles() - should ignore node_modules', async (t) => {
 test('Unit - Project.getFiles() - should ignore . files', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
-  const files = await project.getFiles('.*')
+  const files = await project.getFiles({ ignoreFiles: '.*' })
   const expected = [
     'a.json',
     'src/b.json',
@@ -96,7 +96,7 @@ test('Unit - Project.getFiles() - should ignore . files', async (t) => {
 test('Unit - Project.getFiles() - should ignore specific file', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
-  const files = await project.getFiles('a.json')
+  const files = await project.getFiles({ ignoreFiles: 'a.json' })
   const expected = [
     'src/b.json',
     'node_modules/module/a.js',
@@ -116,7 +116,7 @@ test('Unit - Project.getFiles() - should ignore specific file', async (t) => {
 test('Unit - Project.getFiles() - should ignore several files', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
-  const files = await project.getFiles('a.json\nsrc/b.json')
+  const files = await project.getFiles({ ignoreFiles: 'a.json\nsrc/b.json' })
   const expected = [
     'node_modules/module/a.js',
     'src/node_modules/module/b.js',

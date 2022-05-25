@@ -22,6 +22,7 @@ import { buildTypescript, checkECSAndCLIVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
 import { ErrorType, fail } from '../utils/errors'
+import inquirer from 'inquirer'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -123,28 +124,14 @@ export async function main(): Promise<void> {
   }
 
   // Obtain list of files to deploy
-  let originalFilesToIgnore = await project.getDCLIgnore()
-  if (originalFilesToIgnore === null) {
-    originalFilesToIgnore = await project.writeDclIgnore()
-  }
-  let filesToIgnorePlusEntityJson = originalFilesToIgnore
-  if (!filesToIgnorePlusEntityJson.includes('entity.json')) {
-    filesToIgnorePlusEntityJson =
-      filesToIgnorePlusEntityJson + '\n' + 'entity.json'
-  }
-  const files: IFile[] = await project.getFiles(filesToIgnorePlusEntityJson)
+  const originalFilesToIgnore =
+    (await project.getDCLIgnore()) ?? (await project.writeDclIgnore())
+  const filesToIgnorePlusEntityJson =
+    originalFilesToIgnore.concat('\n entity.json')
 
-  const MAX_FILE_SIZE = 50 * 1e6 // 50mb
-  const exceedFiles = files.filter((file) => file.size > MAX_FILE_SIZE)
-
-  if (exceedFiles.length) {
-    return failWithSpinner(
-      `Cannot deploy files bigger than 50mb. Files: \n\t${exceedFiles.join(
-        '\n\t'
-      )}`
-    )
-  }
-
+  const files: IFile[] = await project.getFiles({
+    ignoreFiles: filesToIgnorePlusEntityJson
+  })
   const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
   // Create scene.json
@@ -224,12 +211,22 @@ export async function main(): Promise<void> {
 
   try {
     await catalyst.deployEntity(deployData, false, { timeout: '10m' })
+    project.setDeployInfo({ status: 'success' })
     spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
     Analytics.sceneDeploySuccess()
+
+    await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'continue',
+        message: 'Deploy success, press Enter to finish'
+      }
+    ])
   } catch (error: any) {
     debug('\n' + error.stack)
     failWithSpinner('Could not upload content', error)
   }
+  return
 }
 
 function findPointers(sceneJson: any): string[] {
