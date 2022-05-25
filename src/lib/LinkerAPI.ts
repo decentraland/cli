@@ -8,6 +8,7 @@ import bodyParser from 'body-parser'
 import portfinder from 'portfinder'
 import { ChainId } from '@dcl/schemas'
 import urlParse from 'url'
+import querystring from 'querystring'
 
 import { getPointers } from '../utils/catalystPointers'
 import { Project } from './Project'
@@ -69,8 +70,11 @@ export class LinkerAPI extends EventEmitter {
           resolvedPort = 4044
         }
       }
-
-      const url = `${isHttps ? 'https' : 'http'}://localhost:${resolvedPort}`
+      const queryParams = querystring.stringify(
+        await this.getSceneInfo(rootCID)
+      )
+      const protocol = isHttps ? 'https' : 'http'
+      const url = `${protocol}://localhost:${resolvedPort}?${queryParams}`
 
       this.setRoutes(rootCID)
 
@@ -112,6 +116,25 @@ export class LinkerAPI extends EventEmitter {
     })
   }
 
+  async getSceneInfo(rootCID: string) {
+    const { LANDRegistry, EstateRegistry } = getCustomConfig()
+    const {
+      scene: { parcels, base },
+      display
+    } = await this.project.getSceneFile()
+
+    return {
+      baseParcel: base,
+      parcels,
+      rootCID,
+      landRegistry: LANDRegistry,
+      estateRegistry: EstateRegistry,
+      debug: isDebug(),
+      title: display?.title,
+      description: display?.description
+    }
+  }
+
   private setRoutes(rootCID: string) {
     const linkerDapp = path.resolve(
       __dirname,
@@ -145,22 +168,7 @@ export class LinkerAPI extends EventEmitter {
     }
 
     this.app.asyncGet('/api/info', async () => {
-      const { LANDRegistry, EstateRegistry } = getCustomConfig()
-      const {
-        scene: { parcels, base },
-        display
-      } = await this.project.getSceneFile()
-
-      return {
-        baseParcel: base,
-        parcels,
-        rootCID,
-        landRegistry: LANDRegistry,
-        estateRegistry: EstateRegistry,
-        debug: isDebug(),
-        title: display?.title,
-        description: display?.description
-      }
+      return await this.getSceneInfo(rootCID)
     })
 
     this.app.asyncGet('/api/files', async () => {

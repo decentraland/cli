@@ -213,6 +213,7 @@ export async function main(): Promise<void> {
     await catalyst.deployEntity(deployData, false, { timeout: '10m' })
     project.setDeployInfo({ status: 'success' })
     spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
+    Analytics.sceneDeploySuccess()
 
     await inquirer.prompt([
       {
@@ -221,7 +222,6 @@ export async function main(): Promise<void> {
         message: 'Deploy success, press Enter to finish'
       }
     ])
-    Analytics.sceneDeploySuccess()
   } catch (error: any) {
     debug('\n' + error.stack)
     failWithSpinner('Could not upload content', error)
