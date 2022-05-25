@@ -130,7 +130,7 @@ export async function main(): Promise<void> {
     originalFilesToIgnore.concat('\n entity.json')
 
   const files: IFile[] = await project.getFiles({
-    ignoreFile: filesToIgnorePlusEntityJson
+    ignoreFiles: filesToIgnorePlusEntityJson
   })
   const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 

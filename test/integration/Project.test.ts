@@ -54,9 +54,9 @@ test('Integration - Project', async (t) => {
     ])
     const project = new Project(dirPath)
     const [files, need, tsProject] = await Promise.all([
-      project.getFiles(
-        `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
-      ),
+      project.getFiles({
+        ignoreFiles: `.*\npackage.json\npackage-lock.json\nyarn-lock.json\nbuild.json\ntsconfig.json\ntslint.json\nnode_modules/\n*.ts\n*.tsx\ndist/`
+      }),
       project.needsDependencies(),
       project.isTypescriptProject()
     ])

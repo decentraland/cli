@@ -345,10 +345,10 @@ export class Project {
    * @param ignoreFile The contents of the .dclignore file
    */
   async getFiles({
-    ignoreFile = '',
+    ignoreFiles = '',
     cache = false
   }: {
-    ignoreFile?: string
+    ignoreFiles?: string
     cache?: boolean
   } = {}): Promise<IFile[]> {
     if (cache && this.files.length) {
@@ -357,7 +357,7 @@ export class Project {
 
     const files = await this.getAllFilePaths()
     const filteredFiles = (ignore as any)()
-      .add(ignoreFile.split(/\n/g).map(($) => $.trim()))
+      .add(ignoreFiles.split(/\n/g).map(($) => $.trim()))
       .filter(files)
     const data = []
 
