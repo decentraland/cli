@@ -74,7 +74,7 @@ export class LinkerAPI extends EventEmitter {
         await this.getSceneInfo(rootCID)
       )
       const protocol = isHttps ? 'https' : 'http'
-      const url = `${protocol}://localhost:${resolvedPort}?${queryParams}`
+      const url = `${protocol}://localhost:${resolvedPort}`
 
       this.setRoutes(rootCID)
 
@@ -82,7 +82,8 @@ export class LinkerAPI extends EventEmitter {
         reject(err)
       })
 
-      const serverHandler = () => this.emit('link:ready', url)
+      const serverHandler = () =>
+        this.emit('link:ready', { url, params: queryParams })
       const eventHandler = () => (e: any) => {
         if (e.errno === 'EADDRINUSE') {
           reject(
