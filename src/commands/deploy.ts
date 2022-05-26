@@ -149,7 +149,7 @@ export async function main(): Promise<void> {
   //  Validate scene.json
   validateScene(sceneJson, true)
 
-  dcl.on('link:ready', (url) => {
+  dcl.on('link:ready', ({ url, params }) => {
     console.log(
       chalk.bold('You need to sign the content before the deployment:')
     )
@@ -157,7 +157,7 @@ export async function main(): Promise<void> {
 
     setTimeout(async () => {
       try {
-        await opn(url)
+        await opn(`${url}?${params}`)
       } catch (e) {
         console.log(`Unable to open browser automatically`)
       }
