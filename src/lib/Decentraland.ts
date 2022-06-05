@@ -1,7 +1,6 @@
 import { Scene } from '@dcl/schemas'
 import { EventEmitter } from 'events'
 import chalk from 'chalk'
-import { ethers } from 'ethers'
 import events from 'wildcards'
 
 import { ContentService } from './content/ContentService'
@@ -16,6 +15,12 @@ import { Preview } from './Preview'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { createWorkspace, Workspace } from './Workspace'
+import {
+  ethSign,
+  recoverAddressFromEthSignature
+} from '@dcl/crypto/dist/crypto'
+import { IdentityType } from '@dcl/crypto'
+import { hexToBytes } from 'eth-connect'
 
 export type DecentralandArguments = {
   workingDir: string
@@ -60,7 +65,7 @@ export class Decentraland extends EventEmitter {
   options: DecentralandArguments
   provider: IEthereumDataProvider
   contentService: ContentService
-  wallet?: ethers.Wallet
+  environmentIdentity?: IdentityType
 
   constructor(
     args: DecentralandArguments = {
@@ -221,18 +226,15 @@ export class Decentraland extends EventEmitter {
     return this.contentService.getParcelStatus({ x, y })
   }
 
-  async getPublicAddress(): Promise<string> {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    return this.wallet?.getAddress()!
-  }
-
   async getAddressAndSignature(messageToSign: string): Promise<LinkerResponse> {
-    if (this.wallet) {
-      const [signature, address] = await Promise.all([
-        this.wallet.signMessage(messageToSign),
-        this.wallet.getAddress()
-      ])
-      return { signature, address }
+    if (this.environmentIdentity) {
+      return {
+        signature: ethSign(
+          hexToBytes(this.environmentIdentity.privateKey),
+          messageToSign
+        ),
+        address: this.environmentIdentity.address
+      }
     }
 
     return this.link(messageToSign)
@@ -242,7 +244,7 @@ export class Decentraland extends EventEmitter {
     this.emit(event, ...args)
   }
 
-  private createWallet(privateKey: string): void {
+  private createWallet(privateKey: string) {
     let length = 64
 
     if (privateKey.startsWith('0x')) {
@@ -253,6 +255,14 @@ export class Decentraland extends EventEmitter {
       fail(ErrorType.DEPLOY_ERROR, 'Addresses should be 64 characters length.')
     }
 
-    this.wallet = new ethers.Wallet(privateKey)
+    const pk = hexToBytes(privateKey)
+    const msg = Math.random().toString()
+    const signature = ethSign(pk, msg)
+    const address = recoverAddressFromEthSignature(signature, msg)
+    this.environmentIdentity = {
+      address,
+      privateKey,
+      publicKey: '0x'
+    }
   }
 }
