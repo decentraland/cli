@@ -6,9 +6,8 @@ import {
   ContentClient,
   DeploymentBuilder
 } from 'dcl-catalyst-client'
-import { EntityType } from 'dcl-catalyst-commons'
-import { Authenticator } from 'dcl-crypto'
-import { ChainId, getChainName } from '@dcl/schemas'
+import { Authenticator } from '@dcl/crypto'
+import { ChainId, getChainName, EntityType } from '@dcl/schemas'
 import opn from 'opn'
 
 import { isTypescriptProject } from '../project/isTypescriptProject'
@@ -210,10 +209,16 @@ export async function main(): Promise<void> {
   const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}`
 
   try {
-    await catalyst.deployEntity(deployData, false, { timeout: '10m' })
+    const response = (await catalyst.deploy(deployData, {
+      timeout: '10m'
+    })) as { message?: string }
     project.setDeployInfo({ status: 'success' })
     spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
     Analytics.sceneDeploySuccess()
+
+    if (response.message) {
+      console.log(response.message)
+    }
 
     await inquirer.prompt([
       {

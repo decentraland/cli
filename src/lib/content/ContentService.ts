@@ -1,11 +1,10 @@
 import { EventEmitter } from 'events'
-import { Scene } from '@dcl/schemas'
+import { Entity, EntityType, Scene } from '@dcl/schemas'
 
 import { Coords } from '../../utils/coordinateHelpers'
 import { fail, ErrorType } from '../../utils/errors'
 import { FileInfo } from '../Decentraland'
 import { CatalystClient } from 'dcl-catalyst-client'
-import { EntityType, Entity } from 'dcl-catalyst-commons'
 
 export class ContentService extends EventEmitter {
   private readonly client: CatalystClient
