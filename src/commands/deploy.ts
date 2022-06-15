@@ -213,20 +213,12 @@ export async function main(): Promise<void> {
       timeout: '10m'
     })) as { message?: string }
     project.setDeployInfo({ status: 'success' })
-    spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}`)
+    spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}\n`)
     Analytics.sceneDeploySuccess()
 
     if (response.message) {
       console.log(response.message)
     }
-
-    await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'continue',
-        message: 'Deploy success, press Enter to finish'
-      }
-    ])
   } catch (error: any) {
     debug('\n' + error.stack)
     failWithSpinner('Could not upload content', error)
