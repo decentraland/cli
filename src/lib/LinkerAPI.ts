@@ -137,12 +137,8 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes(rootCID: string) {
-    const linkerDapp = path.resolve(
-      __dirname,
-      '..',
-      '..',
-      'node_modules',
-      '@dcl/linker-dapp'
+    const linkerDapp = path.dirname(
+      require.resolve('@dcl/linker-dapp/package.json')
     )
     this.app.use(cors())
     this.app.use(express.static(linkerDapp))
