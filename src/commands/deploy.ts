@@ -21,7 +21,6 @@ import { buildTypescript, checkECSAndCLIVersions } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
 import { ErrorType, fail } from '../utils/errors'
-import inquirer from 'inquirer'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
