@@ -119,6 +119,7 @@ export class Preview extends EventEmitter {
 
     if (fs.existsSync(proxySetupPath)) {
       try {
+        require('isomorphic-fetch')
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const setupProxy = require(proxySetupPath)
         setupProxy(this.dcl, this.app, express)
