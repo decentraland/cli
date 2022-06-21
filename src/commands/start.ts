@@ -167,7 +167,7 @@ export async function main() {
     Object.keys(ifaces).forEach((dev) => {
       ;(ifaces[dev] || []).forEach((details) => {
         if (details.family === 'IPv4') {
-          let addr = `http://${details.address}:${port}?position=${baseCoords.x}%2C${baseCoords.y}`
+          let addr = `http://${details.address}:${port}?position=${baseCoords.x}%2C${baseCoords.y}&ENABLE_ECS7`
           if (debug) {
             addr = `${addr}&SCENE_DEBUG_PANEL`
           }
