@@ -105,7 +105,7 @@ export class Preview extends EventEmitter {
     const dclEcsPath = path.resolve(
       this.dcl.getWorkingDir(),
       'node_modules',
-      'decentraland-ecs'
+      '@dcl/sdk'
     )
     const proxySetupPath = path.resolve(dclEcsPath, 'src', 'setupProxy.js')
     const dclApiPath = path.resolve(

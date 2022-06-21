@@ -109,14 +109,14 @@ export async function getOutdatedApi(workingDir: string): Promise<
   )
   const decentralandEcsVersion = await getInstalledVersion(
     workingDir,
-    'decentraland-ecs'
+    '@dcl/sdk'
   )
 
   if (decentralandEcsVersion) {
-    const latestVersion = await getLatestVersion('decentraland-ecs')
+    const latestVersion = await getLatestVersion('@dcl/sdk')
     if (latestVersion && semver.lt(decentralandEcsVersion, latestVersion)) {
       return {
-        package: 'decentraland-ecs',
+        package: '@dcl/sdk',
         installedVersion: decentralandEcsVersion,
         latestVersion
       }
@@ -180,13 +180,7 @@ export async function isECSVersionLower(
 ): Promise<boolean> {
   const ecsPackageJson = await readJSON<{
     version: string
-  }>(
-    path.resolve(
-      getNodeModulesPath(workingDir),
-      'decentraland-ecs',
-      'package.json'
-    )
-  )
+  }>(path.resolve(getNodeModulesPath(workingDir), '@dcl/sdk', 'package.json'))
 
   if (semver.lt(ecsPackageJson.version, version)) {
     return true
@@ -198,13 +192,7 @@ export async function checkECSAndCLIVersions(workingDir: string) {
   const ecsPackageJson = await readJSON<{
     minCliVersion?: string
     version: string
-  }>(
-    path.resolve(
-      getNodeModulesPath(workingDir),
-      'decentraland-ecs',
-      'package.json'
-    )
-  )
+  }>(path.resolve(getNodeModulesPath(workingDir), '@dcl/sdk', 'package.json'))
 
   const cliPackageJson = await getCLIPackageJson<{
     minEcsVersion?: boolean
@@ -231,7 +219,7 @@ export async function checkECSAndCLIVersions(workingDir: string) {
   ) {
     throw new Error(
       [
-        'This version of decentraland-ecs requires a version of the ECS decentraland-cli (dcl) higher than',
+        'This version of @dcl/sdk requires a version of the ECS decentraland-cli (dcl) higher than',
         ecsPackageJson.minCliVersion,
         'the installed version is',
         cliPackageJson.version,

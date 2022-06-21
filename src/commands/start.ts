@@ -101,7 +101,7 @@ export async function main() {
       } else if (sdkOutdated) {
         spinner.warn(
           `SDK is outdated, to upgrade to the latest version run the command:
-          ${chalk.bold('npm install decentraland-ecs@latest')}
+          ${chalk.bold('npm install @dcl/sdk@latest')}
           In the folder ${project.getProjectWorkingDir()}
         `
         )
@@ -150,7 +150,7 @@ export async function main() {
     !skipVersionCheck
   ) {
     throw new Error(
-      'Web3 is not currently working with `decentraland-ecs` version lower than 6.10.0. You can update it with running `npm i decentraland-ecs@latest`.'
+      'Web3 is not currently working with `@dcl/sdk` version lower than 6.10.0. You can update it with running `npm i @dcl/sdk@latest`.'
     )
   }
 
