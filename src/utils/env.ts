@@ -19,7 +19,7 @@ export function isDebug() {
 
 export const isDev: boolean = process.env.DCL_ENV === 'dev'
 export function getProvider() {
-  return isDev ? 'https://ropsten.infura.io/' : 'https://mainnet.infura.io/'
+  return isDev ? 'https://goerli.infura.io/' : 'https://mainnet.infura.io/'
 }
 
 export function isEnvCi(): boolean {

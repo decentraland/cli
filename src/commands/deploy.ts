@@ -204,7 +204,7 @@ export async function main(): Promise<void> {
 
   const deployData = { entityId, files: entityFiles, authChain }
   const position = sceneJson.scene.base
-  const network = chainId === ChainId.ETHEREUM_ROPSTEN ? 'ropsten' : 'mainnet'
+  const network = chainId === ChainId.ETHEREUM_GOERLI ? 'goerli' : 'mainnet'
   const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}`
 
   try {
