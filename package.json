@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "3.11.0",
+  "version": "3.11.2",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "dist/index.js"
