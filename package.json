@@ -74,7 +74,7 @@
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
     "cors": "^2.8.5",
-    "dcl-catalyst-client": "^12.0.2-20220614173430.commit-04d56f9",
+    "dcl-catalyst-client": "^12.0.8",
     "dcl-catalyst-commons": "^9.0.1",
     "dcl-node-runtime": "^1.0.0",
     "eth-connect": "^6.0.3",
