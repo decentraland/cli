@@ -1,6 +1,6 @@
 import path from 'path'
 import fs, { readJsonSync } from 'fs-extra'
-import { generateValidator, sdk, Wearable } from '@dcl/schemas'
+import { sdk, Wearable } from '@dcl/schemas'
 import { ASSET_JSON_FILE, WEARABLE_JSON_FILE } from '../utils/project'
 
 export type ProjectInfo = {
@@ -13,14 +13,13 @@ export function getProjectInfo(workDir: string): ProjectInfo | null {
   if (fs.existsSync(wearableJsonPath)) {
     try {
       const wearableJson = readJsonSync(wearableJsonPath)
-      const validator = generateValidator(Wearable.schema)
-      if (validator(wearableJson)) {
+      if (Wearable.validate(wearableJson)) {
         return {
           sceneId: wearableJson.id,
           sceneType: sdk.ProjectType.PORTABLE_EXPERIENCE
         }
       } else {
-        const errors = (validator.errors || [])
+        const errors = (Wearable.validate.errors || [])
           .map((a) => `${a.dataPath} ${a.message}`)
           .join('')
 
