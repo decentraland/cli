@@ -66,7 +66,7 @@
     "@dcl/crypto": "^3.0.1",
     "@dcl/ecs-scene-utils": "^1.7.5",
     "@dcl/linker-dapp": "^0.3.0",
-    "@dcl/schemas": "4.15.0",
+    "@dcl/schemas": "5.4.3",
     "analytics-node": "^6.0.0",
     "archiver": "^5.3.1",
     "arg": "^5.0.1",
