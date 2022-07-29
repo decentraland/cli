@@ -63,7 +63,7 @@
     "ts-node": "^4.1.0"
   },
   "dependencies": {
-    "@dcl/crypto": "^3.0.1",
+    "@dcl/crypto": "^3.1.0",
     "@dcl/ecs-scene-utils": "^1.7.5",
     "@dcl/linker-dapp": "^0.3.0",
     "@dcl/schemas": "4.15.0",
