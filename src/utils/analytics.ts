@@ -1,11 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import AnalyticsNode from 'analytics-node'
 import { createDCLInfo, getConfig } from '../config'
-import {
-  isOnline,
-  getInstalledCLIVersion,
-  getInstalledVersion
-} from './moduleHelpers'
+import { isOnline, getInstalledCLIVersion } from './moduleHelpers'
 import { debug } from './logging'
 import chalk from 'chalk'
 
@@ -121,10 +117,6 @@ async function track(
   }
 
   return new Promise<void>(async (resolve) => {
-    const dclApiVersion = await getInstalledVersion(
-      workingDir!,
-      'decentraland-api'
-    )
     const newProperties = {
       ...properties,
       os: process.platform,
@@ -138,11 +130,6 @@ async function track(
 
     if (!shouldTrack) {
       resolve()
-    }
-
-    // Some commands may be running outside of a DCL project
-    if (dclApiVersion) {
-      newProperties.dclApiVersion = dclApiVersion
     }
 
     const event = {
