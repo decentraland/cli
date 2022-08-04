@@ -1,3 +1,4 @@
+import { Entity } from '@dcl/schemas'
 import fetch from 'node-fetch'
 
 export type DAOCatalyst = {
@@ -25,24 +26,19 @@ export async function daoCatalysts(
 }
 
 async function fetchEntityByPointer(baseUrl: string, pointer: string) {
+  const activeEntities = baseUrl + '/content/entities/active'
+
+  const response = await fetch(activeEntities, {
+    method: 'post',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ pointers: [pointer] })
+  })
+
+  const deployments: Entity[] = response.ok ? await response.json() : []
+
   return {
     baseUrl,
-    deployments: (await fetch(
-      `${baseUrl}/content/deployments?pointer=${encodeURIComponent(
-        pointer
-      )}&onlyCurrentlyPointed=true`
-    )
-      .then(($) => $.json())
-      .then(($) => $.deployments)) as Array<{
-      entityId: string
-      entityVersion: string
-      entityType: string
-      entityTimestamp: number
-      localTimestamp: number
-      metadata: unknown
-      pointers: string[]
-      content: { key: string; hash: string }[]
-    }>
+    deployments
   }
 }
 
@@ -56,8 +52,8 @@ export async function getPointers(
   for (const { baseUrl } of catalysts) {
     try {
       const result = await fetchEntityByPointer(baseUrl, pointer)
-      const timestamp = result.deployments[0]?.localTimestamp
-      const entityId = result.deployments[0]?.entityId || ''
+      const timestamp = result.deployments[0]?.timestamp
+      const entityId = result.deployments[0]?.id || ''
 
       catalystInfo.push({ timestamp, entityId, url: baseUrl })
     } catch (err: any) {
