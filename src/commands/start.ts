@@ -108,7 +108,8 @@ export async function main() {
 
       const ecsVersion = project.getEcsVersion()
       if (ecsVersion === 'unknown') {
-        spinner.info('SDK not found. This project can not start.')
+        // This should only happen when we are offline and we don't have the SDK installed.
+        spinner.fail('SDK not found. This project can not start.')
       }
       ecsVersions.add(ecsVersion)
 
