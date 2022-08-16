@@ -16,7 +16,7 @@ test('E2E - status command', async (t) => {
       `node ${path.resolve(
         'dist',
         'index.js'
-      )} status --network ropsten -35,-130`,
+      )} status --network goerli -35,-130`,
       {
         silent: !isDebug(),
         workingDir: '.',

@@ -13,7 +13,7 @@ type CatalystInfo = {
   entityId: string
 }
 
-export type Network = 'mainnet' | 'ropsten'
+export type Network = 'mainnet' | 'goerli'
 
 export async function daoCatalysts(
   network: Network = 'mainnet'
