@@ -59,7 +59,12 @@ export class LinkerAPI extends EventEmitter {
     this.project = project
   }
 
-  link(port: number, isHttps: boolean, rootCID: string, authorizationServer: string) {
+  link(
+    port: number,
+    isHttps: boolean,
+    rootCID: string,
+    authorizationServer: string
+  ) {
     return new Promise(async (_resolve, reject) => {
       let resolvedPort = port
 
@@ -70,7 +75,9 @@ export class LinkerAPI extends EventEmitter {
           resolvedPort = 4044
         }
       }
-      const queryParams = querystring.stringify(await this.getSceneInfo(rootCID, authorizationServer))
+      const queryParams = querystring.stringify(
+        await this.getSceneInfo(rootCID, authorizationServer)
+      )
       const protocol = isHttps ? 'https' : 'http'
       const url = `${protocol}://localhost:${resolvedPort}`
 
