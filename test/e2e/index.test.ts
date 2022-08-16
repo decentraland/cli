@@ -40,7 +40,7 @@ function statusProject(): Promise<string> {
   return new Promise((resolve) => {
     let allData = ''
     new Commando(
-      `node ${path.resolve('dist', 'index.js')} status --network ropsten 0,0`,
+      `node ${path.resolve('dist', 'index.js')} status --network goerli 0,0`,
       {
         silent: !isDebug(),
         workingDir: '.',
@@ -56,7 +56,7 @@ function statusProject(): Promise<string> {
 function deployProject(dirPath): Promise<void> {
   return new Promise((resolve) => {
     new Commando(
-      `node ${path.resolve('dist', 'index.js')} deploy --yes --network ropsten`,
+      `node ${path.resolve('dist', 'index.js')} deploy --yes --network goerli`,
       {
         silent: !isDebug(),
         workingDir: dirPath,

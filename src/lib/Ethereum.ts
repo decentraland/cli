@@ -47,7 +47,7 @@ export type Network = {
 
 export enum NETWORKS {
   mainnet = 'mainnet',
-  ropsten = 'ropsten'
+  goerli = 'goerli'
 }
 
 /**
