@@ -200,7 +200,7 @@ export async function main(): Promise<void> {
   )
 
   // Uploading data
-  let catalyst: ContentAPI | CatalystClient
+  let catalyst: ContentAPI
 
   if (args['--target']) {
     let target = args['--target']
