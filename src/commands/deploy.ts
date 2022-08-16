@@ -32,6 +32,7 @@ export const help = () => `
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-build              Skip build before deploy
+      --skip-validations        Skip permissions verifications on the client side when deploying content
 
     ${chalk.dim('Example:')}
 
@@ -57,6 +58,7 @@ export async function main(): Promise<void> {
     '-t': '--target',
     '--target-content': String,
     '-tc': '--target-content',
+    '--skip-validations': String,
     '--skip-version-checks': Boolean,
     '--skip-build': Boolean,
     '--https': Boolean,
@@ -111,7 +113,8 @@ export async function main(): Promise<void> {
     isHttps: !!args['--https'],
     workingDir: workDir,
     forceDeploy: args['--force-upload'],
-    yes: args['--yes']
+    yes: args['--yes'],
+    skipValidations: !!args['--skip-validations']
   })
 
   const project = dcl.workspace.getSingleProject()
