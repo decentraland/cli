@@ -32,6 +32,7 @@ export type DecentralandArguments = {
   config?: DCLInfo
   forceDeploy?: boolean
   yes?: boolean
+  authorizationServer?: string
 }
 
 export type AddressInfo = {
@@ -117,7 +118,8 @@ export class Decentraland extends EventEmitter {
         await linker.link(
           this.options.linkerPort!,
           !!this.options.isHttps,
-          rootCID
+          rootCID,
+          this.options.authorizationServer || ''
         )
       } catch (e) {
         reject(e)

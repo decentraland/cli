@@ -59,7 +59,7 @@ export class LinkerAPI extends EventEmitter {
     this.project = project
   }
 
-  link(port: number, isHttps: boolean, rootCID: string) {
+  link(port: number, isHttps: boolean, rootCID: string, authorizationServer: string) {
     return new Promise(async (_resolve, reject) => {
       let resolvedPort = port
 
@@ -70,9 +70,7 @@ export class LinkerAPI extends EventEmitter {
           resolvedPort = 4044
         }
       }
-      const queryParams = querystring.stringify(
-        await this.getSceneInfo(rootCID)
-      )
+      const queryParams = querystring.stringify(await this.getSceneInfo(rootCID, authorizationServer))
       const protocol = isHttps ? 'https' : 'http'
       const url = `${protocol}://localhost:${resolvedPort}`
 
@@ -117,7 +115,7 @@ export class LinkerAPI extends EventEmitter {
     })
   }
 
-  async getSceneInfo(rootCID: string) {
+  async getSceneInfo(rootCID: string, authorizationServer?: string) {
     const { LANDRegistry, EstateRegistry } = getCustomConfig()
     const {
       scene: { parcels, base },
@@ -132,7 +130,8 @@ export class LinkerAPI extends EventEmitter {
       estateRegistry: EstateRegistry,
       debug: isDebug(),
       title: display?.title,
-      description: display?.description
+      description: display?.description,
+      authorizationServer
     }
   }
 

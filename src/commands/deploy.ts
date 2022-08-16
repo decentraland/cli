@@ -32,6 +32,7 @@ export const help = () => `
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-build              Skip build before deploy
+      --authorization-server    Specifies the address of the server verifying permissions
 
     ${chalk.dim('Example:')}
 
@@ -57,6 +58,8 @@ export async function main(): Promise<void> {
     '-t': '--target',
     '--target-content': String,
     '-tc': '--target-content',
+    '--authorization-server': String,
+    '-as': '--authorization-server',
     '--skip-version-checks': Boolean,
     '--skip-build': Boolean,
     '--https': Boolean,
@@ -69,6 +72,18 @@ export async function main(): Promise<void> {
   if (args['--target'] && args['--target-content']) {
     throw new Error(
       `You can't set both the 'target' and 'target-content' arguments.`
+    )
+  }
+
+  if (args['--target'] && args['--authorization-server']) {
+    throw new Error(
+      `You can't set both the 'target' and 'authorization-server' arguments.`
+    )
+  }
+
+  if (args['--target-content'] && args['--authorization-server']) {
+    throw new Error(
+      `You can't set both the 'target-content' and 'authorization-server' arguments.`
     )
   }
 
@@ -111,7 +126,8 @@ export async function main(): Promise<void> {
     isHttps: !!args['--https'],
     workingDir: workDir,
     forceDeploy: args['--force-upload'],
-    yes: args['--yes']
+    yes: args['--yes'],
+    authorizationServer: args['--authorization-server']
   })
 
   const project = dcl.workspace.getSingleProject()
@@ -184,7 +200,7 @@ export async function main(): Promise<void> {
   )
 
   // Uploading data
-  let catalyst: ContentAPI
+  let catalyst: ContentAPI | CatalystClient
 
   if (args['--target']) {
     let target = args['--target']
@@ -195,6 +211,12 @@ export async function main(): Promise<void> {
   } else if (args['--target-content']) {
     const targetContent = args['--target-content']
     catalyst = new ContentClient({ contentUrl: targetContent })
+  } else if (args['--authorization-server']) {
+    let target = args['--authorization-server']
+    if (target.endsWith('/')) {
+      target = target.slice(0, -1)
+    }
+    catalyst = new CatalystClient({ catalystUrl: target })
   } else {
     catalyst = await CatalystClient.connectedToCatalystIn({
       network: 'mainnet'
