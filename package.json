@@ -65,8 +65,8 @@
   "dependencies": {
     "@dcl/crypto": "^3.0.1",
     "@dcl/ecs-scene-utils": "^1.7.5",
+    "@dcl/linker-dapp": "^0.3.1-2875578761.commit-1f41149",
     "@dcl/schemas": "4.15.0",
-    "@dcl/linker-dapp": "^0.3.1-2849703065.commit-7e4a5c5",
     "analytics-node": "^6.0.0",
     "archiver": "^5.3.1",
     "arg": "^5.0.1",
