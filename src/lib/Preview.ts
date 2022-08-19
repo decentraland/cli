@@ -7,7 +7,6 @@ import express from 'express'
 import cors from 'cors'
 import fs from 'fs-extra'
 import portfinder from 'portfinder'
-import glob from 'glob'
 import chokidar from 'chokidar'
 import url from 'url'
 import { default as ignore } from 'ignore'
@@ -15,7 +14,6 @@ import { sdk } from '@dcl/schemas'
 
 import proto from './proto/broker'
 import { fail, ErrorType } from '../utils/errors'
-import getDummyMappings from '../utils/getDummyMappings'
 import { Decentraland } from './Decentraland'
 
 /**
@@ -35,19 +33,6 @@ export class Preview extends EventEmitter {
   }
 
   async startServer(port: number) {
-    const relativiseUrl = (url: string) => {
-      url = url.replace(/[\/\\]/g, '/')
-      const newRoot = this.dcl
-        .getWorkingDir()
-        .replace(/\//g, '/')
-        .replace(/\\/g, '/')
-      if (newRoot.endsWith('/')) {
-        return url.replace(newRoot, '')
-      } else {
-        return url.replace(newRoot + '/', '')
-      }
-    }
-
     let resolvedPort = port
 
     if (!resolvedPort) {
@@ -88,6 +73,7 @@ export class Preview extends EventEmitter {
     }
 
     this.app.use(cors())
+    this.app.use(express.json())
 
     const npmModulesPath = path.resolve(
       this.dcl.getWorkingDir(),
@@ -102,27 +88,33 @@ export class Preview extends EventEmitter {
       )
     }
 
-    const dclEcsPath = path.resolve(
+    const proxySetupPathEcs6 = path.resolve(
       this.dcl.getWorkingDir(),
       'node_modules',
-      'decentraland-ecs'
-    )
-    const proxySetupPath = path.resolve(dclEcsPath, 'src', 'setupProxy.js')
-    const dclApiPath = path.resolve(
-      this.dcl.getWorkingDir(),
-      'node_modules',
-      'decentraland-api'
+      'decentraland-ecs',
+      'src',
+      'setupProxy.js'
     )
 
-    const artifactPath = fs.pathExistsSync(dclEcsPath) ? dclEcsPath : dclApiPath
-    const unityPath = path.resolve(dclEcsPath, 'artifacts', 'unity')
+    const proxySetupPathEcs7 = path.resolve(
+      this.dcl.getWorkingDir(),
+      'node_modules',
+      '@dcl',
+      'sdk',
+      'src',
+      'setupProxy.js'
+    )
+
+    const proxySetupPath = fs.existsSync(proxySetupPathEcs7)
+      ? proxySetupPathEcs7
+      : proxySetupPathEcs6
 
     if (fs.existsSync(proxySetupPath)) {
       try {
         require('isomorphic-fetch')
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const setupProxy = require(proxySetupPath)
-        setupProxy(this.dcl, this.app, express)
+        setupProxy(this.dcl, this.app)
       } catch (err) {
         console.log(
           `${proxySetupPath} found but it couldn't be loaded properly`,
@@ -131,54 +123,9 @@ export class Preview extends EventEmitter {
       }
     }
 
-    if (!fs.pathExistsSync(artifactPath)) {
-      fail(
-        ErrorType.PREVIEW_ERROR,
-        `Couldn\'t find ${dclApiPath} or ${dclEcsPath}, please run: npm install`
-      )
-    }
-
-    this.app.get('/', async (req, res) => {
-      res.setHeader('Content-Type', 'text/html')
-
-      const htmlPath = path.resolve(artifactPath, 'artifacts/preview.html')
-
-      const html = await fs.readFile(htmlPath, {
-        encoding: 'utf8'
-      })
-
-      res.send(html)
-    })
-
-    this.app.use('/@', express.static(artifactPath))
-
-    this.app.use('/unity', express.static(unityPath))
-
-    this.app.use('/contents/', express.static(this.dcl.getWorkingDir()))
-
-    this.app.get('/mappings', (req, res) => {
-      glob(this.dcl.getWorkingDir() + '/**/*', (err, files) => {
-        if (err) {
-          res.status(500)
-          res.json(err)
-          res.end()
-        } else {
-          const ret = getDummyMappings(files.map(relativiseUrl))
-          ret.contents = ret.contents.map(({ file, hash }) => ({
-            file,
-            hash: `contents/${hash}`
-          }))
-
-          res.json(ret)
-        }
-      })
-    })
-
     this.app.get('/scene.json', (_, res) => {
       res.sendFile(path.join(this.dcl.getWorkingDir(), 'scene.json'))
     })
-
-    this.app.use(express.static(path.join(artifactPath, 'artifacts')))
 
     setComms(this.wss)
     setDebugRunner(this.wss)

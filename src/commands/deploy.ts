@@ -17,7 +17,7 @@ import { IFile } from '../lib/Project'
 import { LinkerResponse } from '../lib/LinkerAPI'
 import * as spinner from '../utils/spinner'
 import { debug } from '../utils/logging'
-import { buildTypescript, checkECSAndCLIVersions } from '../utils/moduleHelpers'
+import { buildTypescript } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { validateScene } from '../sceneJson/utils'
 import { ErrorType, fail } from '../utils/errors'
@@ -78,8 +78,24 @@ export async function main(): Promise<void> {
   const skipVersionCheck = args['--skip-version-checks']
   const skipBuild = args['--skip-build']
 
+  spinner.create('Creating deployment structure')
+
+  const dcl = new Decentraland({
+    isHttps: !!args['--https'],
+    workingDir: workDir,
+    forceDeploy: args['--force-upload'],
+    yes: args['--yes']
+  })
+
+  const project = dcl.workspace.getSingleProject()
+  if (!project) {
+    return failWithSpinner(
+      'Cannot deploy a workspace, please go to the project directory and run `dcl deploy` again there.'
+    )
+  }
+
   if (!skipVersionCheck) {
-    await checkECSAndCLIVersions(workDir)
+    await project.checkCLIandECSCompatibility()
   }
 
   spinner.create('Building scene in production mode')
@@ -108,21 +124,6 @@ export async function main(): Promise<void> {
   }
 
   spinner.create('Creating deployment structure')
-
-  const dcl = new Decentraland({
-    isHttps: !!args['--https'],
-    workingDir: workDir,
-    forceDeploy: args['--force-upload'],
-    yes: args['--yes'],
-    skipValidations: !!args['--skip-validations']
-  })
-
-  const project = dcl.workspace.getSingleProject()
-  if (!project) {
-    return failWithSpinner(
-      'Cannot deploy a workspace, please go to the project directory and run `dcl deploy` again there.'
-    )
-  }
 
   // Obtain list of files to deploy
   const originalFilesToIgnore =

@@ -6,8 +6,7 @@ import opn from 'opn'
 import { Decentraland } from '../lib/Decentraland'
 import {
   buildTypescript,
-  checkECSAndCLIVersions,
-  getOutdatedApi,
+  getOutdatedEcs,
   isECSVersionLower,
   isOnline
 } from '../utils/moduleHelpers'
@@ -16,9 +15,9 @@ import { error, formatOutdatedMessage } from '../utils/logging'
 import { isEnvCi } from '../utils/env'
 import * as spinner from '../utils/spinner'
 import installDependencies from '../project/installDependencies'
-import isECSInstalled from '../project/isECSInstalled'
 import { lintSceneFile } from '../sceneJson/lintSceneFile'
 import updateBundleDependenciesField from '../project/updateBundleDependenciesField'
+import { ECSVersion } from '../lib/Project'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl start [options]')}
@@ -86,19 +85,37 @@ export async function main() {
   Analytics.preview()
 
   const online = await isOnline()
+  const ecsVersions: Set<ECSVersion> = new Set()
 
   for (const project of dcl.workspace.getAllProjects()) {
     if (!skipBuild) {
       spinner.create(`Checking if SDK is installed in project`)
 
-      const [sdkOutdated, ECSInstalled] = await Promise.all([
-        getOutdatedApi(project.getProjectWorkingDir()),
-        isECSInstalled(project.getProjectWorkingDir())
-      ])
+      const needDependencies = await project.needsDependencies()
 
-      if (!ECSInstalled) {
-        spinner.info('SDK not found. Installing dependencies...')
-      } else if (sdkOutdated) {
+      if (needDependencies) {
+        if (online) {
+          await installDependencies(
+            project.getProjectWorkingDir(),
+            false /* silent */
+          )
+        } else {
+          spinner.fail(
+            'This project can not start as you are offline and dependencies need to be installed.'
+          )
+        }
+      }
+
+      const ecsVersion = project.getEcsVersion()
+      if (ecsVersion === 'unknown') {
+        // This should only happen when we are offline and we don't have the SDK installed.
+        spinner.fail('SDK not found. This project can not start.')
+      }
+      ecsVersions.add(ecsVersion)
+
+      const sdkOutdated = await getOutdatedEcs(project.getProjectWorkingDir())
+
+      if (sdkOutdated) {
         spinner.warn(
           `SDK is outdated, to upgrade to the latest version run the command:
           ${chalk.bold('npm install decentraland-ecs@latest')}
@@ -110,15 +127,8 @@ export async function main() {
         spinner.succeed('Latest SDK installation found.')
       }
 
-      if (online && !ECSInstalled) {
-        await installDependencies(
-          project.getProjectWorkingDir(),
-          false /* silent */
-        )
-      }
-
       if (!skipVersionCheck) {
-        await checkECSAndCLIVersions(project.getProjectWorkingDir())
+        await project.checkCLIandECSCompatibility()
       }
 
       try {
@@ -174,6 +184,11 @@ export async function main() {
           if (enableWeb3 || hasPortableExperience) {
             addr = `${addr}&ENABLE_WEB3`
           }
+
+          if (ecsVersions.has('ecs7')) {
+            addr = `${addr}&ENABLE_ECS7&renderer-branch=dev&kernel-branch=main`
+          }
+
           availableURLs.push(addr)
         }
       })

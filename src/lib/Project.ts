@@ -1,7 +1,8 @@
 import path from 'path'
 import fs from 'fs-extra'
 import ignore from 'ignore'
-import { Scene, sdk } from '@dcl/schemas'
+import { Scene } from '@dcl/schemas'
+import semver from 'semver'
 import { v4 as uuidv4 } from 'uuid'
 
 import { writeJSON, readJSON, isEmptyDirectory } from '../utils/filesystem'
@@ -12,7 +13,8 @@ import {
   GITIGNORE_FILE,
   NPMRC_FILE,
   ESTLINTRC_FILE,
-  WEARABLE_JSON_FILE
+  WEARABLE_JSON_FILE,
+  getNodeModulesPath
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
 import {
@@ -26,6 +28,7 @@ import { getProjectInfo, ProjectInfo } from '../project/projectInfo'
 import { getSceneFile } from '../sceneJson'
 import { error } from '../utils/logging'
 import { LinkerResponse } from './LinkerAPI'
+import { getCLIPackageJson } from '../utils/moduleHelpers'
 
 export interface IFile {
   path: string
@@ -37,6 +40,8 @@ type DeployInfo = {
   linkerResponse?: LinkerResponse
   status?: 'deploying' | 'success'
 }
+
+export type ECSVersion = 'ecs6' | 'ecs7' | 'unknown'
 
 export class Project {
   private static MAX_FILE_SIZE_BYTES = 50 * 1e6 // 50mb
@@ -56,6 +61,36 @@ export class Project {
       Please, see if its json configuration file is wrong.`)
     }
     this.projectInfo = info
+  }
+
+  getEcsVersion(): ECSVersion {
+    const ecs6Path = path.resolve(
+      this.projectWorkingDir,
+      'node_modules',
+      'decentraland-ecs'
+    )
+
+    const ecs7Path = path.resolve(
+      this.projectWorkingDir,
+      'node_modules',
+      '@dcl',
+      'sdk'
+    )
+
+    const ecs6 = fs.pathExistsSync(ecs6Path)
+    const ecs7 = fs.pathExistsSync(ecs7Path)
+
+    if (ecs6 && ecs7) {
+      throw new Error(
+        `Conflict initializing project of '${this.projectWorkingDir}' because it has both 'decentraland-ecs' and '@dcl/sdk' packages installed.`
+      )
+    } else if (ecs6) {
+      return 'ecs6'
+    } else if (ecs7) {
+      return 'ecs7'
+    }
+
+    return 'unknown'
   }
 
   setDeployInfo(value: Partial<DeployInfo>) {
@@ -111,31 +146,6 @@ export class Project {
       )
     }
     return this.sceneFile!
-  }
-
-  /**
-   * Scaffolds a project or fails for an invalid project type
-   * @param projectType
-   */
-  async scaffoldProject(type: sdk.ProjectType) {
-    switch (type) {
-      case sdk.ProjectType.SMART_ITEM: {
-        await this.copySample('smart-item')
-        break
-      }
-      case sdk.ProjectType.SCENE: {
-        await this.copySample('scene')
-        break
-      }
-      case sdk.ProjectType.PORTABLE_EXPERIENCE: {
-        await this.copySample('portable-experience')
-        break
-      }
-      case sdk.ProjectType.LIBRARY: {
-        await this.copySample('library')
-        break
-      }
-    }
   }
 
   /**
@@ -499,6 +509,59 @@ export class Project {
     } catch (e) {
       console.log(error(`Could not open "scene.json" file`))
       throw e
+    }
+  }
+
+  async checkCLIandECSCompatibility() {
+    const ecsVersion = this.getEcsVersion()
+    const ecsPackageName =
+      ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
+    const ecsPackageJson = await readJSON<{
+      minCliVersion?: string
+      version: string
+    }>(
+      path.resolve(
+        getNodeModulesPath(this.projectWorkingDir),
+        ecsPackageName,
+        'package.json'
+      )
+    )
+
+    const cliPackageJson = await getCLIPackageJson<{
+      minEcsVersion?: boolean
+      version: string
+    }>()
+
+    if (ecsVersion === 'ecs6') {
+      if (
+        cliPackageJson.minEcsVersion &&
+        semver.lt(ecsPackageJson.version, `${cliPackageJson.minEcsVersion}`)
+      ) {
+        throw new Error(
+          [
+            'This version of decentraland-cli (dcl) requires an ECS version higher than',
+            cliPackageJson.minEcsVersion,
+            'the installed version is',
+            ecsPackageJson.version,
+            'please go to https://docs.decentraland.org/development-guide/installation-guide/ to know more about the versions and upgrade guides'
+          ].join(' ')
+        )
+      }
+    }
+
+    if (
+      ecsPackageJson.minCliVersion &&
+      semver.lt(cliPackageJson.version, ecsPackageJson.minCliVersion)
+    ) {
+      throw new Error(
+        [
+          `This version of ${ecsPackageName} requires a version of the ECS decentraland-cli (dcl) higher than`,
+          ecsPackageJson.minCliVersion,
+          'the installed version is',
+          cliPackageJson.version,
+          'please go to https://docs.decentraland.org/development-guide/installation-guide/ to know more about the versions and upgrade guides'
+        ].join(' ')
+      )
     }
   }
 }
