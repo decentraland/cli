@@ -18,7 +18,7 @@ export const repos = {
     },
     {
       title: 'Museum',
-      url: 'https://github.com/decentraland-scenes/museum_template/archive/refs/heads/master.zip'
+      url: 'https://github.com/decentraland-scenes/museum_template/archive/refs/heads/main.zip'
     },
     {
       title: 'Wearables Store',
