@@ -22,7 +22,7 @@ export const repos = {
     },
     {
       title: 'Wearables Store',
-      url: 'https://github.com/decentraland-scenes/store-template/archive/refs/heads/master.zip'
+      url: 'https://github.com/decentraland-scenes/store-template/archive/refs/heads/main.zip'
     },
     {
       title: 'Lazy loading',
