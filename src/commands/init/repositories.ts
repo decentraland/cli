@@ -17,12 +17,16 @@ export const repos = {
       url: 'https://github.com/decentraland-scenes/video-streaming/archive/refs/heads/main.zip'
     },
     {
-      title: 'Lazy loading',
-      url: 'https://github.com/decentraland-scenes/lazy-loading/archive/refs/heads/main.zip'
+      title: 'Museum',
+      url: 'https://github.com/decentraland-scenes/museum_template/archive/refs/heads/master.zip'
     },
     {
-      title: 'POAP booth',
-      url: 'https://github.com/decentraland-scenes/POAP-Booth/archive/refs/heads/master.zip'
+      title: 'Wearables Store',
+      url: 'https://github.com/decentraland-scenes/store-template/archive/refs/heads/master.zip'
+    },
+    {
+      title: 'Lazy loading',
+      url: 'https://github.com/decentraland-scenes/lazy-loading/archive/refs/heads/main.zip'
     }
   ],
   library:
