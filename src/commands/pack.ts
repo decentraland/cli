@@ -11,9 +11,6 @@ import { buildTypescript } from '../utils/moduleHelpers'
 import { fail } from 'assert'
 import { createWorkspace } from '../lib/Workspace'
 
-const uuidRegexExp =
-  /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
-
 export const help = () => `
   Usage: ${chalk.bold('dcl pack [options]')}
 
@@ -81,13 +78,6 @@ export async function main(): Promise<number> {
     if (totalSize > MAX_WEARABLE_SIZE) {
       console.error(`The sumatory of all packed files exceed the limit of wearable size (${MAX_WEARABLE_SIZE_MB}MB - ${MAX_WEARABLE_SIZE} bytes).
 Please try to remove unneccessary files and/or reduce the files size, you can ignore file adding in .dclignore.`)
-    }
-
-    const id = projectInfo.sceneId.toLowerCase()
-    if (!uuidRegexExp.test(id)) {
-      console.error(
-        `The id of the wearable must be an UUID, otherwise the uploading to the builder will fail.`
-      )
     }
   }
 
