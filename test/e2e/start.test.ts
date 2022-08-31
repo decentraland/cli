@@ -16,7 +16,10 @@ test('snapshot - dcl help start', (t) => {
 function startProject(dirPath): Promise<Commando> {
   return new Promise((resolve) => {
     const command = new Commando(
-      `node ${path.resolve('dist', 'index.js')} start --no-browser -p 8001`,
+      `node ${path.resolve(
+        'dist',
+        'index.js'
+      )} start --skip-version-checks --no-browser -p 8001`,
       {
         silent: !isDebug(),
         workingDir: dirPath,
