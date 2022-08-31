@@ -22,7 +22,7 @@ export function validateScene(sceneJson: Scene, log: boolean = false): boolean {
   const validScene = Scene.validate(sceneJson)
   if (!validScene) {
     const error = (Scene.validate.errors || [])
-      .map((a) => `${a.dataPath} ${a.message}`)
+      .map((a) => `${a.data} ${a.message}`)
       .join('')
 
     log && spinner.fail(`Invalid scene.json: ${error}`)

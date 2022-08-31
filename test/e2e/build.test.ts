@@ -14,11 +14,14 @@ test('snapshot - dcl help build', (t) => {
 
 function buildProject(dirPath) {
   return new Promise<void>((resolve) => {
-    new Commando(`node ${path.resolve('dist', 'index.js')} build`, {
-      silent: !isDebug(),
-      workingDir: dirPath,
-      env: { NODE_ENV: 'development' }
-    })
+    new Commando(
+      `node ${path.resolve('dist', 'index.js')} build --skip-version-checks`,
+      {
+        silent: !isDebug(),
+        workingDir: dirPath,
+        env: { NODE_ENV: 'development' }
+      }
+    )
       .endWhen(/Project built/)
       .on('end', async () => {
         resolve()
