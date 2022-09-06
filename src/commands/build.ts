@@ -3,8 +3,9 @@ import chalk from 'chalk'
 
 import { buildTypescript } from '../utils/moduleHelpers'
 import { isTypescriptProject } from '../project/isTypescriptProject'
-import { createWorkspace } from '../lib/Workspace'
 import { fail } from 'assert'
+import { Analytics } from '../utils/analytics'
+import { Decentraland } from '../lib/Decentraland'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -27,23 +28,27 @@ export async function main(): Promise<number> {
   const args = arg({
     '--help': Boolean,
     '-h': '--help',
-    '--watch': String,
+    '--watch': Boolean,
     '-w': '--watch',
     '--skip-version-checks': Boolean,
     '--production': Boolean,
     '-p': '--production'
   })
 
+  const dcl = new Decentraland({
+    watch: args['--watch'] || args['-w'] || false,
+    workingDir: process.cwd()
+  })
+
   const workingDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
-  const workspace = createWorkspace({ workingDir })
 
-  if (!workspace.isSingleProject()) {
+  if (!dcl.workspace.isSingleProject()) {
     fail(`Can not build a workspace. It isn't supported yet.`)
   }
 
   if (!skipVersionCheck) {
-    await workspace.getSingleProject()!.checkCLIandECSCompatibility()
+    await dcl.workspace.getSingleProject()!.checkCLIandECSCompatibility()
   }
 
   if (await isTypescriptProject(workingDir)) {
@@ -53,6 +58,14 @@ export async function main(): Promise<number> {
       production: !!args['--production']
     })
   }
+
+  const baseCoords = await dcl.workspace.getBaseCoords()
+  Analytics.buildScene({
+    projectHash: dcl.getProjectHash(),
+    ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
+    coords: baseCoords,
+    isWorkspace: false
+  })
 
   return 0
 }

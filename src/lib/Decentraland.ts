@@ -20,6 +20,7 @@ import {
   recoverAddressFromEthSignature
 } from '@dcl/crypto/dist/crypto'
 import { IdentityType } from '@dcl/crypto'
+import crypto from 'crypto'
 import { hexToBytes } from 'eth-connect'
 
 export type DecentralandArguments = {
@@ -94,6 +95,13 @@ export class Decentraland extends EventEmitter {
 
   getWorkingDir(): string {
     return this.options.workingDir
+  }
+
+  getProjectHash(): string {
+    return crypto
+      .createHash('sha256')
+      .update(this.options.workingDir)
+      .digest('hex')
   }
 
   async link(rootCID: string): Promise<LinkerResponse> {
