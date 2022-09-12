@@ -156,6 +156,8 @@ export async function main(version: string) {
         )} for more info.`
       )
     )
+
+    await Analytics.reportError('Command error', e.message, e.stack)
     log.debug(e)
     process.exit(1)
   }
