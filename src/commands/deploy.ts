@@ -84,7 +84,8 @@ export async function main(): Promise<void> {
     isHttps: !!args['--https'],
     workingDir: workDir,
     forceDeploy: args['--force-upload'],
-    yes: args['--yes']
+    yes: args['--yes'],
+    skipValidations: !!args['--skip-validations']
   })
 
   const project = dcl.workspace.getSingleProject()
