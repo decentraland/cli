@@ -17,7 +17,7 @@ import { abi as landAbi } from '../../abi/LANDRegistry.json'
 import { abi as estateAbi } from '../../abi/EstateRegistry.json'
 
 const { provider } = getConfig()
-const providerInstance = new HTTPProvider(provider!)
+export const providerInstance = new HTTPProvider(provider!)
 const requestManager = new RequestManager(providerInstance)
 providerInstance.debug = isDebug()
 

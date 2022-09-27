@@ -9,9 +9,10 @@ import { Coords } from '../utils/coordinateHelpers'
 import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
 import { debug } from '../utils/logging'
-import { Ethereum, LANDData } from './Ethereum'
+import { Ethereum, LANDData, providerInstance } from './Ethereum'
 import { LinkerAPI, LinkerResponse } from './LinkerAPI'
-import { Preview } from './Preview'
+import { PreviewComponents, wirePreview } from './Preview'
+import portfinder from 'portfinder'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { createWorkspace, Workspace } from './Workspace'
@@ -22,6 +23,16 @@ import {
 import { IdentityType } from '@dcl/crypto'
 import crypto from 'crypto'
 import { hexToBytes } from 'eth-connect'
+import { Lifecycle } from '@well-known-components/interfaces'
+import {
+  roomsMetrics,
+  createRoomsComponent
+} from '@dcl/mini-comms/dist/adapters/rooms'
+import { createRecordConfigComponent } from '@well-known-components/env-config-provider'
+import { createServerComponent } from '@well-known-components/http-server'
+import { createConsoleLogComponent } from '@well-known-components/logger'
+import { createTestMetricsComponent } from '@well-known-components/metrics'
+import { createWsComponent } from './adapters/ws'
 
 export type DecentralandArguments = {
   workingDir: string
@@ -141,11 +152,50 @@ export class Decentraland extends EventEmitter {
       await project.validateSceneOptions()
     }
 
-    const preview = new Preview(this, this.getWatch())
+    // eslint-disable-next-line
+    const dcl = this
 
-    events(preview, '*', this.pipeEvents.bind(this))
+    const port = await previewPort(dcl)
 
-    await preview.startServer(this.options.previewPort!)
+    await Lifecycle.run<PreviewComponents>({
+      async initComponents() {
+        const metrics = createTestMetricsComponent(roomsMetrics)
+        const config = createRecordConfigComponent({
+          HTTP_SERVER_PORT: port,
+          HTTP_SERVER_HOST: '0.0.0.0',
+          ...process.env
+        })
+        const logs = await createConsoleLogComponent({})
+        const ws = await createWsComponent({ logs })
+        const server = await createServerComponent<PreviewComponents>(
+          { config, logs, ws: ws.ws },
+          { cors: {} }
+        )
+        const rooms = createRoomsComponent({
+          metrics,
+          logs
+        })
+
+        return {
+          logs,
+          ethereumProvider: providerInstance,
+          rooms,
+          config,
+          dcl,
+          metrics,
+          server,
+          ws
+        }
+      },
+      async main({ components, startComponents }) {
+        await wirePreview(components, dcl.getWatch())
+        await startComponents()
+        dcl.emit(
+          'preview:ready',
+          await components.config.requireNumber('HTTP_SERVER_PORT')
+        )
+      }
+    })
   }
 
   async getAddressInfo(address: string): Promise<AddressInfo> {
@@ -275,4 +325,18 @@ export class Decentraland extends EventEmitter {
       publicKey: '0x'
     }
   }
+}
+
+async function previewPort(dcl: Decentraland) {
+  let resolvedPort = dcl.options.previewPort || 0
+
+  if (!resolvedPort) {
+    try {
+      resolvedPort = await portfinder.getPortPromise()
+    } catch (e) {
+      resolvedPort = 2044
+    }
+  }
+
+  return resolvedPort.toString()
 }
