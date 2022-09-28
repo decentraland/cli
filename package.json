@@ -84,6 +84,7 @@
     "dcl-node-runtime": "^1.0.0",
     "eth-connect": "^6.0.3",
     "extract-zip": "^2.0.1",
+    "fp-future": "^1.0.1",
     "fs-extra": "^10.1.0",
     "glob": "^8.0.1",
     "google-protobuf": "^3.20.1",

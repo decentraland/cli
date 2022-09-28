@@ -33,6 +33,7 @@ import { createServerComponent } from '@well-known-components/http-server'
 import { createConsoleLogComponent } from '@well-known-components/logger'
 import { createTestMetricsComponent } from '@well-known-components/metrics'
 import { createWsComponent } from './adapters/ws'
+import future from 'fp-future'
 
 export type DecentralandArguments = {
   workingDir: string
@@ -79,6 +80,8 @@ export class Decentraland extends EventEmitter {
   provider: IEthereumDataProvider
   contentService: ContentService
   environmentIdentity?: IdentityType
+
+  stop: () => Promise<void> = async () => void 0
 
   constructor(
     args: DecentralandArguments = {
@@ -157,7 +160,14 @@ export class Decentraland extends EventEmitter {
 
     const port = await previewPort(dcl)
 
-    await Lifecycle.run<PreviewComponents>({
+    const startedFuture = future<void>()
+
+    setTimeout(
+      () => startedFuture.reject(new Error('Timed out starting the server')),
+      3000
+    )
+
+    void Lifecycle.run<PreviewComponents>({
       async initComponents() {
         const metrics = createTestMetricsComponent(roomsMetrics)
         const config = createRecordConfigComponent({
@@ -187,15 +197,23 @@ export class Decentraland extends EventEmitter {
           ws
         }
       },
-      async main({ components, startComponents }) {
-        await wirePreview(components, dcl.getWatch())
-        await startComponents()
-        dcl.emit(
-          'preview:ready',
-          await components.config.requireNumber('HTTP_SERVER_PORT')
-        )
+      async main({ components, startComponents, stop }) {
+        try {
+          await wirePreview(components, dcl.getWatch())
+          await startComponents()
+          dcl.emit(
+            'preview:ready',
+            await components.config.requireNumber('HTTP_SERVER_PORT')
+          )
+          dcl.stop = stop
+          startedFuture.resolve()
+        } catch (err: any) {
+          startedFuture.reject(err)
+        }
       }
     })
+
+    return
   }
 
   async getAddressInfo(address: string): Promise<AddressInfo> {

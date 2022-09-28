@@ -28,8 +28,15 @@ export async function daoCatalysts(
 export async function fetchEntityByPointer(
   baseUrl: string,
   pointers: string[]
-) {
-  if (pointers.length === 0) return []
+): Promise<{
+  baseUrl: string
+  deployments: Entity[]
+}> {
+  if (pointers.length === 0)
+    return {
+      baseUrl,
+      deployments: []
+    }
 
   const activeEntities = baseUrl + '/content/entities/active'
 
