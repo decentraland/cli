@@ -8,6 +8,7 @@ import { ContentMapping, Entity, EntityType, sdk } from '@dcl/schemas'
 import ignore from 'ignore'
 import fetch, { Headers } from 'node-fetch'
 import { fetchEntityByPointer } from '../../utils/catalystPointers'
+import { smartWearableNameToId } from '../../project/projectInfo'
 
 export function setupEcs6Endpoints(
   components: PreviewComponents,
@@ -48,6 +49,53 @@ export function setupEcs6Endpoints(
         }
       ]
     }
+  })
+
+  router.get('/lambdas/profiles', async (ctx, next) => {
+    const baseUrl = `${ctx.url.protocol}//${ctx.url.host}/content/contents`
+
+    try {
+      const previewWearables = await getAllPreviewWearables({
+        baseFolders,
+        baseUrl
+      }).map((wearable) => wearable.id)
+
+      if (previewWearables.length === 1) {
+        const u = new URL(ctx.url.toString())
+        u.host = 'peer.decentraland.org'
+        u.protocol = 'https:'
+        u.port = ''
+        const req = await fetch(u.toString(), {
+          headers: {
+            connection: 'close'
+          },
+          method: ctx.request.method,
+          body: ctx.request.method === 'get' ? undefined : ctx.request.body
+        })
+
+        const deployedProfile = (await req.json()) as any[]
+
+        if (deployedProfile?.length === 1) {
+          deployedProfile[0].avatars[0].avatar.wearables.push(
+            ...previewWearables
+          )
+          return {
+            headers: {
+              'content-type':
+                req.headers.get('content-type') || 'application/binary'
+            },
+            body: deployedProfile
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(
+        `Failed to catch profile and fill with preview wearables.`,
+        err
+      )
+    }
+
+    return next()
   })
 
   router.all('/lambdas/:path+', async (ctx) => {
@@ -203,14 +251,14 @@ function serveFolders(
       body: {
         ok: true,
         data: wearables.filter(
-          (w) => w?.name.toLowerCase().replace(' ', '-') === wearableId
+          (wearable) => smartWearableNameToId(wearable?.name) === wearableId
         )
       }
     }
   })
 
   router.get('/preview-wearables', async (ctx) => {
-    const baseUrl = `://${ctx.url.host}/content/contents`
+    const baseUrl = `${ctx.url.protocol}//${ctx.url.host}/content/contents`
     return {
       body: {
         ok: true,
@@ -305,7 +353,8 @@ function serveWearable({
       mainFile: `male/${representation.mainFile}`,
       contents: hashedFiles.map(($) => ({
         key: `male/${$?.file}`,
-        url: `${baseUrl}/${$?.hash}`
+        url: `${baseUrl}/${$?.hash}`,
+        hash: $?.hash
       }))
     })
   )
@@ -316,7 +365,7 @@ function serveWearable({
     i18n: [{ code: 'en', text: wearableJson.name }],
     description: wearableJson.description,
     thumbnail: thumbnail || '',
-    baseUrl,
+    baseUrl: `${baseUrl}/`,
     name: wearableJson.name || '',
     data: {
       category: wearableJson.data.category,
@@ -426,7 +475,7 @@ function serveStatic(
   ]
 
   for (const route of routes) {
-    router.get(route.route, async (ctx) => {
+    router.get(route.route, async (_ctx) => {
       return {
         headers: { 'Content-Type': route.type },
         body: fs.createReadStream(route.path)

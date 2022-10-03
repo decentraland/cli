@@ -5,8 +5,8 @@ import proto from '../adapters/proto/broker'
 
 // Handles Comms V1
 export function setupCommsV1(
-  components: PreviewComponents,
-  router: Router<any>
+  _components: PreviewComponents,
+  _router: Router<any>
 ) {
   const connections = new Set<WebSocket>()
   const topicsPerConnection = new WeakMap<WebSocket, Set<string>>()
