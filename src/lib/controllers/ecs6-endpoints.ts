@@ -163,10 +163,6 @@ function serveFolders(
       pointers: Array.from(requestedPointers)
     })
 
-    console.log({
-      pointers: pointers.filter(($: string) => !$.match(/-?\d+,-?\d+/))
-    })
-
     const remote = fetchEntityByPointer(
       'https://peer.decentraland.org',
       pointers.filter(($: string) => !$.match(/-?\d+,-?\d+/))
