@@ -22,19 +22,33 @@ export async function daoCatalysts(
   const resp = await (
     await fetch(`https://peer.decentraland.${tld}/lambdas/contracts/servers`)
   ).json()
-  return resp
+  return resp as DAOCatalyst[]
 }
 
-async function fetchEntityByPointer(baseUrl: string, pointer: string) {
+export async function fetchEntityByPointer(
+  baseUrl: string,
+  pointers: string[]
+): Promise<{
+  baseUrl: string
+  deployments: Entity[]
+}> {
+  if (pointers.length === 0)
+    return {
+      baseUrl,
+      deployments: []
+    }
+
   const activeEntities = baseUrl + '/content/entities/active'
 
   const response = await fetch(activeEntities, {
     method: 'post',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ pointers: [pointer] })
+    headers: { 'content-type': 'application/json', connection: 'close' },
+    body: JSON.stringify({ pointers })
   })
 
-  const deployments: Entity[] = response.ok ? await response.json() : []
+  const deployments: Entity[] = response.ok
+    ? ((await response.json()) as Entity[])
+    : []
 
   return {
     baseUrl,
@@ -51,7 +65,7 @@ export async function getPointers(
 
   for (const { baseUrl } of catalysts) {
     try {
-      const result = await fetchEntityByPointer(baseUrl, pointer)
+      const result = await fetchEntityByPointer(baseUrl, [pointer])
       const timestamp = result.deployments[0]?.timestamp
       const entityId = result.deployments[0]?.id || ''
 

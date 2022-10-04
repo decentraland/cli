@@ -9,6 +9,10 @@ export type ProjectInfo = {
   sceneType: sdk.ProjectType
 }
 
+export function smartWearableNameToId(name: string) {
+  return name.toLocaleLowerCase().replace(/ /g, '-')
+}
+
 export function getProjectInfo(workDir: string): ProjectInfo | null {
   const wearableJsonPath = path.resolve(workDir, WEARABLE_JSON_FILE)
   if (fs.existsSync(wearableJsonPath)) {
@@ -16,9 +20,7 @@ export function getProjectInfo(workDir: string): ProjectInfo | null {
       const wearableJson = readJsonSync(wearableJsonPath)
       if (WearableJson.validate(wearableJson)) {
         return {
-          sceneId:
-            'smart-wearable-' +
-            wearableJson.name.replace(' ', '-').toLocaleLowerCase(),
+          sceneId: smartWearableNameToId(wearableJson.name),
           sceneType: sdk.ProjectType.PORTABLE_EXPERIENCE
         }
       } else {
