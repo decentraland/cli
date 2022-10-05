@@ -181,9 +181,10 @@ export class Decentraland extends EventEmitter {
           { config, logs, ws: ws.ws },
           { cors: {} }
         )
-        const rooms = createRoomsComponent({
+        const rooms = await createRoomsComponent({
           metrics,
-          logs
+          logs,
+          config
         })
 
         return {
