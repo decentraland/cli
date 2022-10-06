@@ -58,7 +58,7 @@ export async function main(): Promise<void> {
     '-t': '--target',
     '--target-content': String,
     '-tc': '--target-content',
-    '--skip-validations': String,
+    '--skip-validations': Boolean,
     '--skip-version-checks': Boolean,
     '--skip-build': Boolean,
     '--https': Boolean,
@@ -85,7 +85,11 @@ export async function main(): Promise<void> {
     workingDir: workDir,
     forceDeploy: args['--force-upload'],
     yes: args['--yes'],
-    skipValidations: !!args['--skip-validations']
+    // validations are skipped for custom content servers
+    skipValidations:
+      !!args['--skip-validations'] ||
+      !!args['--target'] ||
+      !!args['--target-content']
   })
 
   const project = dcl.workspace.getSingleProject()
