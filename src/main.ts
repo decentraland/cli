@@ -95,12 +95,12 @@ export async function main(version: string) {
 
   if (subcommand === 'version' || args['--version']) {
     console.log(getInstalledCLIVersion())
-    process.exit(0)
+    return
   }
 
   if (!subcommand) {
     console.log(help)
-    process.exit(0)
+    return
   }
 
   if (subcommand === 'help' || args['--help']) {
@@ -109,14 +109,13 @@ export async function main(version: string) {
       try {
         const { help } = await import(`./commands/${command}`)
         console.log(help())
-        process.exit(0)
       } catch (e: any) {
         console.error(log.error(e.message))
-        process.exit(1)
       }
+      return
     }
     console.log(help)
-    process.exit(0)
+    return
   }
 
   if (!commands.has(subcommand)) {
@@ -156,6 +155,8 @@ export async function main(version: string) {
         )} for more info.`
       )
     )
+
+    await Analytics.reportError('Command error', e.message, e.stack)
     log.debug(e)
     process.exit(1)
   }

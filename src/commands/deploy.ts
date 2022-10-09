@@ -58,7 +58,7 @@ export async function main(): Promise<void> {
     '-t': '--target',
     '--target-content': String,
     '-tc': '--target-content',
-    '--skip-validations': String,
+    '--skip-validations': Boolean,
     '--skip-version-checks': Boolean,
     '--skip-build': Boolean,
     '--https': Boolean,
@@ -66,7 +66,7 @@ export async function main(): Promise<void> {
     '--yes': Boolean
   })
 
-  Analytics.deploy()
+  Analytics.sceneStartDeploy()
 
   if (args['--target'] && args['--target-content']) {
     throw new Error(
@@ -84,7 +84,12 @@ export async function main(): Promise<void> {
     isHttps: !!args['--https'],
     workingDir: workDir,
     forceDeploy: args['--force-upload'],
-    yes: args['--yes']
+    yes: args['--yes'],
+    // validations are skipped for custom content servers
+    skipValidations:
+      !!args['--skip-validations'] ||
+      !!args['--target'] ||
+      !!args['--target-content']
   })
 
   const project = dcl.workspace.getSingleProject()
@@ -217,7 +222,14 @@ export async function main(): Promise<void> {
     })) as { message?: string }
     project.setDeployInfo({ status: 'success' })
     spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}\n`)
-    Analytics.sceneDeploySuccess()
+
+    const baseCoords = await dcl.workspace.getBaseCoords()
+
+    Analytics.sceneDeploySuccess({
+      projectHash: dcl.getProjectHash(),
+      ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
+      coords: baseCoords
+    })
 
     if (response.message) {
       console.log(response.message)

@@ -12,10 +12,8 @@ fs.readFile(path.resolve(__dirname, '../package.json'), 'utf8', (err, data) => {
   }
 
   const { version } = JSON.parse(data)
-  main(version)
-    .then(() => process.exit(0))
-    .catch((err: any) => {
-      console.error(err)
-      process.exit(1)
-    })
+  main(version).catch((err: any) => {
+    console.error(err)
+    process.exit(1)
+  })
 })
