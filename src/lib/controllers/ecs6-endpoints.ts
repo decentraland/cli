@@ -422,15 +422,23 @@ function getSceneJson({
   return resultEntities
 }
 
+function getEcsPath(workingDir: string) {
+  try {
+    return require.resolve('decentraland-ecs/package.json', {
+      paths: [workingDir]
+    })
+  } catch (e) {
+    return require.resolve('@dcl/sdk/package.json', {
+      paths: [workingDir]
+    })
+  }
+}
+
 function serveStatic(
   components: PreviewComponents,
   router: Router<PreviewComponents>
 ) {
-  const ecsPath = path.dirname(
-    require.resolve('decentraland-ecs/package.json', {
-      paths: [components.dcl.getWorkingDir()]
-    })
-  )
+  const ecsPath = path.dirname(getEcsPath(components.dcl.getWorkingDir()))
   const dclKernelPath = path.dirname(
     require.resolve('@dcl/kernel/package.json', {
       paths: [components.dcl.getWorkingDir(), ecsPath]
