@@ -5,6 +5,7 @@ import { getProjectTypes } from './utils'
 export const args = arg({
   '--help': Boolean,
   '--project': String,
+  '--skip-install': Boolean,
   '-h': '--help',
   '-p': '--project'
 })
@@ -18,14 +19,16 @@ export const help = () => `
     -p, --project [type] Choose a projectType (default is scene). It could be any of ${chalk.bold(
       getProjectTypes()
     )}
+      
+      ${chalk.dim('Examples:')}
+      
+      - Generate a new Decentraland Scene project in my-project folder
+      
+      ${chalk.green('$ dcl init my-project')}
+      
+      - Generate a new scene project
+      
+      ${chalk.green('$ dcl init --project scene')}
 
-    ${chalk.dim('Examples:')}
-
-    - Generate a new Decentraland Scene project in my-project folder
-
-    ${chalk.green('$ dcl init my-project')}
-
-    - Generate a new scene project
-
-    ${chalk.green('$ dcl init --project scene')}
+    --skip-install       Skip installing dependencies
 `
