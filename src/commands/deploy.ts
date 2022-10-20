@@ -28,6 +28,7 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
+      -p, --port        [port]  Select a custom port for the development server
       -t, --target              Specifies the address and port for the target catalyst server. Defaults to peer.decentraland.org
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
       -b, --no-browser          Do not open a new browser window
@@ -66,7 +67,9 @@ export async function main(): Promise<void> {
     '--force-upload': Boolean,
     '--yes': Boolean,
     '--no-browser': Boolean,
-    '-b': '--no-browser'
+    '-b': '--no-browser',
+    '--port': String,
+    '-p': '--port'
   })
 
   Analytics.sceneStartDeploy()
@@ -81,6 +84,10 @@ export async function main(): Promise<void> {
   const skipVersionCheck = args['--skip-version-checks']
   const skipBuild = args['--skip-build']
   const noBrowser = args['--no-browser']
+  const port = args['--port']
+  const parsedPort = typeof port === 'string' ? parseInt(port, 10) : void 0
+  const linkerPort =
+    parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
 
   spinner.create('Creating deployment structure')
 
@@ -93,7 +100,8 @@ export async function main(): Promise<void> {
     skipValidations:
       !!args['--skip-validations'] ||
       !!args['--target'] ||
-      !!args['--target-content']
+      !!args['--target-content'],
+    linkerPort
   })
 
   const project = dcl.workspace.getSingleProject()
