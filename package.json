@@ -110,5 +110,10 @@
   "userEngines": {
     "minNodeVersion": "14.0.0",
     "minNpmVersion": "6.0.0"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none"
   }
 }
