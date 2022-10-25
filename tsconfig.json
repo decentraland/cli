@@ -10,8 +10,7 @@
     "diagnostics": true,
     "sourceMap": true,
     "lib": [
-      "es2016",
-      "dom"
+      "es2016"
     ],
     "types": [
       "node"

@@ -81,7 +81,7 @@ export class LinkerAPI extends EventEmitter {
       const protocol = isHttps ? 'https' : 'http'
       const url = `${protocol}://localhost:${resolvedPort}`
 
-      this.setRoutes(rootCID)
+      this.setRoutes(rootCID, skipValidations)
 
       this.on('link:error', (err) => {
         reject(err)
@@ -122,7 +122,7 @@ export class LinkerAPI extends EventEmitter {
     })
   }
 
-  async getSceneInfo(rootCID: string, skipValidations: boolean = false) {
+  async getSceneInfo(rootCID: string, skipValidations: boolean) {
     const { LANDRegistry, EstateRegistry } = getCustomConfig()
     const {
       scene: { parcels, base },
@@ -142,7 +142,7 @@ export class LinkerAPI extends EventEmitter {
     }
   }
 
-  private setRoutes(rootCID: string) {
+  private setRoutes(rootCID: string, skipValidations: boolean) {
     const linkerDapp = path.dirname(
       require.resolve('@dcl/linker-dapp/package.json')
     )
@@ -171,7 +171,7 @@ export class LinkerAPI extends EventEmitter {
     }
 
     this.app.asyncGet('/api/info', async () => {
-      return await this.getSceneInfo(rootCID)
+      return await this.getSceneInfo(rootCID, skipValidations)
     })
 
     this.app.asyncGet('/api/files', async () => {

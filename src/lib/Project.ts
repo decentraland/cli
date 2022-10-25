@@ -93,6 +93,26 @@ export class Project {
     return 'unknown'
   }
 
+  async getEcsPackageVersion() {
+    const ecsVersion = this.getEcsVersion()
+    const ecsPackageName =
+      ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
+    const ecsPackageJson = await readJSON<{
+      version: string
+    }>(
+      path.resolve(
+        getNodeModulesPath(this.projectWorkingDir),
+        ecsPackageName,
+        'package.json'
+      )
+    )
+
+    return {
+      ecsVersion,
+      packageVersion: ecsPackageJson.version
+    }
+  }
+
   setDeployInfo(value: Partial<DeployInfo>) {
     this.deployInfo = { ...this.deployInfo, ...value }
   }
