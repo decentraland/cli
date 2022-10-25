@@ -28,8 +28,10 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
       -h, --help                Displays complete help
+      -p, --port        [port]  Select a custom port for the development server
       -t, --target              Specifies the address and port for the target catalyst server. Defaults to peer.decentraland.org
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
+      -b, --no-browser          Do not open a new browser window
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-build              Skip build before deploy
       --skip-validations        Skip permissions verifications on the client side when deploying content
@@ -63,7 +65,11 @@ export async function main(): Promise<void> {
     '--skip-build': Boolean,
     '--https': Boolean,
     '--force-upload': Boolean,
-    '--yes': Boolean
+    '--yes': Boolean,
+    '--no-browser': Boolean,
+    '-b': '--no-browser',
+    '--port': String,
+    '-p': '--port'
   })
 
   Analytics.sceneStartDeploy()
@@ -77,6 +83,11 @@ export async function main(): Promise<void> {
   const workDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
   const skipBuild = args['--skip-build']
+  const noBrowser = args['--no-browser']
+  const port = args['--port']
+  const parsedPort = typeof port === 'string' ? parseInt(port, 10) : void 0
+  const linkerPort =
+    parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
 
   spinner.create('Creating deployment structure')
 
@@ -89,7 +100,8 @@ export async function main(): Promise<void> {
     skipValidations:
       !!args['--skip-validations'] ||
       !!args['--target'] ||
-      !!args['--target-content']
+      !!args['--target-content'],
+    linkerPort
   })
 
   const project = dcl.workspace.getSingleProject()
@@ -162,13 +174,15 @@ export async function main(): Promise<void> {
     )
     spinner.create(`Signing app ready at ${url}`)
 
-    setTimeout(async () => {
-      try {
-        await opn(`${url}?${params}`)
-      } catch (e) {
-        console.log(`Unable to open browser automatically`)
-      }
-    }, 5000)
+    if (!noBrowser) {
+      setTimeout(async () => {
+        try {
+          await opn(`${url}?${params}`)
+        } catch (e) {
+          console.log(`Unable to open browser automatically`)
+        }
+      }, 5000)
+    }
 
     dcl.on(
       'link:success',

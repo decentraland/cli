@@ -47,10 +47,14 @@ export async function main() {
     fail(ErrorType.INIT_ERROR, error.message)
   }
 
-  try {
-    await installDependencies(dcl.getWorkingDir(), true)
-  } catch (error: any) {
-    fail(ErrorType.INIT_ERROR, error.message)
+  const skipInstall = args['--skip-install']
+
+  if (!skipInstall) {
+    try {
+      await installDependencies(dcl.getWorkingDir(), true)
+    } catch (error: any) {
+      fail(ErrorType.INIT_ERROR, error.message)
+    }
   }
 
   console.log(chalk.green(`\nSuccess! Run 'dcl start' to see your scene\n`))
