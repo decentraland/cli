@@ -98,6 +98,53 @@ export function setupEcs6Endpoints(
     return next()
   })
 
+  router.get('/lambdas/profiles/:userId', async (ctx, next) => {
+    const baseUrl = `${ctx.url.protocol}//${ctx.url.host}/content/contents`
+
+    try {
+      const previewWearables = await getAllPreviewWearables({
+        baseFolders,
+        baseUrl
+      }).map((wearable) => wearable.id)
+
+      if (previewWearables.length === 1) {
+        const u = new URL(ctx.url.toString())
+        u.host = 'peer.decentraland.org'
+        u.protocol = 'https:'
+        u.port = ''
+        const req = await fetch(u.toString(), {
+          headers: {
+            connection: 'close'
+          },
+          method: ctx.request.method,
+          body: ctx.request.method === 'get' ? undefined : ctx.request.body
+        })
+
+        const deployedProfile = (await req.json()) as any[]
+
+        if (deployedProfile?.length === 1) {
+          deployedProfile[0].avatars[0].avatar.wearables.push(
+            ...previewWearables
+          )
+          return {
+            headers: {
+              'content-type':
+                req.headers.get('content-type') || 'application/binary'
+            },
+            body: deployedProfile
+          }
+        }
+      }
+    } catch (err) {
+      console.warn(
+        `Failed to catch profile and fill with preview wearables.`,
+        err
+      )
+    }
+
+    return next()
+  })
+
   router.all('/lambdas/:path+', async (ctx) => {
     const u = new URL(ctx.url.toString())
     u.host = 'peer.decentraland.org'
