@@ -20,6 +20,10 @@ function isCI() {
   )
 }
 
+function isEditor() {
+  return process.env.EDITOR === 'true'
+}
+
 export type AnalyticsProject = {
   projectHash?: string
   ecs?: {
@@ -65,6 +69,7 @@ export namespace Analytics {
         os: process.platform,
         createdAt: new Date().getTime(),
         isCI: isCI(),
+        isEditor: isEditor(),
         devId
       }
     })
@@ -123,6 +128,7 @@ async function track(eventName: string, properties: any = {}) {
       nodeVersion: process.version,
       cliVersion: getInstalledCLIVersion(),
       isCI: isCI(),
+      isEditor: isEditor(),
       devId: userId
     }
 
