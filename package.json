@@ -80,7 +80,7 @@
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
     "dcl-catalyst-client": "^13.0.7",
-    "dcl-catalyst-commons": "^9.0.1",
+    "dcl-catalyst-commons": "^9.0.14",
     "dcl-node-runtime": "^1.0.0",
     "eth-connect": "^6.0.3",
     "extract-zip": "^2.0.1",
