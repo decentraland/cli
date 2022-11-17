@@ -1,6 +1,6 @@
 {
   "name": "decentraland",
-  "version": "3.14.0",
+  "version": "3.13.0",
   "description": "Decentraland CLI developer tool.",
   "bin": {
     "dcl": "dist/index.js"
@@ -65,7 +65,7 @@
   "dependencies": {
     "@dcl/crypto": "^3.0.1",
     "@dcl/ecs-scene-utils": "^1.7.5",
-    "@dcl/linker-dapp": "^0.3.1-3060563892.commit-56b624a",
+    "@dcl/linker-dapp": "^0.4.0",
     "@dcl/mini-comms": "1.0.0",
     "@dcl/protocol": "https://sdk-team-cdn.decentraland.org/@dcl/protocol/branch//dcl-protocol-1.0.0-3130782694.commit-94713ab.tgz",
     "@dcl/schemas": "^5.14.0",
