@@ -17,7 +17,8 @@ export const help = () => `
       -w, --watch               Watch for file changes and build on change
       -p, --production          Build without sourcemaps
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
-
+      --skip-install            Skip installing dependencies
+      
     ${chalk.dim('Example:')}
 
     - Build your scene:
@@ -47,10 +48,6 @@ export async function main(): Promise<number> {
   const online = await isOnline()
 
   for (const project of dcl.workspace.getAllProjects()) {
-    if (!skipVersionCheck) {
-      await project.checkCLIandECSCompatibility()
-    }
-
     const needDependencies = await project.needsDependencies()
 
     if (needDependencies && !skipInstall) {
@@ -81,8 +78,8 @@ export async function main(): Promise<number> {
     if (await project.isTypescriptProject()) {
       await buildTypescript({
         workingDir: project.getProjectWorkingDir(),
-        watch: true,
-        production: false
+        watch: !!args['--watch'],
+        production: !!args['--production']
       })
     }
   }

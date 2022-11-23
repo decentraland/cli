@@ -534,6 +534,13 @@ export class Project {
 
   async checkCLIandECSCompatibility() {
     const ecsVersion = this.getEcsVersion()
+
+    if (ecsVersion === 'unknown') {
+      throw new Error(
+        'There is no SDK installed to know how version should use.'
+      )
+    }
+
     const ecsPackageName =
       ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
     const ecsPackageJson = await readJSON<{
