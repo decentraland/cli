@@ -46,6 +46,7 @@ export async function main(): Promise<number> {
   const skipVersionCheck = args['--skip-version-checks']
   const skipInstall = args['--skip-install']
   const online = await isOnline()
+  const errors = []
 
   for (const project of dcl.workspace.getAllProjects()) {
     const needDependencies = await project.needsDependencies()
@@ -76,12 +77,20 @@ export async function main(): Promise<number> {
     }
 
     if (await project.isTypescriptProject()) {
-      await buildTypescript({
-        workingDir: project.getProjectWorkingDir(),
-        watch: !!args['--watch'],
-        production: !!args['--production']
-      })
+      try {
+        await buildTypescript({
+          workingDir: project.getProjectWorkingDir(),
+          watch: !!args['--watch'],
+          production: !!args['--production']
+        })
+      } catch (err) {
+        errors.push(err)
+      }
     }
+  }
+
+  if (errors.length) {
+    throw new Error(`Error compiling the scenes, see logs above`)
   }
 
   if (dcl.workspace.isSingleProject()) {
