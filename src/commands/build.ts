@@ -84,13 +84,19 @@ export async function main(): Promise<number> {
           production: !!args['--production']
         })
       } catch (err) {
-        errors.push(err)
+        errors.push({ project, err })
       }
     }
   }
 
   if (errors.length) {
-    throw new Error(`Error compiling the scenes, see logs above`)
+    const projectList = errors
+      .map((item) => item.project.getProjectWorkingDir())
+      .join('\n\t')
+
+    throw new Error(
+      `Error compiling (see logs above) the scenes: \n\t${projectList}`
+    )
   }
 
   if (dcl.workspace.isSingleProject()) {
