@@ -1,11 +1,12 @@
 import arg from 'arg'
 import chalk from 'chalk'
 
-import { buildTypescript } from '../utils/moduleHelpers'
-import { isTypescriptProject } from '../project/isTypescriptProject'
 import { fail } from 'assert'
-import { Analytics } from '../utils/analytics'
 import { Decentraland } from '../lib/Decentraland'
+import installDependencies from '../project/installDependencies'
+import updateBundleDependenciesField from '../project/updateBundleDependenciesField'
+import { Analytics } from '../utils/analytics'
+import { buildTypescript, isOnline } from '../utils/moduleHelpers'
 
 export const help = () => `
   Usage: ${chalk.bold('dcl build [options]')}
@@ -32,7 +33,8 @@ export async function main(): Promise<number> {
     '-w': '--watch',
     '--skip-version-checks': Boolean,
     '--production': Boolean,
-    '-p': '--production'
+    '-p': '--production',
+    '--skip-install': Boolean
   })
 
   const dcl = new Decentraland({
@@ -40,32 +42,65 @@ export async function main(): Promise<number> {
     workingDir: process.cwd()
   })
 
-  const workingDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
+  const skipInstall = args['--skip-install']
+  const online = await isOnline()
 
-  if (!dcl.workspace.isSingleProject()) {
-    fail(`Can not build a workspace. It isn't supported yet.`)
+  for (const project of dcl.workspace.getAllProjects()) {
+    if (!skipVersionCheck) {
+      await project.checkCLIandECSCompatibility()
+    }
+
+    const needDependencies = await project.needsDependencies()
+
+    if (needDependencies && !skipInstall) {
+      if (online) {
+        await installDependencies(
+          project.getProjectWorkingDir(),
+          false /* silent */
+        )
+      } else {
+        fail(
+          'This project can not start as you are offline and dependencies need to be installed.'
+        )
+      }
+    }
+
+    if (!skipVersionCheck) {
+      await project.checkCLIandECSCompatibility()
+    }
+
+    try {
+      await updateBundleDependenciesField({
+        workDir: project.getProjectWorkingDir()
+      })
+    } catch (err) {
+      console.warn(`Unable to update bundle dependencies field.`, err)
+    }
+
+    if (await project.isTypescriptProject()) {
+      await buildTypescript({
+        workingDir: project.getProjectWorkingDir(),
+        watch: true,
+        production: false
+      })
+    }
   }
 
-  if (!skipVersionCheck) {
-    await dcl.workspace.getSingleProject()!.checkCLIandECSCompatibility()
-  }
-
-  if (await isTypescriptProject(workingDir)) {
-    await buildTypescript({
-      workingDir: workingDir,
-      watch: !!args['--watch'],
-      production: !!args['--production']
+  if (dcl.workspace.isSingleProject()) {
+    const baseCoords = await dcl.workspace.getBaseCoords()
+    Analytics.buildScene({
+      projectHash: dcl.getProjectHash(),
+      ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
+      coords: baseCoords,
+      isWorkspace: false
+    })
+  } else {
+    Analytics.buildScene({
+      projectHash: dcl.getProjectHash(),
+      isWorkspace: true
     })
   }
-
-  const baseCoords = await dcl.workspace.getBaseCoords()
-  Analytics.buildScene({
-    projectHash: dcl.getProjectHash(),
-    ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
-    coords: baseCoords,
-    isWorkspace: false
-  })
 
   return 0
 }
