@@ -98,5 +98,5 @@ export function getRepositoryUrl(choice: InitOption): string | void {
 }
 
 export function isValidTemplateUrl(url: string) {
-  return /^https:\/\/github\.com\/decentraland(-scenes)?\/(.)+/.test(url)
+  return /^https:\/\/github\.com\/decentraland(-scenes)?\/(.)+\.zip/.test(url)
 }
