@@ -137,7 +137,7 @@ async function bindWatch(
     chokidar.watch(project.getProjectWorkingDir()).on('all', (_, pathWatch) => {
       // if the updated file is the scene.json#main then skip all drop tests
       if (
-        pathWatch !=
+        path.resolve(pathWatch) !==
         path.resolve(project.getProjectWorkingDir(), sceneFile.main)
       ) {
         if (ig.ignores(pathWatch)) {
