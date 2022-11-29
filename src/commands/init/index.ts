@@ -7,8 +7,9 @@ import { downloadRepoZip } from '../../utils/download'
 import { fail, ErrorType } from '../../utils/errors'
 import { isEmptyDirectory } from '../../utils/filesystem'
 import * as spinner from '../../utils/spinner'
-import { getInitOption, getRepositoryUrl } from './utils'
+import { getInitOption, getRepositoryUrl, isValidTemplateUrl } from './utils'
 import { args } from './help'
+import { InitOption } from './types'
 
 export { help } from './help'
 
@@ -26,8 +27,20 @@ export async function main() {
     return
   }
   const projectArg = args['--project']
-  const choice = await getInitOption(projectArg)
-  const url = getRepositoryUrl(choice)
+  const templateArg = args['--template']
+
+  let url: string | void
+  let choice: InitOption | void
+  if (templateArg && isValidTemplateUrl(templateArg)) {
+    choice = {
+      type: 'scene',
+      value: templateArg
+    }
+    url = templateArg
+  } else {
+    choice = await getInitOption(projectArg)
+    url = getRepositoryUrl(choice)
+  }
 
   if (!url) {
     fail(ErrorType.INIT_ERROR, 'Cannot get a choice')
