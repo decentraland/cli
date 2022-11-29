@@ -501,12 +501,18 @@ function serveStatic(
         return next()
       }
 
+      const headers: Record<string, any> = {
+        'x-timestamp': Date.now(),
+        'x-sent': true,
+        'cache-control': 'no-cache,private,max-age=1'
+      }
+
+      if (fullPath.endsWith('.wasm')) {
+        headers['content-type'] = 'application/wasm'
+      }
+
       return {
-        headers: {
-          'x-timestamp': Date.now(),
-          'x-sent': true,
-          'cache-control': 'no-cache,private,max-age=1'
-        },
+        headers,
         body: fs.createReadStream(fullPath)
       }
     })

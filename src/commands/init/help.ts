@@ -5,9 +5,11 @@ import { getProjectTypes } from './utils'
 export const args = arg({
   '--help': Boolean,
   '--project': String,
+  '--template': String,
   '--skip-install': Boolean,
   '-h': '--help',
-  '-p': '--project'
+  '-p': '--project',
+  '-t': '--template'
 })
 
 export const help = () => `
@@ -31,4 +33,5 @@ export const help = () => `
       ${chalk.green('$ dcl init --project scene')}
 
     --skip-install       Skip installing dependencies
+    --template           The URL to a template. It must be under the decentraland or decentraland-scenes GitHub organization.
 `
