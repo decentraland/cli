@@ -133,9 +133,21 @@ async function bindWatch(
   for (const project of components.dcl.workspace.getAllProjects()) {
     const ig = ignore().add((await project.getDCLIgnore())!)
     const { sceneId, sceneType } = project.getInfo()
+    const sceneFile = await project.getSceneFile()
     chokidar.watch(project.getProjectWorkingDir()).on('all', (_, pathWatch) => {
-      if (ig.ignores(pathWatch)) {
-        return
+      // if the updated file is the scene.json#main then skip all drop tests
+      if (
+        pathWatch !=
+        path.resolve(project.getProjectWorkingDir(), sceneFile.main)
+      ) {
+        if (ig.ignores(pathWatch)) {
+          return
+        }
+
+        // ignore source files
+        if (pathWatch.endsWith('.ts') || pathWatch.endsWith('.tsx')) {
+          return
+        }
       }
 
       sceneUpdateClients.forEach((ws) => {
