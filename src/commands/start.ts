@@ -65,7 +65,10 @@ export async function main() {
     '-w': '--no-watch',
     '-c': '--ci',
     '--skip-build': Boolean,
-    '--desktop-client': Boolean
+    '--desktop-client': Boolean,
+
+    // temp and hidden property to add `&renderer-branch=dev&kernel-branch=main`
+    '--sdk7-next': Boolean
   })
 
   const isCi = args['--ci'] || isEnvCi()
@@ -201,7 +204,11 @@ export async function main() {
           }
 
           if (ecsVersions.has('ecs7')) {
-            addr = `${addr}&ENABLE_ECS7&renderer-branch=dev&kernel-branch=main`
+            if (!!args['--sdk7-next']) {
+              addr = `${addr}&ENABLE_ECS7&renderer-branch=dev&kernel-branch=main`
+            } else {
+              addr = `${addr}&ENABLE_ECS7`
+            }
           }
 
           availableURLs.push(addr)
