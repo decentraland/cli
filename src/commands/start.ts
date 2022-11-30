@@ -91,20 +91,6 @@ export async function main() {
   const baseCoords = await dcl.workspace.getBaseCoords()
   const hasPortableExperience = dcl.workspace.hasPortableExperience()
 
-  if (dcl.workspace.isSingleProject()) {
-    Analytics.startPreview({
-      projectHash: dcl.getProjectHash(),
-      ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
-      coords: baseCoords,
-      isWorkspace: false
-    })
-  } else {
-    Analytics.startPreview({
-      projectHash: dcl.getProjectHash(),
-      isWorkspace: true
-    })
-  }
-
   const online = await isOnline()
   const ecsVersions: Set<ECSVersion> = new Set()
 
@@ -170,6 +156,20 @@ export async function main() {
     }
 
     await lintSceneFile(project.getProjectWorkingDir())
+  }
+
+  if (dcl.workspace.isSingleProject()) {
+    Analytics.startPreview({
+      projectHash: dcl.getProjectHash(),
+      ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
+      coords: baseCoords,
+      isWorkspace: false
+    })
+  } else {
+    Analytics.startPreview({
+      projectHash: dcl.getProjectHash(),
+      isWorkspace: true
+    })
   }
 
   if (

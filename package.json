@@ -13,7 +13,7 @@
   "scripts": {
     "start": "npm run watch",
     "watch": "tsc -p tsconfig.json -w",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && chmod +x dist/index.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint --fix . --ext .ts",
     "test": "FORCE_COLOR=1 ava -T 5m --verbose",
