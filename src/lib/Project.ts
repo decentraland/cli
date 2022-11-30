@@ -95,6 +95,14 @@ export class Project {
 
   async getEcsPackageVersion() {
     const ecsVersion = this.getEcsVersion()
+
+    if (ecsVersion === 'unknown') {
+      return {
+        ecsVersion,
+        packageVersion: 'none'
+      }
+    }
+
     const ecsPackageName =
       ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
     const ecsPackageJson = await readJSON<{
@@ -534,6 +542,12 @@ export class Project {
 
   async checkCLIandECSCompatibility() {
     const ecsVersion = this.getEcsVersion()
+    if (ecsVersion === 'unknown') {
+      throw new Error(
+        'There is no SDK installed to know how version should use. Please run `npm install`.'
+      )
+    }
+
     const ecsPackageName =
       ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
     const ecsPackageJson = await readJSON<{
