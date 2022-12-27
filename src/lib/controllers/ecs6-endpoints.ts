@@ -11,6 +11,10 @@ import { fetchEntityByPointer } from '../../utils/catalystPointers'
 import { smartWearableNameToId } from '../../project/projectInfo'
 import { getConfig } from '../../config'
 
+function getCatalystUrl(): URL {
+  return new URL(getConfig().catalystUrl ?? 'https://peer.decentraland.org')
+}
+
 export function setupEcs6Endpoints(
   components: PreviewComponents,
   router: Router<PreviewComponents>
@@ -62,9 +66,7 @@ export function setupEcs6Endpoints(
       }).map((wearable) => wearable.id)
 
       if (previewWearables.length === 1) {
-        const catalystUrl = new URL(
-          getConfig().catalystUrl ?? 'https://peer.decentraland.org'
-        )
+        const catalystUrl = getCatalystUrl()
 
         const u = new URL(ctx.url.toString())
         u.host = catalystUrl.host
@@ -104,9 +106,7 @@ export function setupEcs6Endpoints(
   })
 
   router.all('/lambdas/:path+', async (ctx) => {
-    const catalystUrl = new URL(
-      getConfig().catalystUrl ?? 'https://peer.decentraland.org'
-    )
+    const catalystUrl = getCatalystUrl()
     const u = new URL(ctx.url.toString())
     u.host = catalystUrl.host
     u.protocol = catalystUrl.protocol
@@ -128,11 +128,10 @@ export function setupEcs6Endpoints(
   })
 
   router.post('/content/entities', async (ctx) => {
-    const catalystUrl =
-      getConfig().catalystUrl ?? 'https://peer.decentraland.org'
+    const catalystUrl = getCatalystUrl()
     const headers = new Headers()
     console.log(ctx.request.headers)
-    const res = await fetch(`${catalystUrl}/content/entities`, {
+    const res = await fetch(`${catalystUrl.toString()}/content/entities`, {
       method: 'post',
       headers,
       body: ctx.request.body
@@ -220,10 +219,9 @@ function serveFolders(
       baseFolders,
       pointers: Array.from(requestedPointers)
     })
-    const catalystUrl =
-      getConfig().catalystUrl ?? 'https://peer.decentraland.org'
+    const catalystUrl = getCatalystUrl()
     const remote = fetchEntityByPointer(
-      catalystUrl,
+      catalystUrl.toString(),
       pointers.filter(($: string) => !$.match(/-?\d+,-?\d+/))
     )
 
