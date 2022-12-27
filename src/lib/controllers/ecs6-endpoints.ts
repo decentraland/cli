@@ -69,7 +69,7 @@ export function setupEcs6Endpoints(
         const u = new URL(ctx.url.toString())
         u.host = catalystUrl.host
         u.protocol = catalystUrl.protocol
-        u.port = ''
+        u.port = catalystUrl.port
         const req = await fetch(u.toString(), {
           headers: {
             connection: 'close'
@@ -110,7 +110,7 @@ export function setupEcs6Endpoints(
     const u = new URL(ctx.url.toString())
     u.host = catalystUrl.host
     u.protocol = catalystUrl.protocol
-    u.port = ''
+    u.port = catalystUrl.port
     const req = await fetch(u.toString(), {
       headers: {
         connection: 'close'
