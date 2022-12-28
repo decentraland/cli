@@ -9,6 +9,11 @@ import ignore from 'ignore'
 import fetch, { Headers } from 'node-fetch'
 import { fetchEntityByPointer } from '../../utils/catalystPointers'
 import { smartWearableNameToId } from '../../project/projectInfo'
+import { getConfig } from '../../config'
+
+function getCatalystUrl(): URL {
+  return new URL(getConfig().catalystUrl ?? 'https://peer.decentraland.org')
+}
 
 export function setupEcs6Endpoints(
   components: PreviewComponents,
@@ -61,10 +66,12 @@ export function setupEcs6Endpoints(
       }).map((wearable) => wearable.id)
 
       if (previewWearables.length === 1) {
+        const catalystUrl = getCatalystUrl()
+
         const u = new URL(ctx.url.toString())
-        u.host = 'peer.decentraland.org'
-        u.protocol = 'https:'
-        u.port = ''
+        u.host = catalystUrl.host
+        u.protocol = catalystUrl.protocol
+        u.port = catalystUrl.port
         const req = await fetch(u.toString(), {
           headers: {
             connection: 'close'
@@ -99,10 +106,11 @@ export function setupEcs6Endpoints(
   })
 
   router.all('/lambdas/:path+', async (ctx) => {
+    const catalystUrl = getCatalystUrl()
     const u = new URL(ctx.url.toString())
-    u.host = 'peer.decentraland.org'
-    u.protocol = 'https:'
-    u.port = ''
+    u.host = catalystUrl.host
+    u.protocol = catalystUrl.protocol
+    u.port = catalystUrl.port
     const req = await fetch(u.toString(), {
       headers: {
         connection: 'close'
@@ -120,9 +128,10 @@ export function setupEcs6Endpoints(
   })
 
   router.post('/content/entities', async (ctx) => {
+    const catalystUrl = getCatalystUrl()
     const headers = new Headers()
     console.log(ctx.request.headers)
-    const res = await fetch('https://peer.decentraland.org/content/entities', {
+    const res = await fetch(`${catalystUrl.toString()}/content/entities`, {
       method: 'post',
       headers,
       body: ctx.request.body
@@ -210,9 +219,9 @@ function serveFolders(
       baseFolders,
       pointers: Array.from(requestedPointers)
     })
-
+    const catalystUrl = getCatalystUrl()
     const remote = fetchEntityByPointer(
-      'https://peer.decentraland.org',
+      catalystUrl.toString(),
       pointers.filter(($: string) => !$.match(/-?\d+,-?\d+/))
     )
 
