@@ -196,7 +196,7 @@ export async function main(): Promise<void> {
   })
 
   // Signing message
-  const messageToSign = JSON.stringify({ entityId , intent: "dcl:explorer:deploy"})
+  const messageToSign = JSON.stringify({ entityId , intent: "dcl:worlds:deploy"})
   const { signature, address, chainId } = await dcl.getAddressAndSignature(
     messageToSign
   )
