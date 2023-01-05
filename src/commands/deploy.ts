@@ -196,12 +196,12 @@ export async function main(): Promise<void> {
   })
 
   // Signing message
-  const messageToSign = entityId
+  const messageToSign = JSON.stringify({ entityId , intent: "dcl:explorer:deploy"})
   const { signature, address, chainId } = await dcl.getAddressAndSignature(
     messageToSign
   )
   const authChain = Authenticator.createSimpleAuthChain(
-    entityId,
+    messageToSign,
     address,
     signature
   )
