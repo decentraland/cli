@@ -350,7 +350,7 @@ function serveWearable({
     thumbnailFiltered[0]?.hash &&
     `${baseUrl}/${thumbnailFiltered[0].hash}`
 
-  const wearableId = '8dc2d7ad-97e3-44d0-ba89-e8305d795a6a'
+  const wearableId = 'urn:8dc2d7ad-97e3-44d0-ba89-e8305d795a6a'
 
   const representations = wearableJson.data.representations.map(
     (representation) => ({
