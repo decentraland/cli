@@ -21,7 +21,7 @@ export async function setupBffAndComms(
       bff: { healthy: false },
       comms: {
         healthy: true,
-        protocol: 'v2',
+        protocol: 'v3',
         fixedAdapter: `ws-room:${ctx.url.protocol.replace(
           /^http/,
           'ws'
