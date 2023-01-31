@@ -67,7 +67,7 @@ export async function main() {
     '--skip-build': Boolean,
     '--desktop-client': Boolean,
 
-    // temp and hidden property to add `&renderer-branch=dev&kernel-branch=main`
+    // temp and hidden property to add `&explorer-branch=dev`
     '--sdk7-next': Boolean
   })
 
@@ -154,7 +154,6 @@ export async function main() {
         })
       }
     }
-
     await lintSceneFile(project.getProjectWorkingDir())
   }
 
@@ -205,7 +204,7 @@ export async function main() {
 
           if (ecsVersions.has('ecs7')) {
             if (!!args['--sdk7-next']) {
-              addr = `${addr}&ENABLE_ECS7&renderer-branch=dev&kernel-branch=main`
+              addr = `${addr}&ENABLE_ECS7&explorer-branch=dev`
             } else {
               addr = `${addr}&ENABLE_ECS7`
             }

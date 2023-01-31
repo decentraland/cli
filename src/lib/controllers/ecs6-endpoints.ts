@@ -443,15 +443,35 @@ function getEcsPath(workingDir: string) {
   }
 }
 
+/* require.resolve patch with undefined when fails */
+function resolveOrUndefined(
+  id: string,
+  options?: { paths?: string[] | undefined }
+): string | undefined {
+  try {
+    return require.resolve(id, options)
+  } catch (err) {
+    return undefined
+  }
+}
+
 function serveStatic(
   components: PreviewComponents,
   router: Router<PreviewComponents>
 ) {
   const ecsPath = path.dirname(getEcsPath(components.dcl.getWorkingDir()))
-  const dclKernelPath = path.dirname(
-    require.resolve('@dcl/kernel/package.json', {
+  const dclExplorerPackageJson = resolveOrUndefined(
+    '@dcl/explorer/package.json',
+    {
       paths: [components.dcl.getWorkingDir(), ecsPath]
-    })
+    }
+  )
+
+  const dclKernelPath = path.dirname(
+    dclExplorerPackageJson ??
+      require.resolve('@dcl/kernel/package.json', {
+        paths: [components.dcl.getWorkingDir(), ecsPath]
+      })
   )
   const dclKernelDefaultProfilePath = path.resolve(
     dclKernelPath,
@@ -464,9 +484,10 @@ function serveStatic(
   )
   const dclKernelLoaderPath = path.resolve(dclKernelPath, 'loader')
   const dclUnityRenderer = path.dirname(
-    require.resolve('@dcl/unity-renderer/package.json', {
-      paths: [components.dcl.getWorkingDir(), ecsPath]
-    })
+    dclExplorerPackageJson ??
+      require.resolve('@dcl/unity-renderer/package.json', {
+        paths: [components.dcl.getWorkingDir(), ecsPath]
+      })
   )
 
   const routes = [
@@ -536,6 +557,15 @@ function serveStatic(
     dclUnityRenderer,
     (filePath) => filePath.replace(/.br+$/, '')
   )
+
+  if (dclExplorerPackageJson) {
+    createStaticRoutes(
+      '/@/explorer/:path+',
+      path.dirname(dclExplorerPackageJson),
+      (filePath) => filePath.replace(/.br+$/, '')
+    )
+  }
+
   createStaticRoutes('/@/artifacts/loader/:path+', dclKernelLoaderPath)
   createStaticRoutes('/default-profile/:path+', dclKernelDefaultProfilePath)
 
