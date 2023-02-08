@@ -11,5 +11,6 @@ export default new Set<string>([
   'pack',
   'install',
   'coords',
+  'world-acl',
   'workspace'
 ])

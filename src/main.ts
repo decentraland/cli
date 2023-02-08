@@ -58,6 +58,7 @@ const help = `
       help      [cmd]       Displays complete help for given command
       version               Display current version of dcl
       coords                Set the parcels in your scene
+      world-acl [args]      Manage DCL worlds permissions, dcl help world-acl for more information.
       workspace subcommand  Make a workspace level action, dcl help workspace for more information.
 
     ${chalk.dim('Options:')}
