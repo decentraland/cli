@@ -171,9 +171,7 @@ async function grantAcl(args: arg.Result<typeof spec>) {
 
       // TODO create new ACL with newAllowed and sign it
       const newAcl = { ...data, allowed: newAllowed }
-      // console.log(newAcl)
-
-      if (newAllowed.length === data.allowed.length) {
+      if (newAcl.allowed.length === data.allowed.length) {
         console.log(
           'No changes made. All the addresses requested to be added already have permission.'
         )
@@ -181,15 +179,30 @@ async function grantAcl(args: arg.Result<typeof spec>) {
       }
 
       await signAndStoreAcl(args, newAcl)
-      // TODO store new ACL
     })
     .catch(() => process.exit(1))
 }
 
-async function revokeAcl(xargs: arg.Result<typeof spec>) {
-  const worldName = xargs._[1]
-  const args = xargs._.slice(3)
-  console.log('Running grantAcl', worldName, args)
+async function revokeAcl(args: arg.Result<typeof spec>) {
+  const worldName = args._[1]
+  const addresses = args._.slice(3)
+  await fetchAcl(worldName)
+    .then(async (data) => {
+      const newAllowed = [...data.allowed].filter(
+        (address: EthAddress) => !addresses.includes(address)
+      )
+
+      const newAcl = { ...data, allowed: newAllowed }
+      if (newAcl.allowed.length === data.allowed.length) {
+        console.log(
+          'No changes made. None of the addresses requested to be revoked had permission.'
+        )
+        return
+      }
+
+      await signAndStoreAcl(args, newAcl)
+    })
+    .catch(() => process.exit(1))
 }
 
 async function signAndStoreAcl(
