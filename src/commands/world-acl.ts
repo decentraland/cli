@@ -3,7 +3,23 @@ import chalk from 'chalk'
 import { ErrorType, fail } from '../utils/errors'
 import * as spinner from '../utils/spinner'
 import fetch, { Response } from 'node-fetch'
-import { EthAddress } from '@dcl/schemas'
+import { AuthChain, EthAddress, getChainName } from '@dcl/schemas'
+import arg from 'arg'
+import { Decentraland } from '../lib/Decentraland'
+import opn from 'opn'
+import { LinkerResponse } from '../lib/LinkerAPI'
+import { Authenticator } from '@dcl/crypto'
+
+const spec = {
+  '--help': Boolean,
+  '-h': '--help',
+  '--target-content': String,
+  '-t': '--target-content',
+  '--port': String,
+  '-p': '--port',
+  '--no-browser': Boolean,
+  '-b': '--no-browser'
+}
 
 export function help() {
   return `
@@ -39,19 +55,22 @@ export async function main() {
     )
   }
 
+  const args = arg(spec)
+  // console.log(args)
+
   const subcommandList: Record<
     string,
-    (worldName: string, args: string[]) => Promise<void>
+    (args: arg.Result<typeof spec>) => Promise<void>
   > = {
     show: showAcl,
     grant: grantAcl,
     revoke: revokeAcl,
     help: async () => console.log(help())
   }
-  const subcommand = process.argv[4].toLowerCase()
+  const subcommand = args._[2].toLowerCase()
 
   if (subcommand in subcommandList) {
-    await subcommandList[subcommand](process.argv[3], process.argv.slice(5))
+    await subcommandList[subcommand](args)
   } else {
     fail(
       ErrorType.WORLD_CONTENT_SERVER_ERROR,
@@ -95,7 +114,27 @@ async function fetchAcl(worldName: string): Promise<AccessControlList> {
   return data
 }
 
-async function showAcl(worldName: string, _: string[]) {
+async function storeAcl(
+  worldName: string,
+  authChain: AuthChain
+): Promise<AccessControlList> {
+  spinner.create(`Storing acl for world ${worldName}`)
+  const data = await fetch(`http://localhost:3000/acl/${worldName}`, {
+    method: 'POST',
+    body: JSON.stringify(authChain)
+  })
+    .then(checkStatus)
+    .then((res) => res.json())
+    .catch(async (error) => {
+      spinner.fail(await error.response.text())
+      throw error
+    })
+
+  spinner.succeed(`Storing acl for world ${worldName}`)
+  return data
+}
+async function showAcl(args: arg.Result<typeof spec>) {
+  const worldName = args._[1]
   await fetchAcl(worldName)
     .then((data) => {
       if (data.allowed.length === 0) {
@@ -118,13 +157,13 @@ async function showAcl(worldName: string, _: string[]) {
     .catch(() => process.exit(1))
 }
 
-async function grantAcl(worldName: string, args: string[]) {
-  console.log('Running grantAcl', worldName, args)
+async function grantAcl(args: arg.Result<typeof spec>) {
+  const worldName = args._[1]
+  const addresses = args._.slice(3)
   await fetchAcl(worldName)
-    .then((data) => {
-      console.log(data)
+    .then(async (data) => {
       const newAllowed = [...data.allowed]
-      args.forEach((address: EthAddress) => {
+      addresses.forEach((address: EthAddress) => {
         if (!newAllowed.includes(address)) {
           newAllowed.push(address)
         }
@@ -132,17 +171,89 @@ async function grantAcl(worldName: string, args: string[]) {
 
       // TODO create new ACL with newAllowed and sign it
       const newAcl = { ...data, allowed: newAllowed }
-      console.log(newAcl)
+      // console.log(newAcl)
 
       if (newAllowed.length === data.allowed.length) {
-        console.log()
+        console.log(
+          'No changes made. All the addresses requested to be added already have permission.'
+        )
+        return
       }
 
+      await signAndStoreAcl(args, newAcl)
       // TODO store new ACL
     })
     .catch(() => process.exit(1))
 }
 
-async function revokeAcl(worldName: string, args: string[]) {
-  console.log('Running revokeAcl')
+async function revokeAcl(xargs: arg.Result<typeof spec>) {
+  const worldName = xargs._[1]
+  const args = xargs._.slice(3)
+  console.log('Running grantAcl', worldName, args)
+}
+
+async function signAndStoreAcl(
+  xargs: arg.Result<typeof spec>,
+  acl: { resource: string; allowed: EthAddress[] }
+) {
+  const payload = JSON.stringify(acl)
+
+  spinner.create(`Signing acl for world ${acl.resource}`)
+
+  const workDir = process.cwd()
+  const port = xargs['--port']
+  const parsedPort = port ? parseInt(port, 10) : void 0
+  const linkerPort =
+    parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
+  const noBrowser = xargs['--no-browser']
+
+  const dcl = new Decentraland({
+    isHttps: true,
+    workingDir: workDir,
+    forceDeploy: false,
+    yes: true,
+    skipValidations: true, // validations are skipped for custom content servers
+    linkerPort
+  })
+
+  dcl.on('link:ready', ({ url, params }) => {
+    console.log(chalk.bold('You need to sign the acl:'))
+    spinner.create(`Signing app ready at ${url}`)
+
+    if (!noBrowser) {
+      setTimeout(async () => {
+        try {
+          await opn(`${url}?${params}`)
+        } catch (e) {
+          console.log(`Unable to open browser automatically`)
+        }
+      }, 5000)
+    }
+
+    dcl.on(
+      'link:success',
+      ({ address, signature, chainId }: LinkerResponse) => {
+        spinner.succeed(`Content successfully signed.`)
+        console.log(`${chalk.bold('Address:')} ${address}`)
+        console.log(`${chalk.bold('Signature:')} ${signature}`)
+        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
+      }
+    )
+  })
+
+  const { signature, address } = await dcl.getAddressAndSignature(payload)
+  const authChain = Authenticator.createSimpleAuthChain(
+    payload,
+    address,
+    signature
+  )
+
+  await storeAcl(acl.resource, authChain)
+    .then(async (data) => {
+      console.log(data)
+      spinner.succeed(`Signing acl for world ${acl.resource}`)
+    })
+    .catch((_) => {
+      spinner.fail(`Signing acl for world ${acl.resource}`)
+    })
 }
