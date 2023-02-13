@@ -5,10 +5,10 @@ import * as spinner from '../utils/spinner'
 import fetch, { Response } from 'node-fetch'
 import { AuthChain, EthAddress, getChainName } from '@dcl/schemas'
 import arg from 'arg'
-import { Decentraland } from '../lib/Decentraland'
 import opn from 'opn'
 import { LinkerResponse } from '../lib/LinkerAPI'
 import { Authenticator } from '@dcl/crypto'
+import { WorldsContentServer } from '../lib/WorldsContentServer'
 
 const spec = {
   '--help': Boolean,
@@ -206,26 +206,25 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
 }
 
 async function signAndStoreAcl(
-  xargs: arg.Result<typeof spec>,
+  args: arg.Result<typeof spec>,
   acl: { resource: string; allowed: EthAddress[] }
 ) {
   const payload = JSON.stringify(acl)
 
   spinner.create(`Signing acl for world ${acl.resource}`)
 
-  const workDir = process.cwd()
-  const port = xargs['--port']
+  const port = args['--port']
   const parsedPort = port ? parseInt(port, 10) : void 0
   const linkerPort =
     parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
-  const noBrowser = xargs['--no-browser']
-
-  const dcl = new Decentraland({
+  const noBrowser = args['--no-browser']
+  const targetContent =
+    args['--target-content'] || 'https://worlds-content-server.decentraland.org'
+  const dcl = new WorldsContentServer({
+    worldName: acl.resource,
+    allowed: acl.allowed,
     isHttps: true,
-    workingDir: workDir,
-    forceDeploy: false,
-    yes: true,
-    skipValidations: true, // validations are skipped for custom content servers
+    targetContent,
     linkerPort
   })
 
@@ -236,7 +235,8 @@ async function signAndStoreAcl(
     if (!noBrowser) {
       setTimeout(async () => {
         try {
-          await opn(`${url}?${params}`)
+          console.log(`About to open browser`)
+          await opn(`${url}/acl?${params}`)
         } catch (e) {
           console.log(`Unable to open browser automatically`)
         }
@@ -264,9 +264,9 @@ async function signAndStoreAcl(
   await storeAcl(acl.resource, authChain)
     .then(async (data) => {
       console.log(data)
-      spinner.succeed(`Signing acl for world ${acl.resource}`)
+      // spinner.succeed(`Signing acl for world ${acl.resource}`)
     })
     .catch((_) => {
-      spinner.fail(`Signing acl for world ${acl.resource}`)
+      // spinner.fail(`Signing acl for world ${acl.resource}`)
     })
 }
