@@ -135,8 +135,30 @@ async function storeAcl(
       throw error
     })
 
-  spinner.succeed(`Storing acl for world ${worldName}`)
+  spinner.succeed(`Stored acl for world ${worldName}`)
   return data
+}
+
+function displayPermissionToConsole(
+  data: AccessControlList,
+  worldName: string
+) {
+  if (data.allowed.length === 0) {
+    console.log(
+      `${chalk.dim('Only the owner of')} ${chalk.bold(worldName)} ${chalk.dim(
+        'can deploy scenes under that name.'
+      )}`
+    )
+  } else {
+    console.log(
+      `${chalk.dim(
+        'The following addresses are authorized to deploy scenes under'
+      )} ${chalk.bold(worldName)}${chalk.dim(':')}`
+    )
+    data.allowed.forEach((address: string) => {
+      console.log(`  ${chalk.bold(address)}`)
+    })
+  }
 }
 
 async function showAcl(args: arg.Result<typeof spec>) {
@@ -145,22 +167,7 @@ async function showAcl(args: arg.Result<typeof spec>) {
 
   await fetchAcl(worldName, targetContent)
     .then((data) => {
-      if (data.allowed.length === 0) {
-        console.log(
-          `${chalk.dim('Only the owner of')} ${chalk.bold(
-            worldName
-          )} ${chalk.dim('can deploy scenes under that name.')}`
-        )
-      } else {
-        console.log(
-          `${chalk.dim(
-            'The following addresses are authorized to deploy scenes under'
-          )} ${chalk.bold(worldName)}${chalk.dim(':')}`
-        )
-        data.allowed.forEach((address: string) => {
-          console.log(`  ${chalk.bold(address)}`)
-        })
-      }
+      displayPermissionToConsole(data, worldName)
     })
     .catch(() => process.exit(1))
 }
@@ -179,7 +186,6 @@ async function grantAcl(args: arg.Result<typeof spec>) {
         }
       })
 
-      // TODO create new ACL with newAllowed and sign it
       const newAcl = { ...data, allowed: newAllowed }
       if (newAcl.allowed.length === data.allowed.length) {
         console.log(
@@ -223,8 +229,6 @@ async function signAndStoreAcl(
 ) {
   const payload = JSON.stringify(acl)
 
-  spinner.create(`Signing acl for world ${acl.resource}`)
-
   const port = args['--port']
   const parsedPort = port ? parseInt(port, 10) : void 0
   const linkerPort =
@@ -239,14 +243,14 @@ async function signAndStoreAcl(
     linkerPort
   })
 
-  dcl.on('link:ready', ({ url, params }) => {
+  dcl.on('link:ready', ({ url }) => {
     console.log(chalk.bold('You need to sign the acl:'))
     spinner.create(`Signing app ready at ${url}`)
 
     if (!noBrowser) {
       setTimeout(async () => {
         try {
-          await opn(`${url}/acl?${params}`)
+          await opn(`${url}/acl`)
         } catch (e) {
           console.log(`Unable to open browser automatically`)
         }
@@ -256,7 +260,7 @@ async function signAndStoreAcl(
     dcl.on(
       'link:success',
       ({ address, signature }: WorldsContentServerResponse) => {
-        spinner.succeed(`Content successfully signed.`)
+        spinner.succeed(`ACL successfully signed.`)
         console.log(`${chalk.bold('Address:')} ${address}`)
         console.log(`${chalk.bold('Signature:')} ${signature}`)
       }
@@ -272,10 +276,10 @@ async function signAndStoreAcl(
 
   await storeAcl(acl.resource, authChain)
     .then(async (data) => {
-      console.log(data)
       // spinner.succeed(`Signing acl for world ${acl.resource}`)
+      displayPermissionToConsole(data, acl.resource)
     })
     .catch((_) => {
-      // spinner.fail(`Signing acl for world ${acl.resource}`)
+      spinner.fail(`Signing acl for world ${acl.resource}`)
     })
 }

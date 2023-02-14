@@ -6,7 +6,6 @@ import express, { Express, NextFunction, Request, Response } from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import portfinder from 'portfinder'
-import querystring from 'querystring'
 
 export type WorldsContentServerResponse = {
   address: string
@@ -59,8 +58,6 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
           resolvedPort = 4044
         }
       }
-      const queryParams = querystring.stringify({ ...this.data })
-      console.log({ queryParams })
       const protocol = isHttps ? 'https' : 'http'
       const url = `${protocol}://localhost:${resolvedPort}`
 
@@ -70,8 +67,7 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
         reject(err)
       })
 
-      const serverHandler = () =>
-        this.emit('link:ready', { url, params: queryParams })
+      const serverHandler = () => this.emit('link:ready', { url })
       const eventHandler = () => (e: any) => {
         if (e.errno === 'EADDRINUSE') {
           reject(
