@@ -252,7 +252,8 @@ export async function main(): Promise<void> {
     debug('\n' + error.stack)
     failWithSpinner('Could not upload content', error)
   }
-  return
+
+  process.exit(0)
 }
 
 function findPointers(sceneJson: any): string[] {

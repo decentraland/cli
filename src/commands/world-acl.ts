@@ -282,4 +282,6 @@ async function signAndStoreAcl(
     .catch((_) => {
       spinner.fail(`Signing acl for world ${acl.resource}`)
     })
+
+  process.exit(0)
 }
