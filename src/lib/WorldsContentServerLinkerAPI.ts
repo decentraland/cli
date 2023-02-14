@@ -13,14 +13,6 @@ export type WorldsContentServerResponse = {
   signature: string
 }
 
-/**
- * Events emitted by this class:
- *
- * link:ready   - The server is up and running
- * link:success - Signature success
- * link:error   - The transaction failed and the server was closed
- */
-
 type Route = (
   path: string,
   fn: (
@@ -42,6 +34,13 @@ type AsyncExpress = Express & {
   [key in AsyncMethod]: Route
 }
 
+/**
+ * Events emitted by this class:
+ *
+ * link:ready   - The server is up and running
+ * link:success - Signature success
+ * link:error   - The transaction failed and the server was closed
+ */
 export class WorldsContentServerLinkerAPI extends EventEmitter {
   private app: AsyncExpress = express() as AsyncExpress
 

@@ -38,7 +38,6 @@ export class WorldsContentServer extends EventEmitter {
   }
 
   async link(payload: string): Promise<LinkerResponse> {
-    console.log({ payload })
     return new Promise<LinkerResponse>(async (resolve, reject) => {
       const linker = new WorldsContentServerLinkerAPI({
         worldName: this.options.worldName,
