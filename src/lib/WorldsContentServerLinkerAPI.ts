@@ -48,7 +48,7 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
   }
 
   link(port: number, isHttps: boolean) {
-    return new Promise(async (_resolve, reject) => {
+    return new Promise(async (_, reject) => {
       let resolvedPort = port
 
       if (!resolvedPort) {
@@ -105,11 +105,9 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
     const linkerDapp = path.dirname(
       require.resolve('@dcl/linker-dapp/package.json')
     )
-    // console.log({ linkerDapp, m: path.join(linkerDapp, 'build') })
     this.app.use(cors())
-    // this.app.use('/world-acl', express.static(linkerDapp))
-    this.app.use(express.static(linkerDapp + '/build'))
-    this.app.use('/acl', express.static(linkerDapp + '/build'))
+    this.app.use(express.static(linkerDapp))
+    this.app.use('/acl', express.static(linkerDapp))
     this.app.use(bodyParser.json())
 
     /**
@@ -147,9 +145,7 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
         throw new Error(`Invalid payload: ${Object.keys(value).join(' - ')}`)
       }
 
-      // this.project.setDeployInfo({ linkerResponse: value, status: 'deploying' })
       this.emit('link:success', value)
-      // this.emit('link:error', new Error(`Failed to link: ${reason}`))
     })
   }
 }

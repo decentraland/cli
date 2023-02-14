@@ -277,7 +277,6 @@ async function signAndStoreAcl(
 
   await storeAcl(acl.resource, authChain)
     .then(async (data) => {
-      // spinner.succeed(`Signing acl for world ${acl.resource}`)
       displayPermissionToConsole(data, acl.resource)
     })
     .catch((_) => {
