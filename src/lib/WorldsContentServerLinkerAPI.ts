@@ -136,11 +136,11 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
       }
     }
 
-    this.app.asyncGet('/acl', async () => {
+    this.app.asyncGet('/api/acl', async () => {
       return await this.data
     })
 
-    this.app.asyncPost('/acl', (req) => {
+    this.app.asyncPost('/api/acl', (req) => {
       type Body = {
         address: string
         signature: string
