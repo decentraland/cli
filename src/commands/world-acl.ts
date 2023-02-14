@@ -3,12 +3,12 @@ import chalk from 'chalk'
 import { ErrorType, fail } from '../utils/errors'
 import * as spinner from '../utils/spinner'
 import fetch, { Response } from 'node-fetch'
-import { AuthChain, EthAddress, getChainName } from '@dcl/schemas'
+import { AuthChain, EthAddress } from '@dcl/schemas'
 import arg from 'arg'
 import opn from 'opn'
-import { LinkerResponse } from '../lib/LinkerAPI'
 import { Authenticator } from '@dcl/crypto'
 import { WorldsContentServer } from '../lib/WorldsContentServer'
+import { WorldsContentServerResponse } from '../lib/WorldsContentServerLinkerAPI'
 
 const spec = {
   '--help': Boolean,
@@ -56,7 +56,9 @@ export async function main() {
   }
 
   const args = arg(spec)
-  // console.log(args)
+  if (!args['--target-content']) {
+    args['--target-content'] = 'https://worlds-content-server.decentraland.org'
+  }
 
   const subcommandList: Record<
     string,
@@ -100,9 +102,12 @@ export type AccessControlList = {
   allowed: EthAddress[]
 }
 
-async function fetchAcl(worldName: string): Promise<AccessControlList> {
+async function fetchAcl(
+  worldName: string,
+  targetContent: string
+): Promise<AccessControlList> {
   spinner.create(`Fetching acl for world ${worldName}`)
-  const data = await fetch(`http://localhost:3000/acl/${worldName}`)
+  const data = await fetch(`${targetContent}/acl/${worldName}`)
     .then(checkStatus)
     .then((res) => res.json())
     .catch(async (error) => {
@@ -133,9 +138,12 @@ async function storeAcl(
   spinner.succeed(`Storing acl for world ${worldName}`)
   return data
 }
+
 async function showAcl(args: arg.Result<typeof spec>) {
   const worldName = args._[1]
-  await fetchAcl(worldName)
+  const targetContent = args['--target-content']!
+
+  await fetchAcl(worldName, targetContent)
     .then((data) => {
       if (data.allowed.length === 0) {
         console.log(
@@ -160,7 +168,9 @@ async function showAcl(args: arg.Result<typeof spec>) {
 async function grantAcl(args: arg.Result<typeof spec>) {
   const worldName = args._[1]
   const addresses = args._.slice(3)
-  await fetchAcl(worldName)
+  const targetContent = args['--target-content']!
+
+  await fetchAcl(worldName, targetContent)
     .then(async (data) => {
       const newAllowed = [...data.allowed]
       addresses.forEach((address: EthAddress) => {
@@ -173,7 +183,7 @@ async function grantAcl(args: arg.Result<typeof spec>) {
       const newAcl = { ...data, allowed: newAllowed }
       if (newAcl.allowed.length === data.allowed.length) {
         console.log(
-          'No changes made. All the addresses requested to be added already have permission.'
+          'No changes made. All the addresses requested to be granted access already have permission.'
         )
         return
       }
@@ -186,7 +196,9 @@ async function grantAcl(args: arg.Result<typeof spec>) {
 async function revokeAcl(args: arg.Result<typeof spec>) {
   const worldName = args._[1]
   const addresses = args._.slice(3)
-  await fetchAcl(worldName)
+  const targetContent = args['--target-content']!
+
+  await fetchAcl(worldName, targetContent)
     .then(async (data) => {
       const newAllowed = [...data.allowed].filter(
         (address: EthAddress) => !addresses.includes(address)
@@ -195,7 +207,7 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
       const newAcl = { ...data, allowed: newAllowed }
       if (newAcl.allowed.length === data.allowed.length) {
         console.log(
-          'No changes made. None of the addresses requested to be revoked had permission.'
+          'No changes made. None of the addresses requested to be revoked accessed had permission.'
         )
         return
       }
@@ -218,8 +230,7 @@ async function signAndStoreAcl(
   const linkerPort =
     parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
   const noBrowser = args['--no-browser']
-  const targetContent =
-    args['--target-content'] || 'https://worlds-content-server.decentraland.org'
+  const targetContent = args['--target-content']!
   const dcl = new WorldsContentServer({
     worldName: acl.resource,
     allowed: acl.allowed,
@@ -235,7 +246,6 @@ async function signAndStoreAcl(
     if (!noBrowser) {
       setTimeout(async () => {
         try {
-          console.log(`About to open browser`)
           await opn(`${url}/acl?${params}`)
         } catch (e) {
           console.log(`Unable to open browser automatically`)
@@ -245,11 +255,10 @@ async function signAndStoreAcl(
 
     dcl.on(
       'link:success',
-      ({ address, signature, chainId }: LinkerResponse) => {
+      ({ address, signature }: WorldsContentServerResponse) => {
         spinner.succeed(`Content successfully signed.`)
         console.log(`${chalk.bold('Address:')} ${address}`)
         console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
       }
     )
   })

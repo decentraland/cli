@@ -6,13 +6,11 @@ import express, { Express, NextFunction, Request, Response } from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import portfinder from 'portfinder'
-import { ChainId } from '@dcl/schemas'
 import querystring from 'querystring'
 
-export type LinkerResponse = {
+export type WorldsContentServerResponse = {
   address: string
   signature: string
-  chainId?: ChainId
 }
 
 /**
@@ -112,8 +110,11 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
     const linkerDapp = path.dirname(
       require.resolve('@dcl/linker-dapp/package.json')
     )
+    // console.log({ linkerDapp, m: path.join(linkerDapp, 'build') })
     this.app.use(cors())
-    this.app.use(express.static(linkerDapp))
+    // this.app.use('/world-acl', express.static(linkerDapp))
+    this.app.use(express.static(linkerDapp + '/build'))
+    this.app.use('/acl', express.static(linkerDapp + '/build'))
     this.app.use(bodyParser.json())
 
     /**
@@ -144,11 +145,10 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
       type Body = {
         address: string
         signature: string
-        chainId: ChainId
       }
       const value = req.body as Body
 
-      if (!value.address || !value.signature || !value.chainId) {
+      if (!value.address || !value.signature) {
         throw new Error(`Invalid payload: ${Object.keys(value).join(' - ')}`)
       }
 
