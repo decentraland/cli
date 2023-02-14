@@ -235,7 +235,7 @@ async function signAndStoreAcl(
     parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
   const noBrowser = args['--no-browser']
   const targetContent = args['--target-content']!
-  const dcl = new WorldsContentServer({
+  const worldsContentServer = new WorldsContentServer({
     worldName: acl.resource,
     allowed: acl.allowed,
     isHttps: true,
@@ -243,7 +243,7 @@ async function signAndStoreAcl(
     linkerPort
   })
 
-  dcl.on('link:ready', ({ url }) => {
+  worldsContentServer.on('link:ready', ({ url }) => {
     console.log(chalk.bold('You need to sign the acl:'))
     spinner.create(`Signing app ready at ${url}`)
 
@@ -257,7 +257,7 @@ async function signAndStoreAcl(
       }, 5000)
     }
 
-    dcl.on(
+    worldsContentServer.on(
       'link:success',
       ({ address, signature }: WorldsContentServerResponse) => {
         spinner.succeed(`ACL successfully signed.`)
@@ -267,7 +267,8 @@ async function signAndStoreAcl(
     )
   })
 
-  const { signature, address } = await dcl.getAddressAndSignature(payload)
+  const { signature, address } =
+    await worldsContentServer.getAddressAndSignature(payload)
   const authChain = Authenticator.createSimpleAuthChain(
     payload,
     address,
