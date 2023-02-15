@@ -9,6 +9,7 @@ import opn from 'opn'
 import { Authenticator } from '@dcl/crypto'
 import { WorldsContentServer } from '../lib/WorldsContentServer'
 import { WorldsContentServerResponse } from '../lib/WorldsContentServerLinkerAPI'
+import { Analytics } from '../utils/analytics'
 
 const spec = {
   '--help': Boolean,
@@ -59,6 +60,10 @@ export async function main() {
   if (!args['--target-content']) {
     args['--target-content'] = 'https://worlds-content-server.decentraland.org'
   }
+
+  Analytics.worldAcl({
+    action: args._[2].toLowerCase()
+  })
 
   const subcommandList: Record<
     string,
