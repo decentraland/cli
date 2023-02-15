@@ -93,6 +93,7 @@ class HTTPResponseError extends Error {
     )
   }
 }
+
 const checkStatus = (response: Response) => {
   if (response.ok) {
     // response.status >= 200 && response.status < 300
@@ -126,18 +127,24 @@ async function fetchAcl(
 
 async function storeAcl(
   worldName: string,
-  authChain: AuthChain
+  authChain: AuthChain,
+  targetContent: string
 ): Promise<AccessControlList> {
   spinner.create(`Storing acl for world ${worldName}`)
-  const data = await fetch(`http://localhost:3000/acl/${worldName}`, {
+  const data = await fetch(`${targetContent}/acl/${worldName}`, {
     method: 'POST',
     body: JSON.stringify(authChain)
   })
     .then(checkStatus)
     .then((res) => res.json())
     .catch(async (error) => {
-      spinner.fail(await error.response.text())
-      throw error
+      const message =
+        error.response.headers.get('content-type') === 'application/json'
+          ? (await error.response.json()).message
+          : await error.response.text()
+
+      spinner.fail(message)
+      throw Error(message)
     })
 
   spinner.succeed(`Stored acl for world ${worldName}`)
@@ -280,13 +287,11 @@ async function signAndStoreAcl(
     signature
   )
 
-  await storeAcl(acl.resource, authChain)
+  await storeAcl(acl.resource, authChain, targetContent)
     .then(async (data) => {
       displayPermissionToConsole(data, acl.resource)
     })
-    .catch((_) => {
-      spinner.fail(`Signing acl for world ${acl.resource}`)
-    })
+    .catch((_) => process.exit(1))
 
   process.exit(0)
 }
