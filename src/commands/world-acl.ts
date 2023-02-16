@@ -26,9 +26,9 @@ export function help() {
   Usage: ${chalk.bold('dcl world-acl [world-name] SUBCOMMAND [options]')}
   
     ${chalk.dim('Sub commands:')}
-      show         List all addresses allowed to deploy a scene to a specified world.
-      grant        Give permission to a new address to deploy a scene to a specified world.
-      revoke       Remove permission for a given address to deploy a scene to a specified world.
+      show                          List all addresses allowed to deploy a scene to a specified world.
+      grant  [addr 1] ... [addr n]  Grant permission to new addresses (separated by spaces) to deploy a scene to a specified world.
+      revoke [addr 1] ... [addr n]  Remove permission for given addresses (separated by spaces) to deploy a scene to a specified world.
   
 
     ${chalk.dim('Options:')}
@@ -41,11 +41,11 @@ export function help() {
       - Show which addresses were given permission to deploy name.dcl.eth
       ${chalk.green('$ dcl world-acl name.dcl.eth show')}
 
-      - Give addresses 0x1 and 0x2 permission to deploy name.dcl.eth
-      ${chalk.green('$ dcl world-acl name.dcl.eth grant 0x1,0x2')}
+      - Grant addresses 0x1 and 0x2 permission to deploy name.dcl.eth
+      ${chalk.green('$ dcl world-acl name.dcl.eth grant 0x1 0x2')}
 
       - Revoke addresses 0x1 and 0x2 permission to deploy name.dcl.eth
-      ${chalk.green('$ dcl world-acl name.dcl.eth revoke 0x1,0x2')}
+      ${chalk.green('$ dcl world-acl name.dcl.eth revoke 0x1 0x2')}
 `
 }
 
