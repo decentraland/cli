@@ -291,5 +291,5 @@ async function signAndStoreAcl(
     })
     .catch((_) => process.exit(1))
 
-  process.exit(0)
+  process.exit()
 }
