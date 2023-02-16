@@ -17,7 +17,6 @@ export type WorldsContentServerArguments = {
   allowed: EthAddress[]
   targetContent: string
   linkerPort?: number
-  previewPort?: number
   isHttps?: boolean
   config?: DCLInfo
 }

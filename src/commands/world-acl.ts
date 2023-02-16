@@ -17,9 +17,7 @@ const spec = {
   '--target-content': String,
   '-t': '--target-content',
   '--port': String,
-  '-p': '--port',
-  '--no-browser': Boolean,
-  '-b': '--no-browser'
+  '-p': '--port'
 }
 
 export function help() {
@@ -34,7 +32,9 @@ export function help() {
 
     ${chalk.dim('Options:')}
 
-      -h, --help               Displays complete help
+      -h, --help                  Displays complete help
+      -p, --port [port]           Select a custom port for the linker app (for signing with browser wallet)
+      -t, --target-content [url]  Specifies the base URL for the target Worlds Content Server. Example: 'https://worlds-content-server.decentraland.org'.
 
     ${chalk.dim('Examples:')}
       - Show which addresses were given permission to deploy name.dcl.eth
@@ -245,7 +245,6 @@ async function signAndStoreAcl(
   const parsedPort = port ? parseInt(port, 10) : void 0
   const linkerPort =
     parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
-  const noBrowser = args['--no-browser']
   const targetContent = args['--target-content']!
   const worldsContentServer = new WorldsContentServer({
     worldName: acl.resource,
@@ -259,15 +258,13 @@ async function signAndStoreAcl(
     console.log(chalk.bold('You need to sign the acl:'))
     spinner.create(`Signing app ready at ${url}`)
 
-    if (!noBrowser) {
-      setTimeout(async () => {
-        try {
-          await opn(`${url}/acl`)
-        } catch (e) {
-          console.log(`Unable to open browser automatically`)
-        }
-      }, 5000)
-    }
+    setTimeout(async () => {
+      try {
+        await opn(`${url}/acl`)
+      } catch (e) {
+        console.log(`Unable to open browser automatically`)
+      }
+    }, 5000)
 
     worldsContentServer.on(
       'link:success',
