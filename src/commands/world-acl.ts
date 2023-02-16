@@ -14,6 +14,7 @@ import { Analytics } from '../utils/analytics'
 const spec = {
   '--help': Boolean,
   '-h': '--help',
+  '--https': Boolean,
   '--target-content': String,
   '-t': '--target-content',
   '--port': String,
@@ -249,7 +250,7 @@ async function signAndStoreAcl(
   const worldsContentServer = new WorldsContentServer({
     worldName: acl.resource,
     allowed: acl.allowed,
-    isHttps: true,
+    isHttps: !!args['--https'],
     targetContent,
     linkerPort
   })
