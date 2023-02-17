@@ -50,6 +50,9 @@ export namespace Analytics {
     properties: Omit<AnalyticsProject, 'isWorkspace'>
   ) => trackAsync('Scene deploy success', properties)
 
+  export const worldAcl = (properties: any) =>
+    trackAsync('World ACL', properties)
+
   export const buildScene = (properties: AnalyticsProject) =>
     trackAsync('Build scene', properties)
 

@@ -25,7 +25,7 @@ export type LinkerResponse = {
  * Events emitted by this class:
  *
  * link:ready   - The server is up and running
- * link:success - Signatire success
+ * link:success - Signature success
  * link:error   - The transaction failed and the server was closed
  */
 

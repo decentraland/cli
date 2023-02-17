@@ -11,6 +11,7 @@ export enum ErrorType {
   API_ERROR = 'APIError',
   UPLOAD_ERROR = 'UploadError',
   CONTENT_SERVER_ERROR = 'ContentServerError',
+  WORLD_CONTENT_SERVER_ERROR = 'WorldContentServerError',
   WORKSPACE_ERROR = 'WorkspaceError'
 }
 
