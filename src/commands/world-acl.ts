@@ -114,16 +114,16 @@ async function fetchAcl(
   targetContent: string
 ): Promise<AccessControlList> {
   spinner.create(`Fetching acl for world ${worldName}`)
-  const data = await fetch(`${targetContent}/acl/${worldName}`)
-    .then(checkStatus)
-    .then((res) => res.json())
-    .catch(async (error) => {
-      spinner.fail(await error.response.text())
-      throw error
-    })
-
-  spinner.succeed()
-  return data
+  try {
+    const data = await fetch(`${targetContent}/acl/${worldName}`)
+      .then(checkStatus)
+      .then((res) => res.json())
+    spinner.succeed()
+    return data
+  } catch (error: any) {
+    spinner.fail(await error.response.text())
+    throw error
+  }
 }
 
 async function storeAcl(
@@ -132,24 +132,25 @@ async function storeAcl(
   targetContent: string
 ): Promise<AccessControlList> {
   spinner.create(`Storing acl for world ${worldName}`)
-  const data = await fetch(`${targetContent}/acl/${worldName}`, {
-    method: 'POST',
-    body: JSON.stringify(authChain)
-  })
-    .then(checkStatus)
-    .then((res) => res.json())
-    .catch(async (error) => {
-      const message =
-        error.response.headers.get('content-type') === 'application/json'
-          ? (await error.response.json()).message
-          : await error.response.text()
-
-      spinner.fail(message)
-      throw Error(message)
+  try {
+    const data = await fetch(`${targetContent}/acl/${worldName}`, {
+      method: 'POST',
+      body: JSON.stringify(authChain)
     })
+      .then(checkStatus)
+      .then((res) => res.json())
 
-  spinner.succeed(`Stored acl for world ${worldName}`)
-  return data
+    spinner.succeed(`Stored acl for world ${worldName}`)
+    return data
+  } catch (error: any) {
+    const message =
+      error.response.headers.get('content-type') === 'application/json'
+        ? (await error.response.json()).message
+        : await error.response.text()
+
+    spinner.fail(message)
+    throw Error(message)
+  }
 }
 
 function displayPermissionToConsole(
@@ -178,11 +179,12 @@ async function showAcl(args: arg.Result<typeof spec>) {
   const worldName = args._[1]
   const targetContent = args['--target-content']!
 
-  await fetchAcl(worldName, targetContent)
-    .then((data) => {
-      displayPermissionToConsole(data, worldName)
-    })
-    .catch(() => process.exit(1))
+  try {
+    const data = await fetchAcl(worldName, targetContent)
+    displayPermissionToConsole(data, worldName)
+  } catch (_) {
+    process.exit(1)
+  }
 }
 
 async function grantAcl(args: arg.Result<typeof spec>) {
@@ -190,26 +192,27 @@ async function grantAcl(args: arg.Result<typeof spec>) {
   const addresses = args._.slice(3)
   const targetContent = args['--target-content']!
 
-  await fetchAcl(worldName, targetContent)
-    .then(async (data) => {
-      const newAllowed = [...data.allowed]
-      addresses.forEach((address: EthAddress) => {
-        if (!newAllowed.includes(address)) {
-          newAllowed.push(address)
-        }
-      })
-
-      const newAcl = { ...data, allowed: newAllowed }
-      if (newAcl.allowed.length === data.allowed.length) {
-        console.log(
-          'No changes made. All the addresses requested to be granted access already have permission.'
-        )
-        return
+  try {
+    const data = await fetchAcl(worldName, targetContent)
+    const newAllowed = [...data.allowed]
+    addresses.forEach((address: EthAddress) => {
+      if (!newAllowed.includes(address)) {
+        newAllowed.push(address)
       }
-
-      await signAndStoreAcl(args, newAcl)
     })
-    .catch(() => process.exit(1))
+
+    const newAcl = { ...data, allowed: newAllowed }
+    if (newAcl.allowed.length === data.allowed.length) {
+      console.log(
+        'No changes made. All the addresses requested to be granted access already have permission.'
+      )
+      return
+    }
+
+    await signAndStoreAcl(args, newAcl)
+  } catch (error) {
+    process.exit(1)
+  }
 }
 
 async function revokeAcl(args: arg.Result<typeof spec>) {
@@ -217,23 +220,24 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
   const addresses = args._.slice(3)
   const targetContent = args['--target-content']!
 
-  await fetchAcl(worldName, targetContent)
-    .then(async (data) => {
-      const newAllowed = [...data.allowed].filter(
-        (address: EthAddress) => !addresses.includes(address)
+  try {
+    const data = await fetchAcl(worldName, targetContent)
+    const newAllowed = [...data.allowed].filter(
+      (address: EthAddress) => !addresses.includes(address)
+    )
+
+    const newAcl = { ...data, allowed: newAllowed }
+    if (newAcl.allowed.length === data.allowed.length) {
+      console.log(
+        'No changes made. None of the addresses requested to be revoked accessed had permission.'
       )
+      return
+    }
 
-      const newAcl = { ...data, allowed: newAllowed }
-      if (newAcl.allowed.length === data.allowed.length) {
-        console.log(
-          'No changes made. None of the addresses requested to be revoked accessed had permission.'
-        )
-        return
-      }
-
-      await signAndStoreAcl(args, newAcl)
-    })
-    .catch(() => process.exit(1))
+    await signAndStoreAcl(args, newAcl)
+  } catch (_) {
+    process.exit(1)
+  }
 }
 
 async function signAndStoreAcl(
@@ -285,11 +289,12 @@ async function signAndStoreAcl(
     signature
   )
 
-  await storeAcl(acl.resource, authChain, targetContent)
-    .then(async (data) => {
-      displayPermissionToConsole(data, acl.resource)
-    })
-    .catch((_) => process.exit(1))
+  try {
+    const data = await storeAcl(acl.resource, authChain, targetContent)
+    displayPermissionToConsole(data, acl.resource)
+  } catch (_) {
+    process.exit(1)
+  }
 
   process.exit()
 }
