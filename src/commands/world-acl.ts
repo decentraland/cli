@@ -244,7 +244,10 @@ async function signAndStoreAcl(
   args: arg.Result<typeof spec>,
   acl: { resource: string; allowed: EthAddress[] }
 ) {
-  const payload = JSON.stringify(acl)
+  const payload = JSON.stringify({
+    ...acl,
+    timestamp: new Date().toISOString()
+  })
 
   const port = args['--port']
   const parsedPort = port ? parseInt(port, 10) : void 0
