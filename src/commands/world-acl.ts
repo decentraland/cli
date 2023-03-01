@@ -209,7 +209,7 @@ async function grantAcl(args: arg.Result<typeof spec>) {
       return
     }
 
-    await signAndStoreAcl(args, newAcl)
+    await signAndStoreAcl(args, newAcl, data.allowed)
   } catch (error) {
     process.exit(1)
   }
@@ -234,7 +234,7 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
       return
     }
 
-    await signAndStoreAcl(args, newAcl)
+    await signAndStoreAcl(args, newAcl, data.allowed)
   } catch (_) {
     process.exit(1)
   }
@@ -242,7 +242,8 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
 
 async function signAndStoreAcl(
   args: arg.Result<typeof spec>,
-  acl: { resource: string; allowed: EthAddress[] }
+  acl: { resource: string; allowed: EthAddress[] },
+  old_allowed: EthAddress[]
 ) {
   const payload = JSON.stringify({
     ...acl,
@@ -257,6 +258,7 @@ async function signAndStoreAcl(
   const worldsContentServer = new WorldsContentServer({
     worldName: acl.resource,
     allowed: acl.allowed,
+    old_allowed: old_allowed,
     isHttps: !!args['--https'],
     targetContent,
     linkerPort
