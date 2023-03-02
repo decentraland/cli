@@ -103,10 +103,6 @@ export async function getOutdatedEcs(workingDir: string): Promise<
     }
   | undefined
 > {
-  const decentralandEcs7Version = await getInstalledVersion(
-    workingDir,
-    '@dcl/sdk'
-  )
   const decentralandEcs6Version = await getInstalledVersion(
     workingDir,
     'decentraland-ecs'
@@ -121,17 +117,7 @@ export async function getOutdatedEcs(workingDir: string): Promise<
         latestVersion
       }
     }
-  } else if (decentralandEcs7Version) {
-    const latestVersion = await getLatestVersion('@dcl/sdk')
-    if (latestVersion && semver.lt(decentralandEcs7Version, latestVersion)) {
-      return {
-        package: '@dcl/sdk',
-        installedVersion: decentralandEcs7Version,
-        latestVersion
-      }
-    }
   }
-
   return undefined
 }
 
