@@ -193,23 +193,23 @@ async function grantAcl(args: arg.Result<typeof spec>) {
   const targetContent = args['--target-content']!
 
   try {
-    const data = await fetchAcl(worldName, targetContent)
-    const newAllowed = [...data.allowed]
+    const currentData = await fetchAcl(worldName, targetContent)
+    const newAllowed = [...currentData.allowed]
     addresses.forEach((address: EthAddress) => {
       if (!newAllowed.includes(address)) {
         newAllowed.push(address)
       }
     })
 
-    const newAcl = { ...data, allowed: newAllowed }
-    if (newAcl.allowed.length === data.allowed.length) {
+    const newAcl = { ...currentData, allowed: newAllowed }
+    if (newAcl.allowed.length === currentData.allowed.length) {
       console.log(
         'No changes made. All the addresses requested to be granted access already have permission.'
       )
       return
     }
 
-    await signAndStoreAcl(args, newAcl)
+    await signAndStoreAcl(args, newAcl, currentData.allowed)
   } catch (error) {
     process.exit(1)
   }
@@ -221,20 +221,20 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
   const targetContent = args['--target-content']!
 
   try {
-    const data = await fetchAcl(worldName, targetContent)
-    const newAllowed = [...data.allowed].filter(
+    const currentData = await fetchAcl(worldName, targetContent)
+    const newAllowed = [...currentData.allowed].filter(
       (address: EthAddress) => !addresses.includes(address)
     )
 
-    const newAcl = { ...data, allowed: newAllowed }
-    if (newAcl.allowed.length === data.allowed.length) {
+    const newAcl = { ...currentData, allowed: newAllowed }
+    if (newAcl.allowed.length === currentData.allowed.length) {
       console.log(
         'No changes made. None of the addresses requested to be revoked accessed had permission.'
       )
       return
     }
 
-    await signAndStoreAcl(args, newAcl)
+    await signAndStoreAcl(args, newAcl, currentData.allowed)
   } catch (_) {
     process.exit(1)
   }
@@ -242,9 +242,13 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
 
 async function signAndStoreAcl(
   args: arg.Result<typeof spec>,
-  acl: { resource: string; allowed: EthAddress[] }
+  acl: { resource: string; allowed: EthAddress[] },
+  oldAllowed: EthAddress[]
 ) {
-  const payload = JSON.stringify(acl)
+  const payload = JSON.stringify({
+    ...acl,
+    timestamp: new Date().toISOString()
+  })
 
   const port = args['--port']
   const parsedPort = port ? parseInt(port, 10) : void 0
@@ -254,6 +258,7 @@ async function signAndStoreAcl(
   const worldsContentServer = new WorldsContentServer({
     worldName: acl.resource,
     allowed: acl.allowed,
+    oldAllowed: oldAllowed,
     isHttps: !!args['--https'],
     targetContent,
     linkerPort

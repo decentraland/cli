@@ -15,6 +15,7 @@ import { EthAddress } from '@dcl/schemas'
 export type WorldsContentServerArguments = {
   worldName: string
   allowed: EthAddress[]
+  oldAllowed: EthAddress[]
   targetContent: string
   linkerPort?: number
   isHttps?: boolean
@@ -41,7 +42,9 @@ export class WorldsContentServer extends EventEmitter {
       const linker = new WorldsContentServerLinkerAPI({
         worldName: this.options.worldName,
         allowed: this.options.allowed,
+        oldAllowed: this.options.oldAllowed,
         targetContent: this.options.targetContent,
+        expiration: 120,
         payload
       })
       events(linker, '*', this.pipeEvents.bind(this))
