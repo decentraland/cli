@@ -243,7 +243,7 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
 async function signAndStoreAcl(
   args: arg.Result<typeof spec>,
   acl: { resource: string; allowed: EthAddress[] },
-  old_allowed: EthAddress[]
+  oldAllowed: EthAddress[]
 ) {
   const payload = JSON.stringify({
     ...acl,
@@ -258,7 +258,7 @@ async function signAndStoreAcl(
   const worldsContentServer = new WorldsContentServer({
     worldName: acl.resource,
     allowed: acl.allowed,
-    old_allowed: old_allowed,
+    oldAllowed: oldAllowed,
     isHttps: !!args['--https'],
     targetContent,
     linkerPort
