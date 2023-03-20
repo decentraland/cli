@@ -238,10 +238,12 @@ export async function main(): Promise<void> {
     spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}\n`)
 
     const baseCoords = await dcl.workspace.getBaseCoords()
+    const parcelCount = await dcl.workspace.getParcelCount()
 
     Analytics.sceneDeploySuccess({
       projectHash: dcl.getProjectHash(),
       ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
+      parcelCount: parcelCount,
       coords: baseCoords
     })
 
@@ -252,8 +254,6 @@ export async function main(): Promise<void> {
     debug('\n' + error.stack)
     failWithSpinner('Could not upload content', error)
   }
-
-  process.exit()
 }
 
 function findPointers(sceneJson: any): string[] {

@@ -31,6 +31,7 @@ export type AnalyticsProject = {
     packageVersion: string
   }
   coords?: { x: number; y: number }
+  parcelCount?: number
   isWorkspace: boolean
 }
 
@@ -136,7 +137,6 @@ async function track(eventName: string, properties: any = {}) {
     }
 
     const shouldTrack = trackStats || eventName === ANONYMOUS_DATA_QUESTION
-
     if (!shouldTrack) {
       resolve()
     }
