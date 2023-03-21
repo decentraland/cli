@@ -48,6 +48,7 @@ export interface Workspace {
   isSingleProject: () => boolean
   hasPortableExperience: () => boolean
   getBaseCoords: () => Promise<{ x: number; y: number }>
+  getParcelCount: () => Promise<number>
   addProject: (projectPath: string) => Promise<void>
 }
 
@@ -117,6 +118,13 @@ export const createWorkspace = ({
       : { x: 0, y: 0 }
   }
 
+  const getParcelCount = async () => {
+    const firstParcelScene = projects.find(
+      (project) => project.getInfo().sceneType === sdk.ProjectType.SCENE
+    )
+    return firstParcelScene ? await firstParcelScene.getSceneParcelCount() : 0
+  }
+
   const saveWorkspace = async () => {
     if (isSingleProject()) {
       throw new Error('Can not save a single project workspace.')
@@ -165,6 +173,7 @@ export const createWorkspace = ({
     isSingleProject,
     hasPortableExperience,
     getBaseCoords,
+    getParcelCount,
     addProject
   }
 }

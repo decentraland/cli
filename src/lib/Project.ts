@@ -540,6 +540,16 @@ export class Project {
     }
   }
 
+  async getSceneParcelCount() {
+    try {
+      const sceneFile = await getSceneFile(this.projectWorkingDir)
+      return sceneFile.scene.parcels.length
+    } catch (e) {
+      console.log(error(`Could not open "scene.json" file`))
+      throw e
+    }
+  }
+
   async checkCLIandECSCompatibility() {
     const ecsVersion = this.getEcsVersion()
     if (ecsVersion === 'unknown') {
