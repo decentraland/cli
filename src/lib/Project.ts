@@ -384,10 +384,12 @@ export class Project {
    */
   async getFiles({
     ignoreFiles = '',
-    cache = false
+    cache = false,
+    skipFileSizeCheck = false
   }: {
     ignoreFiles?: string
     cache?: boolean
+    skipFileSizeCheck?: boolean
   } = {}): Promise<IFile[]> {
     if (cache && this.files.length) {
       return this.files
@@ -404,7 +406,7 @@ export class Project {
       const filePath = path.resolve(this.projectWorkingDir, file)
       const stat = await fs.stat(filePath)
 
-      if (stat.size > Project.MAX_FILE_SIZE_BYTES) {
+      if (stat.size > Project.MAX_FILE_SIZE_BYTES && !skipFileSizeCheck) {
         fail(
           ErrorType.UPLOAD_ERROR,
           `Maximum file size exceeded: '${file}' is larger than ${

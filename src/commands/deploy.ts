@@ -35,6 +35,7 @@ export const help = () => `
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-build              Skip build before deploy
       --skip-validations        Skip permissions verifications on the client side when deploying content
+      --skip-file-size-check    Skip check for maximum file size when deploying to a target content server. Must be used with --target-content
 
     ${chalk.dim('Example:')}
 
@@ -63,6 +64,7 @@ export async function main(): Promise<void> {
     '--skip-validations': Boolean,
     '--skip-version-checks': Boolean,
     '--skip-build': Boolean,
+    '--skip-file-size-check': Boolean,
     '--https': Boolean,
     '--force-upload': Boolean,
     '--yes': Boolean,
@@ -83,6 +85,8 @@ export async function main(): Promise<void> {
   const workDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
   const skipBuild = args['--skip-build']
+  const skipFileSizeCheck =
+    !!args['--skip-file-size-check'] && !!args['--target-content']
   const noBrowser = args['--no-browser']
   const port = args['--port']
   const parsedPort = typeof port === 'string' ? parseInt(port, 10) : void 0
@@ -149,7 +153,8 @@ export async function main(): Promise<void> {
     originalFilesToIgnore.concat('\n entity.json')
 
   const files: IFile[] = await project.getFiles({
-    ignoreFiles: filesToIgnorePlusEntityJson
+    ignoreFiles: filesToIgnorePlusEntityJson,
+    skipFileSizeCheck: skipFileSizeCheck
   })
   const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
