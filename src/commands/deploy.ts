@@ -7,7 +7,7 @@ import {
   DeploymentBuilder
 } from 'dcl-catalyst-client'
 import { Authenticator } from '@dcl/crypto'
-import { ChainId, getChainName, EntityType } from '@dcl/schemas'
+import { ChainId, EntityType, getChainName } from '@dcl/schemas'
 import opn from 'opn'
 
 import { isTypescriptProject } from '../project/isTypescriptProject'
@@ -244,12 +244,15 @@ export async function main(): Promise<void> {
 
     const baseCoords = await dcl.workspace.getBaseCoords()
     const parcelCount = await dcl.workspace.getParcelCount()
-
     Analytics.sceneDeploySuccess({
       projectHash: dcl.getProjectHash(),
       ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
       parcelCount: parcelCount,
-      coords: baseCoords
+      coords: baseCoords,
+      isWorld: !!sceneJson.worldConfiguration,
+      sceneId: entityId,
+      targetContentServer: catalyst.getContentUrl(),
+      worldName: sceneJson.worldConfiguration?.name
     })
 
     if (response.message) {

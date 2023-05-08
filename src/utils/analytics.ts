@@ -4,6 +4,7 @@ import { createDCLInfo, getConfig } from '../config'
 import { isOnline, getInstalledCLIVersion } from './moduleHelpers'
 import { debug } from './logging'
 import chalk from 'chalk'
+import { IPFSv2 } from '@dcl/schemas'
 
 // Setup segment.io
 const SINGLEUSER = 'cli-user'
@@ -35,6 +36,13 @@ export type AnalyticsProject = {
   isWorkspace: boolean
 }
 
+export type SceneDeploySuccess = Omit<AnalyticsProject, 'isWorkspace'> & {
+  isWorld: boolean
+  sceneId: IPFSv2
+  targetContentServer: string
+  worldName: string | undefined
+}
+
 export namespace Analytics {
   export const sceneCreated = (properties?: {
     projectType: string
@@ -47,9 +55,8 @@ export namespace Analytics {
   export const sceneStartDeploy = (properties?: any) =>
     trackAsync('Scene deploy started', properties)
 
-  export const sceneDeploySuccess = (
-    properties: Omit<AnalyticsProject, 'isWorkspace'>
-  ) => trackAsync('Scene deploy success', properties)
+  export const sceneDeploySuccess = (properties: SceneDeploySuccess) =>
+    trackAsync('Scene deploy success', properties)
 
   export const worldAcl = (properties: any) =>
     trackAsync('World ACL', properties)
