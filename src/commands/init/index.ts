@@ -26,6 +26,7 @@ export async function main() {
     fail(ErrorType.INIT_ERROR, 'Cannot init a project in workspace directory')
     return
   }
+  const anonymousInit = !!args['--anon']
   const projectArg = args['--project']
   const templateArg = args['--template']
 
@@ -71,5 +72,7 @@ export async function main() {
   }
 
   console.log(chalk.green(`\nSuccess! Run 'dcl start' to see your scene\n`))
-  Analytics.sceneCreated({ projectType: type, url })
+  if (!anonymousInit) {
+    Analytics.sceneCreated({ projectType: type, url })
+  }
 }

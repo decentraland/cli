@@ -7,6 +7,7 @@ export const args = arg({
   '--project': String,
   '--template': String,
   '--skip-install': Boolean,
+  '--anon': Boolean,
   '-h': '--help',
   '-p': '--project',
   '-t': '--template'
@@ -34,4 +35,5 @@ export const help = () => `
 
     --skip-install       Skip installing dependencies
     --template           The URL to a template. It must be under the decentraland or decentraland-scenes GitHub organization.
+    --anon               Disable analytics
 `
