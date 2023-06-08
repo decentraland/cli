@@ -18,7 +18,8 @@ const spec = {
   '--target-content': String,
   '-t': '--target-content',
   '--port': String,
-  '-p': '--port'
+  '-p': '--port',
+  '--anon': Boolean
 }
 
 export function help() {
@@ -62,9 +63,13 @@ export async function main() {
     args['--target-content'] = 'https://worlds-content-server.decentraland.org'
   }
 
-  Analytics.worldAcl({
-    action: args._[2].toLowerCase()
-  })
+  const anonymous = !!args['--anon']
+
+  if (!anonymous) {
+    Analytics.worldAcl({
+      action: args._[2].toLowerCase()
+    })
+  }
 
   const subcommandList: Record<
     string,
