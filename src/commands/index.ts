@@ -12,5 +12,6 @@ export default new Set<string>([
   'install',
   'coords',
   'world-acl',
+  'dream-space-acl',
   'workspace'
 ])
