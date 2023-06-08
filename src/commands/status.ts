@@ -17,6 +17,7 @@ export const help = () => `
       -n, --network             Choose between ${chalk.bold(
         'mainnet'
       )} and ${chalk.bold('goerli')} (default 'mainnet')
+      --anon                    Disable analytics
 
 
     ${chalk.dim('Examples:')}
@@ -36,13 +37,15 @@ export async function main() {
       '--help': Boolean,
       '--network': String,
       '-h': '--help',
-      '-n': '--network'
+      '-n': '--network',
+      '--anon': Boolean
     },
     { permissive: true }
   )
 
   const dcl = new Decentraland({ workingDir: process.cwd() })
 
+  const anonymousStatus = !!args['--anon']
   const target = parseTarget(args._)
   let coords
 
@@ -65,7 +68,9 @@ export async function main() {
     return
   } else {
     const { cid, files } = await dcl.getParcelStatus(coords.x, coords.y)
-    Analytics.statusCmd({ type: 'coordinates', target: coords })
+    if (!anonymousStatus) {
+      Analytics.statusCmd({ type: 'coordinates', target: coords })
+    }
     logStatus(files, cid, `${coords.x},${coords.y}`)
   }
 }

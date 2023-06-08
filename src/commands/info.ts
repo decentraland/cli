@@ -19,7 +19,7 @@ export const help = () => `
       -n, --network             Choose between ${chalk.bold(
         'mainnet'
       )} and ${chalk.bold('goerli')} (default 'mainnet')
-      --anon,                   Anonymous information request
+      --anon                    Anonymous information request
 
 
     ${chalk.dim('Examples:')}
