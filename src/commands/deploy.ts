@@ -7,7 +7,7 @@ import {
   DeploymentBuilder
 } from 'dcl-catalyst-client'
 import { Authenticator } from '@dcl/crypto'
-import { ChainId, EntityType, getChainName } from '@dcl/schemas'
+import { ChainId, EntityType, getChainName, Scene } from '@dcl/schemas'
 import opn from 'opn'
 
 import { isTypescriptProject } from '../project/isTypescriptProject'
@@ -159,7 +159,8 @@ export async function main(): Promise<void> {
   const contentFiles = new Map(files.map((file) => [file.path, file.content]))
 
   // Create scene.json
-  const sceneJson = await getSceneFile(workDir)
+  const sceneJson: Scene & { dreamSpaceConfiguration?: any } =
+    await getSceneFile(workDir)
 
   const { entityId, files: entityFiles } = await DeploymentBuilder.buildEntity({
     type: EntityType.SCENE,
@@ -249,10 +250,13 @@ export async function main(): Promise<void> {
       ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
       parcelCount: parcelCount,
       coords: baseCoords,
-      isWorld: !!sceneJson.worldConfiguration,
+      isWorld:
+        !!sceneJson.worldConfiguration || !!sceneJson.dreamSpaceConfiguration,
       sceneId: entityId,
       targetContentServer: catalyst.getContentUrl(),
-      worldName: sceneJson.worldConfiguration?.name
+      worldName:
+        sceneJson.worldConfiguration?.name ||
+        sceneJson.dreamSpaceConfiguration?.name
     })
 
     if (response.message) {
