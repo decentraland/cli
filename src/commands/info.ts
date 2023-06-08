@@ -19,6 +19,7 @@ export const help = () => `
       -n, --network             Choose between ${chalk.bold(
         'mainnet'
       )} and ${chalk.bold('goerli')} (default 'mainnet')
+      --anon,                   Anonymous information request
 
 
     ${chalk.dim('Examples:')}
@@ -67,7 +68,8 @@ export async function main() {
       '--network': String,
       '-h': '--help',
       '-b': '--blockchain',
-      '-n': '--network'
+      '-n': '--network',
+      '--anon': Boolean
     },
     { permissive: true }
   )
@@ -76,6 +78,7 @@ export async function main() {
     fail(ErrorType.INFO_ERROR, 'Please provide a target to retrieve data')
   }
 
+  const anonymousInfo = !!args['--anon']
   const target = parseTarget(args._)
   debug(`Parsed target: ${target}`)
   const type = getTargetType(target)
@@ -92,7 +95,9 @@ export async function main() {
   if (type === 'parcel') {
     spinner.create(chalk.dim(`Fetching information for LAND ${target}`))
     const coords = getObject(target)
-    Analytics.infoCmd({ type: 'coordinates', target: coords })
+    if (!anonymousInfo) {
+      Analytics.infoCmd({ type: 'coordinates', target: coords })
+    }
     const [estate, data] = await Promise.all([
       dcl.getEstateOfParcel(coords),
       dcl.getParcelInfo(coords)
@@ -106,7 +111,9 @@ export async function main() {
   if (type === 'estate') {
     spinner.create(chalk.dim(`Fetching information for Estate ${target}`))
     const estateId = parseInt(target, 10)
-    Analytics.infoCmd({ type: 'estate', target: estateId })
+    if (!anonymousInfo) {
+      Analytics.infoCmd({ type: 'estate', target: estateId })
+    }
     const estate = await dcl.getEstateInfo(estateId)
     spinner.succeed(`Fetched data for Estate ${chalk.bold(target)}`)
     logEstate(estate, estateId)
@@ -114,7 +121,9 @@ export async function main() {
   }
 
   spinner.create(chalk.dim(`Fetching information for address ${target}`))
-  Analytics.infoCmd({ type: 'address', target: target })
+  if (!anonymousInfo) {
+    Analytics.infoCmd({ type: 'address', target: target })
+  }
   const { parcels, estates } = await dcl.getAddressInfo(target)
 
   const formattedParcels = parcels.reduce((acc, parcel) => {

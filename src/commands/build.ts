@@ -18,6 +18,7 @@ export const help = () => `
       -p, --production          Build without sourcemaps
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-install            Skip installing dependencies
+      --anon
       
     ${chalk.dim('Example:')}
 
@@ -35,14 +36,15 @@ export async function main(): Promise<number> {
     '--skip-version-checks': Boolean,
     '--production': Boolean,
     '-p': '--production',
-    '--skip-install': Boolean
+    '--skip-install': Boolean,
+    '--anon': Boolean
   })
 
   const dcl = new Decentraland({
     watch: args['--watch'] || args['-w'] || false,
     workingDir: process.cwd()
   })
-
+  const anonymousBuild = !!args['--anon']
   const skipVersionCheck = args['--skip-version-checks']
   const skipInstall = args['--skip-install']
   const online = await isOnline()
@@ -99,19 +101,21 @@ export async function main(): Promise<number> {
     )
   }
 
-  if (dcl.workspace.isSingleProject()) {
-    const baseCoords = await dcl.workspace.getBaseCoords()
-    Analytics.buildScene({
-      projectHash: dcl.getProjectHash(),
-      ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
-      coords: baseCoords,
-      isWorkspace: false
-    })
-  } else {
-    Analytics.buildScene({
-      projectHash: dcl.getProjectHash(),
-      isWorkspace: true
-    })
+  if (!anonymousBuild) {
+    if (dcl.workspace.isSingleProject()) {
+      const baseCoords = await dcl.workspace.getBaseCoords()
+      Analytics.buildScene({
+        projectHash: dcl.getProjectHash(),
+        ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
+        coords: baseCoords,
+        isWorkspace: false
+      })
+    } else {
+      Analytics.buildScene({
+        projectHash: dcl.getProjectHash(),
+        isWorkspace: true
+      })
+    }
   }
 
   return 0
