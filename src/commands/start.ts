@@ -35,6 +35,7 @@ export const help = () => `
       --skip-build              Skip build and only serve the files in preview mode
       --skip-install            Skip installing dependencies
       --desktop-client          Show URL to launch preview in the desktop client (BETA)
+      --anon                    Disable analytics 
 
     ${chalk.dim('Examples:')}
 
@@ -66,10 +67,13 @@ export async function main() {
     '-c': '--ci',
     '--skip-build': Boolean,
     '--desktop-client': Boolean,
+    '--anon': Boolean,
 
     // temp and hidden property to add `&explorer-branch=dev`
     '--sdk7-next': Boolean
   })
+
+  const anonymousStart = !!args['--anon']
 
   const isCi = args['--ci'] || isEnvCi()
   const debug = !args['--no-debug'] && !isCi
@@ -157,18 +161,20 @@ export async function main() {
     await lintSceneFile(project.getProjectWorkingDir())
   }
 
-  if (dcl.workspace.isSingleProject()) {
-    Analytics.startPreview({
-      projectHash: dcl.getProjectHash(),
-      ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
-      coords: baseCoords,
-      isWorkspace: false
-    })
-  } else {
-    Analytics.startPreview({
-      projectHash: dcl.getProjectHash(),
-      isWorkspace: true
-    })
+  if (!anonymousStart) {
+    if (dcl.workspace.isSingleProject()) {
+      Analytics.startPreview({
+        projectHash: dcl.getProjectHash(),
+        ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
+        coords: baseCoords,
+        isWorkspace: false
+      })
+    } else {
+      Analytics.startPreview({
+        projectHash: dcl.getProjectHash(),
+        isWorkspace: true
+      })
+    }
   }
 
   if (
