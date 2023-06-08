@@ -1,3 +1,4 @@
+import arg from 'arg'
 import chalk from 'chalk'
 
 import { Analytics } from '../utils/analytics'
@@ -18,9 +19,15 @@ export const help = () => `
   ${chalk.dim('Options:')}
 
     -h, --help               Displays complete help
+    --anon                   Disable analytics
 `
 
 async function init() {
+  const args = arg({
+    '--help': Boolean,
+    '-h': '--help',
+    '--anon': Boolean
+  })
   try {
     await initializeWorkspace(process.cwd())
     console.log(
@@ -30,7 +37,10 @@ async function init() {
     fail(ErrorType.WORKSPACE_ERROR, err.message)
   }
 
-  Analytics.sceneCreated({ projectType: 'workspace' })
+  const anonymousInit = !!args['--anon']
+  if (!anonymousInit) {
+    Analytics.sceneCreated({ projectType: 'workspace' })
+  }
 }
 
 async function listProjects() {
