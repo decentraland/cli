@@ -32,6 +32,7 @@ export const help = () => `
       -t, --target              Specifies the address and port for the target catalyst server. Defaults to peer.decentraland.org
       -t, --target-content      Specifies the address and port for the target content server. Example: 'peer.decentraland.org/content'. Can't be set together with --target
       -b, --no-browser          Do not open a new browser window
+      --anon                    Anonymous deploy
       --skip-version-checks     Skip the ECS and CLI version checks, avoid the warning message and launch anyway
       --skip-build              Skip build before deploy
       --skip-validations        Skip permissions verifications on the client side when deploying content
@@ -71,10 +72,15 @@ export async function main(): Promise<void> {
     '--no-browser': Boolean,
     '-b': '--no-browser',
     '--port': String,
-    '-p': '--port'
+    '-p': '--port',
+    '--anon': Boolean
   })
 
-  Analytics.sceneStartDeploy()
+  const anonymousDeploy = !!args['--anon']
+
+  if (!anonymousDeploy) {
+    Analytics.sceneStartDeploy()
+  }
 
   if (args['--target'] && args['--target-content']) {
     throw new Error(
@@ -244,16 +250,19 @@ export async function main(): Promise<void> {
 
     const baseCoords = await dcl.workspace.getBaseCoords()
     const parcelCount = await dcl.workspace.getParcelCount()
-    Analytics.sceneDeploySuccess({
-      projectHash: dcl.getProjectHash(),
-      ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
-      parcelCount: parcelCount,
-      coords: baseCoords,
-      isWorld: !!sceneJson.worldConfiguration,
-      sceneId: entityId,
-      targetContentServer: catalyst.getContentUrl(),
-      worldName: sceneJson.worldConfiguration?.name
-    })
+
+    if (!anonymousDeploy) {
+      Analytics.sceneDeploySuccess({
+        projectHash: dcl.getProjectHash(),
+        ecs: await dcl.workspace.getSingleProject()!.getEcsPackageVersion(),
+        parcelCount: parcelCount,
+        coords: baseCoords,
+        isWorld: !!sceneJson.worldConfiguration,
+        sceneId: entityId,
+        targetContentServer: catalyst.getContentUrl(),
+        worldName: sceneJson.worldConfiguration?.name
+      })
+    }
 
     if (response.message) {
       console.log(response.message)
