@@ -50,6 +50,7 @@ Just update the version on the `package.json` file and merge to master.
 | Estate Registry Contract |   ESTATE_REGISTRY   | EstateRegistry |
 | Content Server URL       |     CONTENT_URL     |   contentUrl   |
 | Segment API key          |     SEGMENT_KEY     |   segmentKey   |
+| Track Analytics data     |     TRACK_STATS     |   trackStats   |
 
 ## Copyright info
 This repository is protected with a standard Apache 2 license. See the terms and conditions in the [LICENSE](https://github.com/decentraland/cli/blob/master/LICENSE) file.
