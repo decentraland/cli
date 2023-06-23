@@ -18,7 +18,7 @@ export type DCLInfo = {
   segmentKey?: string
 }
 
-let networkFlag: string
+let networkFlag: string = 'mainnet'
 let config: DCLInfo
 
 /**
