@@ -79,12 +79,12 @@ export async function main(version: string) {
   setVersion(version)
   if (!process.argv.includes('--ci') && !process.argv.includes('--c')) {
     const network = args['--network']
-    if (network && network !== 'mainnet' && network !== 'goerli') {
+    if (network && network !== 'mainnet' && network !== 'sepolia') {
       console.error(
         log.error(
           `The only available values for ${chalk.bold(
             `'--network'`
-          )} are ${chalk.bold(`'mainnet'`)} or ${chalk.bold(`'goerli'`)}`
+          )} are ${chalk.bold(`'mainnet'`)} or ${chalk.bold(`'sepolia'`)}`
         )
       )
       process.exit(1)

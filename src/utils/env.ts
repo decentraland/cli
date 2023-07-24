@@ -20,7 +20,7 @@ export function isDebug() {
 export const isDev: boolean = process.env.DCL_ENV === 'dev'
 export function getProvider() {
   return isDev
-    ? 'https://rpc.decentraland.org/goerli'
+    ? 'https://rpc.decentraland.org/sepolia'
     : 'https://rpc.decentraland.org/mainnet'
 }
 

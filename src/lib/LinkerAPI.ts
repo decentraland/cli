@@ -190,7 +190,7 @@ export class LinkerAPI extends EventEmitter {
       const pointer = `${x},${y}`
       const chainId = this.project.getDeployInfo()?.linkerResponse?.chainId || 1
       const network =
-        chainId === ChainId.ETHEREUM_MAINNET ? 'mainnet' : 'goerli'
+        chainId === ChainId.ETHEREUM_MAINNET ? 'mainnet' : 'sepolia'
       const value = await getPointers(pointer, network)
 
       return {
