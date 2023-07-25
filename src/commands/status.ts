@@ -16,7 +16,7 @@ export const help = () => `
       -h, --help                Displays complete help
       -n, --network             Choose between ${chalk.bold(
         'mainnet'
-      )} and ${chalk.bold('goerli')} (default 'mainnet')
+      )} and ${chalk.bold('sepolia')} (default 'mainnet')
 
 
     ${chalk.dim('Examples:')}

@@ -60,7 +60,7 @@ export function setupEcs6Endpoints(
     const baseUrl = `${ctx.url.protocol}//${ctx.url.host}/content/contents`
 
     try {
-      const previewWearables = await getAllPreviewWearables({
+      const previewWearables = getAllPreviewWearables({
         baseFolders,
         baseUrl
       }).map((wearable) => wearable.id)
@@ -193,8 +193,8 @@ function serveFolders(
 
       return {
         headers: {
-          'x-timestamp': Date.now(),
-          'x-sent': true,
+          'x-timestamp': `${Date.now()}`,
+          'x-sent': 'true',
           'cache-control': 'no-cache,private,max-age=1'
         },
         body: fs.createReadStream(fullPath)

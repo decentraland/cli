@@ -1,14 +1,16 @@
 import arg from 'arg'
 import chalk from 'chalk'
 import {
-  CatalystClient,
-  ContentAPI,
+  DeploymentBuilder,
   ContentClient,
-  DeploymentBuilder
+  createCatalystClient,
+  createContentClient
 } from 'dcl-catalyst-client'
+import { getCatalystServersFromCache } from 'dcl-catalyst-client/dist/contracts-snapshots'
 import { Authenticator } from '@dcl/crypto'
 import { ChainId, EntityType, getChainName } from '@dcl/schemas'
 import opn from 'opn'
+import { createFetchComponent } from '@well-known-components/fetch-component'
 
 import { isTypescriptProject } from '../project/isTypescriptProject'
 import { getSceneFile } from '../sceneJson'
@@ -212,32 +214,62 @@ export async function main(): Promise<void> {
   )
 
   // Uploading data
-  let catalyst: ContentAPI
+  let catalyst: ContentClient | null = null
+  let url = ''
 
   if (args['--target']) {
     let target = args['--target']
     if (target.endsWith('/')) {
       target = target.slice(0, -1)
     }
-    catalyst = new CatalystClient({ catalystUrl: target })
+    catalyst = await createCatalystClient({
+      url: target,
+      fetcher: createFetchComponent()
+    }).getContentClient()
+    url = target
   } else if (args['--target-content']) {
     const targetContent = args['--target-content']
-    catalyst = new ContentClient({ contentUrl: targetContent })
-  } else {
-    catalyst = await CatalystClient.connectedToCatalystIn({
-      network: 'mainnet'
+    catalyst = createContentClient({
+      url: targetContent,
+      fetcher: createFetchComponent()
     })
+    url = targetContent
+  } else {
+    const cachedCatalysts = getCatalystServersFromCache('mainnet')
+    for (const cachedCatalyst of cachedCatalysts) {
+      const client = createCatalystClient({
+        url: cachedCatalyst.address,
+        fetcher: createFetchComponent()
+      })
+
+      const {
+        healthy,
+        content: { publicUrl }
+      } = await client.fetchAbout()
+
+      if (healthy) {
+        catalyst = await client.getContentClient()
+        url = publicUrl
+        break
+      }
+    }
   }
-  spinner.create(`Uploading data to: ${catalyst.getContentUrl()}`)
+
+  if (!catalyst) {
+    failWithSpinner('Could not find a up catalyst')
+    return
+  }
+
+  spinner.create(`Uploading data to: ${url}`)
 
   const deployData = { entityId, files: entityFiles, authChain }
   const position = sceneJson.scene.base
-  const network = chainId === ChainId.ETHEREUM_GOERLI ? 'goerli' : 'mainnet'
+  const network = chainId === ChainId.ETHEREUM_SEPOLIA ? 'sepolia' : 'mainnet'
   const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}`
 
   try {
     const response = (await catalyst.deploy(deployData, {
-      timeout: '10m'
+      timeout: 600000
     })) as { message?: string }
     project.setDeployInfo({ status: 'success' })
     spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}\n`)
@@ -251,7 +283,7 @@ export async function main(): Promise<void> {
       coords: baseCoords,
       isWorld: !!sceneJson.worldConfiguration,
       sceneId: entityId,
-      targetContentServer: catalyst.getContentUrl(),
+      targetContentServer: url,
       worldName: sceneJson.worldConfiguration?.name
     })
 

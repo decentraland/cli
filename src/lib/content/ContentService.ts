@@ -1,17 +1,26 @@
 import { EventEmitter } from 'events'
-import { Entity, EntityType, Scene } from '@dcl/schemas'
+import { Entity, Scene } from '@dcl/schemas'
+import {
+  createCatalystClient,
+  CatalystClient,
+  ContentClient
+} from 'dcl-catalyst-client'
+import { createFetchComponent } from '@well-known-components/fetch-component'
 
 import { Coords } from '../../utils/coordinateHelpers'
 import { fail, ErrorType } from '../../utils/errors'
 import { FileInfo } from '../Decentraland'
-import { CatalystClient } from 'dcl-catalyst-client'
 
 export class ContentService extends EventEmitter {
   private readonly client: CatalystClient
+  private contentClient?: ContentClient
 
   constructor(catalystServerUrl: string) {
     super()
-    this.client = new CatalystClient({ catalystUrl: catalystServerUrl })
+    this.client = createCatalystClient({
+      url: catalystServerUrl,
+      fetcher: createFetchComponent()
+    })
   }
 
   /**
@@ -46,10 +55,12 @@ export class ContentService extends EventEmitter {
   private async fetchEntity(coordinates: Coords): Promise<Entity> {
     const pointer = `${coordinates.x},${coordinates.y}`
     try {
-      const entities = await this.client.fetchEntitiesByPointers(
-        EntityType.SCENE,
-        [pointer]
-      )
+      if (!this.contentClient) {
+        this.contentClient = await this.client.getContentClient()
+      }
+      const entities = await this.contentClient.fetchEntitiesByPointers([
+        pointer
+      ])
       const entity: Entity | undefined = entities[0]
       if (!entity) {
         fail(
