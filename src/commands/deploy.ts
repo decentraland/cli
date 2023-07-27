@@ -234,6 +234,12 @@ export async function main(): Promise<void> {
       fetcher: createFetchComponent()
     })
     url = targetContent
+  } else if (chainId === ChainId.ETHEREUM_SEPOLIA) {
+    catalyst = await createCatalystClient({
+      url: 'peer.decentraland.zone',
+      fetcher: createFetchComponent()
+    }).getContentClient()
+    url = 'peer.decentraland.zone'
   } else {
     const cachedCatalysts = getCatalystServersFromCache('mainnet')
     for (const cachedCatalyst of cachedCatalysts) {
@@ -265,7 +271,9 @@ export async function main(): Promise<void> {
   const deployData = { entityId, files: entityFiles, authChain }
   const position = sceneJson.scene.base
   const network = chainId === ChainId.ETHEREUM_SEPOLIA ? 'sepolia' : 'mainnet'
-  const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}`
+  const worldName = sceneJson.worldConfiguration?.name
+  const worldNameParam = worldName ? `&realm=${worldName}` : ''
+  const sceneUrl = `https://play.decentraland.org/?NETWORK=${network}&position=${position}&${worldNameParam}`
 
   try {
     const response = (await catalyst.deploy(deployData, {
