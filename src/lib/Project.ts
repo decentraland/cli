@@ -601,11 +601,12 @@ export class Project {
     ) {
       throw new Error(
         [
-          `This version of ${ecsPackageName} requires a version of the ECS decentraland-cli (dcl) higher than`,
+          `This version of ${ecsPackageName} requires a version of the CLI (dcl) higher than`,
           ecsPackageJson.minCliVersion,
-          'the installed version is',
+          '\nThe installed CLI version is',
           cliPackageJson.version,
-          'please go to https://docs.decentraland.org/development-guide/installation-guide/ to know more about the versions and upgrade guides'
+          `\nRun npm i -g decentraland@${ecsPackageJson.minCliVersion} or npm i -g decentraland@latest to fix this issue.\n`,
+          '\nGo to https://docs.decentraland.org/development-guide/installation-guide/ to know more about the versions and upgrade guides'
         ].join(' ')
       )
     }
