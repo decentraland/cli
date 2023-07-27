@@ -125,6 +125,17 @@ export async function wirePreview(
   }
 }
 
+function debounce<T extends (...args: any[]) => void>(
+  callback: T,
+  delay: number
+) {
+  let debounceTimer: NodeJS.Timeout
+  return (...args: Parameters<T>) => {
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => callback(...args), delay)
+  }
+}
+
 async function bindWatch(
   components: PreviewComponents,
   router: Router<PreviewComponents>,
@@ -134,33 +145,36 @@ async function bindWatch(
     const ig = ignore().add((await project.getDCLIgnore())!)
     const { sceneId, sceneType } = project.getInfo()
     const sceneFile = await project.getSceneFile()
-    chokidar.watch(project.getProjectWorkingDir()).on('all', (_, pathWatch) => {
-      // if the updated file is the scene.json#main then skip all drop tests
-      if (
-        path.resolve(pathWatch) !==
-        path.resolve(project.getProjectWorkingDir(), sceneFile.main)
-      ) {
-        if (ig.ignores(pathWatch)) {
-          return
-        }
-
-        // ignore source files
-        if (pathWatch.endsWith('.ts') || pathWatch.endsWith('.tsx')) {
-          return
-        }
-      }
-
-      sceneUpdateClients.forEach((ws) => {
-        if (ws.readyState === WebSocket.OPEN) {
-          const message: sdk.SceneUpdate = {
-            type: sdk.SCENE_UPDATE,
-            payload: { sceneId, sceneType }
+    chokidar.watch(project.getProjectWorkingDir()).on(
+      'all',
+      debounce((_, pathWatch) => {
+        // if the updated file is the scene.json#main then skip all drop tests
+        if (
+          path.resolve(pathWatch) !==
+          path.resolve(project.getProjectWorkingDir(), sceneFile.main)
+        ) {
+          if (ig.ignores(pathWatch)) {
+            return
           }
 
-          ws.send(sdk.UPDATE)
-          ws.send(JSON.stringify(message))
+          // ignore source files
+          if (pathWatch.endsWith('.ts') || pathWatch.endsWith('.tsx')) {
+            return
+          }
         }
-      })
-    })
+
+        sceneUpdateClients.forEach((ws) => {
+          if (ws.readyState === WebSocket.OPEN) {
+            const message: sdk.SceneUpdate = {
+              type: sdk.SCENE_UPDATE,
+              payload: { sceneId, sceneType }
+            }
+
+            ws.send(sdk.UPDATE)
+            ws.send(JSON.stringify(message))
+          }
+        })
+      }, 500)
+    )
   }
 }
