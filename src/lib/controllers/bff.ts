@@ -1,6 +1,6 @@
 import { handleSocketLinearProtocol } from '@dcl/mini-comms/dist/logic/handle-linear-protocol'
 import { PreviewComponents } from '../Preview'
-import { AboutResponse } from '@dcl/protocol/out-ts/bff/http-endpoints.gen'
+import { AboutResponse } from '@dcl/protocol/out-ts/decentraland/bff/http_endpoints.gen'
 import { WebSocket } from 'ws'
 import { Router } from '@well-known-components/http-server'
 import { upgradeWebSocketResponse } from '@well-known-components/http-server/dist/ws'
@@ -18,7 +18,8 @@ export async function setupBffAndComms(
     const host = ctx.url.host
 
     const body: AboutResponse = {
-      bff: { healthy: false },
+      acceptingUsers: true,
+      bff: { healthy: false, publicUrl: '' },
       comms: {
         healthy: true,
         protocol: 'v3',
@@ -28,7 +29,10 @@ export async function setupBffAndComms(
         )}//${host}/mini-comms/room-1`
       },
       configurations: {
-        realmName: 'LocalPreview'
+        realmName: 'LocalPreview',
+        networkId: 1,
+        globalScenesUrn: [],
+        scenesUrn: []
       },
       content: {
         healthy: true,
