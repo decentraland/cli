@@ -193,7 +193,8 @@ export async function main() {
 
     Object.keys(ifaces).forEach((dev) => {
       ;(ifaces[dev] || []).forEach((details) => {
-        const oldBackpack = 'DISABLE_backpack_editor_v2=&ENABLE_backpack_editor_v1'
+        const oldBackpack =
+          'DISABLE_backpack_editor_v2=&ENABLE_backpack_editor_v1'
         if (details.family === 'IPv4') {
           let addr = `http://${details.address}:${port}?position=${baseCoords.x}%2C${baseCoords.y}&${oldBackpack}`
           if (debug) {
