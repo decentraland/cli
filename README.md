@@ -19,7 +19,7 @@ To learn what you can do with the CLI run the following command:
 dcl --help
 ```
 
-See more details at [Decentraland docs](https://docs.decentraland.org/getting-started/installation-guide).
+See more details at [Decentraland docs](https://docs.decentraland.org/creator/development-guide/cli/).
 
 ## Documentation
 
