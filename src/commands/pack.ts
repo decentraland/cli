@@ -35,9 +35,7 @@ export async function main(): Promise<number> {
   const projectInfo = project.getInfo()
 
   const zipFileName =
-    projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
-      ? 'portable-experience.zip'
-      : 'item.zip'
+    projectInfo.sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE ? 'portable-experience.zip' : 'item.zip'
 
   try {
     if (projectInfo.sceneType === sdk.ProjectType.SMART_ITEM) {
@@ -50,18 +48,12 @@ export async function main(): Promise<number> {
       })
     }
   } catch (error) {
-    console.error(
-      'Could not build the project properly, please check errors.',
-      error
-    )
+    console.error('Could not build the project properly, please check errors.', error)
   }
 
   spinner.create('Packing project')
 
-  const ignoreFileContent = await fs.readFile(
-    path.resolve(workingDir, '.dclignore'),
-    'utf-8'
-  )
+  const ignoreFileContent = await fs.readFile(path.resolve(workingDir, '.dclignore'), 'utf-8')
   const filePaths = await getProjectFilePaths(workingDir, ignoreFileContent)
 
   let totalSize = 0
@@ -86,9 +78,7 @@ Please try to remove unneccessary files and/or reduce the files size, you can ig
   await packProject(filePaths, packDir)
 
   spinner.succeed(
-    `Pack successful. Total size: ${
-      Math.round((totalSize * 100) / 1024 / 1024) / 100
-    }MB - ${totalSize} bytes`
+    `Pack successful. Total size: ${Math.round((totalSize * 100) / 1024 / 1024) / 100}MB - ${totalSize} bytes`
   )
   return 0
 }

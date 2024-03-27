@@ -17,13 +17,7 @@ import {
   getNodeModulesPath
 } from '../utils/project'
 import { fail, ErrorType } from '../utils/errors'
-import {
-  inBounds,
-  getBounds,
-  getObject,
-  areConnected,
-  Coords
-} from '../utils/coordinateHelpers'
+import { inBounds, getBounds, getObject, areConnected, Coords } from '../utils/coordinateHelpers'
 import { getProjectInfo, ProjectInfo } from '../project/projectInfo'
 import { getSceneFile } from '../sceneJson'
 import { error } from '../utils/logging'
@@ -64,18 +58,9 @@ export class Project {
   }
 
   getEcsVersion(): ECSVersion {
-    const ecs6Path = path.resolve(
-      this.projectWorkingDir,
-      'node_modules',
-      'decentraland-ecs'
-    )
+    const ecs6Path = path.resolve(this.projectWorkingDir, 'node_modules', 'decentraland-ecs')
 
-    const ecs7Path = path.resolve(
-      this.projectWorkingDir,
-      'node_modules',
-      '@dcl',
-      'sdk'
-    )
+    const ecs7Path = path.resolve(this.projectWorkingDir, 'node_modules', '@dcl', 'sdk')
 
     const ecs6 = fs.pathExistsSync(ecs6Path)
     const ecs7 = fs.pathExistsSync(ecs7Path)
@@ -103,17 +88,10 @@ export class Project {
       }
     }
 
-    const ecsPackageName =
-      ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
+    const ecsPackageName = ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
     const ecsPackageJson = await readJSON<{
       version: string
-    }>(
-      path.resolve(
-        getNodeModulesPath(this.projectWorkingDir),
-        ecsPackageName,
-        'package.json'
-      )
-    )
+    }>(path.resolve(getNodeModulesPath(this.projectWorkingDir), ecsPackageName, 'package.json'))
 
     return {
       ecsVersion,
@@ -160,9 +138,7 @@ export class Project {
     }
 
     try {
-      const sceneFile = await readJSON<Scene>(
-        getSceneFilePath(this.projectWorkingDir)
-      )
+      const sceneFile = await readJSON<Scene>(getSceneFilePath(this.projectWorkingDir))
       this.sceneFile = sceneFile
       return sceneFile
     } catch (e) {
@@ -267,10 +243,7 @@ export class Project {
   async getOwner(): Promise<string> {
     const { owner } = await this.getSceneFile()
     if (!owner) {
-      fail(
-        ErrorType.PROJECT_ERROR,
-        `Missing owner attribute at scene.json. Owner attribute is required for deploying`
-      )
+      fail(ErrorType.PROJECT_ERROR, `Missing owner attribute at scene.json. Owner attribute is required for deploying`)
     }
     return owner?.toLowerCase() || ''
   }
@@ -308,10 +281,7 @@ export class Project {
       '*.zip',
       '*.rar'
     ].join('\n')
-    await fs.outputFile(
-      path.join(this.projectWorkingDir, DCLIGNORE_FILE),
-      content
-    )
+    await fs.outputFile(path.join(this.projectWorkingDir, DCLIGNORE_FILE), content)
     return content
   }
 
@@ -324,10 +294,7 @@ export class Project {
 
     if (!this.isWebSocket(sceneFile.main)) {
       if (!this.isValidMainFormat(sceneFile.main)) {
-        fail(
-          ErrorType.PROJECT_ERROR,
-          `Main scene format file (${sceneFile.main}) is not a supported format`
-        )
+        fail(ErrorType.PROJECT_ERROR, `Main scene format file (${sceneFile.main}) is not a supported format`)
       }
 
       if (sceneFile.main !== null && !(await this.fileExists(sceneFile.main))) {
@@ -409,9 +376,7 @@ export class Project {
       if (stat.size > Project.MAX_FILE_SIZE_BYTES && !skipFileSizeCheck) {
         fail(
           ErrorType.UPLOAD_ERROR,
-          `Maximum file size exceeded: '${file}' is larger than ${
-            Project.MAX_FILE_SIZE_BYTES / 1e6
-          }MB`
+          `Maximum file size exceeded: '${file}' is larger than ${Project.MAX_FILE_SIZE_BYTES / 1e6}MB`
         )
       }
 
@@ -434,10 +399,7 @@ export class Project {
     let ignoreFile
 
     try {
-      ignoreFile = await fs.readFile(
-        getIgnoreFilePath(this.projectWorkingDir),
-        'utf8'
-      )
+      ignoreFile = await fs.readFile(getIgnoreFilePath(this.projectWorkingDir), 'utf8')
     } catch (e) {
       ignoreFile = null
     }
@@ -484,17 +446,11 @@ export class Project {
     const parcelSet = new Set(parcels)
 
     if (!base) {
-      fail(
-        ErrorType.PROJECT_ERROR,
-        'Missing scene base attribute at scene.json'
-      )
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene base attribute at scene.json')
     }
 
     if (!parcels) {
-      fail(
-        ErrorType.PROJECT_ERROR,
-        'Missing scene parcels attribute at scene.json'
-      )
+      fail(ErrorType.PROJECT_ERROR, 'Missing scene parcels attribute at scene.json')
     }
 
     if (parcelSet.size < parcels.length) {
@@ -505,10 +461,7 @@ export class Project {
     }
 
     if (!parcelSet.has(base)) {
-      fail(
-        ErrorType.PROJECT_ERROR,
-        `Your base parcel ${base} should be included on parcels attribute at scene.json`
-      )
+      fail(ErrorType.PROJECT_ERROR, `Your base parcel ${base} should be included on parcels attribute at scene.json`)
     }
 
     const objParcels = parcels.map(getObject)
@@ -517,10 +470,7 @@ export class Project {
         return
       }
       const { minX, maxX } = getBounds()
-      fail(
-        ErrorType.PROJECT_ERROR,
-        `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`
-      )
+      fail(ErrorType.PROJECT_ERROR, `Coordinates ${x},${y} are outside of allowed limits (from ${minX} to ${maxX})`)
     })
 
     if (!areConnected(objParcels)) {
@@ -555,23 +505,14 @@ export class Project {
   async checkCLIandECSCompatibility() {
     const ecsVersion = this.getEcsVersion()
     if (ecsVersion === 'unknown') {
-      throw new Error(
-        'There is no SDK installed to know how version should use. Please run `npm install`.'
-      )
+      throw new Error('There is no SDK installed to know how version should use. Please run `npm install`.')
     }
 
-    const ecsPackageName =
-      ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
+    const ecsPackageName = ecsVersion === 'ecs7' ? '@dcl/sdk' : 'decentraland-ecs'
     const ecsPackageJson = await readJSON<{
       minCliVersion?: string
       version: string
-    }>(
-      path.resolve(
-        getNodeModulesPath(this.projectWorkingDir),
-        ecsPackageName,
-        'package.json'
-      )
-    )
+    }>(path.resolve(getNodeModulesPath(this.projectWorkingDir), ecsPackageName, 'package.json'))
 
     const cliPackageJson = await getCLIPackageJson<{
       minEcsVersion?: boolean
@@ -579,10 +520,7 @@ export class Project {
     }>()
 
     if (ecsVersion === 'ecs6') {
-      if (
-        cliPackageJson.minEcsVersion &&
-        semver.lt(ecsPackageJson.version, `${cliPackageJson.minEcsVersion}`)
-      ) {
+      if (cliPackageJson.minEcsVersion && semver.lt(ecsPackageJson.version, `${cliPackageJson.minEcsVersion}`)) {
         throw new Error(
           [
             'This version of decentraland-cli (dcl) requires an ECS version higher than',
@@ -595,10 +533,7 @@ export class Project {
       }
     }
 
-    if (
-      ecsPackageJson.minCliVersion &&
-      semver.lt(cliPackageJson.version, ecsPackageJson.minCliVersion)
-    ) {
+    if (ecsPackageJson.minCliVersion && semver.lt(cliPackageJson.version, ecsPackageJson.minCliVersion)) {
       throw new Error(
         [
           `This version of ${ecsPackageName} requires a version of the CLI (dcl) higher than`,
@@ -613,10 +548,7 @@ export class Project {
   }
 }
 
-export async function copySample(
-  projectSample: string,
-  destWorkingDir: string
-) {
+export async function copySample(projectSample: string, destWorkingDir: string) {
   const src = path.resolve(__dirname, '..', '..', 'samples', projectSample)
   const files = await fs.readdir(src)
 
@@ -626,11 +558,7 @@ export async function copySample(
       const wearableJsonFile = await readJSON<any>(path.join(src, file))
       const wearableJsonFileWithUuid = { ...wearableJsonFile, id: uuidv4() }
       await writeJSON(path.join(destWorkingDir, file), wearableJsonFileWithUuid)
-    } else if (
-      file === GITIGNORE_FILE ||
-      file === NPMRC_FILE ||
-      file === ESTLINTRC_FILE
-    ) {
+    } else if (file === GITIGNORE_FILE || file === NPMRC_FILE || file === ESTLINTRC_FILE) {
       await fs.copy(path.join(src, file), path.join(destWorkingDir, '.' + file))
     } else {
       await fs.copy(path.join(src, file), path.join(destWorkingDir, file))

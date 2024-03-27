@@ -33,11 +33,7 @@ class Commando extends EventEmitter {
   private onDataFn: (string) => void
   private orderedCommands: string[] = []
 
-  constructor(
-    command: string,
-    opts: IOptions = { silent: false, env: {} },
-    onDataFn?: (string) => void
-  ) {
+  constructor(command: string, opts: IOptions = { silent: false, env: {} }, onDataFn?: (string) => void) {
     super()
     this.onDataFn = onDataFn
     const parts = command.split(' ')
@@ -60,11 +56,7 @@ class Commando extends EventEmitter {
     })
   }
 
-  when(
-    pattern: string | RegExp,
-    response: (msg: string) => any,
-    options: IMatcherOptions = { matchMany: false }
-  ) {
+  when(pattern: string | RegExp, response: (msg: string) => any, options: IMatcherOptions = { matchMany: false }) {
     this.matchers.push({ pattern: new RegExp(pattern), response, options })
     return this
   }
@@ -83,18 +75,11 @@ class Commando extends EventEmitter {
     this.proc.kill()
   }
 
-  endWhen(
-    pattern: string | RegExp,
-    response?: (msg: string) => any,
-    options: IMatcherOptions = { matchMany: false }
-  ) {
+  endWhen(pattern: string | RegExp, response?: (msg: string) => any, options: IMatcherOptions = { matchMany: false }) {
     const cb = (msg) => {
       if (response) {
         const res = response(msg)
-        if (
-          'then' in response ||
-          response.constructor.name === 'AsyncFunction'
-        ) {
+        if ('then' in response || response.constructor.name === 'AsyncFunction') {
           this.promises.push(res)
         }
       }

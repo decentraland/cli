@@ -4,10 +4,7 @@ import { PreviewComponents } from '../Preview'
 import proto from '../adapters/proto/broker'
 
 // Handles Comms V1
-export function setupCommsV1(
-  _components: PreviewComponents,
-  _router: Router<any>
-) {
+export function setupCommsV1(_components: PreviewComponents, _router: Router<any>) {
   const connections = new Set<WebSocket>()
   const topicsPerConnection = new WeakMap<WebSocket, Set<string>>()
   let connectionCounter = 0
@@ -35,8 +32,7 @@ export function setupCommsV1(
 
       ws.on('message', (message) => {
         const data = message as Buffer
-        const msgType =
-          proto.CoordinatorMessage.deserializeBinary(data).getType()
+        const msgType = proto.CoordinatorMessage.deserializeBinary(data).getType()
 
         if (msgType === proto.MessageType.PING) {
           ws.send(data)
@@ -61,8 +57,7 @@ export function setupCommsV1(
             }
           })
         } else if (msgType === proto.MessageType.TOPIC_IDENTITY) {
-          const topicMessage =
-            proto.TopicIdentityMessage.deserializeBinary(data)
+          const topicMessage = proto.TopicIdentityMessage.deserializeBinary(data)
 
           const topic = topicMessage.getTopic()
 

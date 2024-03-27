@@ -6,14 +6,9 @@ import pathsExistOnDir from '../../src/utils/pathsExistOnDir'
 import { createSandbox } from '../helpers/sandbox'
 import { runCommand, Response, endCommand } from '../helpers/commando'
 
-const initCommand = (dirPath: string, args?: string) =>
-  runCommand(dirPath, 'init', args)
+const initCommand = (dirPath: string, args?: string) => runCommand(dirPath, 'init', args)
 
-async function projectCreatedSuccessfully(
-  t: ExecutionContext,
-  dirPath: string,
-  type: sdk.ProjectType
-) {
+async function projectCreatedSuccessfully(t: ExecutionContext, dirPath: string, type: sdk.ProjectType) {
   const files = DEFAULT_FILES[type]
   const pathsExists = await pathsExistOnDir(dirPath, files)
   pathsExists.slice(0, files.length).forEach((file) => t.true(file))
@@ -28,11 +23,7 @@ const DEFAULT_FILES: Record<sdk.ProjectType, string[]> = {
     '.dclignore',
     'node_modules/decentraland-ecs'
   ],
-  [sdk.ProjectType.PORTABLE_EXPERIENCE]: [
-    'wearable.json',
-    'AvatarWearables_TX.png',
-    'src/game.ts'
-  ],
+  [sdk.ProjectType.PORTABLE_EXPERIENCE]: ['wearable.json', 'AvatarWearables_TX.png', 'src/game.ts'],
   [sdk.ProjectType.SMART_ITEM]: ['scene.json', 'package.json', 'asset.json'],
   [sdk.ProjectType.LIBRARY]: []
 }

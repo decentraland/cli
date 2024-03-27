@@ -73,11 +73,7 @@ test('Unit - coordinateHelpers.parse() - should parse a single coordinate with e
 test('Unit - coordinateHelpers.parse() - should parse a set of coordinates with extra spaces', (t) => {
   t.deepEqual(coordinateHelpers.parse(' 1,1; 1,2; 1,3'), ['1,1', '1,2', '1,3'])
   t.deepEqual(coordinateHelpers.parse('1,1; 1,2; 1,3 '), ['1,1', '1,2', '1,3'])
-  t.deepEqual(coordinateHelpers.parse('    1,1; 1,2; 1,3    '), [
-    '1,1',
-    '1,2',
-    '1,3'
-  ])
+  t.deepEqual(coordinateHelpers.parse('    1,1; 1,2; 1,3    '), ['1,1', '1,2', '1,3'])
 })
 
 test('Unit - coordinateHelpers.parse() - should parse a single coordinate with leading zeroes', (t) => {
@@ -90,16 +86,9 @@ test('Unit - coordinateHelpers.parse() - should parse a single coordinate with l
 
 test('Unit - coordinateHelpers.parse() - should parse set of coordinates with leading zeroes', (t) => {
   t.deepEqual(coordinateHelpers.parse('01,01; 01,01'), ['1,1', '1,1'])
-  t.deepEqual(coordinateHelpers.parse('099,0001; 01,1; 11,1'), [
-    '99,1',
-    '1,1',
-    '11,1'
-  ])
+  t.deepEqual(coordinateHelpers.parse('099,0001; 01,1; 11,1'), ['99,1', '1,1', '11,1'])
   t.deepEqual(coordinateHelpers.parse('1,1; 0001,010'), ['1,1', '1,10'])
-  t.deepEqual(coordinateHelpers.parse('    1,1;   0001,0999  '), [
-    '1,1',
-    '1,999'
-  ])
+  t.deepEqual(coordinateHelpers.parse('    1,1;   0001,0999  '), ['1,1', '1,999'])
 })
 
 test('Unit - coordinateHelpers.parse() - should parse a single coordinate with negative zeroes', (t) => {
@@ -111,16 +100,9 @@ test('Unit - coordinateHelpers.parse() - should parse a single coordinate with n
 
 test('Unit - coordinateHelpers.parse() - should parse set of coordinates with negative zeroes', (t) => {
   t.deepEqual(coordinateHelpers.parse('-01,01; 01,-01'), ['-1,1', '1,-1'])
-  t.deepEqual(coordinateHelpers.parse('-010,-0001; 01,1; 11,1'), [
-    '-10,-1',
-    '1,1',
-    '11,1'
-  ])
+  t.deepEqual(coordinateHelpers.parse('-010,-0001; 01,1; 11,1'), ['-10,-1', '1,1', '11,1'])
   t.deepEqual(coordinateHelpers.parse('1,1; -0001,010'), ['1,1', '-1,10'])
-  t.deepEqual(coordinateHelpers.parse('    1,1;   0001,-010  '), [
-    '1,1',
-    '1,-10'
-  ])
+  t.deepEqual(coordinateHelpers.parse('    1,1;   0001,-010  '), ['1,1', '1,-10'])
   t.deepEqual(coordinateHelpers.parse(' 000,-000;   000,-0  '), ['0,0', '0,0'])
 })
 
@@ -130,10 +112,7 @@ test('Unit - coordinateHelpers.parse() - should fail to parse invalid coordinate
   t.deepEqual(coordinateHelpers.parse('NaN,NaN'), ['0,0'])
   t.deepEqual(coordinateHelpers.parse('Infinity,Infinity'), ['0,0'])
   t.deepEqual(coordinateHelpers.parse('-NaN,-Infinity'), ['0,0'])
-  t.deepEqual(
-    coordinateHelpers.parse('NaN,1; NaN,-0; -Infinity,Infinity; asd'),
-    ['0,1', '0,0', '0,0', '0,0']
-  )
+  t.deepEqual(coordinateHelpers.parse('NaN,1; NaN,-0; -Infinity,Infinity; asd'), ['0,1', '0,0', '0,0', '0,0'])
 })
 
 test('Unit - coordinateHelpers.getObject() - should return a single valid coordinate as an object', (t) => {

@@ -91,28 +91,20 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
   return {
     userId: '',
     trackStats: false,
-    provider: isDevelopment()
-      ? 'https://sepolia.infura.io/'
-      : 'https://mainnet.infura.io/',
-    MANAToken: isMainnet
-      ? '0x0f5d2fb29fb7d3cfee444a200298f468908cc942'
-      : '0xfa04d2e2ba9aec166c93dfeeba7427b2303befa9',
+    provider: isDevelopment() ? 'https://sepolia.infura.io/' : 'https://mainnet.infura.io/',
+    MANAToken: isMainnet ? '0x0f5d2fb29fb7d3cfee444a200298f468908cc942' : '0xfa04d2e2ba9aec166c93dfeeba7427b2303befa9',
     LANDRegistry: isMainnet
       ? '0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d'
       : '0x42f4ba48791e2de32f5fbf553441c2672864bb33',
     EstateRegistry: isMainnet
       ? '0x959e104e1a4db6317fa58f8295f586e1a978c297'
       : '0x369a7fbe718c870c79f99fb423882e8dd8b20486',
-    catalystUrl: isMainnet
-      ? 'https://peer.decentraland.org'
-      : 'https://peer-ue-2.decentraland.zone',
+    catalystUrl: isMainnet ? 'https://peer.decentraland.org' : 'https://peer-ue-2.decentraland.zone',
     dclApiUrl: isMainnet
       ? 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager'
       : 'https://api.studio.thegraph.com/query/49472/land-manager-sepolia/version/latest',
     segmentKey:
-      isStableVersion() && !isDevelopment()
-        ? 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3'
-        : 'mjCV5Dc4VAKXLJAH5g7LyHyW1jrIR3to'
+      isStableVersion() && !isDevelopment() ? 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3' : 'mjCV5Dc4VAKXLJAH5g7LyHyW1jrIR3to'
   }
 }
 
@@ -138,14 +130,7 @@ function getDclInfoConfig(): Partial<DCLInfo> {
 }
 
 function getEnvConfig(): Partial<DCLInfo> {
-  const {
-    RPC_URL,
-    MANA_TOKEN,
-    LAND_REGISTRY,
-    ESTATE_REGISTRY,
-    CONTENT_URL,
-    SEGMENT_KEY
-  } = process.env
+  const { RPC_URL, MANA_TOKEN, LAND_REGISTRY, ESTATE_REGISTRY, CONTENT_URL, SEGMENT_KEY } = process.env
 
   const envConfig = {
     provider: RPC_URL,

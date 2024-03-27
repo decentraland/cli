@@ -1,9 +1,6 @@
 import test from 'ava'
 import { getCLIPackageJson } from '../../../src/utils/moduleHelpers'
-import {
-  getNodeVersion,
-  getNpmVersion
-} from '../../../src/utils/nodeAndNpmVersion'
+import { getNodeVersion, getNpmVersion } from '../../../src/utils/nodeAndNpmVersion'
 
 test('Unit - getCLIPackageJson() - should have userEngines', async (t) => {
   const requiredVersion = await getCLIPackageJson<{

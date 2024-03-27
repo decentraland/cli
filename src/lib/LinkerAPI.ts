@@ -35,11 +35,7 @@ type Route = (
     req: Request,
     resp?: Response,
     next?: NextFunction
-  ) =>
-    | Promise<void | Record<string, unknown> | unknown[]>
-    | void
-    | Record<string, unknown>
-    | unknown[]
+  ) => Promise<void | Record<string, unknown> | unknown[]> | void | Record<string, unknown> | unknown[]
 ) => void
 
 type Async = 'async'
@@ -59,12 +55,7 @@ export class LinkerAPI extends EventEmitter {
     this.project = project
   }
 
-  link(
-    port: number,
-    isHttps: boolean,
-    rootCID: string,
-    skipValidations: boolean
-  ) {
+  link(port: number, isHttps: boolean, rootCID: string, skipValidations: boolean) {
     return new Promise(async (_resolve, reject) => {
       let resolvedPort = port
 
@@ -75,9 +66,7 @@ export class LinkerAPI extends EventEmitter {
           resolvedPort = 4044
         }
       }
-      const queryParams = querystring.stringify(
-        await this.getSceneInfo(rootCID, skipValidations)
-      )
+      const queryParams = querystring.stringify(await this.getSceneInfo(rootCID, skipValidations))
       const protocol = isHttps ? 'https' : 'http'
       const url = `${protocol}://localhost:${resolvedPort}`
 
@@ -87,35 +76,22 @@ export class LinkerAPI extends EventEmitter {
         reject(err)
       })
 
-      const serverHandler = () =>
-        this.emit('link:ready', { url, params: queryParams })
+      const serverHandler = () => this.emit('link:ready', { url, params: queryParams })
       const eventHandler = () => (e: any) => {
         if (e.errno === 'EADDRINUSE') {
-          reject(
-            new Error(
-              `Port ${resolvedPort} is already in use by another process`
-            )
-          )
+          reject(new Error(`Port ${resolvedPort} is already in use by another process`))
         } else {
           reject(new Error(`Failed to start Linker App: ${e.message}`))
         }
       }
 
       if (isHttps) {
-        const privateKey = await fs.readFile(
-          path.resolve(__dirname, '../../certs/localhost.key'),
-          'utf-8'
-        )
-        const certificate = await fs.readFile(
-          path.resolve(__dirname, '../../certs/localhost.crt'),
-          'utf-8'
-        )
+        const privateKey = await fs.readFile(path.resolve(__dirname, '../../certs/localhost.key'), 'utf-8')
+        const certificate = await fs.readFile(path.resolve(__dirname, '../../certs/localhost.crt'), 'utf-8')
         const credentials = { key: privateKey, cert: certificate }
 
         const httpsServer = https.createServer(credentials, this.app)
-        httpsServer
-          .listen(resolvedPort, serverHandler)
-          .on('error', eventHandler)
+        httpsServer.listen(resolvedPort, serverHandler).on('error', eventHandler)
       } else {
         this.app.listen(resolvedPort, serverHandler).on('error', eventHandler)
       }
@@ -143,9 +119,7 @@ export class LinkerAPI extends EventEmitter {
   }
 
   private setRoutes(rootCID: string, skipValidations: boolean) {
-    const linkerDapp = path.dirname(
-      require.resolve('@dcl/linker-dapp/package.json')
-    )
+    const linkerDapp = path.dirname(require.resolve('@dcl/linker-dapp/package.json'))
     this.app.use(cors())
     this.app.use(express.static(linkerDapp))
     this.app.use(bodyParser.json())
@@ -175,12 +149,10 @@ export class LinkerAPI extends EventEmitter {
     })
 
     this.app.asyncGet('/api/files', async () => {
-      const files = (await this.project.getFiles({ cache: true })).map(
-        (file) => ({
-          name: file.path,
-          size: file.size
-        })
-      )
+      const files = (await this.project.getFiles({ cache: true })).map((file) => ({
+        name: file.path,
+        size: file.size
+      }))
 
       return files
     })
@@ -189,8 +161,7 @@ export class LinkerAPI extends EventEmitter {
       const { x, y } = await this.project.getParcelCoordinates()
       const pointer = `${x},${y}`
       const chainId = this.project.getDeployInfo()?.linkerResponse?.chainId || 1
-      const network =
-        chainId === ChainId.ETHEREUM_MAINNET ? 'mainnet' : 'sepolia'
+      const network = chainId === ChainId.ETHEREUM_MAINNET ? 'mainnet' : 'sepolia'
       const value = await getPointers(pointer, network)
 
       return {

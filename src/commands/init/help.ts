@@ -18,9 +18,7 @@ export const help = () => `
     ${chalk.dim('Options:')}
 
     -h, --help               Displays complete help
-    -p, --project [type] Choose a projectType (default is scene). It could be any of ${chalk.bold(
-      getProjectTypes()
-    )}
+    -p, --project [type] Choose a projectType (default is scene). It could be any of ${chalk.bold(getProjectTypes())}
       
       ${chalk.dim('Examples:')}
       

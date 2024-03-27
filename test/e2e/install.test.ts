@@ -10,14 +10,11 @@ import { readJSON } from '../../src/utils/filesystem'
 
 function installCommand(dirPath: string, library: string = '') {
   return new Promise<void>((resolve) => {
-    const cmd = new Commando(
-      `node ${path.resolve('dist', 'index.js')} install ${library}`,
-      {
-        silent: !isDebug(),
-        workingDir: dirPath,
-        env: { NODE_ENV: 'development' }
-      }
-    )
+    const cmd = new Commando(`node ${path.resolve('dist', 'index.js')} install ${library}`, {
+      silent: !isDebug(),
+      workingDir: dirPath,
+      env: { NODE_ENV: 'development' }
+    })
 
     cmd.on('end', async () => {
       resolve()
@@ -35,9 +32,7 @@ test('install a package', async (t) => {
     await initProject(dirPath)
     await installCommand(dirPath, packageToInstall)
 
-    const packageJson = await readJSON<{ bundledDependencies: string[] }>(
-      path.resolve(dirPath, 'package.json')
-    )
+    const packageJson = await readJSON<{ bundledDependencies: string[] }>(path.resolve(dirPath, 'package.json'))
     t.true(packageJson.bundledDependencies.includes(packageToInstall))
     done()
   })

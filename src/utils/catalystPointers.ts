@@ -15,13 +15,9 @@ type CatalystInfo = {
 
 export type Network = 'mainnet' | 'sepolia'
 
-export async function daoCatalysts(
-  network: Network = 'mainnet'
-): Promise<Array<DAOCatalyst>> {
+export async function daoCatalysts(network: Network = 'mainnet'): Promise<Array<DAOCatalyst>> {
   const tld = network === 'mainnet' ? 'org' : 'zone'
-  const resp = await (
-    await fetch(`https://peer.decentraland.${tld}/lambdas/contracts/servers`)
-  ).json()
+  const resp = await (await fetch(`https://peer.decentraland.${tld}/lambdas/contracts/servers`)).json()
   return resp as DAOCatalyst[]
 }
 
@@ -46,9 +42,7 @@ export async function fetchEntityByPointer(
     body: JSON.stringify({ pointers })
   })
 
-  const deployments: Entity[] = response.ok
-    ? ((await response.json()) as Entity[])
-    : []
+  const deployments: Entity[] = response.ok ? ((await response.json()) as Entity[]) : []
 
   return {
     baseUrl,
@@ -56,10 +50,7 @@ export async function fetchEntityByPointer(
   }
 }
 
-export async function getPointers(
-  pointer: string,
-  network: Network = 'mainnet'
-) {
+export async function getPointers(pointer: string, network: Network = 'mainnet') {
   const catalysts = await daoCatalysts(network)
   const catalystInfo: CatalystInfo[] = []
 

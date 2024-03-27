@@ -40,7 +40,7 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/decentraland/cli",
   "devDependencies": {
-    "@dcl/eslint-config": "^1.0.1",
+    "@dcl/eslint-config": "^1.1.12",
     "@types/analytics-node": "^3.1.8",
     "@types/archiver": "^5.3.1",
     "@types/chalk": "^2.2.0",
