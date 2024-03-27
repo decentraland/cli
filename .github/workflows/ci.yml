@@ -14,11 +14,12 @@ jobs:
         platform: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
       - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
+          cache: npm
       - name: install
         run: npm ci
       - name: build
@@ -38,11 +39,12 @@ jobs:
     outputs:
       cli_s3_bucket_key: ${{ steps.publish_cli.outputs.s3-bucket-key }}
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
       - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
+          cache: npm
       - name: install
         run: npm ci
       - name: build
@@ -53,7 +55,7 @@ jobs:
         with:
           registry-url: "https://registry.npmjs.org"
           access: public
-          
+
           ## publish every package to s3
           s3-bucket: ${{ secrets.SDK_TEAM_S3_BUCKET }}
           s3-bucket-key-prefix: 'decentraland-cli/branch/${{ github.head_ref || github.ref }}'
@@ -69,7 +71,7 @@ jobs:
     name: Deployment Notification
     steps:
       - name: Find Comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v3
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -81,7 +83,7 @@ jobs:
           body=$(echo ${{ secrets.SDK_TEAM_S3_BASE_URL }})/${{ needs.publish.outputs.cli_s3_bucket_key }}
           echo ::set-output name=body::$body
       - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
