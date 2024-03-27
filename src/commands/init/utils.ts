@@ -41,14 +41,6 @@ export async function getInitOption(type?: string): Promise<InitOption> {
           value: 'scene-option'
         },
         {
-          name: 'Smart Item',
-          value: sdk.ProjectType.SMART_ITEM
-        },
-        {
-          name: 'Smart Wearable (Beta)',
-          value: sdk.ProjectType.PORTABLE_EXPERIENCE
-        },
-        {
           name: 'Library',
           value: sdk.ProjectType.LIBRARY
         }
@@ -82,14 +74,6 @@ export function getRepositoryUrl(choice: InitOption): string | void {
 
   if (choice.value === sdk.ProjectType.LIBRARY) {
     return repositories.library
-  }
-
-  if (choice.value === sdk.ProjectType.SMART_ITEM) {
-    return repositories.smartItem
-  }
-
-  if (choice.value === sdk.ProjectType.PORTABLE_EXPERIENCE) {
-    return repositories.portableExperience
   }
 
   if (choice.type === 'scene') {

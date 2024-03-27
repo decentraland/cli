@@ -589,7 +589,7 @@ export class Project {
             cliPackageJson.minEcsVersion,
             'the installed version is',
             ecsPackageJson.version,
-            'please go to https://docs.decentraland.org/development-guide/installation-guide/ to know more about the versions and upgrade guides'
+            'please go to https://docs.decentraland.org/creator/development-guide/cli/ to know more about the versions and upgrade guides'
           ].join(' ')
         )
       }
@@ -606,7 +606,7 @@ export class Project {
           '\nThe installed CLI version is',
           cliPackageJson.version,
           `\nRun npm i -g decentraland@${ecsPackageJson.minCliVersion} or npm i -g decentraland@latest to fix this issue.\n`,
-          '\nGo to https://docs.decentraland.org/development-guide/installation-guide/ to know more about the versions and upgrade guides'
+          '\nGo to https://docs.decentraland.org/creator/development-guide/cli/ to know more about the versions and upgrade guides'
         ].join(' ')
       )
     }
