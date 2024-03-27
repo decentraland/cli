@@ -59,8 +59,10 @@ jobs:
           ## publish every package to s3
           s3-bucket: ${{ secrets.SDK_TEAM_S3_BUCKET }}
           s3-bucket-key-prefix: 'decentraland-cli/branch/${{ github.head_ref || github.ref }}'
+          s3-bucket-region: ${{ secrets.SDK_TEAM_AWS_REGION }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          AWS_DEFAULT_REGION: us-east-1
           AWS_ACCESS_KEY_ID: ${{ secrets.SDK_TEAM_AWS_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.SDK_TEAM_AWS_SECRET }}
 
