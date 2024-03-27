@@ -67,7 +67,7 @@
     "@dcl/ecs-scene-utils": "^1.7.5",
     "@dcl/linker-dapp": "0.9.1",
     "@dcl/mini-comms": "1.0.0",
-    "@dcl/protocol": "1.0.0-5623934099.commit-07e0626",
+    "@dcl/protocol": "1.0.0-8299166777.commit-9493ffe",
     "@dcl/schemas": "^8.2.0",
     "@well-known-components/env-config-provider": "^1.1.2-20220801195549.commit-101c273",
     "@well-known-components/http-server": "^1.1.6-20220927190058.commit-2dfb235",
