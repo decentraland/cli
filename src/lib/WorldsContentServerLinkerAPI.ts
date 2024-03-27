@@ -18,11 +18,7 @@ type Route = (
     req: Request,
     resp?: Response,
     next?: NextFunction
-  ) =>
-    | Promise<void | Record<string, unknown> | unknown[]>
-    | void
-    | Record<string, unknown>
-    | unknown[]
+  ) => Promise<void | Record<string, unknown> | unknown[]> | void | Record<string, unknown> | unknown[]
 ) => void
 
 type Async = 'async'
@@ -70,31 +66,19 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
       const serverHandler = () => this.emit('link:ready', { url })
       const eventHandler = () => (e: any) => {
         if (e.errno === 'EADDRINUSE') {
-          reject(
-            new Error(
-              `Port ${resolvedPort} is already in use by another process`
-            )
-          )
+          reject(new Error(`Port ${resolvedPort} is already in use by another process`))
         } else {
           reject(new Error(`Failed to start Linker App: ${e.message}`))
         }
       }
 
       if (isHttps) {
-        const privateKey = await fs.readFile(
-          path.resolve(__dirname, '../../certs/localhost.key'),
-          'utf-8'
-        )
-        const certificate = await fs.readFile(
-          path.resolve(__dirname, '../../certs/localhost.crt'),
-          'utf-8'
-        )
+        const privateKey = await fs.readFile(path.resolve(__dirname, '../../certs/localhost.key'), 'utf-8')
+        const certificate = await fs.readFile(path.resolve(__dirname, '../../certs/localhost.crt'), 'utf-8')
         const credentials = { key: privateKey, cert: certificate }
 
         const httpsServer = https.createServer(credentials, this.app)
-        httpsServer
-          .listen(resolvedPort, serverHandler)
-          .on('error', eventHandler)
+        httpsServer.listen(resolvedPort, serverHandler).on('error', eventHandler)
       } else {
         this.app.listen(resolvedPort, serverHandler).on('error', eventHandler)
       }
@@ -102,9 +86,7 @@ export class WorldsContentServerLinkerAPI extends EventEmitter {
   }
 
   private setRoutes() {
-    const linkerDapp = path.dirname(
-      require.resolve('@dcl/linker-dapp/package.json')
-    )
+    const linkerDapp = path.dirname(require.resolve('@dcl/linker-dapp/package.json'))
     this.app.use(cors())
     this.app.use(express.static(linkerDapp))
     this.app.use('/acl', express.static(linkerDapp))

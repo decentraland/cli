@@ -16,18 +16,12 @@ import portfinder from 'portfinder'
 import { API } from './API'
 import { IEthereumDataProvider } from './IEthereumDataProvider'
 import { createWorkspace, Workspace } from './Workspace'
-import {
-  ethSign,
-  recoverAddressFromEthSignature
-} from '@dcl/crypto/dist/crypto'
+import { ethSign, recoverAddressFromEthSignature } from '@dcl/crypto/dist/crypto'
 import { IdentityType } from '@dcl/crypto'
 import crypto from 'crypto'
 import { hexToBytes } from 'eth-connect'
 import { Lifecycle } from '@well-known-components/interfaces'
-import {
-  roomsMetrics,
-  createRoomsComponent
-} from '@dcl/mini-comms/dist/adapters/rooms'
+import { roomsMetrics, createRoomsComponent } from '@dcl/mini-comms/dist/adapters/rooms'
 import { createRecordConfigComponent } from '@well-known-components/env-config-provider'
 import { createServerComponent } from '@well-known-components/http-server'
 import { createConsoleLogComponent } from '@well-known-components/logger'
@@ -112,18 +106,13 @@ export class Decentraland extends EventEmitter {
   }
 
   getProjectHash(): string {
-    return crypto
-      .createHash('sha256')
-      .update(this.options.workingDir)
-      .digest('hex')
+    return crypto.createHash('sha256').update(this.options.workingDir).digest('hex')
   }
 
   async link(rootCID: string): Promise<LinkerResponse> {
     const project = this.workspace.getSingleProject()
     if (!project) {
-      throw new Error(
-        'Cannot link a workspace. Please set you current directory in the project folder.'
-      )
+      throw new Error('Cannot link a workspace. Please set you current directory in the project folder.')
     }
 
     await project.validateExistingProject()
@@ -137,12 +126,7 @@ export class Decentraland extends EventEmitter {
       })
 
       try {
-        await linker.link(
-          this.options.linkerPort!,
-          !!this.options.isHttps,
-          rootCID,
-          !!this.options.skipValidations
-        )
+        await linker.link(this.options.linkerPort!, !!this.options.isHttps, rootCID, !!this.options.skipValidations)
       } catch (e) {
         reject(e)
       }
@@ -162,10 +146,7 @@ export class Decentraland extends EventEmitter {
 
     const startedFuture = future<void>()
 
-    setTimeout(
-      () => startedFuture.reject(new Error('Timed out starting the server')),
-      3000
-    )
+    setTimeout(() => startedFuture.reject(new Error('Timed out starting the server')), 3000)
 
     void Lifecycle.run<PreviewComponents>({
       async initComponents() {
@@ -177,10 +158,7 @@ export class Decentraland extends EventEmitter {
         })
         const logs = await createConsoleLogComponent({})
         const ws = await createWsComponent({ logs })
-        const server = await createServerComponent<PreviewComponents>(
-          { config, logs, ws: ws.ws },
-          { cors: {} }
-        )
+        const server = await createServerComponent<PreviewComponents>({ config, logs, ws: ws.ws }, { cors: {} })
         const rooms = await createRoomsComponent({
           metrics,
           logs,
@@ -202,10 +180,7 @@ export class Decentraland extends EventEmitter {
         try {
           await wirePreview(components, dcl.getWatch())
           await startComponents()
-          dcl.emit(
-            'preview:ready',
-            await components.config.requireNumber('HTTP_SERVER_PORT')
-          )
+          dcl.emit('preview:ready', await components.config.requireNumber('HTTP_SERVER_PORT'))
           dcl.stop = stop
           startedFuture.resolve()
         } catch (err: any) {
@@ -223,12 +198,8 @@ export class Decentraland extends EventEmitter {
       this.provider.getEstatesOf(address)
     ])
 
-    const pRequests = Promise.all(
-      coords.map((coord) => this.provider.getLandData(coord))
-    )
-    const eRequests = Promise.all(
-      estateIds.map((estateId) => this.provider.getEstateData(estateId))
-    )
+    const pRequests = Promise.all(coords.map((coord) => this.provider.getLandData(coord)))
+    const eRequests = Promise.all(estateIds.map((estateId) => this.provider.getEstateData(estateId)))
 
     const [pData, eData] = await Promise.all([pRequests, eRequests])
 
@@ -253,14 +224,13 @@ export class Decentraland extends EventEmitter {
   }
 
   async getParcelInfo(coords: Coords): Promise<ParcelMetadata> {
-    const [scene, land, blockchainOwner, operator, updateOperator] =
-      await Promise.all([
-        this.contentService.getSceneData(coords),
-        this.provider.getLandData(coords),
-        this.provider.getLandOwner(coords),
-        this.provider.getLandOperator(coords),
-        this.provider.getLandUpdateOperator(coords)
-      ])
+    const [scene, land, blockchainOwner, operator, updateOperator] = await Promise.all([
+      this.contentService.getSceneData(coords),
+      this.provider.getLandData(coords),
+      this.provider.getLandOwner(coords),
+      this.provider.getLandOperator(coords),
+      this.provider.getLandUpdateOperator(coords)
+    ])
 
     const { EstateRegistry } = getConfig()
 
@@ -298,20 +268,14 @@ export class Decentraland extends EventEmitter {
     return this.getEstateInfo(estateId)
   }
 
-  getParcelStatus(
-    x: number,
-    y: number
-  ): Promise<{ cid: string; files: FileInfo[] }> {
+  getParcelStatus(x: number, y: number): Promise<{ cid: string; files: FileInfo[] }> {
     return this.contentService.getParcelStatus({ x, y })
   }
 
   async getAddressAndSignature(messageToSign: string): Promise<LinkerResponse> {
     if (this.environmentIdentity) {
       return {
-        signature: ethSign(
-          hexToBytes(this.environmentIdentity.privateKey),
-          messageToSign
-        ),
+        signature: ethSign(hexToBytes(this.environmentIdentity.privateKey), messageToSign),
         address: this.environmentIdentity.address
       }
     }

@@ -23,9 +23,7 @@ export const help = () => `
 async function init() {
   try {
     await initializeWorkspace(process.cwd())
-    console.log(
-      chalk.green(`\nSuccess! Run 'dcl start' to preview your workspace.\n`)
-    )
+    console.log(chalk.green(`\nSuccess! Run 'dcl start' to preview your workspace.\n`))
   } catch (err: any) {
     fail(ErrorType.WORKSPACE_ERROR, err.message)
   }
@@ -38,18 +36,12 @@ async function listProjects() {
   const workspace = createWorkspace({ workingDir })
 
   if (workspace.isSingleProject()) {
-    fail(
-      ErrorType.WORKSPACE_ERROR,
-      `There is no a workspace in the current directory.`
-    )
+    fail(ErrorType.WORKSPACE_ERROR, `There is no a workspace in the current directory.`)
   }
 
   console.log(`\nWorkspace in folder ${workingDir}`)
   for (const [index, project] of workspace.getAllProjects().entries()) {
-    const projectPath = project
-      .getProjectWorkingDir()
-      .replace(`${workingDir}\\`, '')
-      .replace(`${workingDir}/`, '')
+    const projectPath = project.getProjectWorkingDir().replace(`${workingDir}\\`, '').replace(`${workingDir}/`, '')
     console.log(`> Project ${index + 1} in: ${projectPath}`)
   }
   console.log('')
@@ -63,18 +55,11 @@ async function addProject() {
   const newProjectPath = process.argv[4]
   const workspace = createWorkspace({ workingDir: process.cwd() })
   if (workspace.isSingleProject()) {
-    fail(
-      ErrorType.WORKSPACE_ERROR,
-      `There is no a workspace in the current directory.`
-    )
+    fail(ErrorType.WORKSPACE_ERROR, `There is no a workspace in the current directory.`)
   }
 
   await workspace.addProject(newProjectPath)
-  console.log(
-    chalk.green(
-      `\nSuccess! Run 'dcl start' to preview your workspace and see the new project added.\n`
-    )
-  )
+  console.log(chalk.green(`\nSuccess! Run 'dcl start' to preview your workspace and see the new project added.\n`))
 }
 
 export async function main() {
@@ -95,9 +80,6 @@ export async function main() {
   if (subcommand in subcommandList) {
     await subcommandList[subcommand]()
   } else {
-    fail(
-      ErrorType.WORKSPACE_ERROR,
-      `The subcommand ${subcommand} is not recognized`
-    )
+    fail(ErrorType.WORKSPACE_ERROR, `The subcommand ${subcommand} is not recognized`)
   }
 }

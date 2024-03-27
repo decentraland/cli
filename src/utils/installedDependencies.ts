@@ -5,13 +5,7 @@ import { readJSON, PackageJson } from './filesystem'
 
 type DecentralandPackage = PackageJson<{ decentralandLibrary: string }>
 
-type Dependencies = Pick<
-  PackageJson,
-  | 'dependencies'
-  | 'devDependencies'
-  | 'bundledDependencies'
-  | 'peerDependencies'
->
+type Dependencies = Pick<PackageJson, 'dependencies' | 'devDependencies' | 'bundledDependencies' | 'peerDependencies'>
 
 const parseBundled = (dependencies: unknown) => {
   if (dependencies instanceof Array) {
@@ -20,9 +14,7 @@ const parseBundled = (dependencies: unknown) => {
   return []
 }
 
-export function getDependencies(
-  packageJSON: PackageJson
-): Required<Dependencies> {
+export function getDependencies(packageJSON: PackageJson): Required<Dependencies> {
   const {
     bundleDependencies = [],
     bundledDependencies = [],
@@ -30,10 +22,9 @@ export function getDependencies(
     devDependencies = {},
     peerDependencies = {}
   } = packageJSON
-  const bundled = [
-    ...parseBundled(bundleDependencies),
-    ...parseBundled(bundledDependencies)
-  ].filter((b) => typeof b === 'string')
+  const bundled = [...parseBundled(bundleDependencies), ...parseBundled(bundledDependencies)].filter(
+    (b) => typeof b === 'string'
+  )
 
   return {
     dependencies,

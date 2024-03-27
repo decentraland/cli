@@ -34,10 +34,7 @@ test('help command', async (t) => {
     })
   })
 
-  const [allDataDclHelp, allDataDcl] = await Promise.all([
-    allDataDclHelpPromise,
-    allDataDclPromise
-  ])
+  const [allDataDclHelp, allDataDcl] = await Promise.all([allDataDclHelpPromise, allDataDclPromise])
   t.is(allDataDcl, allDataDclHelp)
   t.snapshot(allDataDcl)
 })

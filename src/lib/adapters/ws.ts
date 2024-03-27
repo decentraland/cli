@@ -10,9 +10,7 @@ export type WebSocketComponent = IBaseComponent & {
  * Creates a http-server component
  * @public
  */
-export async function createWsComponent(
-  _: Pick<PreviewComponents, 'logs'>
-): Promise<WebSocketComponent> {
+export async function createWsComponent(_: Pick<PreviewComponents, 'logs'>): Promise<WebSocketComponent> {
   const ws = new WebSocketServer({ noServer: true })
 
   async function stop() {

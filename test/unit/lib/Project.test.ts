@@ -20,9 +20,7 @@ function createSandbox() {
       'src/node_modules/module/b.js',
       '.dclignore'
     ])
-  const sceneFileExistsStub = ctx
-    .stub(Project.prototype, 'sceneFileExists')
-    .callsFake(async () => false)
+  const sceneFileExistsStub = ctx.stub(Project.prototype, 'sceneFileExists').callsFake(async () => false)
   ctx.stub(fs, 'readFile').callsFake(async () => Buffer.from('buffer'))
   ctx.stub(fs, 'stat').callsFake(async () => {
     const stat = new Stats()
@@ -43,13 +41,7 @@ test('Unit - Project.getFiles() - should return all files', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
   const files = await project.getFiles()
-  const expected = [
-    'a.json',
-    'src/b.json',
-    'node_modules/module/a.js',
-    'src/node_modules/module/b.js',
-    '.dclignore'
-  ]
+  const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
   files.forEach((file, i) => {
     t.is(file.path, expected[i])
@@ -77,12 +69,7 @@ test('Unit - Project.getFiles() - should ignore . files', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
   const files = await project.getFiles({ ignoreFiles: '.*' })
-  const expected = [
-    'a.json',
-    'src/b.json',
-    'node_modules/module/a.js',
-    'src/node_modules/module/b.js'
-  ]
+  const expected = ['a.json', 'src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js']
 
   files.forEach((file, i) => {
     t.is(file.path, expected[i])
@@ -97,12 +84,7 @@ test('Unit - Project.getFiles() - should ignore specific file', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
   const files = await project.getFiles({ ignoreFiles: 'a.json' })
-  const expected = [
-    'src/b.json',
-    'node_modules/module/a.js',
-    'src/node_modules/module/b.js',
-    '.dclignore'
-  ]
+  const expected = ['src/b.json', 'node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
   files.forEach((file, i) => {
     t.is(file.path, expected[i])
@@ -117,11 +99,7 @@ test('Unit - Project.getFiles() - should ignore several files', async (t) => {
   const { Project } = createSandbox()
   const project = new Project('.')
   const files = await project.getFiles({ ignoreFiles: 'a.json\nsrc/b.json' })
-  const expected = [
-    'node_modules/module/a.js',
-    'src/node_modules/module/b.js',
-    '.dclignore'
-  ]
+  const expected = ['node_modules/module/a.js', 'src/node_modules/module/b.js', '.dclignore']
 
   files.forEach((file, i) => {
     t.is(file.path, expected[i])
@@ -129,9 +107,7 @@ test('Unit - Project.getFiles() - should ignore several files', async (t) => {
     t.is(file.size, 1000)
   })
 
-  t.false(
-    files.some((file) => file.path === 'a.json' || file.path === 'src/b.json')
-  )
+  t.false(files.some((file) => file.path === 'a.json' || file.path === 'src/b.json'))
 })
 
 test('Unit - Project.needsDependencies() - should return true if a package.json file is present', async (t) => {
@@ -191,25 +167,19 @@ test('Unit - Project.isValidMainFormat() - should return true for null', (t) => 
 
 test('Unit - Project.isWebSocket() - should return true for a valid websocket address', (t) => {
   t.true(new (createSandbox().Project)()['isWebSocket']('ws://127.0.0.1'))
-  t.true(
-    new (createSandbox().Project)()['isWebSocket']('ws://mydomain.com:3131')
-  )
+  t.true(new (createSandbox().Project)()['isWebSocket']('ws://mydomain.com:3131'))
   t.true(new (createSandbox().Project)()['isWebSocket']('ws://'))
 })
 
 test('Unit - Project.isWebSocket() - should return true for a valid secure websocket address', (t) => {
   t.true(new (createSandbox().Project)()['isWebSocket']('wss://127.0.0.1'))
-  t.true(
-    new (createSandbox().Project)()['isWebSocket']('wss://mydomain.com:3131')
-  )
+  t.true(new (createSandbox().Project)()['isWebSocket']('wss://mydomain.com:3131'))
   t.true(new (createSandbox().Project)()['isWebSocket']('wss://'))
 })
 
 test('Unit - Project.isWebSocket() - should return false for an invalid websocket address', (t) => {
   t.false(new (createSandbox().Project)()['isWebSocket']('http://mydomain.com'))
-  t.false(
-    new (createSandbox().Project)()['isWebSocket']('http://mydomain.com:8080')
-  )
+  t.false(new (createSandbox().Project)()['isWebSocket']('http://mydomain.com:8080'))
   t.false(new (createSandbox().Project)()['isWebSocket']('https://127.0.0.1'))
   t.false(new (createSandbox().Project)()['isWebSocket']('w://'))
   t.false(new (createSandbox().Project)()['isWebSocket'](''))

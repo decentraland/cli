@@ -4,10 +4,7 @@ import chalk from 'chalk'
 import * as spinner from '../utils/spinner'
 import { npm } from '../utils/moduleHelpers'
 
-export default function installDependencies(
-  workingDir: string,
-  silent: boolean
-): Promise<void> {
+export default function installDependencies(workingDir: string, silent: boolean): Promise<void> {
   spinner.create('Installing dependencies')
   return new Promise((resolve, reject) => {
     const child = spawn(npm, ['install'], {
@@ -25,11 +22,7 @@ export default function installDependencies(
       if (code !== 0) {
         spinner.fail()
         reject(
-          new Error(
-            `${chalk.bold(
-              `npm install`
-            )} exited with code ${code}. Please try running the command manually`
-          )
+          new Error(`${chalk.bold(`npm install`)} exited with code ${code}. Please try running the command manually`)
         )
         return
       }
