@@ -67,7 +67,7 @@
     "@dcl/ecs-scene-utils": "^1.7.5",
     "@dcl/linker-dapp": "0.12.0",
     "@dcl/mini-comms": "1.0.0",
-    "@dcl/protocol": "1.0.0-8299166777.commit-9493ffe",
+    "@dcl/protocol": "^1.0.0-2569677750.commit-6ce832a",
     "@dcl/schemas": "^8.2.0",
     "@well-known-components/env-config-provider": "^1.1.2-20220801195549.commit-101c273",
     "@well-known-components/http-server": "^1.1.6-20220927190058.commit-2dfb235",
@@ -87,7 +87,7 @@
     "fp-future": "^1.0.1",
     "fs-extra": "^10.1.0",
     "glob": "^8.0.1",
-    "google-protobuf": "3.20.1",
+    "google-protobuf": "^3.21.2",
     "ignore": "^4.0.6",
     "inquirer": "^8.2.2",
     "isomorphic-fetch": "^3.0.0",
@@ -108,8 +108,8 @@
     "yarn": "please use npm"
   },
   "userEngines": {
-    "minNodeVersion": "14.0.0",
-    "minNpmVersion": "6.0.0"
+    "minNodeVersion": "16.0.0",
+    "minNpmVersion": "8.0.0"
   },
   "prettier": {
     "semi": false,
