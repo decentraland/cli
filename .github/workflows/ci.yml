@@ -79,9 +79,7 @@ jobs:
           body-includes: Test this pull request
       - name: Generate S3 URL
         id: url-generator
-        run: |
-          body=$(echo ${{ secrets.SDK_TEAM_S3_BASE_URL }})/${{ needs.publish.outputs.cli_s3_bucket_key }}
-          echo ::set-output name=body::$body
+        run: echo "body=${{ secrets.SDK_TEAM_S3_BASE_URL }}/${{ needs.publish.outputs.cli_s3_bucket_key }}" >> $GITHUB_OUTPUT
       - name: Create or update comment
         uses: peter-evans/create-or-update-comment@v4
         with:
