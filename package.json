@@ -108,8 +108,8 @@
     "yarn": "please use npm"
   },
   "userEngines": {
-    "minNodeVersion": "16.0.0",
-    "minNpmVersion": "8.0.0"
+    "minNodeVersion": "14.0.0",
+    "minNpmVersion": "6.0.0"
   },
   "prettier": {
     "semi": false,
