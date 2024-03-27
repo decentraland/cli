@@ -79,7 +79,7 @@
     "body-parser": "^1.20.0",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
-    "dcl-catalyst-client": "^21.5.0",
+    "dcl-catalyst-client": "^21.6.1",
     "dcl-catalyst-commons": "^9.0.1",
     "dcl-node-runtime": "^1.0.0",
     "eth-connect": "^6.0.3",
