@@ -42,10 +42,7 @@ export function buildTypescript({
     }
 
     child.stdout.on('data', (data) => {
-      if (
-        data.toString().indexOf('The compiler is watching file changes...') !==
-        -1
-      ) {
+      if (data.toString().indexOf('The compiler is watching file changes...') !== -1) {
         if (!silence) spinner.succeed('Project built.')
         return resolve()
       }
@@ -78,10 +75,7 @@ export async function getLatestVersion(name: string): Promise<string> {
   }
 }
 
-export async function getInstalledVersion(
-  workingDir: string,
-  name: string
-): Promise<string> {
+export async function getInstalledVersion(workingDir: string, name: string): Promise<string> {
   let decentralandApiPkg: { version: string }
 
   try {
@@ -103,10 +97,7 @@ export async function getOutdatedEcs(workingDir: string): Promise<
     }
   | undefined
 > {
-  const decentralandEcs6Version = await getInstalledVersion(
-    workingDir,
-    'decentraland-ecs'
-  )
+  const decentralandEcs6Version = await getInstalledVersion(workingDir, 'decentraland-ecs')
 
   if (decentralandEcs6Version) {
     const latestVersion = await getLatestVersion('decentraland-ecs')
@@ -138,11 +129,7 @@ export async function isCLIOutdated(): Promise<boolean> {
   const cliVersion = getInstalledCLIVersion()
   const cliVersionLatest = await getLatestVersion('decentraland')
 
-  if (
-    cliVersionLatest &&
-    cliVersion &&
-    semver.lt(cliVersion, cliVersionLatest)
-  ) {
+  if (cliVersionLatest && cliVersion && semver.lt(cliVersion, cliVersionLatest)) {
     return true
   } else {
     return false
@@ -160,19 +147,10 @@ export function isOnline(): Promise<boolean> {
   })
 }
 
-export async function isECSVersionLower(
-  workingDir: string,
-  version: string
-): Promise<boolean> {
+export async function isECSVersionLower(workingDir: string, version: string): Promise<boolean> {
   const ecsPackageJson = await readJSON<{
     version: string
-  }>(
-    path.resolve(
-      getNodeModulesPath(workingDir),
-      'decentraland-ecs',
-      'package.json'
-    )
-  )
+  }>(path.resolve(getNodeModulesPath(workingDir), 'decentraland-ecs', 'package.json'))
 
   if (semver.lt(ecsPackageJson.version, version)) {
     return true

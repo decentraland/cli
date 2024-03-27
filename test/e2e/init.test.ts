@@ -6,14 +6,9 @@ import pathsExistOnDir from '../../src/utils/pathsExistOnDir'
 import { createSandbox } from '../helpers/sandbox'
 import { runCommand, Response, endCommand } from '../helpers/commando'
 
-const initCommand = (dirPath: string, args?: string) =>
-  runCommand(dirPath, 'init', args)
+const initCommand = (dirPath: string, args?: string) => runCommand(dirPath, 'init', args)
 
-async function projectCreatedSuccessfully(
-  t: ExecutionContext,
-  dirPath: string,
-  type: sdk.ProjectType
-) {
+async function projectCreatedSuccessfully(t: ExecutionContext, dirPath: string, type: sdk.ProjectType) {
   const files = DEFAULT_FILES[type]
   const pathsExists = await pathsExistOnDir(dirPath, files)
   pathsExists.slice(0, files.length).forEach((file) => t.true(file))
@@ -28,12 +23,9 @@ const DEFAULT_FILES: Record<sdk.ProjectType, string[]> = {
     '.dclignore',
     'node_modules/decentraland-ecs'
   ],
-  [sdk.ProjectType.PORTABLE_EXPERIENCE]: [
-    'wearable.json',
-    'AvatarWearables_TX.png',
-    'src/game.ts'
-  ],
-  [sdk.ProjectType.SMART_ITEM]: ['scene.json', 'package.json', 'asset.json']
+  [sdk.ProjectType.PORTABLE_EXPERIENCE]: ['wearable.json', 'AvatarWearables_TX.png', 'src/game.ts'],
+  [sdk.ProjectType.SMART_ITEM]: ['scene.json', 'package.json', 'asset.json'],
+  [sdk.ProjectType.LIBRARY]: []
 }
 
 test('snapshot - dcl help init', (t) => {
@@ -71,38 +63,5 @@ test('dcl init with invalid -p option', async (t) => {
     await endCommand(cmd)
     const [sceneJson] = await pathsExistOnDir(dirPath, ['scene.json'])
     t.false(sceneJson)
-  })
-})
-
-test('dcl init with smart-items prompt selection', async (t) => {
-  await createSandbox(async (dirPath: string) => {
-    const cmd = initCommand(dirPath)
-
-    cmd.orderedWhen(/Choose a project type/, () => [
-      Response.DOWN,
-      Response.ENTER
-    ])
-
-    await endCommand(cmd)
-    await projectCreatedSuccessfully(t, dirPath, sdk.ProjectType.SMART_ITEM)
-  })
-})
-
-test('dcl init with portable-experience prompt selection', async (t) => {
-  await createSandbox(async (dirPath: string) => {
-    const cmd = initCommand(dirPath)
-
-    cmd.orderedWhen(/Choose a project type/, () => [
-      Response.DOWN,
-      Response.DOWN,
-      Response.ENTER
-    ])
-
-    await endCommand(cmd)
-    await projectCreatedSuccessfully(
-      t,
-      dirPath,
-      sdk.ProjectType.PORTABLE_EXPERIENCE
-    )
   })
 })

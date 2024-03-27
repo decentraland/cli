@@ -48,9 +48,6 @@ export async function sceneOptions(): Promise<InitOption> {
     }
   }
 
-  fail(
-    ErrorType.INIT_ERROR,
-    `Couldn't get a valid scene-level choice. Try to select a valid one.`
-  )
+  fail(ErrorType.INIT_ERROR, `Couldn't get a valid scene-level choice. Try to select a valid one.`)
   return {} as any
 }

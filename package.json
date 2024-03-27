@@ -40,7 +40,7 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/decentraland/cli",
   "devDependencies": {
-    "@dcl/eslint-config": "^1.0.1",
+    "@dcl/eslint-config": "^1.1.12",
     "@types/analytics-node": "^3.1.8",
     "@types/archiver": "^5.3.1",
     "@types/chalk": "^2.2.0",
@@ -79,7 +79,7 @@
     "body-parser": "^1.20.0",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
-    "dcl-catalyst-client": "^21.5.0",
+    "dcl-catalyst-client": "^21.6.1",
     "dcl-catalyst-commons": "^9.0.1",
     "dcl-node-runtime": "^1.0.0",
     "eth-connect": "^6.0.3",

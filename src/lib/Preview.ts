@@ -34,21 +34,12 @@ export type PreviewComponents = {
   ws: WebSocketComponent
 }
 
-export async function wirePreview(
-  components: PreviewComponents,
-  watch: boolean
-) {
-  const npmModulesPath = path.resolve(
-    components.dcl.getWorkingDir(),
-    'node_modules'
-  )
+export async function wirePreview(components: PreviewComponents, watch: boolean) {
+  const npmModulesPath = path.resolve(components.dcl.getWorkingDir(), 'node_modules')
 
   // TODO: dcl.project.needsDependencies() should do this
   if (!fs.pathExistsSync(npmModulesPath)) {
-    fail(
-      ErrorType.PREVIEW_ERROR,
-      `Couldn\'t find ${npmModulesPath}, please run: npm install`
-    )
+    fail(ErrorType.PREVIEW_ERROR, `Couldn\'t find ${npmModulesPath}, please run: npm install`)
   }
 
   const proxySetupPathEcs6 = path.resolve(
@@ -69,9 +60,7 @@ export async function wirePreview(
   )
 
   // this should come BEFORE the custom proxy
-  const proxySetupPath = fs.existsSync(proxySetupPathEcs7)
-    ? proxySetupPathEcs7
-    : proxySetupPathEcs6
+  const proxySetupPath = fs.existsSync(proxySetupPathEcs7) ? proxySetupPathEcs7 : proxySetupPathEcs6
 
   const router = new Router<PreviewComponents>()
   const sceneUpdateClients = new Set<WebSocket>()
@@ -117,18 +106,12 @@ export async function wirePreview(
       const setupProxy = require(proxySetupPath)
       setupProxy(router, components)
     } catch (err) {
-      console.log(
-        `${proxySetupPath} found but it couldn't be loaded properly`,
-        err
-      )
+      console.log(`${proxySetupPath} found but it couldn't be loaded properly`, err)
     }
   }
 }
 
-function debounce<T extends (...args: any[]) => void>(
-  callback: T,
-  delay: number
-) {
+function debounce<T extends (...args: any[]) => void>(callback: T, delay: number) {
   let debounceTimer: NodeJS.Timeout
   return (...args: Parameters<T>) => {
     clearTimeout(debounceTimer)
@@ -149,10 +132,7 @@ async function bindWatch(
       'all',
       debounce((_, pathWatch) => {
         // if the updated file is the scene.json#main then skip all drop tests
-        if (
-          path.resolve(pathWatch) !==
-          path.resolve(project.getProjectWorkingDir(), sceneFile.main)
-        ) {
+        if (path.resolve(pathWatch) !== path.resolve(project.getProjectWorkingDir(), sceneFile.main)) {
           if (ig.ignores(pathWatch)) {
             return
           }

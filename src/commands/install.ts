@@ -43,9 +43,7 @@ const spawnNpmInstall = (args: any): Promise<void> => {
         spinner.fail()
         reject(
           new Error(
-            `${chalk.bold(
-              `npm ${args.join(' ')}`
-            )} exited with code ${code}. Please try running the command manually`
+            `${chalk.bold(`npm ${args.join(' ')}`)} exited with code ${code}. Please try running the command manually`
           )
         )
       } else {

@@ -1,11 +1,6 @@
 import arg from 'arg'
 import chalk from 'chalk'
-import {
-  DeploymentBuilder,
-  ContentClient,
-  createCatalystClient,
-  createContentClient
-} from 'dcl-catalyst-client'
+import { DeploymentBuilder, ContentClient, createCatalystClient, createContentClient } from 'dcl-catalyst-client'
 import { getCatalystServersFromCache } from 'dcl-catalyst-client/dist/contracts-snapshots'
 import { Authenticator } from '@dcl/crypto'
 import { ChainId, EntityType, getChainName } from '@dcl/schemas'
@@ -79,21 +74,17 @@ export async function main(): Promise<void> {
   Analytics.sceneStartDeploy()
 
   if (args['--target'] && args['--target-content']) {
-    throw new Error(
-      `You can't set both the 'target' and 'target-content' arguments.`
-    )
+    throw new Error(`You can't set both the 'target' and 'target-content' arguments.`)
   }
 
   const workDir = process.cwd()
   const skipVersionCheck = args['--skip-version-checks']
   const skipBuild = args['--skip-build']
-  const skipFileSizeCheck =
-    !!args['--skip-file-size-check'] && !!args['--target-content']
+  const skipFileSizeCheck = !!args['--skip-file-size-check'] && !!args['--target-content']
   const noBrowser = args['--no-browser']
   const port = args['--port']
   const parsedPort = typeof port === 'string' ? parseInt(port, 10) : void 0
-  const linkerPort =
-    parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
+  const linkerPort = parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
 
   spinner.create('Creating deployment structure')
 
@@ -103,10 +94,7 @@ export async function main(): Promise<void> {
     forceDeploy: args['--force-upload'],
     yes: args['--yes'],
     // validations are skipped for custom content servers
-    skipValidations:
-      !!args['--skip-validations'] ||
-      !!args['--target'] ||
-      !!args['--target-content'],
+    skipValidations: !!args['--skip-validations'] || !!args['--target'] || !!args['--target-content'],
     linkerPort
   })
 
@@ -124,9 +112,7 @@ export async function main(): Promise<void> {
   spinner.create('Building scene in production mode')
 
   if (!(await isTypescriptProject(workDir))) {
-    failWithSpinner(
-      `Please make sure that your project has a 'tsconfig.json' file.`
-    )
+    failWithSpinner(`Please make sure that your project has a 'tsconfig.json' file.`)
   }
 
   if (!skipBuild) {
@@ -149,10 +135,8 @@ export async function main(): Promise<void> {
   spinner.create('Creating deployment structure')
 
   // Obtain list of files to deploy
-  const originalFilesToIgnore =
-    (await project.getDCLIgnore()) ?? (await project.writeDclIgnore())
-  const filesToIgnorePlusEntityJson =
-    originalFilesToIgnore.concat('\n entity.json')
+  const originalFilesToIgnore = (await project.getDCLIgnore()) ?? (await project.writeDclIgnore())
+  const filesToIgnorePlusEntityJson = originalFilesToIgnore.concat('\n entity.json')
 
   const files: IFile[] = await project.getFiles({
     ignoreFiles: filesToIgnorePlusEntityJson,
@@ -176,9 +160,7 @@ export async function main(): Promise<void> {
   validateScene(sceneJson, true)
 
   dcl.on('link:ready', ({ url, params }) => {
-    console.log(
-      chalk.bold('You need to sign the content before the deployment:')
-    )
+    console.log(chalk.bold('You need to sign the content before the deployment:'))
     spinner.create(`Signing app ready at ${url}`)
 
     if (!noBrowser) {
@@ -191,27 +173,18 @@ export async function main(): Promise<void> {
       }, 5000)
     }
 
-    dcl.on(
-      'link:success',
-      ({ address, signature, chainId }: LinkerResponse) => {
-        spinner.succeed(`Content successfully signed.`)
-        console.log(`${chalk.bold('Address:')} ${address}`)
-        console.log(`${chalk.bold('Signature:')} ${signature}`)
-        console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
-      }
-    )
+    dcl.on('link:success', ({ address, signature, chainId }: LinkerResponse) => {
+      spinner.succeed(`Content successfully signed.`)
+      console.log(`${chalk.bold('Address:')} ${address}`)
+      console.log(`${chalk.bold('Signature:')} ${signature}`)
+      console.log(`${chalk.bold('Network:')} ${getChainName(chainId!)}`)
+    })
   })
 
   // Signing message
   const messageToSign = entityId
-  const { signature, address, chainId } = await dcl.getAddressAndSignature(
-    messageToSign
-  )
-  const authChain = Authenticator.createSimpleAuthChain(
-    entityId,
-    address,
-    signature
-  )
+  const { signature, address, chainId } = await dcl.getAddressAndSignature(messageToSign)
+  const authChain = Authenticator.createSimpleAuthChain(entityId, address, signature)
 
   // Uploading data
   let catalyst: ContentClient | null = null

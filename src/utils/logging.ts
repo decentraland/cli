@@ -27,10 +27,7 @@ export function isEmpty(obj: Record<string, unknown>) {
   if (!keys.length) {
     return true
   }
-  return keys.every(
-    ($) =>
-      obj[$] === undefined || obj[$] === [] || obj[$] === {} || obj[$] === ''
-  )
+  return keys.every(($) => obj[$] === undefined || obj[$] === [] || obj[$] === {} || obj[$] === '')
 }
 
 export function formatDictionary(
@@ -45,18 +42,10 @@ export function formatDictionary(
   keys.forEach((key, i) => {
     const item = obj[key]
 
-    const separator =
-      context === 'array' && i === 0
-        ? ''
-        : tabulate(options.spacing * level + options.padding)
+    const separator = context === 'array' && i === 0 ? '' : tabulate(options.spacing * level + options.padding)
 
     if (Array.isArray(item)) {
-      buf = buf.concat(
-        separator,
-        `${chalk.bold(key)}: `,
-        formatList(item, options, level + 1, 'object'),
-        '\n'
-      )
+      buf = buf.concat(separator, `${chalk.bold(key)}: `, formatList(item, options, level + 1, 'object'), '\n')
     } else if (isRecord(item)) {
       const isHidden = isEmpty(item)
       const content = isHidden
@@ -64,12 +53,7 @@ export function formatDictionary(
         : `:\n${formatDictionary(item, options, level + 1, 'object')}`
       buf = buf.concat(separator, `${chalk.bold(key)}`, content)
     } else if (item) {
-      buf = buf.concat(
-        separator,
-        `${chalk.bold(key)}: `,
-        JSON.stringify(item),
-        '\n'
-      )
+      buf = buf.concat(separator, `${chalk.bold(key)}: `, JSON.stringify(item), '\n')
     }
   })
 
@@ -83,20 +67,13 @@ export function formatList(
   _context?: 'array' | 'object'
 ): string {
   let buf = ''
-  const separator =
-    '\n' + tabulate(options.spacing * level + options.padding) + '- '
+  const separator = '\n' + tabulate(options.spacing * level + options.padding) + '- '
   if (list.length) {
     buf = list.reduce((buf, item, _i) => {
       if (Array.isArray(item)) {
-        return buf.concat(
-          separator,
-          formatList(list, options, level + 1, 'array')
-        )
+        return buf.concat(separator, formatList(list, options, level + 1, 'array'))
       } else if (typeof item === 'object') {
-        return buf.concat(
-          separator,
-          formatDictionary(item, options, level + 1, 'array')
-        )
+        return buf.concat(separator, formatDictionary(item, options, level + 1, 'array'))
       } else if (item !== undefined) {
         return buf.concat(separator, JSON.stringify(item))
       } else {

@@ -27,19 +27,14 @@ export const downloadRepoZip = async function (url: string, dest: string) {
   const directoryCreated = newFiles.filter((value) => !oldFiles.includes(value))
 
   if (directoryCreated.length !== 1) {
-    throw new Error(
-      'Please, make sure not to modify the directory while the example repository is downloading.'
-    )
+    throw new Error('Please, make sure not to modify the directory while the example repository is downloading.')
   }
 
   const extractedPath = path.resolve(dest, directoryCreated[0])
   const filesToMove = await readdir(extractedPath)
 
   for (const filePath of filesToMove) {
-    await move(
-      path.resolve(extractedPath, filePath),
-      path.resolve(dest, filePath)
-    )
+    await move(path.resolve(extractedPath, filePath), path.resolve(dest, filePath))
   }
 
   rmdirSync(extractedPath)

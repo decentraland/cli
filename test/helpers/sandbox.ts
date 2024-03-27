@@ -5,8 +5,7 @@ type CallbackFn = (path: string, done: () => void) => void
 
 export default function sandbox(fn: CallbackFn) {
   return new Promise(async (resolve, reject) => {
-    const name =
-      'test-' + (+Date.now()).toString() + (Math.random() * 10).toString()
+    const name = 'test-' + (+Date.now()).toString() + (Math.random() * 10).toString()
     const dir = path.resolve(process.cwd(), name)
     await fs.mkdir(dir)
 
@@ -23,8 +22,7 @@ export default function sandbox(fn: CallbackFn) {
 }
 
 export async function createSandbox(fn: (dirPath: string) => Promise<void>) {
-  const name =
-    'test-' + (+Date.now()).toString() + (Math.random() * 10).toString()
+  const name = 'test-' + (+Date.now()).toString() + (Math.random() * 10).toString()
   const dir = path.resolve(process.cwd(), name)
   await fs.mkdir(dir)
   try {

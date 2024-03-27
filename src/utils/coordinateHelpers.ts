@@ -91,8 +91,7 @@ export function getObject(coords: string): Coords
  */
 export function getObject(coords: number[]): Coords
 export function getObject(coords: number[] | string): Coords {
-  const [x, y] =
-    typeof coords === 'string' ? parse(coords)[0].split(',') : coords
+  const [x, y] = typeof coords === 'string' ? parse(coords)[0].split(',') : coords
   return { x: parseInt(x.toString(), 10), y: parseInt(y.toString(), 10) }
 }
 
@@ -122,20 +121,12 @@ export function areConnected(parcels: Coords[]): boolean {
   return visited.length === parcels.length
 }
 
-function visitParcel(
-  parcel: Coords,
-  allParcels: Coords[] = [parcel],
-  visited: Coords[] = []
-): Coords[] {
-  const isVisited = visited.some((visitedParcel) =>
-    isEqual(visitedParcel, parcel)
-  )
+function visitParcel(parcel: Coords, allParcels: Coords[] = [parcel], visited: Coords[] = []): Coords[] {
+  const isVisited = visited.some((visitedParcel) => isEqual(visitedParcel, parcel))
   if (!isVisited) {
     visited.push(parcel)
     const neighbours = getNeighbours(parcel.x, parcel.y, allParcels)
-    neighbours.forEach((neighbours) =>
-      visitParcel(neighbours, allParcels, visited)
-    )
+    neighbours.forEach((neighbours) => visitParcel(neighbours, allParcels, visited))
   }
   return visited
 }

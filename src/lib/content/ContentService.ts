@@ -1,10 +1,6 @@
 import { EventEmitter } from 'events'
 import { Entity, Scene } from '@dcl/schemas'
-import {
-  createCatalystClient,
-  CatalystClient,
-  ContentClient
-} from 'dcl-catalyst-client'
+import { createCatalystClient, CatalystClient, ContentClient } from 'dcl-catalyst-client'
 import { createFetchComponent } from '@well-known-components/fetch-component'
 
 import { Coords } from '../../utils/coordinateHelpers'
@@ -28,13 +24,9 @@ export class ContentService extends EventEmitter {
    * @param x
    * @param y
    */
-  async getParcelStatus(
-    coordinates: Coords
-  ): Promise<{ cid: string; files: FileInfo[] }> {
+  async getParcelStatus(coordinates: Coords): Promise<{ cid: string; files: FileInfo[] }> {
     const entity = await this.fetchEntity(coordinates)
-    const content = entity.content
-      ? entity.content.map((entry) => ({ name: entry.file, cid: entry.hash }))
-      : []
+    const content = entity.content ? entity.content.map((entry) => ({ name: entry.file, cid: entry.hash })) : []
     return { cid: entity.id, files: content }
   }
 
@@ -58,15 +50,10 @@ export class ContentService extends EventEmitter {
       if (!this.contentClient) {
         this.contentClient = await this.client.getContentClient()
       }
-      const entities = await this.contentClient.fetchEntitiesByPointers([
-        pointer
-      ])
+      const entities = await this.contentClient.fetchEntitiesByPointers([pointer])
       const entity: Entity | undefined = entities[0]
       if (!entity) {
-        fail(
-          ErrorType.CONTENT_SERVER_ERROR,
-          `Error retrieving parcel ${coordinates.x},${coordinates.y} information`
-        )
+        fail(ErrorType.CONTENT_SERVER_ERROR, `Error retrieving parcel ${coordinates.x},${coordinates.y} information`)
       }
       return entity
     } catch (error: any) {

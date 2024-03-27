@@ -18,9 +18,7 @@ export async function getInitOption(type?: string): Promise<InitOption> {
     if (!sdk.ProjectType.validate(type)) {
       fail(
         ErrorType.INIT_ERROR,
-        `Invalid projectType: "${chalk.bold(
-          type
-        )}". Supported types are ${chalk.bold(getProjectTypes())}`
+        `Invalid projectType: "${chalk.bold(type)}". Supported types are ${chalk.bold(getProjectTypes())}`
       )
     }
 
@@ -39,14 +37,6 @@ export async function getInitOption(type?: string): Promise<InitOption> {
         {
           name: 'Scene',
           value: 'scene-option'
-        },
-        {
-          name: 'Smart Item',
-          value: sdk.ProjectType.SMART_ITEM
-        },
-        {
-          name: 'Smart Wearable (Beta)',
-          value: sdk.ProjectType.PORTABLE_EXPERIENCE
         },
         {
           name: 'Library',
@@ -68,10 +58,7 @@ export async function getInitOption(type?: string): Promise<InitOption> {
     }
   }
 
-  fail(
-    ErrorType.INIT_ERROR,
-    `Couldn't get a valid first-level choice. Try to select a valid one.`
-  )
+  fail(ErrorType.INIT_ERROR, `Couldn't get a valid first-level choice. Try to select a valid one.`)
   return {} as any
 }
 
@@ -82,14 +69,6 @@ export function getRepositoryUrl(choice: InitOption): string | void {
 
   if (choice.value === sdk.ProjectType.LIBRARY) {
     return repositories.library
-  }
-
-  if (choice.value === sdk.ProjectType.SMART_ITEM) {
-    return repositories.smartItem
-  }
-
-  if (choice.value === sdk.ProjectType.PORTABLE_EXPERIENCE) {
-    return repositories.portableExperience
   }
 
   if (choice.type === 'scene') {

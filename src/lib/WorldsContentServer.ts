@@ -3,10 +3,7 @@ import events from 'wildcards'
 import { ErrorType, fail } from '../utils/errors'
 import { DCLInfo, getConfig } from '../config'
 import { LinkerResponse } from './LinkerAPI'
-import {
-  ethSign,
-  recoverAddressFromEthSignature
-} from '@dcl/crypto/dist/crypto'
+import { ethSign, recoverAddressFromEthSignature } from '@dcl/crypto/dist/crypto'
 import { IdentityType } from '@dcl/crypto'
 import { hexToBytes } from 'eth-connect'
 import { WorldsContentServerLinkerAPI } from './WorldsContentServerLinkerAPI'
@@ -63,10 +60,7 @@ export class WorldsContentServer extends EventEmitter {
   async getAddressAndSignature(messageToSign: string): Promise<LinkerResponse> {
     if (this.environmentIdentity) {
       return {
-        signature: ethSign(
-          hexToBytes(this.environmentIdentity.privateKey),
-          messageToSign
-        ),
+        signature: ethSign(hexToBytes(this.environmentIdentity.privateKey), messageToSign),
         address: this.environmentIdentity.address
       }
     }
