@@ -24,26 +24,17 @@ export function getProjectInfo(workDir: string): ProjectInfo | null {
           sceneType: sdk.ProjectType.PORTABLE_EXPERIENCE
         }
       } else {
-        const errors = (WearableJson.validate.errors || [])
-          .map((a) => `${a.data} ${a.message}`)
-          .join('')
+        const errors = (WearableJson.validate.errors || []).map((a) => `${a.data} ${a.message}`).join('')
 
         if (errors.length > 0) {
-          console.error(
-            `Unable to validate '${WEARABLE_JSON_FILE}' properly, please check it: ${errors}`
-          )
+          console.error(`Unable to validate '${WEARABLE_JSON_FILE}' properly, please check it: ${errors}`)
         } else {
-          console.error(
-            `Unable to validate '${WEARABLE_JSON_FILE}' properly, please check it.`
-          )
+          console.error(`Unable to validate '${WEARABLE_JSON_FILE}' properly, please check it.`)
         }
         return null
       }
     } catch (err) {
-      console.error(
-        `Unable to load ${WEARABLE_JSON_FILE} properly, please check it.`,
-        err
-      )
+      console.error(`Unable to load ${WEARABLE_JSON_FILE} properly, please check it.`, err)
       return null
     }
   }
@@ -53,8 +44,7 @@ export function getProjectInfo(workDir: string): ProjectInfo | null {
     // Validate, if is not valid, return null
     const assetJson = readJsonSync(assetJsonPath)
     if (assetJson.assetType) {
-      const docUrl =
-        'https://docs.decentraland.org/development-guide/smart-wearables/'
+      const docUrl = 'https://docs.decentraland.org/development-guide/smart-wearables/'
       console.error(`Field assetType was used to discern smart wearable from smart item, but it's no longer support.
       Please if you're trying to develop a smart wearable read the docs, you probably need to change the 'asset.json' to 'wearable.json'.
       This 'wearable.json' has a different format that previous one.

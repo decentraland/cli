@@ -15,17 +15,12 @@ function getCatalystUrl(): URL {
   return new URL(getConfig().catalystUrl ?? 'https://peer.decentraland.org')
 }
 
-export function setupEcs6Endpoints(
-  components: PreviewComponents,
-  router: Router<PreviewComponents>
-) {
+export function setupEcs6Endpoints(components: PreviewComponents, router: Router<PreviewComponents>) {
   // handle old preview scene.json
   router.get('/scene.json', async () => {
     return {
       headers: { 'content-type': 'application/json' },
-      body: fs.createReadStream(
-        path.join(components.dcl.getWorkingDir(), 'scene.json')
-      )
+      body: fs.createReadStream(path.join(components.dcl.getWorkingDir(), 'scene.json'))
     }
   })
 
@@ -83,23 +78,17 @@ export function setupEcs6Endpoints(
         const deployedProfile = (await req.json()) as any[]
 
         if (deployedProfile?.length === 1) {
-          deployedProfile[0].avatars[0].avatar.wearables.push(
-            ...previewWearables
-          )
+          deployedProfile[0].avatars[0].avatar.wearables.push(...previewWearables)
           return {
             headers: {
-              'content-type':
-                req.headers.get('content-type') || 'application/binary'
+              'content-type': req.headers.get('content-type') || 'application/binary'
             },
             body: deployedProfile
           }
         }
       }
     } catch (err) {
-      console.warn(
-        `Failed to catch profile and fill with preview wearables.`,
-        err
-      )
+      console.warn(`Failed to catch profile and fill with preview wearables.`, err)
     }
 
     return next()
@@ -154,8 +143,7 @@ export function setupEcs6Endpoints(
           const projectType = project.getInfo().sceneType
           const projectDir = project.getProjectWorkingDir()
           if (projectType === sdk.ProjectType.SCENE) acc.scenes.push(projectDir)
-          if (projectType === sdk.ProjectType.PORTABLE_EXPERIENCE)
-            acc.wearables.push(projectDir)
+          if (projectType === sdk.ProjectType.PORTABLE_EXPERIENCE) acc.wearables.push(projectDir)
           return acc
         },
         { wearables: [], scenes: [] }
@@ -166,25 +154,15 @@ export function setupEcs6Endpoints(
     }
   }
 
-  const baseFolders = Array.from(
-    new Set([...baseSceneFolders, ...baseWearableFolders])
-  )
+  const baseFolders = Array.from(new Set([...baseSceneFolders, ...baseWearableFolders]))
 
   serveFolders(components, router, baseFolders)
 }
 
-function serveFolders(
-  components: PreviewComponents,
-  router: Router<PreviewComponents>,
-  baseFolders: string[]
-) {
+function serveFolders(components: PreviewComponents, router: Router<PreviewComponents>, baseFolders: string[]) {
   router.get('/content/contents/:hash', async (ctx, next) => {
     if (ctx.params.hash && ctx.params.hash.startsWith('b64-')) {
-      const fullPath = path.resolve(
-        Buffer.from(ctx.params.hash.replace(/^b64-/, ''), 'base64').toString(
-          'utf8'
-        )
-      )
+      const fullPath = path.resolve(Buffer.from(ctx.params.hash.replace(/^b64-/, ''), 'base64').toString('utf8'))
 
       // only return files IF the file is within a baseFolder
       if (!baseFolders.find((folder: string) => fullPath.startsWith(folder))) {
@@ -210,9 +188,7 @@ function serveFolders(
     }
 
     const requestedPointers = new Set<string>(
-      pointers && typeof pointers === 'string'
-        ? [pointers as string]
-        : (pointers as string[])
+      pointers && typeof pointers === 'string' ? [pointers as string] : (pointers as string[])
     )
 
     const resultEntities = getSceneJson({
@@ -255,9 +231,7 @@ function serveFolders(
     return {
       body: {
         ok: true,
-        data: wearables.filter(
-          (wearable) => smartWearableNameToId(wearable?.name) === wearableId
-        )
+        data: wearables.filter((wearable) => smartWearableNameToId(wearable?.name) === wearableId)
       }
     }
   })
@@ -273,16 +247,9 @@ function serveFolders(
   })
 }
 
-const defaultHashMaker = (str: string) =>
-  'b64-' + Buffer.from(str).toString('base64')
+const defaultHashMaker = (str: string) => 'b64-' + Buffer.from(str).toString('base64')
 
-function getAllPreviewWearables({
-  baseFolders,
-  baseUrl
-}: {
-  baseFolders: string[]
-  baseUrl: string
-}) {
+function getAllPreviewWearables({ baseFolders, baseUrl }: { baseFolders: string[]; baseUrl: string }) {
   const wearablePathArray: string[] = []
   for (const wearableDir of baseFolders) {
     const wearableJsonPath = path.resolve(wearableDir, 'wearable.json')
@@ -296,44 +263,27 @@ function getAllPreviewWearables({
     try {
       ret.push(serveWearable({ wearableJsonPath, baseUrl }))
     } catch (err) {
-      console.error(
-        `Couldn't mock the wearable ${wearableJsonPath}. Please verify the correct format and scheme.`,
-        err
-      )
+      console.error(`Couldn't mock the wearable ${wearableJsonPath}. Please verify the correct format and scheme.`, err)
     }
   }
   return ret
 }
 
-function serveWearable({
-  wearableJsonPath,
-  baseUrl
-}: {
-  wearableJsonPath: string
-  baseUrl: string
-}) {
+function serveWearable({ wearableJsonPath, baseUrl }: { wearableJsonPath: string; baseUrl: string }) {
   const wearableDir = path.dirname(wearableJsonPath)
   const wearableJson = JSON.parse(fs.readFileSync(wearableJsonPath).toString())
 
   if (!WearableJson.validate(wearableJson)) {
-    const errors = (WearableJson.validate.errors || [])
-      .map((a) => `${a.data} ${a.message}`)
-      .join('')
+    const errors = (WearableJson.validate.errors || []).map((a) => `${a.data} ${a.message}`).join('')
 
-    console.error(
-      `Unable to validate wearable.json properly, please check it.`,
-      errors
-    )
+    console.error(`Unable to validate wearable.json properly, please check it.`, errors)
     throw new Error(`Invalid wearable.json (${wearableJsonPath})`)
   }
 
   const dclIgnorePath = path.resolve(wearableDir, '.dclignore')
   let ignoreFileContent = ''
   if (fs.existsSync(dclIgnorePath)) {
-    ignoreFileContent = fs.readFileSync(
-      path.resolve(wearableDir, '.dclignore'),
-      'utf-8'
-    )
+    ignoreFileContent = fs.readFileSync(path.resolve(wearableDir, '.dclignore'), 'utf-8')
   }
 
   const hashedFiles = getFilesFromFolder({
@@ -342,27 +292,21 @@ function serveWearable({
     ignorePattern: ignoreFileContent
   })
 
-  const thumbnailFiltered = hashedFiles.filter(
-    ($) => $?.file === 'thumbnail.png'
-  )
+  const thumbnailFiltered = hashedFiles.filter(($) => $?.file === 'thumbnail.png')
   const thumbnail =
-    thumbnailFiltered.length > 0 &&
-    thumbnailFiltered[0]?.hash &&
-    `${baseUrl}/${thumbnailFiltered[0].hash}`
+    thumbnailFiltered.length > 0 && thumbnailFiltered[0]?.hash && `${baseUrl}/${thumbnailFiltered[0].hash}`
 
   const wearableId = 'urn:8dc2d7ad-97e3-44d0-ba89-e8305d795a6a'
 
-  const representations = wearableJson.data.representations.map(
-    (representation) => ({
-      ...representation,
-      mainFile: `male/${representation.mainFile}`,
-      contents: hashedFiles.map(($) => ({
-        key: `male/${$?.file}`,
-        url: `${baseUrl}/${$?.hash}`,
-        hash: $?.hash
-      }))
-    })
-  )
+  const representations = wearableJson.data.representations.map((representation) => ({
+    ...representation,
+    mainFile: `male/${representation.mainFile}`,
+    contents: hashedFiles.map(($) => ({
+      key: `male/${$?.file}`,
+      url: `${baseUrl}/${$?.hash}`,
+      hash: $?.hash
+    }))
+  }))
 
   return {
     id: wearableId,
@@ -399,10 +343,7 @@ function getSceneJson({
     const dclIgnorePath = path.resolve(folder, '.dclignore')
     let ignoreFileContent = ''
     if (fs.existsSync(dclIgnorePath)) {
-      ignoreFileContent = fs.readFileSync(
-        path.resolve(folder, '.dclignore'),
-        'utf-8'
-      )
+      ignoreFileContent = fs.readFileSync(path.resolve(folder, '.dclignore'), 'utf-8')
     }
 
     return entityV3FromFolder({
@@ -415,9 +356,7 @@ function getSceneJson({
 
   for (const pointer of Array.from(requestedPointers)) {
     // get deployment by pointer
-    const theDeployment = allDeployments.find(
-      ($) => $ && $.pointers.includes(pointer)
-    )
+    const theDeployment = allDeployments.find(($) => $ && $.pointers.includes(pointer))
     if (theDeployment) {
       // remove all the required pointers from the requestedPointers set
       // to prevent sending duplicated entities
@@ -444,10 +383,7 @@ function getEcsPath(workingDir: string) {
 }
 
 /* require.resolve patch with undefined when fails */
-function resolveOrUndefined(
-  id: string,
-  options?: { paths?: string[] | undefined }
-): string | undefined {
+function resolveOrUndefined(id: string, options?: { paths?: string[] | undefined }): string | undefined {
   try {
     return require.resolve(id, options)
   } catch (err) {
@@ -455,17 +391,11 @@ function resolveOrUndefined(
   }
 }
 
-function serveStatic(
-  components: PreviewComponents,
-  router: Router<PreviewComponents>
-) {
+function serveStatic(components: PreviewComponents, router: Router<PreviewComponents>) {
   const ecsPath = path.dirname(getEcsPath(components.dcl.getWorkingDir()))
-  const dclExplorerPackageJson = resolveOrUndefined(
-    '@dcl/explorer/package.json',
-    {
-      paths: [components.dcl.getWorkingDir(), ecsPath]
-    }
-  )
+  const dclExplorerPackageJson = resolveOrUndefined('@dcl/explorer/package.json', {
+    paths: [components.dcl.getWorkingDir(), ecsPath]
+  })
 
   const dclKernelPath = path.dirname(
     dclExplorerPackageJson ??
@@ -473,15 +403,8 @@ function serveStatic(
         paths: [components.dcl.getWorkingDir(), ecsPath]
       })
   )
-  const dclKernelDefaultProfilePath = path.resolve(
-    dclKernelPath,
-    'default-profile'
-  )
-  const dclKernelImagesDecentralandConnect = path.resolve(
-    dclKernelPath,
-    'images',
-    'decentraland-connect'
-  )
+  const dclKernelDefaultProfilePath = path.resolve(dclKernelPath, 'default-profile')
+  const dclKernelImagesDecentralandConnect = path.resolve(dclKernelPath, 'images', 'decentraland-connect')
   const dclKernelLoaderPath = path.resolve(dclKernelPath, 'loader')
   const dclUnityRenderer = path.dirname(
     dclExplorerPackageJson ??
@@ -517,11 +440,7 @@ function serveStatic(
     })
   }
 
-  function createStaticRoutes(
-    route: string,
-    folder: string,
-    transform = (str: string) => str
-  ) {
+  function createStaticRoutes(route: string, folder: string, transform = (str: string) => str) {
     router.get(route, async (ctx, next) => {
       const file = ctx.params.path
       const fullPath = path.resolve(folder, transform(file))
@@ -548,21 +467,14 @@ function serveStatic(
     })
   }
 
-  createStaticRoutes(
-    '/images/decentraland-connect/:path+',
-    dclKernelImagesDecentralandConnect
-  )
-  createStaticRoutes(
-    '/@/artifacts/unity-renderer/:path+',
-    dclUnityRenderer,
-    (filePath) => filePath.replace(/.br+$/, '')
+  createStaticRoutes('/images/decentraland-connect/:path+', dclKernelImagesDecentralandConnect)
+  createStaticRoutes('/@/artifacts/unity-renderer/:path+', dclUnityRenderer, (filePath) =>
+    filePath.replace(/.br+$/, '')
   )
 
   if (dclExplorerPackageJson) {
-    createStaticRoutes(
-      '/@/explorer/:path+',
-      path.dirname(dclExplorerPackageJson),
-      (filePath) => filePath.replace(/.br+$/, '')
+    createStaticRoutes('/@/explorer/:path+', path.dirname(dclExplorerPackageJson), (filePath) =>
+      filePath.replace(/.br+$/, '')
     )
   }
 
@@ -570,14 +482,11 @@ function serveStatic(
   createStaticRoutes('/default-profile/:path+', dclKernelDefaultProfilePath)
 
   router.get('/feature-flags/:file', async (ctx) => {
-    const res = await fetch(
-      `https://feature-flags.decentraland.zone/${ctx.params.file}`,
-      {
-        headers: {
-          connection: 'close'
-        }
+    const res = await fetch(`https://feature-flags.decentraland.zone/${ctx.params.file}`, {
+      headers: {
+        connection: 'close'
       }
-    )
+    })
     return {
       body: await res.arrayBuffer()
     }
@@ -601,18 +510,11 @@ function entityV3FromFolder({
   const wearableJsonPath = path.resolve(folder, './wearable.json')
   if (fs.existsSync(wearableJsonPath)) {
     try {
-      const wearableJson = JSON.parse(
-        fs.readFileSync(wearableJsonPath).toString()
-      )
+      const wearableJson = JSON.parse(fs.readFileSync(wearableJsonPath).toString())
       if (!WearableJson.validate(wearableJson)) {
-        const errors = (WearableJson.validate.errors || [])
-          .map((a) => `${a.data} ${a.message}`)
-          .join('')
+        const errors = (WearableJson.validate.errors || []).map((a) => `${a.data} ${a.message}`).join('')
 
-        console.error(
-          `Unable to validate wearable.json properly, please check it.`,
-          errors
-        )
+        console.error(`Unable to validate wearable.json properly, please check it.`, errors)
         console.error(`Invalid wearable.json (${wearableJsonPath})`)
       } else {
         isParcelScene = false
@@ -626,8 +528,7 @@ function entityV3FromFolder({
 
   if (fs.existsSync(sceneJsonPath) && isParcelScene) {
     const sceneJson = JSON.parse(fs.readFileSync(sceneJsonPath).toString())
-    const { base, parcels }: { base: string; parcels: string[] } =
-      sceneJson.scene
+    const { base, parcels }: { base: string; parcels: string[] } = sceneJson.scene
     const pointers = new Set<string>()
     pointers.add(base)
     parcels.forEach(($) => pointers.add($))
@@ -705,8 +606,7 @@ export function getFilesFromFolder({
     })
     .filter(($) => !!$) as string[]
 
-  const ensureIgnorePattern =
-    ignorePattern && ignorePattern !== '' ? ignorePattern : defaultDclIgnore()
+  const ensureIgnorePattern = ignorePattern && ignorePattern !== '' ? ignorePattern : defaultDclIgnore()
   const ig = ignore().add(ensureIgnorePattern)
   const filteredFiles = ig.filter(allFiles)
 
@@ -723,9 +623,7 @@ export function getFilesFromFolder({
 
     const absoluteFolder = folder.replace(/\\/gi, '/')
 
-    const relativeFilePathToFolder = file
-      .replace(absoluteFolder, '')
-      .replace(/^\/+/, '')
+    const relativeFilePathToFolder = file.replace(absoluteFolder, '').replace(/^\/+/, '')
 
     ret.push({
       file: relativeFilePathToFolder.toLowerCase(),

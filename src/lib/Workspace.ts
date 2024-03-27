@@ -61,10 +61,7 @@ export const createWorkspace = ({
 }): Workspace => {
   const projects: Project[] = []
 
-  const workspaceJsonPath =
-    workspaceFilePath ||
-    path.resolve(workingDir || '', workspaceConfigFile) ||
-    ''
+  const workspaceJsonPath = workspaceFilePath || path.resolve(workingDir || '', workspaceConfigFile) || ''
 
   if (workspaceJsonPath === '') {
     throw new Error(`Couldn't find the workspace file or a working directory.`)
@@ -80,9 +77,7 @@ export const createWorkspace = ({
   }
 
   if (projects.length === 0) {
-    throw new Error(
-      'At least one project has to have been read for the workspace.'
-    )
+    throw new Error('At least one project has to have been read for the workspace.')
   }
   const getAllProjects = () => {
     return projects
@@ -93,9 +88,7 @@ export const createWorkspace = ({
   }
 
   const isSingleProject = () => {
-    return (
-      projects.length === 1 && projects[0].getProjectWorkingDir() === workingDir
-    )
+    return projects.length === 1 && projects[0].getProjectWorkingDir() === workingDir
   }
 
   const getSingleProject = (): Project | null => {
@@ -103,25 +96,16 @@ export const createWorkspace = ({
   }
 
   const hasPortableExperience = () => {
-    return !!projects.find(
-      (project) =>
-        project.getInfo().sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE
-    )
+    return !!projects.find((project) => project.getInfo().sceneType === sdk.ProjectType.PORTABLE_EXPERIENCE)
   }
 
   const getBaseCoords = async () => {
-    const firstParcelScene = projects.find(
-      (project) => project.getInfo().sceneType === sdk.ProjectType.SCENE
-    )
-    return firstParcelScene
-      ? await firstParcelScene.getSceneBaseCoords()
-      : { x: 0, y: 0 }
+    const firstParcelScene = projects.find((project) => project.getInfo().sceneType === sdk.ProjectType.SCENE)
+    return firstParcelScene ? await firstParcelScene.getSceneBaseCoords() : { x: 0, y: 0 }
   }
 
   const getParcelCount = async () => {
-    const firstParcelScene = projects.find(
-      (project) => project.getInfo().sceneType === sdk.ProjectType.SCENE
-    )
+    const firstParcelScene = projects.find((project) => project.getInfo().sceneType === sdk.ProjectType.SCENE)
     return firstParcelScene ? await firstParcelScene.getSceneParcelCount() : 0
   }
 
@@ -136,9 +120,7 @@ export const createWorkspace = ({
       const workspacePath = path.resolve(path.dirname(workspaceJsonPath))
       if (projectPath.startsWith(workspacePath)) {
         folders.push({
-          path: projectPath
-            .replace(`${workspacePath}/`, '')
-            .replace(`${workspacePath}\\`, '')
+          path: projectPath.replace(`${workspacePath}/`, '').replace(`${workspacePath}\\`, '')
         })
       } else {
         folders.push({ path: projectPath })
@@ -155,9 +137,7 @@ export const createWorkspace = ({
       : path.resolve(workspacePath, projectWorkingDir)
 
     if (!(await fs.pathExists(projectResolvedPath))) {
-      throw new Error(
-        `Path ${projectWorkingDir} doen't exist. Resolved ${projectResolvedPath}`
-      )
+      throw new Error(`Path ${projectWorkingDir} doen't exist. Resolved ${projectResolvedPath}`)
     }
     const newProject = new Project(projectResolvedPath)
     await newProject.validateExistingProject()
@@ -178,9 +158,7 @@ export const createWorkspace = ({
   }
 }
 
-export async function initializeWorkspace(
-  workingDir: string
-): Promise<Workspace> {
+export async function initializeWorkspace(workingDir: string): Promise<Workspace> {
   const workingDirPaths = await fs.readdir(workingDir)
   const folders: WorkspaceProjectSchema[] = []
 
@@ -199,11 +177,7 @@ export async function initializeWorkspace(
   }
 
   const newWorkspace: WorkspaceFileSchema = { folders }
-  await fs.writeJSON(
-    path.resolve(workingDir, workspaceConfigFile),
-    newWorkspace,
-    { spaces: 2 }
-  )
+  await fs.writeJSON(path.resolve(workingDir, workspaceConfigFile), newWorkspace, { spaces: 2 })
   await copySample('workspace', workingDir)
   await installDependencies(workingDir, false)
 

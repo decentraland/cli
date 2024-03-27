@@ -17,10 +17,7 @@ test('snapshot - dcl help start', (t) => {
 function startProject(dirPath): Promise<Commando> {
   return new Promise((resolve) => {
     const command = new Commando(
-      `node ${path.resolve(
-        'dist',
-        'index.js'
-      )} start --skip-version-checks --no-browser -p 8001`,
+      `node ${path.resolve('dist', 'index.js')} start --skip-version-checks --no-browser -p 8001`,
       {
         silent: !isDebug(),
         workingDir: dirPath,
@@ -41,12 +38,11 @@ test('E2E - init && start command', async (t) => {
     const response = await fetch(`http://localhost:8001`)
     const body = await response.text()
     t.snapshot(body)
-    const [gameCompiledExists, nodeModulesExists, ecsModuleExists] =
-      await pathsExistOnDir(dirPath, [
-        'bin/game.js',
-        'node_modules',
-        'node_modules/decentraland-ecs'
-      ])
+    const [gameCompiledExists, nodeModulesExists, ecsModuleExists] = await pathsExistOnDir(dirPath, [
+      'bin/game.js',
+      'node_modules',
+      'node_modules/decentraland-ecs'
+    ])
 
     t.true(gameCompiledExists)
     t.true(nodeModulesExists)
@@ -78,19 +74,9 @@ async function testWearablePreview(t: ExecutionContext<any>) {
 
 async function testAbout(t: ExecutionContext<any>) {
   {
-    const about = (await fetchJson(
-      'http://localhost:8001/about'
-    )) as AboutResponse
-    t.is(
-      about.content.publicUrl,
-      'http://localhost:8001/content',
-      'content server URL properly configured'
-    )
-    t.is(
-      about.lambdas.publicUrl,
-      'http://localhost:8001/lambdas',
-      'lambdas server URL properly configured'
-    )
+    const about = (await fetchJson('http://localhost:8001/about')) as AboutResponse
+    t.is(about.content.publicUrl, 'http://localhost:8001/content', 'content server URL properly configured')
+    t.is(about.lambdas.publicUrl, 'http://localhost:8001/lambdas', 'lambdas server URL properly configured')
     t.is(
       about.comms.fixedAdapter,
       'ws-room:ws://localhost:8001/mini-comms/room-1',
@@ -101,16 +87,8 @@ async function testAbout(t: ExecutionContext<any>) {
     const about = (await fetchJson('http://127.0.0.1:8001/about', {
       headers: { 'x-forwarded-proto': 'https' }
     })) as AboutResponse
-    t.is(
-      about.content.publicUrl,
-      'https://127.0.0.1:8001/content',
-      'content server URL properly configured'
-    )
-    t.is(
-      about.lambdas.publicUrl,
-      'https://127.0.0.1:8001/lambdas',
-      'lambdas server URL properly configured'
-    )
+    t.is(about.content.publicUrl, 'https://127.0.0.1:8001/content', 'content server URL properly configured')
+    t.is(about.lambdas.publicUrl, 'https://127.0.0.1:8001/lambdas', 'lambdas server URL properly configured')
     t.is(
       about.comms.fixedAdapter,
       'ws-room:wss://127.0.0.1:8001/mini-comms/room-1',

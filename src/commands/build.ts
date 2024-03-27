@@ -53,14 +53,9 @@ export async function main(): Promise<number> {
 
     if (needDependencies && !skipInstall) {
       if (online) {
-        await installDependencies(
-          project.getProjectWorkingDir(),
-          false /* silent */
-        )
+        await installDependencies(project.getProjectWorkingDir(), false /* silent */)
       } else {
-        fail(
-          'This project can not start as you are offline and dependencies need to be installed.'
-        )
+        fail('This project can not start as you are offline and dependencies need to be installed.')
       }
     }
 
@@ -90,13 +85,9 @@ export async function main(): Promise<number> {
   }
 
   if (errors.length) {
-    const projectList = errors
-      .map((item) => item.project.getProjectWorkingDir())
-      .join('\n\t')
+    const projectList = errors.map((item) => item.project.getProjectWorkingDir()).join('\n\t')
 
-    throw new Error(
-      `Error compiling (see logs above) the scenes: \n\t${projectList}`
-    )
+    throw new Error(`Error compiling (see logs above) the scenes: \n\t${projectList}`)
   }
 
   if (dcl.workspace.isSingleProject()) {

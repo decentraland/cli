@@ -23,14 +23,11 @@ function initProject(dirPath: string): Promise<void> {
 
 function startProject(dirPath): Promise<Commando> {
   return new Promise((resolve) => {
-    const command = new Commando(
-      `node ${path.resolve('dist', 'index.js')} start --no-browser`,
-      {
-        silent: !isDebug(),
-        workingDir: dirPath,
-        env: { NODE_ENV: 'development' }
-      }
-    ).when(/to exit/, async () => {
+    const command = new Commando(`node ${path.resolve('dist', 'index.js')} start --no-browser`, {
+      silent: !isDebug(),
+      workingDir: dirPath,
+      env: { NODE_ENV: 'development' }
+    }).when(/to exit/, async () => {
       resolve(command)
     })
   })
@@ -55,17 +52,14 @@ function statusProject(): Promise<string> {
 
 function deployProject(dirPath): Promise<void> {
   return new Promise((resolve) => {
-    new Commando(
-      `node ${path.resolve('dist', 'index.js')} deploy --yes --network sepolia`,
-      {
-        silent: !isDebug(),
-        workingDir: dirPath,
-        env: {
-          NODE_ENV: 'development',
-          DCL_PRIVATE_KEY: process.env.CI_DCL_PRIVATE_KEY
-        }
+    new Commando(`node ${path.resolve('dist', 'index.js')} deploy --yes --network sepolia`, {
+      silent: !isDebug(),
+      workingDir: dirPath,
+      env: {
+        NODE_ENV: 'development',
+        DCL_PRIVATE_KEY: process.env.CI_DCL_PRIVATE_KEY
       }
-    ).on('end', async () => {
+    }).on('end', async () => {
       resolve()
     })
   })
@@ -83,12 +77,9 @@ test('E2E - full new user workflow of CLI (only CI test)', async (t) => {
       await initProject(dirPath)
 
       // Remove rotation line
-      let gameFile = await fs.readFile(
-        path.resolve(dirPath, 'src', 'game.ts'),
-        {
-          encoding: 'utf8'
-        }
-      )
+      let gameFile = await fs.readFile(path.resolve(dirPath, 'src', 'game.ts'), {
+        encoding: 'utf8'
+      })
       gameFile = gameFile.replace('engine.addSystem(new RotatorSystem())', '')
       await fs.writeFile(path.resolve(dirPath, 'src', 'game.ts'), gameFile, {
         encoding: 'utf8'
@@ -103,9 +94,7 @@ test('E2E - full new user workflow of CLI (only CI test)', async (t) => {
       await page.goto('http://localhost:8000')
       await page.waitForSelector('#main-canvas')
 
-      const snapshotPreview = await fs.readFile(
-        path.resolve(__dirname, './snapshots/dcl-preview.png')
-      )
+      const snapshotPreview = await fs.readFile(path.resolve(__dirname, './snapshots/dcl-preview.png'))
       const imagePreview = await page.screenshot({
         encoding: 'binary',
         path: path.resolve(dirPath, 'dcl-preview.png')
@@ -117,22 +106,15 @@ test('E2E - full new user workflow of CLI (only CI test)', async (t) => {
       const randomString = Math.random().toString(36).substring(7)
 
       // Assert that hotreloading changes preview
-      gameFile = gameFile.replace(
-        'spawnCube(8, 1, 8)',
-        `spawnCube(5, 5, 5) // ${randomString}`
-      )
+      gameFile = gameFile.replace('spawnCube(8, 1, 8)', `spawnCube(5, 5, 5) // ${randomString}`)
       await fs.writeFile(path.resolve(dirPath, 'src', 'game.ts'), gameFile, {
         encoding: 'utf8'
       })
       await page.reload()
       await page.waitForSelector('#main-canvas')
       const [snapshotModified1, snapshotModified2] = await Promise.all([
-        fs.readFile(
-          path.resolve(__dirname, './snapshots/dcl-preview-modified.1.png')
-        ),
-        fs.readFile(
-          path.resolve(__dirname, './snapshots/dcl-preview-modified.2.png')
-        )
+        fs.readFile(path.resolve(__dirname, './snapshots/dcl-preview-modified.1.png')),
+        fs.readFile(path.resolve(__dirname, './snapshots/dcl-preview-modified.2.png'))
       ])
 
       const imageModified = await page.screenshot({
@@ -143,8 +125,7 @@ test('E2E - full new user workflow of CLI (only CI test)', async (t) => {
       startCmd.end()
       void browser.close()
       t.true(
-        Buffer.compare(snapshotModified1, imageModified) === 0 ||
-          Buffer.compare(snapshotModified2, imageModified) === 0
+        Buffer.compare(snapshotModified1, imageModified) === 0 || Buffer.compare(snapshotModified2, imageModified) === 0
       )
 
       const statusBefore = await statusProject()

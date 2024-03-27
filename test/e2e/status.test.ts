@@ -13,10 +13,7 @@ test('E2E - status command', async (t) => {
   await new Promise<void>((resolve) => {
     let allData = ''
     new Commando(
-      `node ${path.resolve(
-        'dist',
-        'index.js'
-      )} status --network sepolia -35,-130`,
+      `node ${path.resolve('dist', 'index.js')} status --network sepolia -35,-130`,
       {
         silent: !isDebug(),
         workingDir: '.',

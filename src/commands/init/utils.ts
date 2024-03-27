@@ -18,9 +18,7 @@ export async function getInitOption(type?: string): Promise<InitOption> {
     if (!sdk.ProjectType.validate(type)) {
       fail(
         ErrorType.INIT_ERROR,
-        `Invalid projectType: "${chalk.bold(
-          type
-        )}". Supported types are ${chalk.bold(getProjectTypes())}`
+        `Invalid projectType: "${chalk.bold(type)}". Supported types are ${chalk.bold(getProjectTypes())}`
       )
     }
 
@@ -60,10 +58,7 @@ export async function getInitOption(type?: string): Promise<InitOption> {
     }
   }
 
-  fail(
-    ErrorType.INIT_ERROR,
-    `Couldn't get a valid first-level choice. Try to select a valid one.`
-  )
+  fail(ErrorType.INIT_ERROR, `Couldn't get a valid first-level choice. Try to select a valid one.`)
   return {} as any
 }
 

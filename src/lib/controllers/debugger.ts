@@ -4,10 +4,7 @@ import { fork } from 'child_process'
 import WebSocket from 'ws'
 import { PreviewComponents } from '../Preview'
 
-export function setupDebuggingAdapter(
-  components: PreviewComponents,
-  router: Router<any>
-) {
+export function setupDebuggingAdapter(components: PreviewComponents, router: Router<any>) {
   router.get('/_scene/debug-adapter', async (ctx) => {
     if (ctx.request.headers.get('upgrade') === 'websocket') {
       return upgradeWebSocketResponse((ws: WebSocket) => {

@@ -51,10 +51,7 @@ export function help() {
 
 export async function main() {
   if (process.argv.length <= 4) {
-    fail(
-      ErrorType.WORLD_CONTENT_SERVER_ERROR,
-      `The subcommand is not recognized`
-    )
+    fail(ErrorType.WORLD_CONTENT_SERVER_ERROR, `The subcommand is not recognized`)
   }
 
   const args = arg(spec)
@@ -66,10 +63,7 @@ export async function main() {
     action: args._[2].toLowerCase()
   })
 
-  const subcommandList: Record<
-    string,
-    (args: arg.Result<typeof spec>) => Promise<void>
-  > = {
+  const subcommandList: Record<string, (args: arg.Result<typeof spec>) => Promise<void>> = {
     show: showAcl,
     grant: grantAcl,
     revoke: revokeAcl,
@@ -80,18 +74,13 @@ export async function main() {
   if (subcommand in subcommandList) {
     await subcommandList[subcommand](args)
   } else {
-    fail(
-      ErrorType.WORLD_CONTENT_SERVER_ERROR,
-      `The subcommand ${subcommand} is not recognized`
-    )
+    fail(ErrorType.WORLD_CONTENT_SERVER_ERROR, `The subcommand ${subcommand} is not recognized`)
   }
 }
 
 class HTTPResponseError extends Error {
   constructor(public response: Response) {
-    super(
-      `HTTP Error Response: ${response.status} ${response.statusText} for URL ${response.url}`
-    )
+    super(`HTTP Error Response: ${response.status} ${response.statusText} for URL ${response.url}`)
   }
 }
 
@@ -109,10 +98,7 @@ export type AccessControlList = {
   allowed: EthAddress[]
 }
 
-async function fetchAcl(
-  worldName: string,
-  targetContent: string
-): Promise<AccessControlList> {
+async function fetchAcl(worldName: string, targetContent: string): Promise<AccessControlList> {
   spinner.create(`Fetching acl for world ${worldName}`)
   try {
     const data = await fetch(`${targetContent}/acl/${worldName}`)
@@ -126,11 +112,7 @@ async function fetchAcl(
   }
 }
 
-async function storeAcl(
-  worldName: string,
-  authChain: AuthChain,
-  targetContent: string
-): Promise<AccessControlList> {
+async function storeAcl(worldName: string, authChain: AuthChain, targetContent: string): Promise<AccessControlList> {
   spinner.create(`Storing acl for world ${worldName}`)
   try {
     const data = await fetch(`${targetContent}/acl/${worldName}`, {
@@ -153,21 +135,16 @@ async function storeAcl(
   }
 }
 
-function displayPermissionToConsole(
-  data: AccessControlList,
-  worldName: string
-) {
+function displayPermissionToConsole(data: AccessControlList, worldName: string) {
   if (data.allowed.length === 0) {
     console.log(
-      `${chalk.dim('Only the owner of')} ${chalk.bold(worldName)} ${chalk.dim(
-        'can deploy scenes under that name.'
-      )}`
+      `${chalk.dim('Only the owner of')} ${chalk.bold(worldName)} ${chalk.dim('can deploy scenes under that name.')}`
     )
   } else {
     console.log(
-      `${chalk.dim(
-        'The following addresses are authorized to deploy scenes under'
-      )} ${chalk.bold(worldName)}${chalk.dim(':')}`
+      `${chalk.dim('The following addresses are authorized to deploy scenes under')} ${chalk.bold(
+        worldName
+      )}${chalk.dim(':')}`
     )
     data.allowed.forEach((address: string) => {
       console.log(`  ${chalk.bold(address)}`)
@@ -203,9 +180,7 @@ async function grantAcl(args: arg.Result<typeof spec>) {
 
     const newAcl = { ...currentData, allowed: newAllowed }
     if (newAcl.allowed.length === currentData.allowed.length) {
-      console.log(
-        'No changes made. All the addresses requested to be granted access already have permission.'
-      )
+      console.log('No changes made. All the addresses requested to be granted access already have permission.')
       return
     }
 
@@ -222,15 +197,11 @@ async function revokeAcl(args: arg.Result<typeof spec>) {
 
   try {
     const currentData = await fetchAcl(worldName, targetContent)
-    const newAllowed = [...currentData.allowed].filter(
-      (address: EthAddress) => !addresses.includes(address)
-    )
+    const newAllowed = [...currentData.allowed].filter((address: EthAddress) => !addresses.includes(address))
 
     const newAcl = { ...currentData, allowed: newAllowed }
     if (newAcl.allowed.length === currentData.allowed.length) {
-      console.log(
-        'No changes made. None of the addresses requested to be revoked accessed had permission.'
-      )
+      console.log('No changes made. None of the addresses requested to be revoked accessed had permission.')
       return
     }
 
@@ -252,8 +223,7 @@ async function signAndStoreAcl(
 
   const port = args['--port']
   const parsedPort = port ? parseInt(port, 10) : void 0
-  const linkerPort =
-    parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
+  const linkerPort = parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
   const targetContent = args['--target-content']!
   const worldsContentServer = new WorldsContentServer({
     worldName: acl.resource,
@@ -276,23 +246,15 @@ async function signAndStoreAcl(
       }
     }, 5000)
 
-    worldsContentServer.on(
-      'link:success',
-      ({ address, signature }: WorldsContentServerResponse) => {
-        spinner.succeed(`ACL successfully signed.`)
-        console.log(`${chalk.bold('Address:')} ${address}`)
-        console.log(`${chalk.bold('Signature:')} ${signature}`)
-      }
-    )
+    worldsContentServer.on('link:success', ({ address, signature }: WorldsContentServerResponse) => {
+      spinner.succeed(`ACL successfully signed.`)
+      console.log(`${chalk.bold('Address:')} ${address}`)
+      console.log(`${chalk.bold('Signature:')} ${signature}`)
+    })
   })
 
-  const { signature, address } =
-    await worldsContentServer.getAddressAndSignature(payload)
-  const authChain = Authenticator.createSimpleAuthChain(
-    payload,
-    address,
-    signature
-  )
+  const { signature, address } = await worldsContentServer.getAddressAndSignature(payload)
+  const authChain = Authenticator.createSimpleAuthChain(payload, address, signature)
 
   try {
     const data = await storeAcl(acl.resource, authChain, targetContent)

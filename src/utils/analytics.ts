@@ -14,11 +14,7 @@ export let analytics: AnalyticsNode
 const ANONYMOUS_DATA_QUESTION = 'Send Anonymous data'
 
 function isCI() {
-  return (
-    process.env.CI === 'true' ||
-    process.argv.includes('--ci') ||
-    process.argv.includes('--c')
-  )
+  return process.env.CI === 'true' || process.argv.includes('--ci') || process.argv.includes('--c')
 }
 
 function isEditor() {
@@ -44,34 +40,23 @@ export type SceneDeploySuccess = Omit<AnalyticsProject, 'isWorkspace'> & {
 }
 
 export namespace Analytics {
-  export const sceneCreated = (properties?: {
-    projectType: string
-    url?: string
-  }) => trackAsync('Scene created', properties)
+  export const sceneCreated = (properties?: { projectType: string; url?: string }) =>
+    trackAsync('Scene created', properties)
 
-  export const startPreview = (properties: AnalyticsProject) =>
-    trackAsync('Preview started', properties)
+  export const startPreview = (properties: AnalyticsProject) => trackAsync('Preview started', properties)
 
-  export const sceneStartDeploy = (properties?: any) =>
-    trackAsync('Scene deploy started', properties)
+  export const sceneStartDeploy = (properties?: any) => trackAsync('Scene deploy started', properties)
 
-  export const sceneDeploySuccess = (properties: SceneDeploySuccess) =>
-    trackAsync('Scene deploy success', properties)
+  export const sceneDeploySuccess = (properties: SceneDeploySuccess) => trackAsync('Scene deploy success', properties)
 
-  export const worldAcl = (properties: any) =>
-    trackAsync('World ACL', properties)
+  export const worldAcl = (properties: any) => trackAsync('World ACL', properties)
 
-  export const buildScene = (properties: AnalyticsProject) =>
-    trackAsync('Build scene', properties)
+  export const buildScene = (properties: AnalyticsProject) => trackAsync('Build scene', properties)
 
-  export const infoCmd = (properties?: any) =>
-    trackAsync('Info command', properties)
-  export const statusCmd = (properties?: any) =>
-    trackAsync('Status command', properties)
-  export const sendData = (shareData: boolean) =>
-    trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
-  export const tryToUseDeprecated = (properties?: any) =>
-    trackAsync('Try to use depacreated feature', properties)
+  export const infoCmd = (properties?: any) => trackAsync('Info command', properties)
+  export const statusCmd = (properties?: any) => trackAsync('Status command', properties)
+  export const sendData = (shareData: boolean) => trackAsync(ANONYMOUS_DATA_QUESTION, { shareData })
+  export const tryToUseDeprecated = (properties?: any) => trackAsync('Try to use depacreated feature', properties)
 
   export async function identify(devId: string) {
     analytics.identify({
@@ -86,11 +71,7 @@ export namespace Analytics {
     })
   }
 
-  export async function reportError(
-    type: string,
-    message: string,
-    stackTrace: string
-  ) {
+  export async function reportError(type: string, message: string, stackTrace: string) {
     return track('Error', {
       errorType: type,
       message,

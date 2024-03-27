@@ -2,10 +2,7 @@ import path from 'path'
 import fs from 'fs-extra'
 
 import { readJSON, PackageJson } from '../utils/filesystem'
-import {
-  getDecentralandDependencies,
-  getDependencies
-} from '../utils/installedDependencies'
+import { getDecentralandDependencies, getDependencies } from '../utils/installedDependencies'
 import * as spinner from '../utils/spinner'
 
 export default async function ({ workDir }: { workDir: string }) {
@@ -25,12 +22,8 @@ export default async function ({ workDir }: { workDir: string }) {
     )
 
     if (missingBundled) {
-      const allBundledDependencies = new Set([
-        ...pkgDependencies.bundledDependencies,
-        ...decentralandDependencies
-      ])
-      const { bundledDependencies, bundleDependencies, ...packageJsonProps } =
-        packageJSON
+      const allBundledDependencies = new Set([...pkgDependencies.bundledDependencies, ...decentralandDependencies])
+      const { bundledDependencies, bundleDependencies, ...packageJsonProps } = packageJSON
       const newPackage = {
         ...packageJsonProps,
         bundledDependencies: Array.from(allBundledDependencies)

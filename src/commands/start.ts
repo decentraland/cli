@@ -4,12 +4,7 @@ import chalk from 'chalk'
 import opn from 'opn'
 
 import { Decentraland } from '../lib/Decentraland'
-import {
-  buildTypescript,
-  getOutdatedEcs,
-  isECSVersionLower,
-  isOnline
-} from '../utils/moduleHelpers'
+import { buildTypescript, getOutdatedEcs, isECSVersionLower, isOnline } from '../utils/moduleHelpers'
 import { Analytics } from '../utils/analytics'
 import { error, formatOutdatedMessage } from '../utils/logging'
 import { isEnvCi } from '../utils/env'
@@ -102,14 +97,9 @@ export async function main() {
 
       if (needDependencies && !skipInstall) {
         if (online) {
-          await installDependencies(
-            project.getProjectWorkingDir(),
-            false /* silent */
-          )
+          await installDependencies(project.getProjectWorkingDir(), false /* silent */)
         } else {
-          spinner.fail(
-            'This project can not start as you are offline and dependencies need to be installed.'
-          )
+          spinner.fail('This project can not start as you are offline and dependencies need to be installed.')
         }
       }
 
@@ -171,11 +161,7 @@ export async function main() {
     })
   }
 
-  if (
-    (enableWeb3 || hasPortableExperience) &&
-    (await isECSVersionLower(workingDir, '6.10.0')) &&
-    !skipVersionCheck
-  ) {
+  if ((enableWeb3 || hasPortableExperience) && (await isECSVersionLower(workingDir, '6.10.0')) && !skipVersionCheck) {
     throw new Error(
       'Web3 is not currently working with `decentraland-ecs` version lower than 6.10.0. You can update it with running `npm i decentraland-ecs@latest`.'
     )
@@ -193,8 +179,7 @@ export async function main() {
 
     Object.keys(ifaces).forEach((dev) => {
       ;(ifaces[dev] || []).forEach((details) => {
-        const oldBackpack =
-          'DISABLE_backpack_editor_v2=&ENABLE_backpack_editor_v1'
+        const oldBackpack = 'DISABLE_backpack_editor_v2=&ENABLE_backpack_editor_v1'
         if (details.family === 'IPv4') {
           let addr = `http://${details.address}:${port}?position=${baseCoords.x}%2C${baseCoords.y}&${oldBackpack}`
           if (debug) {
@@ -219,11 +204,7 @@ export async function main() {
 
     // Push localhost and 127.0.0.1 at top
     const sortedURLs = availableURLs.sort((a, _b) => {
-      return a.toLowerCase().includes('localhost') ||
-        a.includes('127.0.0.1') ||
-        a.includes('0.0.0.0')
-        ? -1
-        : 1
+      return a.toLowerCase().includes('localhost') || a.includes('127.0.0.1') || a.includes('0.0.0.0') ? -1 : 1
     })
 
     for (const addr of sortedURLs) {
