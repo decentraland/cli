@@ -68,7 +68,7 @@
     "@dcl/linker-dapp": "0.12.0",
     "@dcl/mini-comms": "1.0.0",
     "@dcl/protocol": "^1.0.0-2569677750.commit-6ce832a",
-    "@dcl/schemas": "^11.2.0",
+    "@dcl/schemas": "^11.3.0",
     "@well-known-components/env-config-provider": "^1.1.2-20220801195549.commit-101c273",
     "@well-known-components/http-server": "^1.1.6-20220927190058.commit-2dfb235",
     "@well-known-components/logger": "^3.0.0",
