@@ -65,7 +65,7 @@
   "dependencies": {
     "@dcl/crypto": "^3.4.5",
     "@dcl/ecs-scene-utils": "^1.7.5",
-    "@dcl/linker-dapp": "0.12.0",
+    "@dcl/linker-dapp": "^0.13.0",
     "@dcl/mini-comms": "1.0.0",
     "@dcl/protocol": "^1.0.0-2569677750.commit-6ce832a",
     "@dcl/schemas": "^11.2.0",
