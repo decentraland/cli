@@ -17,6 +17,7 @@ export type WorldsContentServerArguments = {
   linkerPort?: number
   isHttps?: boolean
   config?: DCLInfo
+  method: 'put' | 'delete'
 }
 
 export class WorldsContentServer extends EventEmitter {
@@ -41,6 +42,7 @@ export class WorldsContentServer extends EventEmitter {
         allowed: this.options.allowed,
         oldAllowed: this.options.oldAllowed,
         targetContent: this.options.targetContent,
+        method: this.options.method,
         expiration: 120,
         payload
       })
@@ -64,7 +66,6 @@ export class WorldsContentServer extends EventEmitter {
         address: this.environmentIdentity.address
       }
     }
-
     return this.link(messageToSign)
   }
 

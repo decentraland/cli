@@ -27,8 +27,8 @@ export function help() {
   
     ${chalk.dim('Sub commands:')}
       show                          List all addresses allowed to deploy a scene to a specified world.
-      grant  [addr 1] ... [addr n]  Grant permission to new addresses (separated by spaces) to deploy a scene to a specified world.
-      revoke [addr 1] ... [addr n]  Remove permission for given addresses (separated by spaces) to deploy a scene to a specified world.
+      grant  addr                 Grant permission to new address to deploy a scene to a specified world.
+      revoke addr                 Remove permission for given address to deploy a scene to a specified world.
   
 
     ${chalk.dim('Options:')}
@@ -41,11 +41,11 @@ export function help() {
       - Show which addresses were given permission to deploy name.dcl.eth
       ${chalk.green('$ dcl world-acl name.dcl.eth show')}
 
-      - Grant addresses 0x1 and 0x2 permission to deploy name.dcl.eth
-      ${chalk.green('$ dcl world-acl name.dcl.eth grant 0x1 0x2')}
+      - Grant address 0x1 permission to deploy name.dcl.eth
+      ${chalk.green('$ dcl world-acl name.dcl.eth grant 0x1')}
 
-      - Revoke addresses 0x1 and 0x2 permission to deploy name.dcl.eth
-      ${chalk.green('$ dcl world-acl name.dcl.eth revoke 0x1 0x2')}
+      - Revoke address 0x1 permission to deploy name.dcl.eth
+      ${chalk.green('$ dcl world-acl name.dcl.eth revoke 0x1')}
 `
 }
 
@@ -93,37 +93,57 @@ const checkStatus = (response: Response) => {
   throw new HTTPResponseError(response)
 }
 
-export type AccessControlList = {
-  resource: string
-  allowed: EthAddress[]
+export enum WorldPermissionType {
+  Unrestricted = 'unrestricted',
+  AllowList = 'allow-list'
 }
 
-async function fetchAcl(worldName: string, targetContent: string): Promise<AccessControlList> {
+export type AllowListPermissionSetting = {
+  type: WorldPermissionType.AllowList
+  wallets: string[]
+}
+
+export type WorldPermissions = {
+  deployment: AllowListPermissionSetting
+}
+
+export type WorldPermissionsResponse = {
+  permissions: WorldPermissions
+}
+
+async function fetchAcl(worldName: string, targetContent: string): Promise<AllowListPermissionSetting> {
   spinner.create(`Fetching acl for world ${worldName}`)
   try {
-    const data = await fetch(`${targetContent}/acl/${worldName}`)
+    const data: WorldPermissionsResponse = await fetch(`${targetContent}/world/${worldName}/permissions`)
       .then(checkStatus)
       .then((res) => res.json())
     spinner.succeed()
-    return data
+    return data.permissions.deployment
   } catch (error: any) {
     spinner.fail(await error.response.text())
     throw error
   }
 }
 
-async function storeAcl(worldName: string, authChain: AuthChain, targetContent: string): Promise<AccessControlList> {
+async function storeAcl(
+  worldName: string,
+  headers: Record<string, string>,
+  targetContent: string,
+  path: string,
+  method: string
+) {
   spinner.create(`Storing acl for world ${worldName}`)
   try {
-    const data = await fetch(`${targetContent}/acl/${worldName}`, {
-      method: 'POST',
-      body: JSON.stringify(authChain)
-    })
-      .then(checkStatus)
-      .then((res) => res.json())
+    await fetch(`${targetContent}${path}`, {
+      method: method,
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json'
+      }
+    }).then(checkStatus)
 
     spinner.succeed(`Stored acl for world ${worldName}`)
-    return data
+    return true
   } catch (error: any) {
     const message =
       error.response.headers.get('content-type') === 'application/json'
@@ -135,8 +155,8 @@ async function storeAcl(worldName: string, authChain: AuthChain, targetContent: 
   }
 }
 
-function displayPermissionToConsole(data: AccessControlList, worldName: string) {
-  if (data.allowed.length === 0) {
+function displayPermissionToConsole(data: AllowListPermissionSetting, worldName: string) {
+  if (data.wallets.length === 0) {
     console.log(
       `${chalk.dim('Only the owner of')} ${chalk.bold(worldName)} ${chalk.dim('can deploy scenes under that name.')}`
     )
@@ -146,7 +166,7 @@ function displayPermissionToConsole(data: AccessControlList, worldName: string) 
         worldName
       )}${chalk.dim(':')}`
     )
-    data.allowed.forEach((address: string) => {
+    data.wallets.forEach((address: string) => {
       console.log(`  ${chalk.bold(address)}`)
     })
   }
@@ -167,59 +187,41 @@ async function showAcl(args: arg.Result<typeof spec>) {
 async function grantAcl(args: arg.Result<typeof spec>) {
   const worldName = args._[1]
   const addresses = args._.slice(3)
-  const targetContent = args['--target-content']!
 
   try {
-    const currentData = await fetchAcl(worldName, targetContent)
-    const newAllowed = [...currentData.allowed]
-    addresses.forEach((address: EthAddress) => {
-      if (!newAllowed.includes(address)) {
-        newAllowed.push(address)
-      }
-    })
-
-    const newAcl = { ...currentData, allowed: newAllowed }
-    if (newAcl.allowed.length === currentData.allowed.length) {
-      console.log('No changes made. All the addresses requested to be granted access already have permission.')
-      return
+    if (addresses.length > 1) {
+      fail(ErrorType.WORLD_CONTENT_SERVER_ERROR, `Only one address can be granted at a time.`)
     }
-
-    await signAndStoreAcl(args, newAcl, currentData.allowed)
-  } catch (error) {
-    process.exit(1)
+    await signAndStoreAcl(args, { resource: worldName, allowed: addresses[0], method: 'put' })
+  } catch (error: any) {
+    spinner.fail(error.message)
+    throw Error(error.message)
   }
 }
 
 async function revokeAcl(args: arg.Result<typeof spec>) {
   const worldName = args._[1]
   const addresses = args._.slice(3)
-  const targetContent = args['--target-content']!
 
   try {
-    const currentData = await fetchAcl(worldName, targetContent)
-    const newAllowed = [...currentData.allowed].filter((address: EthAddress) => !addresses.includes(address))
-
-    const newAcl = { ...currentData, allowed: newAllowed }
-    if (newAcl.allowed.length === currentData.allowed.length) {
-      console.log('No changes made. None of the addresses requested to be revoked accessed had permission.')
-      return
+    if (addresses.length > 1) {
+      fail(ErrorType.WORLD_CONTENT_SERVER_ERROR, `Only one address can be revoke at a time.`)
     }
-
-    await signAndStoreAcl(args, newAcl, currentData.allowed)
-  } catch (_) {
-    process.exit(1)
+    await signAndStoreAcl(args, { resource: worldName, allowed: addresses[0], method: 'delete' })
+  } catch (error: any) {
+    spinner.fail(error.message)
+    throw Error(error.message)
   }
 }
 
 async function signAndStoreAcl(
   args: arg.Result<typeof spec>,
-  acl: { resource: string; allowed: EthAddress[] },
-  oldAllowed: EthAddress[]
+  acl: { resource: string; allowed: EthAddress; method: 'put' | 'delete' }
 ) {
-  const payload = JSON.stringify({
-    ...acl,
-    timestamp: new Date().toISOString()
-  })
+  const path = `/world/${acl.resource}/permissions/deployment/${acl.allowed}`
+  const timestamp = Date.now().toString()
+
+  const payload = [acl.method, path, timestamp, '{}'].join(':').toLowerCase()
 
   const port = args['--port']
   const parsedPort = port ? parseInt(port, 10) : void 0
@@ -227,11 +229,12 @@ async function signAndStoreAcl(
   const targetContent = args['--target-content']!
   const worldsContentServer = new WorldsContentServer({
     worldName: acl.resource,
-    allowed: acl.allowed,
-    oldAllowed: oldAllowed,
+    allowed: [acl.allowed],
+    oldAllowed: [],
     isHttps: !!args['--https'],
     targetContent,
-    linkerPort
+    linkerPort,
+    method: acl.method
   })
 
   worldsContentServer.on('link:ready', ({ url }) => {
@@ -256,12 +259,31 @@ async function signAndStoreAcl(
   const { signature, address } = await worldsContentServer.getAddressAndSignature(payload)
   const authChain = Authenticator.createSimpleAuthChain(payload, address, signature)
 
+  const headers = getAuthHeaders(authChain, timestamp)
   try {
-    const data = await storeAcl(acl.resource, authChain, targetContent)
+    await storeAcl(acl.resource, headers, targetContent, path, acl.method)
+    const data = await fetchAcl(acl.resource, targetContent)
     displayPermissionToConsole(data, acl.resource)
-  } catch (_) {
+  } catch (error) {
     process.exit(1)
   }
 
   process.exit()
+}
+
+export const AUTH_CHAIN_HEADER_PREFIX = 'x-identity-auth-chain-'
+export const AUTH_TIMESTAMP_HEADER = 'x-identity-timestamp'
+export const AUTH_METADATA_HEADER = 'x-identity-metadata'
+
+export function getAuthHeaders(authChain: AuthChain, timestamp: string) {
+  const headers: Record<string, string> = {}
+
+  authChain.forEach((link, index) => {
+    headers[`${AUTH_CHAIN_HEADER_PREFIX}${index}`] = JSON.stringify(link)
+  })
+
+  headers[AUTH_TIMESTAMP_HEADER] = timestamp
+  headers[AUTH_METADATA_HEADER] = JSON.stringify({})
+
+  return headers
 }
