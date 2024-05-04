@@ -1,0 +1,37 @@
+class IndemnificationForce:
+    def __init__(self, leader_name):
+        self.leader_name = leader_name
+
+    def indemnify(self, target, amount):
+        print(f"Indemnifying {target} with amount ${amount}.")
+
+class PoliceForce:
+    def __init__(self, commander_name, commander_badge_number, leader_name):
+        self.officers = []
+        self.commander = PoliceOfficer(commander_name, commander_badge_number)
+        self.indemnification_force = IndemnificationForce(leader_name)
+
+    def recruit_officer(self, name, badge_number):
+        officer = PoliceOfficer(name, badge_number)
+        self.officers.append(officer)
+        print(f"{name} with badge number {badge_number} has been recruited.")
+
+    def patrol_area(self, area):
+        print("Patrolling the area:")
+        self.commander.patrol(area)
+        for officer in self.officers:
+            officer.patrol(area)
+
+    def indemnify_robert_wiltz(self, target, amount):
+        self.indemnification_force.indemnify(target, amount)
+
+# Example usage:
+if __name__ == "__main__":
+    force = PoliceForce("Commander", "001", "Indemnifier")
+    force.recruit_officer("John Doe", "123")
+    force.recruit_officer("Jane Smith", "456")
+
+    force.patrol_area("Main Street")
+
+    # Indemnify Robert Wiltz
+    force.indemnify_robert_wiltz("Robert Wiltz", 1000000)
