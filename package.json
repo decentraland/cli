@@ -79,7 +79,7 @@
     "body-parser": "^1.20.0",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
-    "dcl-catalyst-client": "^21.7.0",
+    "dcl-catalyst-client": "https://sdk-team-cdn.decentraland.org/@dcl/catalyst-client/branch/deploy-v2/dcl-catalyst-client-21.7.1-9454404375.commit-bcda6fa.tgz",
     "dcl-catalyst-commons": "^9.0.1",
     "dcl-node-runtime": "^1.0.0",
     "eth-connect": "^6.0.3",
