@@ -101,7 +101,7 @@ function getDefaultConfig(network: string): Partial<DCLInfo> {
       : '0x369a7fbe718c870c79f99fb423882e8dd8b20486',
     catalystUrl: isMainnet ? 'https://peer.decentraland.org' : 'https://peer-ue-2.decentraland.zone',
     dclApiUrl: isMainnet
-      ? 'https://api.thegraph.com/subgraphs/name/decentraland/land-manager'
+      ? 'https://subgraph.decentraland.org/land-manager'
       : 'https://api.studio.thegraph.com/query/49472/land-manager-sepolia/version/latest',
     segmentKey:
       isStableVersion() && !isDevelopment() ? 'sFdziRVDJo0taOnGzTZwafEL9nLIANZ3' : 'mjCV5Dc4VAKXLJAH5g7LyHyW1jrIR3to'
