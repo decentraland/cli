@@ -33,6 +33,7 @@ export const help = () => `
       --skip-build              Skip build before deploy
       --skip-validations        Skip permissions verifications on the client side when deploying content
       --skip-file-size-check    Skip check for maximum file size when deploying to a target content server. Must be used with --target-content
+      --v2                      Force using deployment v2 protocol
 
     ${chalk.dim('Example:')}
 
@@ -68,7 +69,8 @@ export async function main(): Promise<void> {
     '--no-browser': Boolean,
     '-b': '--no-browser',
     '--port': String,
-    '-p': '--port'
+    '-p': '--port',
+    '--v2': Boolean
   })
 
   Analytics.sceneStartDeploy()
@@ -85,6 +87,7 @@ export async function main(): Promise<void> {
   const port = args['--port']
   const parsedPort = typeof port === 'string' ? parseInt(port, 10) : void 0
   const linkerPort = parsedPort && Number.isInteger(parsedPort) ? parsedPort : void 0
+  const v2 = args['--v2']
 
   spinner.create('Creating deployment structure')
 
@@ -250,7 +253,8 @@ export async function main(): Promise<void> {
 
   try {
     const response = (await catalyst.deploy(deployData, {
-      timeout: 600000
+      timeout: 600000,
+      deploymentProtocolVersion: v2 ? 'v2' : 'v1'
     })) as { message?: string }
     project.setDeployInfo({ status: 'success' })
     spinner.succeed(`Content uploaded. ${chalk.underline.bold(sceneUrl)}\n`)
