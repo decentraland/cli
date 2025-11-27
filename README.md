@@ -1,7 +1,7 @@
 # Decentraland CLI ![Decentraland Logo](css/logo.svg)
 
 [![CI](https://github.com/decentraland/cli/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/decentraland/cli/actions/workflows/ci.yml)
-[![chat on Discord](https://img.shields.io/discord/417796904760639509.svg?logo=discord)](https://discordapp.com/invite/pydYmwz)
+[![chat on Discord](https://img.shields.io/discord/417796904760639509.svg?logo=discord)](https://dcl.gg/discord)
 
 This CLI provides tooling/commands to assist you in the [scenes](https://github.com/decentraland-scenes/Awesome-Repository) development process. Some of the commands will help you scaffold a new scene project, locally start and visualize the scene in order to test it and deploy it to a [content server](https://github.com/decentraland/catalyst/tree/master/content) to be incorporated in your Decentraland parcel.
 
